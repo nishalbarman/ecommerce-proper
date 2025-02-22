@@ -1,0 +1,10 @@
+{
+  "name": "@custom-hooks/custom-clicks",
+  "version": "1.0.0",
+  "exports": {
+    ".": "./index.js"
+  },
+  "dependencies": {
+    "tsup": "^8.0.1"
+  }
+}
