@@ -29,9 +29,23 @@ const checkProductHasError = ({
   rentingPrice,
 }) => {
   const error = [];
-  // if (!Array.isArray(previewImage)) {
-  //   error.push("Preview Image should be a non empty array");
-  // }
+
+  const imageTest = /^https:\/\/i\.ibb\.co\//;
+
+  if (!imageTest.test(previewImage)) {
+    error.push("Preview Image does not have valid allowed url");
+  }
+
+  if (!Array.isArray(slideImages)) {
+    let isOk = true;
+    for (let i = 0; i < slideImages.length; i++) {
+      isOk = isOk && imageTest.test(slideImages[i]);
+      if (!isOk) {
+        error.push("Slide Images does not have valid allowed url");
+        break;
+      }
+    }
+  }
 
   if (!title || title?.length < 5) {
     error.push("Title should be of minimum 5 characters");
@@ -69,10 +83,6 @@ const checkProductHasError = ({
     );
   }
 
-  // if (!Array.isArray(slideImages)) {
-  //   error.push("Slide images should be an non empty array");
-  // }
-
   try {
     const html = cheerio.load(description);
   } catch (err) {
@@ -104,12 +114,7 @@ const checkProductHasError = ({
       //   localError.push("Preview Image is not valid");
       // }
 
-      if (
-        !variant?.previewImage ||
-        !Array.isArray(variant.previewImage) ||
-        !variant.previewImage[0]?.base64String ||
-        !variant.previewImage[0]?.type
-      ) {
+      if (!imageTest.test(variant?.previewImage)) {
         localError.push(
           "Variant +" + (index + 1) + ": " + "Preview Image is not valid"
         );
@@ -141,9 +146,16 @@ const checkProductHasError = ({
         );
       }
 
-      // if (!Array.isArray(variant?.slideImages)) {
-      //   localError.push("Slide images should be an non empty array");
-      // }
+      if (!Array.isArray(variant?.slideImages)) {
+        let isOk = true;
+        for (let i = 0; i < variant?.slideImages.length; i++) {
+          isOk = isOk && imageTest.test(variant?.slideImages[i]);
+          if (!isOk) {
+            localError.push("Slide Images does not have valid allowed url");
+            break;
+          }
+        }
+      }
 
       if (!!variant?.shippingPrice && isNaN(parseInt(variant?.shippingPrice))) {
         localError.push("Shipping price must be a valid number");
@@ -585,53 +597,19 @@ router.post("/", checkRole(1), async (req, res) => {
       return res.status(400).json({ message: error.join(", ") });
     }
 
-    try {
-      productData.previewImage = await ImageUploadHelper.uploadBulkImages(
-        productData.previewImage
-      );
-
-      if (productData.slideImages.length > 0) {
-        const slideImages = await ImageUploadHelper.uploadBulkImages(
-          productData.slideImages
-        );
-        productData.slideImages = slideImages;
-      }
-
-      const variants = productData.productVariant;
-
-      for (let i = 0; i < variants.length; i++) {
-        variants[i].previewImage = await ImageUploadHelper.uploadBulkImages(
-          variants[i].previewImage
-        );
-        if (variants[i].slideImages.length > 0) {
-          const slideImages = await ImageUploadHelper.uploadBulkImages(
-            variants[i].slideImages
-          );
-          variants[i].slideImages = slideImages;
-        }
-      }
-
-      // console.log("Variants --> is object or array -->", variants);
-    } catch (error) {
-      console.error(error);
-      return res.status(400).json({ message: "File upload error" });
-    }
-
-    // Now here till this point we have uploaded all the images in firebase storage.. (previewImage, slideImages, variant.previewImage, variant.slideImages ...)
-
     // Now we are going to save the product to our database
 
     console.log(productData);
 
     // Create a new product document
     const newProduct = new Product({
-      previewImage: productData.previewImage[0],
+      previewImage: productData.previewImage,
       title: productData.title,
       category: productData.category,
-      // category: "65f6c9f882ba818ab0e43d64",
       slideImages: productData.slideImages,
       description: productData.description,
-      productType: productData.productType,
+      // productType: productData.productType,
+      productType: "buy", // hardcoded to buy cause this project is only for buy
       shippingPrice: +productData.shippingPrice,
       availableStocks: +productData.availableStocks,
       rentingPrice: !!productData.variant
@@ -653,7 +631,7 @@ router.post("/", checkRole(1), async (req, res) => {
           const variantData = {
             product: newProduct._id,
 
-            previewImage: value.previewImage[0],
+            previewImage: value.previewImage,
             slideImages: value.slideImages,
 
             size: value.size,

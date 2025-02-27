@@ -39,27 +39,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ADMIN ROUTE : Product create route
+// ADMIN ROUTE : Category create route
 router.post("/", checkRole(1), async (req, res) => {
   try {
     const categoryData = req.body?.categoryData;
 
-    console.log(req.body);
-
     if (!categoryData) {
       return res.status(400).json({ message: "Category Data Not Found" });
     }
-
-    try {
-      categoryData.categoryImageUrl = await ImageUploadHelper.uploadBulkImages(
-        categoryData.categoryImageUrl
-      );
-    } catch (error) {
-      console.error(error);
-      return res.status(400).json({ message: "File upload error" });
-    }
-
-    // Now here till this point we have uploaded image in firebase storage..
 
     // Now we are going to save the product to our database
 
@@ -67,7 +54,7 @@ router.post("/", checkRole(1), async (req, res) => {
 
     // Create a new product document
     const newCategory = await Category.create({
-      categoryImageUrl: categoryData.categoryImageUrl[0],
+      categoryImageUrl: categoryData.categoryImageUrl,
       categoryName: categoryData.categoryName,
       categoryKey: categoryData.categoryName
         .trim()
@@ -85,7 +72,7 @@ router.post("/", checkRole(1), async (req, res) => {
   }
 });
 
-// ADMIN ROUTE : Product create route
+// ADMIN ROUTE : Category update route
 router.patch("/update/:categoryId", checkRole(1), async (req, res) => {
   try {
     const categoryId = req.params?.categoryId;
@@ -140,7 +127,7 @@ router.patch("/update/:categoryId", checkRole(1), async (req, res) => {
   }
 });
 
-// ADMIN ROUTE : Product create route
+// ADMIN ROUTE : Category delete route
 router.delete("/:categoryId", checkRole(1), async (req, res) => {
   try {
     // const token = req?.jwt?.token || null;

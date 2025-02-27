@@ -2,5 +2,9 @@
   "inference.model": "stable-code:3b-code-q4_0",
   "inference.custom.format": "deepseek",
   "postman.settings.dotenv-detection-notification-visibility": false,
-  "CodeGPT.apiKey": "Ollama"
+  "CodeGPT.apiKey": "Ollama",
+  "dish-ai-commit.base.provider": "Ollama",
+  "aiCommitAssistant.apiProvider": "ollama",
+  "aiCommitAssistant.ollama.model": "deepseek-r1:8b",
+  "aiCommitAssistant.showDiagnostics": true
 }
