@@ -40,11 +40,13 @@ router.post("/admin-login", async (req, res) => {
 
     console.log(
       !!user
-        ? `We got one user with given email: ${user?.email} and Role: ${user.role?.name}`
+        ? `We got one user with given email: ${user?.email} and Role: ${user.role?.roleName}`
         : "No user found for the given email"
     );
 
-    if (!user || user.role?.name !== "admin") {
+    console.log(user.role);
+
+    if (!user || user.role?.roleKey !== "admin") {
       return res.status(400).json({
         message: "The provided credentials are invalid.",
       });
@@ -66,7 +68,9 @@ router.post("/admin-login", async (req, res) => {
       {
         _id: user._id,
         name: user.name,
-        role: user.role.role,
+        roleName: user.role.roleName,
+        roleNumber: user.role.roleNumber,
+        roleKey: user.role.roleKey,
         email: user.email,
         mobileNo: user.mobileNo,
       },
@@ -78,6 +82,9 @@ router.post("/admin-login", async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
+        roleName: user.role.roleName,
+        roleNumber: user.role.roleNumber,
+        roleKey: user.role.roleKey,
         mobileNo: user.mobileNo,
         jwtToken: jwtToken,
       },
@@ -127,7 +134,9 @@ router.post("/login", async (req, res) => {
       {
         _id: user._id,
         name: user.name,
-        role: user.role.role,
+        roleName: user.role.roleName,
+        roleNumber: user.role.roleNumber,
+        roleKey: user.role.roleKey,
         email: user.email,
         mobileNo: user.mobileNo,
         center: user?.center,
@@ -199,29 +208,29 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ status: false, message: error.join(", ") });
     }
 
-    const otpFromDatabase = await Otp.findOne({ mobileNo, email, name }).sort({
-      createdAt: "desc",
-    });
+    // const otpFromDatabase = await Otp.findOne({ mobileNo, email, name }).sort({
+    //   createdAt: "desc",
+    // });
 
-    if (!otpFromDatabase) {
-      error.push("OTP is invalid");
-    }
+    // if (!otpFromDatabase) {
+    //   error.push("OTP is invalid");
+    // }
 
-    const dateObject = new Date(otpFromDatabase?.createdAt);
-    const dueTimestamp = dateObject.getTime() + 10 * 60 * 1000;
+    // const dateObject = new Date(otpFromDatabase?.createdAt);
+    // const dueTimestamp = dateObject.getTime() + 10 * 60 * 1000;
 
-    console.log(req.body.otp);
-    // console.log("retrieved OTP from db", otpFromDatabase.otp);
-    // console.log("Due time ==>", Math.round(dueTimestamp));
-    // console.log("Current time ==>", Date.now());
-    // console.log(Math.round(dueTimestamp) < Date.now());
+    // console.log(req.body.otp);
+    // // console.log("retrieved OTP from db", otpFromDatabase.otp);
+    // // console.log("Due time ==>", Math.round(dueTimestamp));
+    // // console.log("Current time ==>", Date.now());
+    // // console.log(Math.round(dueTimestamp) < Date.now());
 
-    if (
-      otpFromDatabase?.otp != req.body.otp ||
-      Math.round(dueTimestamp) < Date.now()
-    ) {
-      error.push("OTP is invalid");
-    }
+    // if (
+    //   otpFromDatabase?.otp != req.body.otp ||
+    //   Math.round(dueTimestamp) < Date.now()
+    // ) {
+    //   error.push("OTP is invalid");
+    // }
 
     if (error.length > 0) {
       return res.status(400).json({ status: false, message: error.join(", ") });
@@ -245,7 +254,9 @@ router.post("/signup", async (req, res) => {
       {
         _id: userObject._id,
         name: userObject.name,
-        role: 0, //! Default role for user is 0
+        roleName: "user",
+        roleKey: "user",
+        roleNumber: 0, //! Default role for user is 0
         email: userObject.email,
         mobileNo: userObject.mobileNo,
         center: userObject?.center,

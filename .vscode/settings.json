@@ -5,6 +5,6 @@
   "CodeGPT.apiKey": "Ollama",
   "dish-ai-commit.base.provider": "Ollama",
   "aiCommitAssistant.apiProvider": "ollama",
-  "aiCommitAssistant.ollama.model": "deepseek-r1:8b",
+  "aiCommitAssistant.ollama.model": "stable-code:3b-code-q4_0",
   "aiCommitAssistant.showDiagnostics": true
 }

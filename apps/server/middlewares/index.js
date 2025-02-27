@@ -1,7 +1,7 @@
 const getTokenDetails = require("../helpter/getTokenDetails");
 
 const checkRole = (...allowedRoles) => {
-  // 0 = user, 1 = admin, 2 = center
+  // 0 = user, 1 = admin, 2 = center - more can be added through admin panel
 
   return (req, res, next) => {
     try {
@@ -19,12 +19,14 @@ const checkRole = (...allowedRoles) => {
 
       console.log(
         "User Details from checkRole middleware function ->",
-        userDetails.role
+        userDetails.roleNumber
       );
 
-      // const allowedRoles = role.split("|");
-      if (allowedRoles.includes(userDetails.role)) {
-        req.jwt.role = userDetails?.role;
+      console.log("Allowed Roles", allowedRoles);
+      console.log("User Role", userDetails.roleNumber);
+
+      if (allowedRoles.includes(userDetails.roleNumber)) {
+        req.jwt.role = userDetails?.roleNumber;
         req.jwt.center = userDetails?.center;
         return next();
       }

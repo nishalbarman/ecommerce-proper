@@ -97,6 +97,8 @@ app.use("/address", require("./routes/address/address.routes"));
 app.use("/feedbacks", require("./routes/feedbacks/feedbacks.routes"));
 app.use("/orders", require("./routes/order/order.routes"));
 
+app.use("/roles", require("./routes/roles/roles.routes"));
+
 app.use(
   "/uploader/image/imgbb",
   require("./routes/uploader/image/imgbb.routes")

@@ -76,13 +76,15 @@ router.patch("/update", async (req, res) => {
       {
         $set: updateObject,
       }
-    );
+    ).populate("role");
 
     const jwtToken = jwt.sign(
       {
         _id: update._id,
         name: update.name,
-        role: update.role.role,
+        roleName: update.role.roleName,
+        roleNumber: update.role.roleNumber,
+        roleKey: update.role.roleKey,
         email: update.email,
         mobileNo: update.mobileNo,
       },
