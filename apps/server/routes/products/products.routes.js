@@ -314,19 +314,19 @@ const checkUpdatedProductHasError = ({
 
 router.get("/", async (req, res) => {
   try {
-    const searchParams = req.query;
+    const searchQuery = req.query;
 
-    let PAGE = searchParams.page || 0;
-    const LIMIT = searchParams.limit || 50;
+    const PAGE = searchQuery?.page || 0; // 0 because of material ui table. It uses 0 as default page number for starting page.
+    const LIMIT = searchQuery?.limit || 50;
     const SKIP = PAGE * LIMIT;
 
-    const SORT = searchParams["sort"];
-    const FILTER = searchParams["filter"];
+    const SORT = searchQuery["sort"];
+    const FILTER = searchQuery["filter"];
 
     // filter result by query params
-    const TYPE = searchParams?.productType;
-    const CATEGORY = searchParams?.category;
-    const QUERY = searchParams?.query;
+    const TYPE = searchQuery?.productType;
+    const CATEGORY = searchQuery?.category;
+    const QUERY = searchQuery?.query;
 
     console.log(CATEGORY);
 
@@ -536,7 +536,7 @@ router.get("/admin-view/:productId", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Product create route
-router.post("/", async (req, res) => {
+router.post("/", checkRole(1), async (req, res) => {
   try {
     const token = req?.jwt?.token || null;
     if (!token) {

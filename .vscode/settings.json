@@ -1,0 +1,6 @@
+{
+  "inference.model": "stable-code:3b-code-q4_0",
+  "inference.custom.format": "deepseek",
+  "postman.settings.dotenv-detection-notification-visibility": false,
+  "CodeGPT.apiKey": "Ollama"
+}

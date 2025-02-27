@@ -79,7 +79,7 @@ function Cart({ userCartItems, userWishlistItems }) {
       }
 
       const response = await axios.get(
-        `/api/v1/coupon?code=${couponCode.value}`
+        `${process.env.NEXT_BACKEND_SERVER}/coupon?code=${couponCode.value}`
       );
 
       const data = response.data;
@@ -166,7 +166,7 @@ function Cart({ userCartItems, userWishlistItems }) {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `/api/v1/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
+          `${process.env.NEXT_BACKEND_SERVER}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
         ); // generate hash with coupon
 
         const pay = response.data.paymentDetails;
@@ -216,7 +216,7 @@ function Cart({ userCartItems, userWishlistItems }) {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `/api/v1/payment/razorpay/create-cart-order${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
+          `${process.env.NEXT_BACKEND_SERVER}/payment/razorpay/create-cart-order${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
         ); // generate razor pay order id and also apply coupon if applicable
 
         const config = {
@@ -327,7 +327,9 @@ function Cart({ userCartItems, userWishlistItems }) {
 
   const getPaymentGateways = async () => {
     try {
-      const response = await axios.get(`/api/v1/payment/gateways`);
+      const response = await axios.get(
+        `${process.env.NEXT_BACKEND_SERVER}/payment/gateways`
+      );
       console.log(response.data.data);
       setPaymentGatewaysList(response.data.data);
     } catch (error) {

@@ -12,7 +12,9 @@ import { useEffect, useState } from "react";
 export default function Order() {
   const getOrderDetails = async () => {
     try {
-      const response = await axios.get(`/api/v1/order`);
+      const response = await axios.get(
+        `${process.env.NEXT_BACKEND_SERVER}/order`
+      );
       setOrderData(response.data.data);
     } catch (error) {
       console.log("Axios response orders-->", error.response.data);

@@ -11,7 +11,10 @@ async function getCategories() {
 
     console.log("backendURL", backendUrl);
 
-    const url = new URL("/api/v1/categories/list", backendUrl);
+    const url = new URL(
+      "${process.env.NEXT_BACKEND_SERVER}/categories/list",
+      backendUrl
+    );
     // url.searchParams.get(page, )
 
     console.log(url.href);

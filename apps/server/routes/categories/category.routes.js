@@ -11,15 +11,15 @@ router.get("/", async (req, res) => {
   try {
     const searchQuery = req.query;
 
-    const PAGE = searchQuery?.page || 0;
-    const LIMIT = searchQuery?.limit || 0;
-    const SKIP = PAGE * LIMIT;
+    const PAGE = searchQuery?.page || 1;
+    const LIMIT = searchQuery?.limit || 20;
+    const SKIP = (PAGE - 1) * LIMIT;
 
     const totalCounts = await Category.countDocuments({});
 
     let categories;
 
-    if (LIMIT === 0 || PAGE === 0) {
+    if (LIMIT === 0) {
       categories = await Category.find({}).sort({ createdAt: "desc" });
     } else {
       categories = await Category.find({})
@@ -40,18 +40,8 @@ router.get("/", async (req, res) => {
 });
 
 // ADMIN ROUTE : Product create route
-router.post("/", async (req, res) => {
+router.post("/", checkRole(1), async (req, res) => {
   try {
-    const token = req?.jwt?.token || null;
-    if (!token) {
-      return res.redirect("/auth/login");
-    }
-
-    const userDetails = getTokenDetails(token);
-    if (!userDetails || !userDetails?.role || userDetails.role !== 1) {
-      return res.redirect("/auth/login");
-    }
-
     const categoryData = req.body?.categoryData;
 
     console.log(req.body);

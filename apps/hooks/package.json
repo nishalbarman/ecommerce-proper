@@ -1,6 +1,7 @@
 {
   "name": "hooks",
   "version": "1.0.0",
+  "private": true,
   "description": "Payment Hook is a repository where I am keeping all the hooks related to the payment gateways that I am going to use to collect payments.",
   "main": "server.js",
   "scripts": {

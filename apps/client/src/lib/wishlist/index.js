@@ -6,7 +6,10 @@ export async function fetchWishlist({ page = 0, limit = 50 } = {}) {
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL("/api/v1/wishlist/list", backendUrl);
+    const url = new URL(
+      "${process.env.NEXT_BACKEND_SERVER}/wishlist/list",
+      backendUrl
+    );
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
 
@@ -35,7 +38,10 @@ export const addProductToWishlist = async ({
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL("/api/v1/wishlist/create", backendUrl);
+    const url = new URL(
+      "${process.env.NEXT_BACKEND_SERVER}/wishlist/create",
+      backendUrl
+    );
 
     await fetch(url.href, {
       headers: {
@@ -65,7 +71,10 @@ export const updateWishlistItem = async ({
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL(`/api/v1/wishlist/update/${id}`, backendUrl);
+    const url = new URL(
+      `${process.env.NEXT_BACKEND_SERVER}/wishlist/update/${id}`,
+      backendUrl
+    );
 
     await fetch(url.href, {
       headers: {
@@ -86,7 +95,10 @@ export const deleteWishlistItem = async ({ id = undefined }) => {
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL(`/api/v1/wishlist/delete/${id}`, backendUrl);
+    const url = new URL(
+      `${process.env.NEXT_BACKEND_SERVER}/wishlist/delete/${id}`,
+      backendUrl
+    );
 
     await fetch(url.href, {
       headers: {

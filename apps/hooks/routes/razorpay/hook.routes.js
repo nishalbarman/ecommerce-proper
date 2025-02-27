@@ -1,9 +1,9 @@
 const { Router } = require("express");
-const { OrderModel } = require("../../../model/model");
+const { OrderModel } = require("../../model/model");
 
 const router = Router();
 
-router.post("/crafter/razorpay/order_success", async (req, res) => {
+router.post("/razorpay/order_success", async (req, res) => {
   try {
     console.log(req.body.payload.entity);
     const { notes: transactionId } = req.body.payload.entity;

@@ -11,6 +11,7 @@ import {
   REGISTER,
   PersistConfig,
 } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

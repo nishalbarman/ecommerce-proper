@@ -35,14 +35,20 @@ const extractToken = async (req, res, next) => {
       req.url === "/hook/razorpay" ||
       req.url === "/stripe/hook" ||
       req.url === "/get-image-bg-color" ||
+      req.url === "/products/view/:productId" ||
       req.url === "/categories/view/:categoryId" ||
-      req.url === "/orders/get-order-chart-data";
+      req.url === "/orders/get-order-chart-data" ||
+      req.url === "/uploader/image/imgbb/upload" ||
+      req.url.startsWith("/uploader/image/list");
 
     if (publicRoute) {
       return next();
     }
 
-    const token = req.cookies;
+    const token = req.cookies?.token;
+
+    console.log("What are cookies -->", JSON.stringify(token));
+
     console.log("Token", token);
 
     if (!token) {
@@ -62,7 +68,8 @@ const extractToken = async (req, res, next) => {
 
 app.use(
   cors({
-    origin: "*",
+    // origin: "*",
+    origin: "http://localhost:5000", // Allow requests from this origin
     credentials: true,
   })
 );
@@ -89,6 +96,15 @@ app.use("/cart", require("./routes/cart/cart.routes"));
 app.use("/address", require("./routes/address/address.routes"));
 app.use("/feedbacks", require("./routes/feedbacks/feedbacks.routes"));
 app.use("/orders", require("./routes/order/order.routes"));
+
+app.use(
+  "/uploader/image/imgbb",
+  require("./routes/uploader/image/imgbb.routes")
+);
+app.use(
+  "/uploader/image/list",
+  require("./routes/uploader/image/getImage.routes")
+);
 
 app.use("/colors", require("./routes/colors/color.routes"));
 app.use("/size", require("./routes/sizes/sizes.routes"));
@@ -130,7 +146,7 @@ app.use(
   require("./routes/image-bg-color/imageColor.routes")
 );
 
-app.get("/helloworld", (_, res) => {
+app.get("/", (_, res) => {
   res.send("Hello World!");
 });
 

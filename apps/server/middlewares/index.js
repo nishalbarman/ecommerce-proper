@@ -7,7 +7,7 @@ const checkRole = (...allowedRoles) => {
     try {
       const token = req?.jwt?.token;
       if (!token) {
-        return res.redirect("/auth/login");
+        return res.status(400).json({ message: "JWT Token Not Found" });
       }
 
       const userDetails = getTokenDetails(token);

@@ -38,6 +38,12 @@ router.post("/admin-login", async (req, res) => {
 
     const user = await User.findOne({ email }).populate("role");
 
+    console.log(
+      !!user
+        ? `We got one user with given email: ${user?.email} and Role: ${user.role?.name}`
+        : "No user found for the given email"
+    );
+
     if (!user || user.role?.name !== "admin") {
       return res.status(400).json({
         message: "The provided credentials are invalid.",
@@ -45,6 +51,11 @@ router.post("/admin-login", async (req, res) => {
     }
 
     const isPassValid = bcrypt.compareSync(password, user.password);
+
+    console.log(
+      `Is the provided password valid after comparing with bcrypt: for password: ${password} ---> ${isPassValid}`
+    );
+
     if (!isPassValid) {
       return res.status(400).json({
         message: "The provided credentials are invalid.",
@@ -206,7 +217,7 @@ router.post("/signup", async (req, res) => {
     // console.log(Math.round(dueTimestamp) < Date.now());
 
     if (
-      otpFromDatabase.otp != req.body.otp ||
+      otpFromDatabase?.otp != req.body.otp ||
       Math.round(dueTimestamp) < Date.now()
     ) {
       error.push("OTP is invalid");

@@ -68,7 +68,7 @@ const Carousel = ({ items = [] }) => {
     ) {
       const calculateAverageColor = async () => {
         const itemsWithBGColorPromises = items.map(async (item) => {
-          const response = await axios.post(`/api/v1/get-image-color`, {
+          const response = await axios.post(`${process.env.NEXT_BACKEND_SERVER}/get-image-color`, {
             imageUrl: `${item.imageUrl}`,
           });
 

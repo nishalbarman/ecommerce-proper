@@ -144,23 +144,6 @@ router.post("/:productType", checkRole(0), async (req, res) => {
 
     const user = await User.findById(userDetails._id);
 
-    // if (!user.stripeCustomer) {
-    //   const customer = await stripe.customers.create({
-    //     email: user.email, // Provide the email address
-    //     name: user.name, // Provide the customer's name
-    //     phone: user.mobileNo,
-    //     // Add other details as needed
-    //   });
-    //   user.stripeCustomer = customer;
-    // }
-
-    // await user.save({ validateBeforeSave: false });
-
-    // const ephemeralKey = await stripe.ephemeralKeys.create(
-    //   { customer: user.stripeCustomer.id },
-    //   { apiVersion: "2024-04-10" }
-    // );
-
     const paymentTxnId = uuidv4();
     const orderGroupID = uuidv4();
 

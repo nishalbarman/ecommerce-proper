@@ -19,6 +19,7 @@ const { resolve } = require("path");
 
 const PAYTM_MERCHANT_KEY = process.env.PAYTM_MKEY;
 const PAYTM_MID = process.env.PAYTM_MID;
+const PAYTM_CHANNEL_ID = process.env.PAYTM_CHANNEL_ID;
 
 router.post("/:productType", checkRole(0), async (req, res) => {
   try {
@@ -197,7 +198,7 @@ router.post("/:productType", checkRole(0), async (req, res) => {
     );
 
     paytmParams.head = {
-      channelId: "***REMOVED***",
+      channelId: PAYTM_CHANNEL_ID,
       signature: checksum,
     };
 

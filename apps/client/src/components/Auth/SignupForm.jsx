@@ -11,7 +11,7 @@ import {
   isValidEmail,
   isValidIndianMobileNumber,
   isValidPassword,
-} from "../../helpter/utils";
+} from "@/helpter/utils";
 
 const validateInputs = (name, value) => {
   switch (name) {
@@ -61,7 +61,7 @@ function SignupForm() {
     setIsLoading(true);
     const loadingToast = toast.loading("Signing up...");
     try {
-      const response = await axios.post(`/api/v1/users/signup`, {
+      const response = await axios.post(`${process.env.NEXT_BACKEND_SERVER}/auth/signup`, {
         name: formData.name.value,
         email: formData.email.value,
         mobileNo: formData.mobileNo.value,

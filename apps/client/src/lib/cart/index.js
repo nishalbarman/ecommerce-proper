@@ -6,7 +6,7 @@ import { getBackendUrl } from "@/helpter/utils";
 
 export const fetchCart = async ({ page = 0, limit = 0 } = {}) => {
   try {
-    const url = new URL("/api/v1/cart/list");
+    const url = new URL("${process.env.NEXT_BACKEND_SERVER}/cart/list");
     url.searchParams.append("productType", "buy");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
@@ -34,7 +34,10 @@ export const addProductToCart = async ({
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL("/api/v1/cart/create", backendUrl);
+    const url = new URL(
+      "${process.env.NEXT_BACKEND_SERVER}/cart/create",
+      backendUrl
+    );
 
     const res = await fetch(url.href, {
       headers: {
@@ -87,7 +90,10 @@ export const updateCartItemQuantity = async ({
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL(`/api/v1/cart/update`, backendUrl);
+    const url = new URL(
+      `${process.env.NEXT_BACKEND_SERVER}/cart/update`,
+      backendUrl
+    );
     url.searchParams.append(cart, id);
 
     const res = await fetch(url.href, {
@@ -111,7 +117,10 @@ export const deleteCartItem = async ({ id = undefined, token = undefined }) => {
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL(`/api/v1/cart/delete/${id}`, backendUrl);
+    const url = new URL(
+      `${process.env.NEXT_BACKEND_SERVER}/cart/delete/${id}`,
+      backendUrl
+    );
 
     await fetch(url.href, {
       headers: {

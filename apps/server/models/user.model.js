@@ -51,7 +51,7 @@ User.schema.path("email").validate({
 
 User.schema.path("email").validate({
   validator: async (value) => {
-    const count = await User.findOne({ email: value }).count();
+    const count = await User.findOne({ email: value }).countDocuments();
     return count === 0;
   },
   message: "An account with the given email address is already available",

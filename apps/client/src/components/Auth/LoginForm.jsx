@@ -60,7 +60,7 @@ function LoginForm() {
     const loadingToast = toast.loading("Logging in...");
 
     try {
-      const response = await axios.post(`/api/v1/user/login`, {
+      const response = await axios.post(`${process.env.NEXT_BACKEND_SERVER}/auth/login`, {
         mobileNo: formData.mobileNo.value,
         password: formData.password.value,
       });

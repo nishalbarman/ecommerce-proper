@@ -1,22 +1,22 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import Navbar from "../components/Navbar/Navbar";
-import BannerTop from "../components/SliderTop/TopSlider";
-import FlashSale from "../components/FlashSale/FlashSale";
-import BestSelling from "../components/BestSelling/BestSelling";
-import MiddleBanner from "../components/MiddleBanner/MiddleBanner";
-import Categories from "../components/Categories/Category";
-import ExploreProducts from "../components/ExploreProducts/ExploreProducts";
-import NewArrivalSection from "../components/NewArrivalSection/NewArrivalSection";
-import Features from "../components/Features/Features";
-import Footer from "../components/Footer/Footer";
-import { getBackendUrl } from "../helpter/utils";
+import Navbar from "@/components/Navbar/Navbar";
+import BannerTop from "@/components/SliderTop/TopSlider";
+import FlashSale from "@/components/FlashSale/FlashSale";
+import BestSelling from "@/components/BestSelling/BestSelling";
+import MiddleBanner from "@/components/MiddleBanner/MiddleBanner";
+import Categories from "@/components/Categories/Category";
+import ExploreProducts from "@/components/ExploreProducts/ExploreProducts";
+import NewArrivalSection from "@/components/NewArrivalSection/NewArrivalSection";
+import Features from "@/components/Features/Features";
+import Footer from "@/components/Footer/Footer";
+import { getBackendUrl } from "@/helpter/utils";
 
 const getSaleDetails = async () => {
   try {
     const backendUrl = getBackendUrl();
-    const response = await fetch(`${backendUrl}api/v1/sale-details`);
+    const response = await fetch(`${backendUrl}/sale-details`);
     const data = await response.json();
     return data;
   } catch (error) {

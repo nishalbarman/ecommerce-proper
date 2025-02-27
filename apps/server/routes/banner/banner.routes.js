@@ -6,13 +6,18 @@ const bannerRouter = express.Router();
 
 bannerRouter.get("/", async (req, response) => {
   try {
-    const { limit } = req.nextUrl.searchParams;
+    const searchQuery = req.searchQuery;
+
+    const PAGE = searchQuery?.page || 1;
+    const LIMIT = searchQuery?.limit || 20;
+    const SKIP = (PAGE - 1) * LIMIT;
 
     const bannerList = await Banner.find({})
       .sort({ createdAt: "desc" })
-      .limit(limit);
+      .skip(SKIP)
+      .limit(LIMIT);
     if (bannerList) {
-      return NextResponse.json({ status: true, data: bannerList });
+      return response.json({ status: true, data: bannerList });
     }
     return response.json({ status: false, message: "No Banner Found" });
   } catch (err) {

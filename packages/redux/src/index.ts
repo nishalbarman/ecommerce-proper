@@ -18,5 +18,5 @@ export * from "./apis/centerAddresApi";
 export * from "./apis/userApi";
 export * from "./apis/wishlistApi";
 
-export * from "./hooks";
+export * from "./hooks/index";
 export * from "./store";

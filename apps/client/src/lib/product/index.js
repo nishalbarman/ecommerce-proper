@@ -10,7 +10,10 @@ export async function fetchProducts({
   try {
     const backendUrl = getBackendUrl();
 
-    const url = new URL("/api/v1/products/list", backendUrl);
+    const url = new URL(
+      "${process.env.NEXT_BACKEND_SERVER}/products/list",
+      backendUrl
+    );
 
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);

@@ -8,7 +8,7 @@ import { getBackendUrl } from "../../helpter/utils";
 const getBanners = async () => {
   try {
     const backendUrl = getBackendUrl();
-    const response = await axios.get(`${backendUrl}api/v1/banner`);
+    const response = await axios.get(`${backendUrl}/banner`);
     return response.data.data;
   } catch (error) {
     return [];

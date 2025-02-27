@@ -1,28 +1,18 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
-  "pipeline": {
+  "globalDependencies": ["**/.env.*local", "**/.env"],
+  "tasks": {
     "build": {
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "dotEnv": [
-        ".env.production.local",
-        ".env.local",
-        ".env.production",
-        ".env"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "test": {
-      "dotEnv": [".env.test.local", ".env.test", ".env"]
+      "outputs": ["coverage/**"],
+      "dependsOn": ["build"]
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "dotEnv": [
-        ".env.development.local",
-        ".env.local",
-        ".env.development",
-        ".env"
-      ]
+      "persistent": true
     }
   }
 }
