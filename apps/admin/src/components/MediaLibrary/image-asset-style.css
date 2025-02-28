@@ -1,0 +1,4 @@
+.react-media-library__file-library-card__image,
+.react-media-library__file-library-selected-items-card__image {
+  object-fit: contain !important;
+}
