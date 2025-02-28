@@ -150,7 +150,10 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
       { apiVersion: "2024-04-10" }
     );
 
-    const orderGroupID = uuidv4();
+    // const orderGroupID = uuidv4();
+
+    // const paymentTxnId = generateUniqueId("PM");
+    const orderGroupID = generateUniqueId("JK");
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: paymentObject.amount,

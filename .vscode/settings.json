@@ -6,5 +6,6 @@
   "dish-ai-commit.base.provider": "Ollama",
   "aiCommitAssistant.apiProvider": "ollama",
   "aiCommitAssistant.ollama.model": "stable-code:3b-code-q4_0",
-  "aiCommitAssistant.showDiagnostics": true
+  "aiCommitAssistant.showDiagnostics": true,
+  "GitCommitPlugin.FillSubjectWithCurrent": true
 }

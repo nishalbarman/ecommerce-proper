@@ -12,6 +12,7 @@ import CategoryList from "../components/CategorySection/CategoryList";
 import PrivateRoute from "../PrivateRoute";
 import AssetManagerPage from "../pages/AssetManagerPage/AssetManagerPage";
 import RoleList from "../components/RolesSection/RolesList";
+import ViewProduct from "../components/ProductsSection/ViewProduct";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -56,6 +57,14 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <ProductList />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/product/view"
+        element={
+          <PrivateRoute>
+            <ViewProduct />
           </PrivateRoute>
         }
       />

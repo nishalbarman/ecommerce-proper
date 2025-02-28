@@ -1,5 +1,5 @@
-import { useAppSelector } from "../redux/index";
 import React from "react";
+import { useCookies } from "react-cookie";
 import { Navigate } from "react-router-dom";
 
 type PrivateRouteProps = {
@@ -7,9 +7,9 @@ type PrivateRouteProps = {
 };
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const auth = useAppSelector((state) => state.auth);
+  const [cookies] = useCookies(); // cookies will contain all the keys and values of the cookies = {[key]: value}
 
-  if (!auth.jwtToken) {
+  if (!cookies.token) {
     return <Navigate to={"/login"} />;
   }
 

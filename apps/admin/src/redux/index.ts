@@ -15,6 +15,7 @@ export * from "./apis/userApi";
 export * from "./apis/wishlistApi";
 export * from "./apis/imageApi";
 export * from "./apis/roleApi";
+export * from "./apis/productApi";
 
 export * from "./hooks";
 export * from "./store";

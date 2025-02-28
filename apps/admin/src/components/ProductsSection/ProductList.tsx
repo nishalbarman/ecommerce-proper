@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
@@ -10,123 +10,88 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-import cAxios from "../../axios/cutom-axios";
-
 import { LuPencilLine } from "react-icons/lu";
-import { MdDelete, MdOutlineDelete } from "react-icons/md";
+import { MdOutlineDelete } from "react-icons/md";
 
 import { Box, Button, MenuItem, lighten } from "@mui/material";
 
 import { toast } from "react-toastify";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { ClipLoader } from "react-spinners";
 import ConfirmModal from "../ConfirmModal";
 import ProductUpdateModal from "./ProductUpdateModal";
-import { useAppSelector } from "../../redux/index";
 import { Product } from "../../types";
 import { FaRegEye } from "react-icons/fa";
+import {
+  useGetProductsQuery,
+  useDeleteProductsMutation,
+} from "../../redux/apis/productApi";
 
 const ListProduct = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const { jwtToken } = useAppSelector((state) => state.auth);
-
-  //data and fetching state
-  const [data, setData] = useState([]);
-  const [isError, setIsError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
-  const [rowCount, setRowCount] = useState(0);
-
-  //table state
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const fetchProductData = async () => {
-    if (!data.length) {
-      setIsLoading(true);
-    } else {
-      setIsRefetching(true);
+  // RTK Query hooks
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
+  const { data, isError, isLoading, isFetching, refetch } = useGetProductsQuery(
+    {
+      page: pagination.pageIndex,
+      limit: pagination.pageSize,
     }
+  );
 
-    const url = new URL("/products", process.env.VITE_APP_API_URL);
+  const [deleteProducts] = useDeleteProductsMutation();
 
-    url.searchParams.set("page", `${pagination.pageIndex}`);
-    url.searchParams.set("limit", `${pagination.pageSize}`);
+  const [deleteProductId, setDeleteProductId] = useState<string[] | null>(null);
+  const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
+
+  const handleDeleteProduct = async () => {
+    if (!deleteProductId) return;
 
     try {
-      const res = await cAxios.get(url.href, {
-        headers: {
-          authorization: `Bearer ${jwtToken}`,
-        },
-      });
-      setData(res.data?.data || []);
-      setRowCount(res.data?.totalProductCount || 0);
+      setDeleteButtonLoading(true);
+      await deleteProducts(deleteProductId).unwrap();
+      toast.success("Product(s) deleted successfully");
+      setDeleteProductId(null);
+      refetch(); // Refetch data after deletion
     } catch (error: any) {
-      setIsError(true);
-      console.error(error);
-      return;
+      toast.error(error.data?.message || "Failed to delete product(s)");
+    } finally {
+      setDeleteButtonLoading(false);
     }
-    setIsError(false);
-    setIsLoading(false);
-    setIsRefetching(false);
   };
-
-  //if you want to avoid useEffect, look at the React Query example instead
-  useEffect(() => {
-    fetchProductData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.pageIndex, pagination.pageSize]);
 
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
       {
-        id: "prodcut_info", //id used to define `group` column
+        id: "product_info",
         header: "Product Information",
         columns: [
           {
-            accessorKey: "previewImage", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
+            accessorKey: "previewImage",
             header: "Preview Image",
             size: 50,
             enableColumnFilter: false,
-            enableColumnFilterModes: false,
-            enableFilters: false,
             Cell: ({ cell }) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <img
                   className="object-contain rounded-md"
                   alt="avatar"
                   height={30}
                   src={cell.getValue() as string}
                   loading="lazy"
-                  style={{
-                    width: 50,
-                    height: 50,
-                  }}
+                  style={{ width: 50, height: 50 }}
                 />
               </Box>
             ),
           },
           {
-            accessorFn: (row) => `${row.title}`, //accessorFn used to join multiple data into a single cell
-            id: "title", //id is still required when using accessorFn instead of accessorKey
+            accessorFn: (row) => row.title,
+            id: "title",
             header: "Title",
             size: 250,
             Cell: ({ renderedCellValue }) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <span className="font-bold">{renderedCellValue}</span>
               </Box>
             ),
@@ -137,12 +102,7 @@ const ListProduct = () => {
             header: "Category",
             size: 300,
             Cell: ({ renderedCellValue }) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <span className="font-bold">{renderedCellValue || "NA"}</span>
               </Box>
             ),
@@ -155,7 +115,7 @@ const ListProduct = () => {
 
   const table = useMaterialReactTable({
     columns,
-    data,
+    data: data?.data || [],
     enableColumnFilterModes: true,
     enableColumnOrdering: true,
     enableGrouping: true,
@@ -172,33 +132,20 @@ const ListProduct = () => {
         right: ["mrt-row-actions"],
       },
     },
-    manualFiltering: false,
     manualPagination: true,
-    manualSorting: false,
-    muiToolbarAlertBannerProps: isError
-      ? {
-          color: "error",
-          children: "Error loading data",
-        }
-      : undefined,
-    // onColumnFiltersChange: setColumnFilters,
-    // onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
-    // onSortingChange: setSorting,
-    rowCount,
+    rowCount: data?.totalProductCount || 0,
     state: {
       isLoading,
       pagination,
       showAlertBanner: isError,
-      showProgressBars: isRefetching,
+      showProgressBars: isFetching,
     },
-
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       <MenuItem
         key={0}
         onClick={() => {
-          // View profile logic...
-          // setViewProduct(row);
+          navigate(`/product/view?productId=${row.original._id}`);
           closeMenu();
         }}
         sx={{ m: 0 }}>
@@ -206,7 +153,7 @@ const ListProduct = () => {
         <span style={{ marginLeft: "9px" }}>View</span>
       </MenuItem>,
       <MenuItem
-        key={0}
+        key={1}
         onClick={() => {
           sessionStorage.setItem("productId", row.original._id as string);
           setUpdateModalVisible(true);
@@ -217,10 +164,8 @@ const ListProduct = () => {
         <span style={{ marginLeft: "9px" }}>Update</span>
       </MenuItem>,
       <MenuItem
-        key={1}
+        key={2}
         onClick={() => {
-          console.log(row);
-
           setDeleteProductId([row.original._id as string]);
           closeMenu();
         }}
@@ -229,83 +174,37 @@ const ListProduct = () => {
         <span style={{ marginLeft: "9px" }}>Delete</span>
       </MenuItem>,
     ],
-    renderTopToolbar: ({ table }) => {
-      const handleDeleted = () => {
-        setDeleteProductId(
-          table
-            .getSelectedRowModel()
-            .flatRows.map((row) => row.original._id as string)
-        );
-      };
-
-      return (
-        <Box
-          sx={(theme) => ({
-            backgroundColor: lighten(theme.palette.background.default, 0.05),
-            display: "flex",
-            gap: "0.5rem",
-            p: "8px",
-            justifyContent: "space-between",
-          })}>
-          <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-            {/* import MRT sub-components */}
-            <MRT_GlobalFilterTextField table={table} />
-            <MRT_ToggleFiltersButton table={table} />
-          </Box>
-          <Box>
-            <Box sx={{ display: "flex", gap: "0.5rem" }}>
-              <Button
-                color="error"
-                disabled={
-                  !(
-                    table.getIsSomePageRowsSelected() ||
-                    table.getIsAllRowsSelected()
-                  )
-                }
-                onClick={handleDeleted}
-                variant="contained">
-                Delete
-              </Button>
-            </Box>
-          </Box>
+    renderTopToolbar: ({ table }) => (
+      <Box
+        sx={(theme) => ({
+          backgroundColor: lighten(theme.palette.background.default, 0.05),
+          display: "flex",
+          gap: "0.5rem",
+          p: "8px",
+          justifyContent: "space-between",
+        })}>
+        <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <MRT_GlobalFilterTextField table={table} />
+          <MRT_ToggleFiltersButton table={table} />
         </Box>
-      );
-    },
+        <Box>
+          <Button
+            color="error"
+            disabled={!table.getIsSomeRowsSelected()}
+            onClick={() =>
+              setDeleteProductId(
+                table
+                  .getSelectedRowModel()
+                  .flatRows.map((row) => row.original._id as string)
+              )
+            }
+            variant="contained">
+            Delete
+          </Button>
+        </Box>
+      </Box>
+    ),
   });
-
-  // const [viewProduct, setViewProduct] = useState(null);
-
-  const [deleteProductId, setDeleteProductId] = useState<string[] | null>(null);
-  const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
-
-  const handleDeleteProudct = async () => {
-    try {
-      setDeleteButtonLoading(true);
-      const response = await cAxios.post(
-        `${process.env.VITE_APP_API_URL}/products/delete`,
-        {
-          deletableProductIds: deleteProductId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
-      );
-
-      console.log(response);
-
-      toast.success("Product deleted");
-      setDeleteProductId(null);
-
-      fetchProductData();
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.response?.data?.message || error.message);
-    } finally {
-      setDeleteButtonLoading(false);
-    }
-  };
 
   const [updateModalVisible, setUpdateModalVisible] = useState(false);
 
@@ -346,9 +245,9 @@ const ListProduct = () => {
             </div>
             <div className="border-t mt-3 pt-3">
               <button
-                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-red-400 hover:bg-red-500"
+                className="inline-flex justify-center rounded-md border border-transparent bg-red-400 py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 hover:bg-red-500"
                 disabled={deleteButtonLoading}
-                onClick={handleDeleteProudct}>
+                onClick={handleDeleteProduct}>
                 {deleteButtonLoading ? (
                   <ClipLoader color="white" size={15} />
                 ) : (
@@ -364,64 +263,9 @@ const ListProduct = () => {
         <ProductUpdateModal
           visible={updateModalVisible}
           setVisible={setUpdateModalVisible}
-          fetchProductData={fetchProductData}
+          fetchProductData={refetch}
         />
       )}
-
-      {/* {!!approveCenterIds && !!approveCenterIds.length && (
-        <ConfirmModal
-          title={"Are you sure about that?"}
-          closeModal={() => setApproveCenterId(null)}>
-          <>
-            <div className="w-full">
-              <p>
-                By selecting this option, you are confirming approval for the
-                selected center. This action will initiate the approval process
-                and update relevant records accordingly.
-              </p>
-            </div>
-            <div className="border-t mt-3 pt-3">
-              <button
-                className="inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 bg-green-400 hover:bg-green-500"
-                disabled={deleteButtonLoading}
-                onClick={handleApproveCenter}>
-                {deleteButtonLoading ? (
-                  <ClipLoader color="white" size={10} />
-                ) : (
-                  "Approve"
-                )}
-              </button>
-            </div>
-          </>
-        </ConfirmModal>
-      )}
-
-      {!!rejectedCenterId && !!rejectedCenterId.length && (
-        <ConfirmModal
-          title={"Are you sure about that?"}
-          closeModal={() => setRejectCenterId(null)}>
-          <>
-            <div className="w-full">
-              <p>
-                Proceeding with this option will result in the rejection of the
-                selected center(s), particularly if multiple centers are chosen.
-              </p>
-            </div>
-            <div className="border-t mt-3 pt-3">
-              <button
-                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-indigo-400 hover:bg-indigo-500"
-                disabled={deleteButtonLoading}
-                onClick={handleRejectCenter}>
-                {deleteButtonLoading ? (
-                  <ClipLoader color="white" size={10} />
-                ) : (
-                  "Reject"
-                )}
-              </button>
-            </div>
-          </>
-        </ConfirmModal>
-      )} */}
     </div>
   );
 };

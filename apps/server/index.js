@@ -47,7 +47,7 @@ const extractToken = async (req, res, next) => {
 
     const token = req.cookies?.token;
 
-    console.log("What are cookies -->", JSON.stringify(token));
+    console.log("What are cookies -->", JSON.stringify(req.cookies));
 
     console.log("Token", token);
 

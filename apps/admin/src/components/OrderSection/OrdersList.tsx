@@ -9,7 +9,6 @@ import {
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
-import axios from "axios";
 import { Box, MenuItem } from "@mui/material";
 
 // import { toast } from "react-toastify";
@@ -19,6 +18,8 @@ import { attachComma } from "../../helper/utils";
 
 import { useAppSelector } from "../../redux/index";
 import { OrderGroup } from "../../types";
+import cAxios from "../../axios/cutom-axios";
+import { FaEye } from "react-icons/fa";
 
 const OrderList = () => {
   const navigate = useNavigate();
@@ -55,11 +56,7 @@ const OrderList = () => {
     try {
       const res: {
         data: { groupedOrders: OrderGroup[]; globalTotalDocumentCount: number };
-      } = await axios.get(url.href, {
-        headers: {
-          authorization: `Bearer ${jwtToken}`,
-        },
-      });
+      } = await cAxios.get(url.href);
 
       setData(res.data?.groupedOrders || []);
       setRowCount(res.data?.globalTotalDocumentCount || 0);
@@ -85,7 +82,7 @@ const OrderList = () => {
         header: "Payment Info",
         columns: [
           {
-            header: "Gateway Transaction ID",
+            header: "Transaction ID", // this will be the order Gateway transaction id
             accessorKey: "paymentTransactionId",
             enableClickToCopy: true,
             size: 200,
@@ -96,24 +93,24 @@ const OrderList = () => {
               </Box>
             ),
           },
-          {
-            header: "Total Price",
-            accessorKey: "totalPrice",
-            size: 200,
-            //custom conditional format and styling
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span">
-                <strong>
-                  {attachComma(
-                    renderedCellValue === undefined ||
-                      renderedCellValue === null
-                      ? 0
-                      : +renderedCellValue
-                  )}
-                </strong>
-              </Box>
-            ),
-          },
+          // {
+          //   header: "Total Price",
+          //   accessorKey: "totalPrice",
+          //   size: 200,
+          //   //custom conditional format and styling
+          //   Cell: ({ renderedCellValue }) => (
+          //     <Box component="span">
+          //       <strong>
+          //         {attachComma(
+          //           renderedCellValue === undefined ||
+          //             renderedCellValue === null
+          //             ? 0
+          //             : +renderedCellValue
+          //         )}
+          //       </strong>
+          //     </Box>
+          //   ),
+          // },
         ],
       },
 
@@ -131,7 +128,7 @@ const OrderList = () => {
             ),
           },
           {
-            header: "Order Count",
+            header: "Order Quantity",
             accessorKey: "totalDocumentCount",
             size: 200,
             //custom conditional format and styling
@@ -142,36 +139,36 @@ const OrderList = () => {
             ),
           },
 
-          {
-            // accessorFn: (row) => `${row.orderType}`,
-            accessorKey: "orderType", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-            filterVariant: "autocomplete",
-            header: "Order Type",
-            size: 300,
-            Cell: ({ renderedCellValue, row }) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  // alignItems: 'center',
-                  gap: "5px",
-                }}>
-                <div>
-                  <span>
-                    <b>{renderedCellValue === "buy" ? "Bought" : "Rented"}</b>
-                  </span>
-                </div>
-                {row.original.paymentTransactionId && (
-                  <div
-                    style={{
-                      fontSize: "12px",
-                    }}>
-                    <span>Txn ID: {row.original.paymentTransactionId}</span>
-                  </div>
-                )}
-              </Box>
-            ),
-          },
+          // {
+          //   // accessorFn: (row) => `${row.orderType}`,
+          //   accessorKey: "orderType", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
+          //   filterVariant: "autocomplete",
+          //   header: "Order Type",
+          //   size: 300,
+          //   Cell: ({ renderedCellValue, row }) => (
+          //     <Box
+          //       sx={{
+          //         display: "flex",
+          //         flexDirection: "column",
+          //         // alignItems: 'center',
+          //         gap: "5px",
+          //       }}>
+          //       <div>
+          //         <span>
+          //           <b>{renderedCellValue === "buy" ? "Bought" : "Rented"}</b>
+          //         </span>
+          //       </div>
+          //       {row.original.paymentTransactionId && (
+          //         <div
+          //           style={{
+          //             fontSize: "12px",
+          //           }}>
+          //           <span>Txn ID: {row.original.paymentTransactionId}</span>
+          //         </div>
+          //       )}
+          //     </Box>
+          //   ),
+          // },
         ],
       },
 
@@ -193,7 +190,7 @@ const OrderList = () => {
                   alignItems: "center",
                   gap: "1rem",
                 }}>
-                {renderedCellValue?.toLocaleString()}
+                {new Date(renderedCellValue).toDateString()}
               </Box>
             ),
           },
@@ -243,14 +240,14 @@ const OrderList = () => {
       showProgressBars: isRefetching,
     },
 
-    muiTableBodyRowProps: ({ row }) => {
-      return {
-        sx: {
-          backgroundColor:
-            row.original.orderType === "rent" ? "#ffd7d4" : "#f0fff0",
-        },
-      };
-    },
+    // muiTableBodyRowProps: ({ row }) => {
+    //   return {
+    //     sx: {
+    //       backgroundColor:
+    //         row.original.orderType === "rent" ? "#ffd7d4" : "#f0fff0",
+    //     },
+    //   };
+    // },
 
     // renderDetailPanel: ({ row }) => (
     //   <CCol>
@@ -342,7 +339,7 @@ const OrderList = () => {
           closeMenu();
         }}
         sx={{ m: 0 }}>
-        {/* <CIcon icon={cilFile} /> */}
+        <FaEye />
         <span style={{ marginLeft: "9px" }}>View Order</span>
       </MenuItem>,
       // <MenuItem

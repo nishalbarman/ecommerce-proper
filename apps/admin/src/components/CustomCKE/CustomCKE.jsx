@@ -42,7 +42,7 @@ import {
   LinkImage,
   List,
   ListProperties,
-  Markdown,
+  // Markdown,
   MediaEmbed,
   PageBreak,
   Paragraph,
@@ -180,7 +180,7 @@ export default function CustomCKE({ productData, setProductData }) {
           LinkImage,
           List,
           ListProperties,
-          Markdown,
+          // Markdown,
           MediaEmbed,
           PageBreak,
           Paragraph,
@@ -378,7 +378,7 @@ export default function CustomCKE({ productData, setProductData }) {
   }, [isLayoutReady]);
 
   return (
-    <div className="main-container prose lg:prose-xl">
+    <div className="main-container prose lg:prose-base max-w-none">
       <div
         className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count"
         ref={editorContainerRef}>
@@ -410,6 +410,7 @@ export default function CustomCKE({ productData, setProductData }) {
                 config={editorConfig}
                 data={productData?.description}
                 onChange={(_, editor) => {
+                  console.log(editor.getData());
                   setProductData((prev) => {
                     return { ...prev, description: editor.getData() };
                   });

@@ -1,5 +1,4 @@
 import { BaseSyntheticEvent, useEffect, useState } from "react";
-import axios from "axios";
 
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
@@ -7,6 +6,7 @@ import { useAppSelector } from "../../redux/index";
 import { OrderGroup, PaymentSummary } from "../../types";
 
 import stopSign from "../../assets/stop-sign.png";
+import cAxios from "../../axios/cutom-axios";
 
 type StatusStyleValue = {
   backgroundColor: string;
@@ -94,14 +94,10 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
 };
 
 function ViewSingleOrder() {
-  const { jwtToken } = useAppSelector((state) => state.auth);
-
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [groupOrderId, setGroupOrderId] = useState<string | null>();
 
   const [isLoading, setIsOrderLoading] = useState(true);
-
-  console.log(isLoading);
 
   useEffect(() => {
     if (!!searchParams.get("groupId"))
@@ -115,13 +111,8 @@ function ViewSingleOrder() {
     try {
       if (!groupOrderId) return;
       setIsGroupOrderFetching(true);
-      const response = await axios.get(
-        `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
+      const response = await cAxios.get(
+        `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`
       );
       setGroupOrderDetails(response.data);
     } catch (error: any) {
@@ -145,13 +136,8 @@ function ViewSingleOrder() {
     const fetchPaymentSummary = async () => {
       try {
         if (!groupOrderId) return;
-        const response = await axios.get(
-          `${process.env.VITE_APP_API_URL}/payment/summary/${groupOrderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-            },
-          }
+        const response = await cAxios.get(
+          `${process.env.VITE_APP_API_URL}/payment/summary/${groupOrderId}`
         );
         setSummary(response.data);
       } catch (error: any) {
@@ -180,16 +166,11 @@ function ViewSingleOrder() {
           autoClose: 5000,
         });
 
-      const response = await axios.patch(
+      const response = await cAxios.patch(
         `${process.env.VITE_APP_API_URL}/orders/update-status`,
         {
           order: groupOrderId,
           orderStatus: orderUpdatableStatus,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
         }
       );
 
@@ -218,12 +199,14 @@ function ViewSingleOrder() {
         <h1 className="text-2xl font-semibold text-gray-900">Track Order</h1>
       </div>
       <div>
-        {!searchParams.get("groupId") && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+        {
+          <div className="bg-white rounded-lg shadow-md p-6 mb-2">
             <form
               onSubmit={(e: BaseSyntheticEvent) => {
                 e.preventDefault();
-                setGroupOrderId(e.target.groupId.value.trim());
+                setGroupOrderDetails(undefined);
+                setSearchParams({ groupId: e.target.groupId.value.trim() });
+                // setGroupOrderId(e.target.groupId.value.trim());
               }}>
               <label htmlFor="groupId" className="block font-bold mb-2">
                 Order Group ID
@@ -243,7 +226,7 @@ function ViewSingleOrder() {
               </div>
             </form>
           </div>
-        )}
+        }
       </div>
 
       <div>

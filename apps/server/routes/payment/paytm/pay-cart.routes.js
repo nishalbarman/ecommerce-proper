@@ -145,8 +145,11 @@ router.post("/:productType", checkRole(0), async (req, res) => {
 
     const user = await User.findById(userDetails._id);
 
-    const paymentTxnId = uuidv4();
-    const orderGroupID = uuidv4();
+    // const paymentTxnId = uuidv4();
+    // const orderGroupID = uuidv4();
+
+    const paymentTxnId = generateUniqueId("PM");
+    const orderGroupID = generateUniqueId("JK");
 
     // const razorpayOrder = await razorpayInstance.orders.create({
     //   amount: paymentObject.amount,

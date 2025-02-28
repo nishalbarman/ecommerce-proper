@@ -96,6 +96,8 @@ export type ProductVariant = {
   rentingPrice: number;
   discountedPrice: number;
   originalPrice: number;
+
+  [key: string]: any;
 };
 
 export type Category = {

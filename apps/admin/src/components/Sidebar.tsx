@@ -17,6 +17,7 @@ import { IoMdClose } from "react-icons/io";
 
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 type SidebarProps = {
   navbarToogle: Boolean;
@@ -80,134 +81,159 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
         </div>
         <nav className="flex-1 px-2 py-4">
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaTachometerAlt className="mr-4" />
-              <span>Dashboard</span>
+            <li>
+              <Link
+                to="/"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>Dashboard</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500">ORDERS</h2>
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/orders/list");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/orders/list" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaTachometerAlt className="mr-4" />
-              <span>Orders</span>
+            <li>
+              <Link
+                to="/orders/list"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/orders/list" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>Orders</span>
+              </Link>
             </li>
-            <li
-              onClick={() => {
-                navigator("/orders/view");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/orders/view" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaFileAlt className="mr-4" />
-              <span>Track Order</span>
+            <li>
+              <Link
+                to="/orders/view"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/orders/view" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaFileAlt className="mr-4" />
+                <span>Track Order</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500">PRODUCTS</h2>
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/product/add");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/product/add" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaTachometerAlt className="mr-4" />
-              <span>Add Product</span>
+            <li>
+              <Link
+                to="/product/add"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/product/add" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>Add Product</span>
+              </Link>
             </li>
-            <li
-              onClick={() => {
-                navigator("/product/list");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/product/list" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaFileAlt className="mr-4" />
-              <span>View Produts</span>
+            <li>
+              <Link
+                to="/product/list"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/product/list" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaFileAlt className="mr-4" />
+                <span>Product List</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/product/view"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/product/view" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaFileAlt className="mr-4" />
+                <span>View Product</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500">CATEGORIES</h2>
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/categories");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/categories" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaTachometerAlt className="mr-4" />
-              <span>View Categories</span>
+            <li>
+              <Link
+                to="/categories"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/categories" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>View Categories</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">Assets</h2>
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/asset-manager");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/asset-manager" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaImage className="mr-4" />
-              <span>Manage Assets</span>
+            <li>
+              <Link
+                to="/asset-manager"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/asset-manager" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaImage className="mr-4" />
+                <span>Manage Assets</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500">CENTER</h2>
           <ul className="text-md">
-            <li
-              onClick={() => {
-                navigator("/center/add");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/center/add" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaTachometerAlt className="mr-4" />
-              <span>Create Center</span>
+            <li>
+              <Link
+                to="/center/add"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/center/add" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>Create Center</span>
+              </Link>
             </li>
-            <li
-              onClick={() => {
-                navigator("/center/list");
-              }}
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                location.pathname === "/center/list" && "bg-[rgb(43,49,61)]"
-              }`}>
-              <FaFileAlt className="mr-4" />
-              <span>View Centers</span>
+            <li>
+              <Link
+                to="/center/list"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/center/list" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaFileAlt className="mr-4" />
+                <span>View Centers</span>
+              </Link>
             </li>
           </ul>
 
           <h2 className="mt-8 mb-4 text-sm text-gray-500">SETTINGS</h2>
           <ul>
-            <li
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${location.pathname === "/" && "bg-[rgb(43,49,61)]"}`}>
-              <FaCogs className="mr-4" />
-              <span>Roles</span>
+            <li>
+              <Link
+                to="/roles"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/roles" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaCogs className="mr-4" />
+                <span>Roles</span>
+              </Link>
             </li>
-            <li
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${location.pathname === "/" && "bg-[rgb(43,49,61)]"}`}>
-              <FaKey className="mr-4" />
-              <span>Requests</span>
+            <li>
+              <Link
+                to="/requests"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/requests" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaKey className="mr-4" />
+                <span>Requests</span>
+              </Link>
             </li>
-            <li
-              className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${location.pathname === "/" && "bg-[rgb(43,49,61)]"}`}>
-              <FaExchangeAlt className="mr-4" />
-              <span>Preferences</span>
+            <li>
+              <Link
+                to="/preferences"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/preferences" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaExchangeAlt className="mr-4" />
+                <span>Preferences</span>
+              </Link>
             </li>
           </ul>
         </nav>

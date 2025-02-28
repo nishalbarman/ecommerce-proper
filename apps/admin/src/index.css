@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+@plugin "@tailwindcss/typography";
 @plugin 'tailwind-scrollbar';
 
 @layer utilities {

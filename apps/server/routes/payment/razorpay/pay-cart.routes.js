@@ -11,6 +11,7 @@ const Coupon = require("../../../models/coupon.model");
 const Order = require("../../../models/order.model");
 const Address = require("../../../models/address.model");
 const PaymentTransModel = require("../../../models/transaction.model");
+const generateUniqueId = require("../../../helpter/generateUniqueId");
 
 const RAZORPAY_KEY = process.env.RAZORPAY_KEY;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
@@ -144,8 +145,10 @@ router.post("/:productType", checkRole(0), async (req, res) => {
 
     const user = await User.findById(userDetails._id);
 
-    const paymentTxnId = uuidv4();
-    const orderGroupID = uuidv4();
+    // const paymentTxnId = uuidv4();
+    // const orderGroupID = uuidv4();
+    const paymentTxnId = generateUniqueId("PM");
+    const orderGroupID = generateUniqueId("JK");
 
     // create one razor pay order with the amount
     const razorpayOrder = await razorpayInstance.orders.create({
