@@ -165,6 +165,50 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
             </li>
           </ul>
 
+          <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">Users</h2>
+          <ul className="text-md">
+            <li>
+              <Link
+                to="/users"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/users" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaImage className="mr-4" />
+                <span>List Users</span>
+              </Link>
+            </li>
+          </ul>
+
+          <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">Singles</h2>
+          <ul className="text-md">
+            <li>
+              <Link
+                to="/hero-product"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/hero-product" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaImage className="mr-4" />
+                <span>Hero Product</span>
+              </Link>
+            </li>
+          </ul>
+
+          <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">
+            Dynamic Pages
+          </h2>
+          <ul className="text-md">
+            <li>
+              <Link
+                to="/dynamic-pages"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/dynamic-pages" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaImage className="mr-4" />
+                <span>Dynamic Pages</span>
+              </Link>
+            </li>
+          </ul>
+
           <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">Assets</h2>
           <ul className="text-md">
             <li>

@@ -46,7 +46,7 @@ function NewArrivalSection() {
   ];
 
   return (
-    <div className="w-full h-fit mt-10 lg:mt-[3rem]">
+    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem]">
       <TitleWithBar title={"Featured"} />
       <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6">
         <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px]">

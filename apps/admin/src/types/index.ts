@@ -179,3 +179,21 @@ export type Center = {
   address?: Address;
   _id?: string;
 };
+
+export interface HeroProduct {
+  category: string;
+  shortDescription: string;
+  imageUrl: string;
+  productReference: string; // Reference to a product ID
+  [key: string]: any;
+}
+
+export interface DynamicPage {
+  title: string;
+  description: string;
+  shortDescription: string;
+  avatar: string;
+  cover: string;
+  slug: string;
+  [key: string]: any;
+}

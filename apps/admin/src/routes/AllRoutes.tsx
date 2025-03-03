@@ -13,6 +13,9 @@ import PrivateRoute from "../PrivateRoute";
 import AssetManagerPage from "../pages/AssetManagerPage/AssetManagerPage";
 import RoleList from "../components/RolesSection/RolesList";
 import ViewProduct from "../components/ProductsSection/ViewProduct";
+import UserList from "../components/UserSection/UserList";
+import HeroProductAdd from "../components/HeroProduct/HeroProduct";
+import DynamicPageAdd from "../components/DynamicPage/DynamicPage";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -84,6 +87,7 @@ const AllRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
+
       <Route
         path="/categories"
         element={
@@ -92,6 +96,34 @@ const AllRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+      <Route
+        path="/users"
+        element={
+          <PrivateRoute>
+            <UserList />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/hero-product"
+        element={
+          <PrivateRoute>
+            <HeroProductAdd />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/dynamic-pages"
+        element={
+          <PrivateRoute>
+            <DynamicPageAdd />
+          </PrivateRoute>
+        }
+      />
+
       <Route path="/asset-manager" element={<AssetManagerPage />} />
       <Route path="/roles" element={<RoleList />} />
     </Routes>

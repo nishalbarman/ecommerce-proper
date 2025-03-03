@@ -11,7 +11,7 @@ function page() {
   const doLogout = async () => {
     try {
       const serverUrl = getBackendUrl();
-      await axios.get(`${process.env.NEXT_BACKEND_SERVER}/logout`);
+      await axios.get(`${process.env.NEXT_SERVER_URL}/logout`);
     } catch (error) {
       console.log("Axios Error-->", error);
     } finally {

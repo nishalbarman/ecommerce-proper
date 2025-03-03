@@ -35,7 +35,7 @@ async function Navbar({ title }) {
   const token = cookieStore.get("token")?.value;
 
   return (
-    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] bg-white lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%]">
+    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
       <div className="flex flex-center items-center w-fit">
         <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
           <Link
@@ -174,9 +174,9 @@ async function Navbar({ title }) {
           <>
             <div className="flex items-center justify-center gap-5 h-[100%]">
               {/* search bar with icon */}
-              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit bg-[#F5F4F4] rounded-[4px]">
+              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] !bg-primary">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] bg-[#F5F4F4] p-4"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] p-4 !bg-primary"
                   type="text"
                   name="search-text"
                   placeholder="What are you looking for?"

@@ -6,7 +6,7 @@ import { getBackendUrl } from "@/helpter/utils";
 
 export const fetchCart = async ({ page = 0, limit = 0 } = {}) => {
   try {
-    const url = new URL("${process.env.NEXT_BACKEND_SERVER}/cart/list");
+    const url = new URL("${process.env.NEXT_SERVER_URL}/cart/list");
     url.searchParams.append("productType", "buy");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
@@ -35,7 +35,7 @@ export const addProductToCart = async ({
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      "${process.env.NEXT_BACKEND_SERVER}/cart/create",
+      "${process.env.NEXT_SERVER_URL}/cart/create",
       backendUrl
     );
 
@@ -91,7 +91,7 @@ export const updateCartItemQuantity = async ({
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      `${process.env.NEXT_BACKEND_SERVER}/cart/update`,
+      `${process.env.NEXT_SERVER_URL}/cart/update`,
       backendUrl
     );
     url.searchParams.append(cart, id);
@@ -118,7 +118,7 @@ export const deleteCartItem = async ({ id = undefined, token = undefined }) => {
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      `${process.env.NEXT_BACKEND_SERVER}/cart/delete/${id}`,
+      `${process.env.NEXT_SERVER_URL}/cart/delete/${id}`,
       backendUrl
     );
 

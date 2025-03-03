@@ -14,7 +14,7 @@ async function ExploreProducts() {
   });
 
   return (
-    <div className="w-full h-fit mt-10 lg:mt-[5rem]">
+    <div className="container w-full mx-auto h-fit mt-10 lg:mt-[5rem]">
       <TitleWithBar title={"Our Products"} />
       <div className="relative">
         <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6">

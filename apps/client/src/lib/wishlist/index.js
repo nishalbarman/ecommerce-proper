@@ -7,7 +7,7 @@ export async function fetchWishlist({ page = 0, limit = 50 } = {}) {
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      "${process.env.NEXT_BACKEND_SERVER}/wishlist/list",
+      "${process.env.NEXT_SERVER_URL}/wishlist/list",
       backendUrl
     );
     url.searchParams.append("page", page);
@@ -39,7 +39,7 @@ export const addProductToWishlist = async ({
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      "${process.env.NEXT_BACKEND_SERVER}/wishlist/create",
+      "${process.env.NEXT_SERVER_URL}/wishlist/create",
       backendUrl
     );
 
@@ -72,7 +72,7 @@ export const updateWishlistItem = async ({
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      `${process.env.NEXT_BACKEND_SERVER}/wishlist/update/${id}`,
+      `${process.env.NEXT_SERVER_URL}/wishlist/update/${id}`,
       backendUrl
     );
 
@@ -96,7 +96,7 @@ export const deleteWishlistItem = async ({ id = undefined }) => {
     const backendUrl = getBackendUrl();
 
     const url = new URL(
-      `${process.env.NEXT_BACKEND_SERVER}/wishlist/delete/${id}`,
+      `${process.env.NEXT_SERVER_URL}/wishlist/delete/${id}`,
       backendUrl
     );
 

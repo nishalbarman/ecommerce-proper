@@ -1,19 +1,15 @@
-import { getBackendUrl } from "@/helpter/utils";
-
 export async function fetchProducts({
   page = 0,
   limit = 25,
   searchParams = {},
   filter = undefined,
   sort = undefined,
+  cookies = undefined,
 }) {
   try {
-    const backendUrl = getBackendUrl();
+    const backendUrl = process.env.NEXT_SERVER_URL;
 
-    const url = new URL(
-      "${process.env.NEXT_BACKEND_SERVER}/products/list",
-      backendUrl
-    );
+    const url = new URL(`/products`, backendUrl);
 
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
@@ -39,11 +35,11 @@ export async function fetchProducts({
       );
     }
 
-    console.log("BACKENDURL", url.href);
-
     const res = await fetch(url.href, {
       headers: {
+        credentials: "include",
         method: "GET",
+        Cookie: cookies,
       },
     });
     return res.json();

@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         <Toaster />
         <CookiesProvider>
           <ReduxStore>
-            <Navbar title={"Crafter"} logo={""} />
+            <Navbar title={"Jharna Mehendi"} logo={""} />
             {children}
           </ReduxStore>
         </CookiesProvider>

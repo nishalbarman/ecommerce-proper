@@ -12,10 +12,12 @@ import NewArrivalSection from "@/components/NewArrivalSection/NewArrivalSection"
 import Features from "@/components/Features/Features";
 import Footer from "@/components/Footer/Footer";
 import { getBackendUrl } from "@/helpter/utils";
+import HeroProduct from "@/components/HeroSection/HeroSection";
+import Testimonials from "@/components/TestimonialsSection/TestimonialsSection";
 
 const getSaleDetails = async () => {
   try {
-    const backendUrl = getBackendUrl();
+    const backendUrl = process.env.NEXT_SERVER_URL;
     const response = await fetch(`${backendUrl}/sale-details`);
     const data = await response.json();
     return data;
@@ -31,15 +33,26 @@ export default async function Page() {
 
   return (
     <>
-      <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
-        <BannerTop />
+      <main className="min-h-screen">
+        {/* <BannerTop /> */}
+        <HeroProduct />
         {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
-        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div>
-        <Categories />
-        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div>
+        {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
+        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
+
         <BestSelling />
-        <MiddleBanner />
-        <ExploreProducts />
+        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div>
+
+        <Categories />
+
+        <div className="w-full h-[1px] mt-20"></div>
+
+        {/* <Testimonials /> */}
+
+        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div>
+
+        {/* <MiddleBanner /> */}
+        {/* <ExploreProducts /> */}
         <NewArrivalSection />
         <Features />
       </main>

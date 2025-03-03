@@ -86,23 +86,19 @@ import "./CKEStyle.css";
  */
 const LICENSE_KEY = "GPL"; // or <YOUR_LICENSE_KEY>.
 
-export default function CustomCKE({ productData, setProductData }) {
+export default function CustomCKE({ id, content, changeContent }) {
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
   const editorWordCountRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
 
-  useEffect(() => {
-    setIsLayoutReady(true);
+  // useEffect(() => {
+  //   setIsLayoutReady(true);
 
-    return () => setIsLayoutReady(false);
-  }, []);
+  //   return () => setIsLayoutReady(false);
+  // }, []);
 
   const { editorConfig } = useMemo(() => {
-    if (!isLayoutReady) {
-      return {};
-    }
-
     return {
       editorConfig: {
         toolbar: {
@@ -209,7 +205,7 @@ export default function CustomCKE({ productData, setProductData }) {
           TableToolbar,
           TextPartLanguage,
           TextTransformation,
-          Title,
+          // Title,
           TodoList,
           Underline,
           WordCount,
@@ -288,8 +284,8 @@ export default function CustomCKE({ productData, setProductData }) {
             "resizeImage",
           ],
         },
-        initialData:
-          "<h2>This will be your description! 🎉</h2>\nDo the changes according to your need;</p>\n",
+        // initialData:
+        //   "<h2>This will be your description! 🎉</h2>\nDo the changes according to your need;</p>\n",
         licenseKey: LICENSE_KEY,
         link: {
           addTargetToExternalLinks: true,
@@ -375,7 +371,7 @@ export default function CustomCKE({ productData, setProductData }) {
         },
       },
     };
-  }, [isLayoutReady]);
+  }, []);
 
   return (
     <div className="main-container prose lg:prose-base max-w-none">
@@ -386,7 +382,7 @@ export default function CustomCKE({ productData, setProductData }) {
           <div ref={editorRef}>
             {editorConfig && (
               <CKEditor
-                id={"productDescription"}
+                id={id}
                 onReady={(editor) => {
                   const wordCount = editor.plugins.get("WordCount");
                   editorWordCountRef?.current.appendChild(
@@ -408,12 +404,10 @@ export default function CustomCKE({ productData, setProductData }) {
                 }}
                 editor={ClassicEditor}
                 config={editorConfig}
-                data={productData?.description}
+                data={content}
                 onChange={(_, editor) => {
                   console.log(editor.getData());
-                  setProductData((prev) => {
-                    return { ...prev, description: editor.getData() };
-                  });
+                  changeContent(editor.getData());
                 }}
               />
             )}

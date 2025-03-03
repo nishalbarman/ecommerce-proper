@@ -17,7 +17,15 @@ module.exports = {
         itim: "Itim, cursive",
         inconsolata: "Inconsolata, monospace",
       },
+      colors: {
+        primary: "#86cf9a", // Earth Green
+        secondary: "#8D6E63", // Warm Brown
+        accent: "#FFD700", // Gold
+        maroon: "#800000", // Maroon
+        cream: "#F5F5DC", // Cream
+        orange: "#FFA500", // Orange
+      },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };

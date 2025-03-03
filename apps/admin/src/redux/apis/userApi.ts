@@ -1,63 +1,68 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUserAuthData } from "../slices/authSlice";
 
-const SERVER_URL = `${process.env.EXPO_PUBLIC_API_URL}/`;
+const SERVER_URL = `${process.env.VITE_APP_API_URL}/`;
 
-export const userAPI = createApi({
+export const userApi = createApi({
   reducerPath: "user",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      const token = (getState() as any).auth.jwtToken;
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
-  tagTypes: ["Post"],
+  tagTypes: ["User"],
   endpoints: (builder) => ({
-    /** REQUIRED ADMIN ROLE **/
-    getAllUser: builder.query({
-      query: () => ({
-        url: `user`,
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }),
-      onQueryStarted: async (_: any, { dispatch, queryFulfilled }) => {
-        try {
-          const response = await queryFulfilled;
-          dispatch(setUserAuthData(response.data));
-        } catch (error) {
-          console.error("Get User --->", error);
-        }
-      },
+    // Get all users with pagination
+    getUsers: builder.query({
+      query: ({ page = 1, limit = 10, userType="user" }) => `user?userType=${userType}&page=${page}&limit=${limit}`,
+      providesTags: ["User"],
     }),
 
-    /** REQUIRED ADMIN ROLE **/
-    getOneUser: builder.query({
-      query: (id) => ({
-        url: `${id}`,
-        headers: {
-          "Content-Type": "application/json",
-        },
+    // Get a single user by ID
+    getUserById: builder.query({
+      query: (id) => `user/${id}`,
+      providesTags: ["User"],
+    }),
+
+    // Add a new user
+    addUser: builder.mutation({
+      query: (userData) => ({
+        url: "user",
+        method: "POST",
+        body: userData,
       }),
-      onQueryStarted: async (_: any, { dispatch, queryFulfilled }) => {
-        try {
-          const response = await queryFulfilled;
-          dispatch(setUserAuthData(response.data));
-        } catch (error) {
-          console.error("Get User --->", error);
-        }
-      },
+      invalidatesTags: ["User"],
+    }),
+
+    // Update a user by ID
+    updateUser: builder.mutation({
+      query: ({ id, userData }) => ({
+        url: `user/update/${id}`,
+        method: "PATCH",
+        body: { userData },
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    // Delete a user by ID
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `user/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
     }),
 
     /* UPDATES LOGGED IN USERS DATA, ID GETS RETRIEVED FROM JWT TOKEN WHILE UPDATING */
     updateUserEmail: builder.mutation({
       query: ({ newEmail, prevEmailOTP, newEmailOTP }) => ({
-        url: "update_email",
+        url: "user/update_email",
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +82,7 @@ export const userAPI = createApi({
     /* UPDATES LOGGED IN USERS DATA, ID GETS RETRIEVED FROM JWT TOKEN WHILE UPDATING */
     updateUserMobile: builder.mutation({
       query: ({ newMobileNo, prevMobileOTP, newMobileOTP }) => ({
-        url: "update_mobile",
+        url: "user/update_mobile",
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -93,25 +98,13 @@ export const userAPI = createApi({
         }
       },
     }),
-
-    /** REQUIRED ADMIN ROLE **/
-    updateUser: builder.mutation({
-      query: ({ id, newUserObject }) => ({
-        url: `${id}`,
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: newUserObject,
-      }),
-    }),
   }),
 });
 
 export const {
-  useGetAllUserQuery,
-  useGetOneUserQuery,
+  useGetUsersQuery,
+  useGetUserByIdQuery,
+  useAddUserMutation,
   useUpdateUserMutation,
-  useUpdateUserMobileMutation,
-  useUpdateUserEmailMutation,
-} = userAPI;
+  useDeleteUserMutation,
+} = userApi;

@@ -11,6 +11,7 @@ import { Category } from "../../types";
 import cAxios from "../../axios/cutom-axios";
 
 import no_image from "../../assets/no-image.svg";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const ProductAdd = () => {
   const [categoryData, setCategoryData] = useState<Category>({
@@ -239,13 +240,13 @@ const ProductAdd = () => {
                   </p>
                 )}
               </div>
-              <div className="mb-4 w-full">
+              <div className="mb-4 w-1/2">
                 <label
                   htmlFor="previewImage"
                   className="block font-semibold mb-2 w-full">
                   Category Image
                 </label>
-                <div className="flex max-md:flex-col gap-4">
+                <div className="flex max-md:flex-col gap-4 h-40">
                   <AssetPicker
                     htmlFor="previewImage"
                     fileSelectCallback={(
@@ -261,7 +262,7 @@ const ProductAdd = () => {
                     multiSelect={false}
                   />
 
-                  <div className="w-full h-[400px] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded">
+                  <div className="w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                     {categoryData.categoryImageUrl ? (
                       <img
                         className="w-full h-full w-[200px] aspect-square object-contain"
@@ -298,6 +299,7 @@ const ProductAdd = () => {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     setCategoryData({
                       categoryName: "",
@@ -405,28 +407,31 @@ const ProductAdd = () => {
                   </tbody>
                 </table>{" "}
                 {/* Pagination Controls */}
-                <div className="flex justify-between items-center mt-5 border-t-2 pt-4">
-                  <button
-                    onClick={() =>
-                      setPaginationPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={paginationPage === 1}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
-                    Previous
-                  </button>
+                <div className="flex max-md:flex-col gap-3 justify-between items-center mt-5 border-t-2 pt-4">
                   <span>
                     Page {paginationPage} of {totalPages}
                   </span>
-                  <button
-                    onClick={() =>
-                      setPaginationPage((prev) =>
-                        Math.min(prev + 1, totalPages)
-                      )
-                    }
-                    disabled={paginationPage === totalPages}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
-                    Next
-                  </button>
+                  <div className="flex items-center justify-between min-md:justify-center max-md:w-full gap-2">
+                    <button
+                      onClick={() =>
+                        setPaginationPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={paginationPage === 1}
+                      className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                      <FaChevronLeft />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setPaginationPage((prev) =>
+                          Math.min(prev + 1, totalPages)
+                        )
+                      }
+                      disabled={paginationPage === totalPages}
+                      className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                      <FaChevronRight />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

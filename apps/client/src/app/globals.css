@@ -4,6 +4,8 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&family=Itim&display=swap");
 
+@plugin "@tailwindcss/typography";
+
 * {
   /* font-family: "Itim", cursive; */
   font-family: "Andika", sans-serif;
@@ -31,4 +33,53 @@ a {
 
 .permanent-marker-font {
   font-family: "Permanent Marker", cursive;
+}
+
+.clip-path-diagonal-left {
+  clip-path: polygon(0 0, 0% 100%, 100% 0);
+}
+
+.clip-path-diagonal-right {
+  clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+}
+
+@theme {
+  --color-primary: oklch(79.23% 0.1051 152.11);
+  --color-skeleton: oklch(87.13% 0.0583 135.76);
+  --color-secondary: oklch(0% 0.0074 39.87);
+  --color-accent: oklch(89.14% 0.172 109.35);
+  --color-maroon: oklch(33.24% 0.155 27.25);
+  --color-cream: oklch(94.19% 0.018 95.41);
+  --color-orange: oklch(74.56% 0.223 69.82);
+
+  --font-sans: Andika, sans-serif;
+  --font-andika: Andika, sans-serif;
+  --font-marker: "Permanent Marker", cursive;
+  --font-itim: Itim, cursive;
+  --font-inconsolata: Inconsolata, monospace;
+
+  --animate-zoomInOut: zoomInOut 5s infinite;
+  @keyframes zoomInOut {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+@layer utilities {
+  .zoom-8 {
+    zoom: 0.8;
+  }
+
+  .zoom-0 {
+    zoom: normal;
+  }
+
+  .drag-none {
+    -webkit-user-drag: none;
+  }
 }

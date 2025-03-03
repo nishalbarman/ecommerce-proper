@@ -61,13 +61,16 @@ function SignupForm() {
     setIsLoading(true);
     const loadingToast = toast.loading("Signing up...");
     try {
-      const response = await axios.post(`${process.env.NEXT_BACKEND_SERVER}/auth/signup`, {
-        name: formData.name.value,
-        email: formData.email.value,
-        mobileNo: formData.mobileNo.value,
-        password: formData.password.value,
-        confirmpassword: formData.confirmpassword.value,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_SERVER_URL}/auth/signup`,
+        {
+          name: formData.name.value,
+          email: formData.email.value,
+          mobileNo: formData.mobileNo.value,
+          password: formData.password.value,
+          confirmpassword: formData.confirmpassword.value,
+        }
+      );
       toast.dismiss(loadingToast);
       toast.success(response?.data?.message || "Unknown error occured");
       toast.success(

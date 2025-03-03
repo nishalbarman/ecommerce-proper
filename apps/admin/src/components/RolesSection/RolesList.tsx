@@ -1,7 +1,6 @@
 import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-import { useAppSelector } from "../../redux/index";
 import { Role } from "../../types";
 import {
   useGetRolesQuery,
@@ -9,6 +8,7 @@ import {
   useUpdateRoleMutation,
   useDeleteRoleMutation,
 } from "../../redux/apis/roleApi";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const RoleList = () => {
   const [roleData, setRoleData] = useState<Role>({
@@ -30,11 +30,9 @@ const RoleList = () => {
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
-  const { jwtToken } = useAppSelector((state) => state.auth);
-
   const [paginationPage, setPaginationPage] = useState(1);
-  const [paginationLimit, _] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
+  const [paginationLimit] = useState(10);
+  const [totalPages] = useState(1);
 
   const {
     data: rolesData,
@@ -257,7 +255,7 @@ const RoleList = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : (
-              <div className=" overflow-x-auto">
+              <div className=" overflow-x-auto scrollbar-thin pb-3">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
@@ -279,7 +277,7 @@ const RoleList = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {rolesData?.roles?.map((item, index) => (
+                    {rolesData?.roles?.map((item: Role, index: number) => (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-start">
                           {index + 1}
@@ -324,28 +322,31 @@ const RoleList = () => {
                   </tbody>
                 </table>{" "}
                 {/* Pagination Controls */}
-                <div className="flex justify-between items-center mt-5 border-t-2 pt-4">
-                  <button
-                    onClick={() =>
-                      setPaginationPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={paginationPage === 1}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
-                    Previous
-                  </button>
+                <div className="flex max-md:flex-col gap-3 justify-between items-center mt-5 border-t-2 pt-4">
                   <span>
-                    Page {paginationPage} of {totalPages}
+                    Page {paginationPage} of {rolesData.totalPages}
                   </span>
-                  <button
-                    onClick={() =>
-                      setPaginationPage((prev) =>
-                        Math.min(prev + 1, totalPages)
-                      )
-                    }
-                    disabled={paginationPage === totalPages}
-                    className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300">
-                    Next
-                  </button>
+                  <div className="flex items-center justify-between min-md:justify-center max-md:w-full gap-2">
+                    <button
+                      onClick={() =>
+                        setPaginationPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={paginationPage === 1}
+                      className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                      <FaChevronLeft />
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        setPaginationPage((prev) =>
+                          Math.min(prev + 1, rolesData.totalPages)
+                        )
+                      }
+                      disabled={paginationPage === rolesData.totalPages}
+                      className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                      <FaChevronRight />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

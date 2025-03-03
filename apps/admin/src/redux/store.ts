@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { userAPI } from "./apis/userApi";
+import { userApi } from "./apis/userApi";
 import { addressSlice } from "./slices/addressSlice";
 import { authApi } from "./apis/authApi";
 import { addressApi } from "./apis/addressApi";
@@ -34,7 +34,7 @@ import { roleApi } from "./apis/roleApi";
 import { productApi } from "./apis/productApi";
 
 const rootReducer = combineReducers({
-  [userAPI.reducerPath]: userAPI.reducer,
+  [userApi.reducerPath]: userApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
   [authSlice.name]: authSlice.reducer,
   [addressSlice.name]: addressSlice.reducer,
@@ -56,6 +56,7 @@ const rootReducer = combineReducers({
 const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
   key: "root",
   storage: AsyncStorage,
+  blacklist: [userApi.reducerPath, authApi.reducerPath, addressApi.reducerPath],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -71,7 +72,7 @@ export const store = configureStore({
       // .concat(productsApi.middleware)
       .concat(cartApi.middleware)
       .concat(wishlistApi.middleware)
-      .concat(userAPI.middleware)
+      .concat(userApi.middleware)
       .concat(authApi.middleware)
       .concat(addressApi.middleware)
       .concat(categoryApi.middleware)

@@ -35,10 +35,13 @@ const extractToken = async (req, res, next) => {
       req.url === "/hook/razorpay" ||
       req.url === "/stripe/hook" ||
       req.url === "/get-image-bg-color" ||
+      (req.method == "GET" && req.url === "/products") ||
       req.url === "/products/view/:productId" ||
+      req.url === "/categories" ||
       req.url === "/categories/view/:categoryId" ||
       req.url === "/orders/get-order-chart-data" ||
       req.url === "/uploader/image/imgbb/upload" ||
+      req.url.startsWith("/dynamic-pages") ||
       req.url.startsWith("/uploader/image/list");
 
     if (publicRoute) {
@@ -69,7 +72,7 @@ const extractToken = async (req, res, next) => {
 app.use(
   cors({
     // origin: "*",
-    origin: "http://localhost:5000", // Allow requests from this origin
+    origin: ["http://localhost:5000", "http://localhost:3000"], // Allow requests from this origin
     credentials: true,
   })
 );
@@ -97,6 +100,8 @@ app.use("/address", require("./routes/address/address.routes"));
 app.use("/feedbacks", require("./routes/feedbacks/feedbacks.routes"));
 app.use("/orders", require("./routes/order/order.routes"));
 
+app.use("/dynamic-pages", require("./routes/dynamicPage/dynamicPage.routes"));
+app.use("/hero-products", require("./routes/heroProduct/heroProduct.routes"));
 app.use("/roles", require("./routes/roles/roles.routes"));
 
 app.use(

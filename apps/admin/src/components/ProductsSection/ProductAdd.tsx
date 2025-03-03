@@ -397,8 +397,13 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                 )}
               </label>
               <CustomCKE
-                productData={productData}
-                setProductData={setProductData}
+                id="productDescription"
+                content={productData?.description}
+                changeContent={(content: any) => {
+                  setProductData((prev) => {
+                    return { ...prev, description: content };
+                  });
+                }}
               />
             </div>
           </div>
@@ -481,7 +486,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     />
                   ) : (
                     <img
-                      className="w-full h-full w-60 aspect-square object-contain"
+                      className="w-full h-full w-[150px] aspect-square object-contain"
                       src={no_image}
                     />
                   )}
@@ -584,7 +589,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </Swiper>
                   ) : (
                     <img
-                      className="w-full h-full w-60 aspect-square object-contain"
+                      className="w-full h-full w-[150px] aspect-square object-contain"
                       src={no_image}
                     />
                   )}
@@ -964,7 +969,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                     />
                                   </div>
                                 </div>
-                                <div className="w-full h-[400px] aspect-square overflow-hidden mt-1 border-2 rounded">
+                                <div className="flex justify-center w-full h-[400px] aspect-square overflow-hidden mt-1 border-2 rounded">
                                   {productData.productVariant &&
                                   !Array.isArray(productData.productVariant) &&
                                   productData.productVariant[
@@ -980,7 +985,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                     />
                                   ) : (
                                     <img
-                                      className="w-full h-full w-5 aspect-square object-contain"
+                                      className="w-full h-full w-[150px] aspect-square object-contain"
                                       src={no_image}
                                     />
                                   )}
@@ -1115,9 +1120,9 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                         </SwiperSlide>
                                       ))
                                     ) : (
-                                      <SwiperSlide>
+                                      <SwiperSlide className="flex justify-center">
                                         <img
-                                          className="w-full h-full w-5 aspect-square object-contain"
+                                          className="w-full h-full w-[150px] aspect-square object-contain"
                                           src={no_image}
                                         />
                                       </SwiperSlide>

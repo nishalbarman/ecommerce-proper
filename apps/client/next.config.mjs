@@ -62,7 +62,7 @@ const nextConfig = obfuscator({
     "firebase-utils",
   ],
   images: {
-    domains: ["n3.sdlcdn.com", "storage.googleapis.com"],
+    domains: ["n3.sdlcdn.com", "storage.googleapis.com", "i.ibb.co"],
   },
   async headers() {
     return [
