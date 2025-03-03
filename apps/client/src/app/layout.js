@@ -5,12 +5,16 @@ import { CookiesProvider } from "next-client-cookies/server";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar/Navbar";
+import Footer from "@/components/Footer/Footer";
+import Image from "next/image";
+
+import tree_leaf from "../../public/bg.png";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Crafter - Ecommerce website",
-  description: "Get all the available items, that will be needed!",
+  title: "Jharna Mehendi - Get your mehendi now.",
+  description: "Get variaties of mehendi for your special occusions.",
 };
 
 export default function RootLayout({ children }) {
@@ -21,7 +25,8 @@ export default function RootLayout({ children }) {
         <CookiesProvider>
           <ReduxStore>
             <Navbar title={"Jharna Mehendi"} logo={""} />
-            {children}
+            <main className="min-h-screen z-[999]">{children}</main>
+            <Footer />
           </ReduxStore>
         </CookiesProvider>
       </body>

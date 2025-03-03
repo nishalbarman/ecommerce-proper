@@ -27,6 +27,7 @@ import {
   useGetProductsQuery,
   useDeleteProductsMutation,
 } from "../../redux/apis/productApi";
+import ViewImage from "../ViewImage/ViewImage";
 
 const ListProduct = () => {
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ const ListProduct = () => {
     }
   };
 
+  const [produtImageModal, setProductImageModal] = useState<string>("");
+
   const columns = useMemo<MRT_ColumnDef<Product>[]>(
     () => [
       {
@@ -73,9 +76,14 @@ const ListProduct = () => {
             size: 50,
             enableColumnFilter: false,
             Cell: ({ cell }) => (
-              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <Box
+                className="cursor-pointer"
+                onClick={() => {
+                  setProductImageModal(cell.getValue() as string);
+                }}
+                sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <img
-                  className="object-contain rounded-md"
+                  className="object-contain rounded-md select-none"
                   alt="avatar"
                   height={30}
                   src={cell.getValue() as string}
@@ -92,7 +100,7 @@ const ListProduct = () => {
             size: 250,
             Cell: ({ renderedCellValue }) => (
               <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <span className="font-bold">{renderedCellValue}</span>
+                <span className="">{renderedCellValue}</span>
               </Box>
             ),
           },
@@ -103,7 +111,7 @@ const ListProduct = () => {
             size: 300,
             Cell: ({ renderedCellValue }) => (
               <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <span className="font-bold">{renderedCellValue || "NA"}</span>
+                <span className="">{renderedCellValue || "NA"}</span>
               </Box>
             ),
           },
@@ -264,6 +272,15 @@ const ListProduct = () => {
           visible={updateModalVisible}
           setVisible={setUpdateModalVisible}
           fetchProductData={refetch}
+        />
+      )}
+
+      {produtImageModal && (
+        <ViewImage
+          imageUrl={produtImageModal}
+          clearItem={() => {
+            setProductImageModal("");
+          }}
         />
       )}
     </div>

@@ -5,7 +5,9 @@ import FeaturesSkeleton from "../Features/FeaturesSkeleton";
 // Fetch data on the server
 const fetchFeatures = async () => {
   try {
-    const response = await fetch(`${process.env.NEXT_SERVER_URL}/features`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/features`
+    );
     const data = await response.json();
     return data.data;
   } catch (error) {

@@ -31,8 +31,8 @@ async function Navbar({ title }) {
     },
   ];
 
-  const cookieStore = cookies();
-  const token = cookieStore.get("token")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
 
   return (
     <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
@@ -58,9 +58,9 @@ async function Navbar({ title }) {
         {token ? (
           <>
             {/* search bar with icon */}
-            <div className="hidden lg:flex items-center justify-center h-[42px] w-fit bg-[#F5F4F4] rounded-[4px]">
+            <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
               <input
-                className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] bg-[#F5F4F4] p-4"
+                className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] bg-transparent p-4"
                 type="text"
                 name="search-text"
                 placeholder="What are you looking for?"
@@ -174,9 +174,9 @@ async function Navbar({ title }) {
           <>
             <div className="flex items-center justify-center gap-5 h-[100%]">
               {/* search bar with icon */}
-              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] !bg-primary">
+              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] p-4 !bg-primary"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] p-4 bg-transparent"
                   type="text"
                   name="search-text"
                   placeholder="What are you looking for?"

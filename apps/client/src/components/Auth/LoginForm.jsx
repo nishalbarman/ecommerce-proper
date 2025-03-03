@@ -61,7 +61,7 @@ function LoginForm() {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_SERVER_URL}/auth/login`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/login`,
         {
           mobileNo: formData.mobileNo.value,
           password: formData.password.value,

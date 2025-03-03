@@ -153,12 +153,14 @@ function ProductItem({
             {userCartItems?.hasOwnProperty(_id) ? (
               <Image
                 className="invert"
+                alt="check_add_to_cart"
                 src={"/assets/check.svg"}
                 width={20}
                 height={20}
               />
             ) : (
               <Image
+                alt="add to cart"
                 className="invert"
                 src={"/assets/addcart.svg"}
                 width={25}
@@ -256,7 +258,7 @@ function ProductItem({
         {/* preview product image */}
         {/* <div className="box-border p-2 h-[100%] w-[100%]"> */}
         <img
-          className="absolute object-scale-down mix-blend-multiply h-[100%] w-[100%] rounded aspect-sqaure"
+          className="absolute object-contain mix-blend-multiply h-[100%] w-[100%] rounded aspect-sqaure"
           src={previewImage}
           alt={title}
         />

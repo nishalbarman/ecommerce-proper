@@ -17,7 +17,7 @@ import Testimonials from "@/components/TestimonialsSection/TestimonialsSection";
 
 const getSaleDetails = async () => {
   try {
-    const backendUrl = process.env.NEXT_SERVER_URL;
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
     const response = await fetch(`${backendUrl}/sale-details`);
     const data = await response.json();
     return data;
@@ -33,30 +33,29 @@ export default async function Page() {
 
   return (
     <>
-      <main className="min-h-screen">
-        {/* <BannerTop /> */}
-        <HeroProduct />
-        {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
-        {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
-        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
+      {/* <BannerTop /> */}
+      <HeroProduct />
+      {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
+      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
 
-        <BestSelling />
-        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div>
+      <BestSelling />
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div>
 
-        <Categories />
+      <Categories />
 
-        <div className="w-full h-[1px] mt-20"></div>
+      <div className="w-full h-[1px] mt-20"></div>
 
-        {/* <Testimonials /> */}
+      <Testimonials />
 
-        <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div>
+      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
 
-        {/* <MiddleBanner /> */}
-        {/* <ExploreProducts /> */}
-        <NewArrivalSection />
-        <Features />
-      </main>
-      <Footer />
+      {/* <MiddleBanner /> */}
+      {/* <ExploreProducts /> */}
+      {/* <NewArrivalSection /> */}
+
+      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div> */}
+      <Features />
     </>
   );
 }

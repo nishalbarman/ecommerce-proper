@@ -1,0 +1,71 @@
+.my-swiper {
+  padding: 0px 30px;
+}
+
+/* .swiper {
+  padding: 0px 30px;
+} */
+
+.swiper-slide {
+  height: auto; /* Allow slides to adjust height */
+}
+
+.testimonial-card {
+  height: 100%;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+  background-color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  filter: invert(1);
+  background-color: white;
+}
+
+.swiper-button-prev {
+  left: 0; /* Adjust as needed */
+}
+
+.swiper-button-next {
+  right: 0; /* Adjust as needed */
+}
+
+/* Custom arrow for .swiper-button-prev */
+.swiper-button-prev::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-left: 2px solid black;
+  border-bottom: 2px solid black;
+  transform: rotate(45deg);
+  position: relative;
+  left: 1px; /* Adjust arrow position */
+}
+
+/* Custom arrow for .swiper-button-next */
+.swiper-button-next::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-right: 2px solid black;
+  border-top: 2px solid black;
+  transform: rotate(45deg);
+  position: relative;
+  right: 1px; /* Adjust arrow position */
+}

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import FeatureItem from "../Features/FeatureItem";
 
@@ -23,7 +21,7 @@ function Features() {
   ];
 
   return (
-    <div className="flex gap-5 w-fill justify-evenly flex-wrap max-[597px]:m-[20px_0px] mt-[10%] mb-[10%]">
+    <div className="flex gap-5 w-fill justify-evenly flex-wrap max-[597px]:m-[20px_0px] my-[10%]">
       {features.map((item, index) => (
         <FeatureItem key={index} {...item} />
       ))}

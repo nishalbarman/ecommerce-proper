@@ -37,6 +37,8 @@ import dayjs, { Dayjs } from "dayjs";
 import TransactionsTable from "./TransactionsTable";
 import { useAppSelector } from "../redux";
 
+import anime_image from "../assets/shinobu.webp";
+
 const data = {
   labels: ["July", "August", "September", "October", "November", "December"],
   datasets: [
@@ -76,7 +78,7 @@ const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
         </h1>
         <div className="flex flex-col items-center mt-10 select-none">
           <img
-            src="https://t3.ftcdn.net/jpg/02/95/26/46/360_F_295264675_clwKZxogAhxLS9sD163Tgkz1WMHsq1RJ.jpg"
+            src={anime_image}
             className="w-60 h-60 object-contain mix-blend-multiply aspect-sqaure"
           />
         </div>

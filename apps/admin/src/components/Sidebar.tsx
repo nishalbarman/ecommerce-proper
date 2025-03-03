@@ -19,6 +19,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+import anime_image from "../assets/shinobu.jpg";
+
 type SidebarProps = {
   navbarToogle: Boolean;
   setNavbarToogle: any;
@@ -68,15 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
         </div>
 
         <div className="flex items-center justify-start px-3 h-20 border-b border-gray-700 gap-2">
-          <img
-            style={
-              {
-                // filter: "invert(100%)",
-              }
-            }
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Smiley.svg/1200px-Smiley.svg.png"
-            className="w-14 h-14"
-          />
+          <img src={anime_image} className="w-14 h-14" />
           <h1 className="text-2xl font-semibold ml-1">Admin</h1>
         </div>
         <nav className="flex-1 px-2 py-4">
@@ -161,6 +155,22 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
                 }`}>
                 <FaTachometerAlt className="mr-4" />
                 <span>View Categories</span>
+              </Link>
+            </li>
+          </ul>
+
+          <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">
+            Testimonials
+          </h2>
+          <ul className="text-md">
+            <li>
+              <Link
+                to="/testimonials"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/testimonials" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaImage className="mr-4" />
+                <span>Testimonials</span>
               </Link>
             </li>
           </ul>

@@ -12,6 +12,7 @@ import cAxios from "../../axios/cutom-axios";
 
 import no_image from "../../assets/no-image.svg";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import ViewImage from "../ViewImage/ViewImage";
 
 const ProductAdd = () => {
   const [categoryData, setCategoryData] = useState<Category>({
@@ -175,6 +176,8 @@ const ProductAdd = () => {
       handleAddCategory();
     }
   };
+
+  const [categoryViewImage, setCategoryViewImage] = useState<string>("");
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100 ml-64 max-md:ml-0">
@@ -360,7 +363,12 @@ const ProductAdd = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {index + 1}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td
+                          className="px-6 py-4 whitespace-nowrap"
+                          onClick={() => {
+                            if (item?.categoryImageUrl)
+                              setCategoryViewImage(item.categoryImageUrl);
+                          }}>
                           <img
                             src={item.categoryImageUrl as string}
                             alt={item.categoryName}
@@ -471,6 +479,15 @@ const ProductAdd = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {categoryViewImage && (
+        <ViewImage
+          clearItem={() => {
+            setCategoryViewImage("");
+          }}
+          imageUrl={categoryViewImage}
+        />
       )}
     </div>
   );

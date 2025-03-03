@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 async function getCategories() {
   try {
-    const url = new URL(`/categories`, process.env.NEXT_SERVER_URL);
+    const url = new URL(`/categories`, process.env.NEXT_PUBLIC_SERVER_URL);
 
     console.log(url.href);
 
@@ -30,8 +30,10 @@ export default async function Category() {
   return (
     <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem]">
       <TitleWithBar title={"Browse By Category"} />
-      <div className="w-full flex justify-between items-center mb-20 max-[597px]:mb-6">
-        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap">See Our Categories</span>
+      <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6">
+        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap">
+          See Our Categories
+        </span>
       </div>
       <CategorySlider items={categories || []} />
     </div>

@@ -14,7 +14,7 @@ function CategoryItem({ categoryImageUrl, categoryName, categoryKey }) {
       </div> */}
       <Image
         src={categoryImageUrl}
-        className="select-none max-[597px]:h-[40px]"
+        className="select-none max-[597px]:h-[40px] h-[50px] w-[50px] object-cover rounded-full aspect-[1/1]"
         width={50}
         height={50}
         alt={categoryName}

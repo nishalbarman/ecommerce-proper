@@ -7,7 +7,7 @@ export async function fetchProducts({
   cookies = undefined,
 }) {
   try {
-    const backendUrl = process.env.NEXT_SERVER_URL;
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
     const url = new URL(`/products`, backendUrl);
 

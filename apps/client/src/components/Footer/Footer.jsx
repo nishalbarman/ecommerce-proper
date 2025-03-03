@@ -4,11 +4,35 @@ import Link from "next/link";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiFacebookLogoBold } from "react-icons/pi";
 
+import tree_leaf from "../../../public/bg.png";
+import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+
 function Footer() {
   const webData = {};
 
   return (
-    <div className="bg-primary">
+    <div className="bg-primary relative">
+      <div className="h-full w-full absolute top-0 left-0">
+        <Image
+          className="select-none drag-none"
+          src={tree_leaf}
+          alt=""
+          layout="fill"
+          objectFit="cover"
+          quality={100}
+        />
+      </div>
+      <div className="h-full absolute top-0 left-[45%] opacity-[0.1]">
+        <Image
+          className="select-none drag-none"
+          src={green_leaf_falling}
+          alt=""
+          width={500}
+          height={500}
+          objectFit="contain"
+        />
+      </div>
+
       <div className="flex flex-wrap justify-between gap-5 w-[100%] bg-black p-10 pl-[5%] pr-[5%] lg:pl-[10%] lg:pr-[10%] bg-primary">
         {/* Exclusive */}
         <div>
@@ -44,12 +68,11 @@ function Footer() {
           </p>
           {/* socials */}
           <div className="mb-5 max-md:text-center text-white">
-            <p className="text-sm underline mb-4">Socials:</p>
             <div className="flex max-md:justify-center items-center gap-2">
               <a
                 href={webData.WhatsAppLink}
                 target="_blank"
-                className="text-gray-500">
+                className="text-white">
                 <FaWhatsapp color={"white"} size={22} />
               </a>
 
@@ -185,21 +208,21 @@ function Footer() {
         <div className="container px-5 py-7 mx-auto flex items-center sm:flex-row flex-col bg-white">
           <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
             {/* <span className="ml-3 text-xl">{webData.BrandName}</span> */}
-            <span className="ml-3 text-xl">{"JharnaMehendi"}</span>
+            <span className="ml-3 text-xl font-marker ">{"JharnaMehendi"}</span>
           </a>
-          <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4">
+          <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4 font-andika ">
             © {new Date().getFullYear()}{" "}
             {/* <Link href={`/`}>{webData.websiteUrl}</Link> */}
             <Link href={`/`}>NishaChar.in</Link>
           </p>
           <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-            <span className="text-black">
+            <span className="text-black font-marker ">
               🧑‍💻 Made By{" "}
               <a
                 title="Nishal Barman"
                 href="https://nisha-char.web.app/"
                 target="_blank"
-                className="underline">
+                className="underline font-marker ">
                 Nishachar
               </a>{" "}
             </span>

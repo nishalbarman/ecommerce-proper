@@ -5,7 +5,7 @@ const feedbackSchema = new mongoose.Schema(
     title: { type: String, required: false },
     description: { type: String, required: true },
     starsGiven: { type: Number, default: 1 },
-    product: { type: mongoose.Types.ObjectId, ref: "Product" },
+    product: { type: mongoose.Types.ObjectId, ref: "products" },
     givenBy: { type: String, required: true },
     user: { type: mongoose.Types.ObjectId, ref: "User" },
     productType: { type: String, required: true },

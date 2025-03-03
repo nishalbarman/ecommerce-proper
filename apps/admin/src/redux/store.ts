@@ -32,6 +32,7 @@ import { authSlice } from "./slices/authSlice";
 import { imageApi } from "./apis/imageApi";
 import { roleApi } from "./apis/roleApi";
 import { productApi } from "./apis/productApi";
+import { newArrivalApi } from "./apis/newArrivalApi";
 
 const rootReducer = combineReducers({
   [userApi.reducerPath]: userApi.reducer,
@@ -51,6 +52,7 @@ const rootReducer = combineReducers({
   [imageApi.reducerPath]: imageApi.reducer,
   [roleApi.reducerPath]: roleApi.reducer,
   [productApi.reducerPath]: productApi.reducer,
+  [newArrivalApi.reducerPath]: newArrivalApi.reducer,
 });
 
 const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
@@ -79,6 +81,7 @@ export const store = configureStore({
       .concat(centerAddressApi.middleware)
       .concat(roleApi.middleware)
       .concat(productApi.middleware)
+      .concat(newArrivalApi.middleware)
       .concat(imageApi.middleware),
 });
 

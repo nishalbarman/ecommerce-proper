@@ -62,7 +62,7 @@ function SignupForm() {
     const loadingToast = toast.loading("Signing up...");
     try {
       const response = await axios.post(
-        `${process.env.NEXT_SERVER_URL}/auth/signup`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/auth/signup`,
         {
           name: formData.name.value,
           email: formData.email.value,

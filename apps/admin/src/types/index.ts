@@ -197,3 +197,25 @@ export interface DynamicPage {
   slug: string;
   [key: string]: any;
 }
+
+export interface Testimonial {
+  _id?: string;
+  clientName: string;
+  clientSpeech: string;
+  clientAvatar: string;
+  clientChatImage: string;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
+}
+
+export interface NewArrival {
+  _id?: string;
+  title: string;
+  shortDescription: string;
+  imageUrl: string;
+  productId: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  [key: string]: any;
+}

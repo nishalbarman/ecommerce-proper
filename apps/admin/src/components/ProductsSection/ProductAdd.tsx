@@ -66,7 +66,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
   const [categoryList, setCategoryList] = useState([]);
 
-  // ! Fetch category logic
+  // Fetch category logic
 
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
 
@@ -103,12 +103,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
       const fetchData = async () => {
         try {
           const response = await cAxios.get(
-            `${process.env.VITE_APP_API_URL}/products/admin-view/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${jwtToken}`,
-              },
-            }
+            `${process.env.VITE_APP_API_URL}/products/admin-view/${id}`
           );
 
           const product: Product = response.data.product;

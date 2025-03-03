@@ -452,31 +452,10 @@ router.get("/", async (req, res) => {
 
 router.post("/view/:productId", async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    // console.log(TAG, userDetails);
-
-    if (!userDetails) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
     const params = req.params;
-    const productType = req.body?.productType;
+    const productType = req.body?.productType || "buy";
 
-    if (!productType) {
-      return res
-        .status(400)
-        .json({ redirect: "/products", message: "Product Type missing!" });
-    }
+    console.log("Parameters", params);
 
     // check whether we have the product id or not
     if (!params.productId) {
@@ -492,14 +471,14 @@ router.post("/view/:productId", async (req, res) => {
 
     console.log("has user bought", {
       product: params.productId,
-      user: userDetails._id,
+      user: undefined,
       orderType: productType,
       orderStatus: "Delivered",
     });
 
     const hasUserBoughtThisProduct = await Order.countDocuments({
       product: params.productId,
-      user: userDetails._id,
+      user: undefined,
       orderType: productType,
       orderStatus: "Delivered",
     });
@@ -556,7 +535,11 @@ router.post("/", checkRole(1), async (req, res) => {
     }
 
     const userDetails = getTokenDetails(token);
-    if (!userDetails || !userDetails?.roleNumber || userDetails.roleNumber !== 1) {
+    if (
+      !userDetails ||
+      !userDetails?.roleNumber ||
+      userDetails.roleNumber !== 1
+    ) {
       return res.redirect("/auth/login");
     }
 
@@ -792,50 +775,56 @@ router.patch("/update/:productId", checkRole(1), async (req, res) => {
 });
 
 /// product instock check
-router.post(
-  "/variant/instock/:productId",
-  checkRole(0, 1),
-  async (req, res) => {
-    try {
-      const productId = req.params?.productId;
-      const variant = req.body?.variant;
-      const productType = req.body?.productType;
+router.post("/variant/instock/:productId", async (req, res) => {
+  try {
+    console.log("Hit on varian in stockk");
 
-      let inStock = false;
+    const productId = req.params?.productId;
+    const productType = req.body?.productType || "buy";
+    const variant = req.body?.variant;
 
-      if (variant) {
-        const Variant = await ProductVariant.findOne({
-          _id: variant,
-        });
+    console.log(req.body);
 
-        inStock = !!Variant && Variant?.availableStocks > 0;
+    console.log("Items", { productId, variant, productType });
 
-        return res.json({
-          inStock,
-        });
-      }
+    let inStock = false;
 
-      const filterObject = {
-        _id: productId,
-        productType: productType,
-      };
+    if (variant) {
+      const Variant = await ProductVariant.findOne({
+        _id: variant,
+      });
 
-      const productItem = await Product.findOne(filterObject);
+      console.log("Variant Data", Variant);
 
-      inStock = !!productItem && productItem?.availableStocks > 0;
+      inStock = !!Variant && Variant?.availableStocks > 0;
 
       return res.json({
         inStock,
       });
-    } catch (error) {
-      console.error(error);
-      return res.json({
-        status: false,
-        message: "Internal server error!",
-      });
     }
+
+    const filterObject = {
+      _id: productId,
+      productType: productType,
+    };
+
+    const productItem = await Product.findOne(filterObject);
+
+    inStock = !!productItem && productItem?.availableStocks > 0;
+
+    console.log("in stock response", inStock);
+
+    return res.json({
+      inStock,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      status: false,
+      message: "Internal server error!",
+    });
   }
-);
+});
 
 // ADMIN ROUTE : Product delete route
 router.post("/delete", checkRole(1), async (req, res) => {

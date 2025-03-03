@@ -1,5 +1,5 @@
 // CustomCKE.d.ts
-import * as React from "react";
+import React from "react";
 
 declare const CustomCKE: React.FC<{
   id: string;

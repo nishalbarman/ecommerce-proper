@@ -35,9 +35,16 @@ const extractToken = async (req, res, next) => {
       req.url === "/hook/razorpay" ||
       req.url === "/stripe/hook" ||
       req.url === "/get-image-bg-color" ||
-      (req.method == "GET" && req.url === "/products") ||
-      req.url === "/products/view/:productId" ||
+      (req.method == "GET" &&
+        req.url.startsWith("/products") &&
+        !req.url.startsWith("/products/admin-view")) ||
+      req.url.startsWith("/products/view/") ||
+      (req.method == "POST" &&
+        req.url.startsWith("/products/variant/instock")) ||
+      (req.method == "GET" && req.url === "/hero-products") ||
+      (req.method == "GET" && req.url.startsWith("/new-arrival")) ||
       req.url === "/categories" ||
+      req.url.startsWith("/testimonials") ||
       req.url === "/categories/view/:categoryId" ||
       req.url === "/orders/get-order-chart-data" ||
       req.url === "/uploader/image/imgbb/upload" ||
@@ -94,12 +101,14 @@ app.use("/auth/signup", require("./routes/auth/authentication.routes"));
 app.use("/auth/sendOtp", require("./routes/otpSend/mobile.routes"));
 app.use("/categories", require("./routes/categories/category.routes"));
 app.use("/products", require("./routes/products/products.routes"));
+app.use("/new-arrival", require("./routes/new-arrival/newArrival.routes"));
 app.use("/wishlist", require("./routes/wishlist/wishlist.routes"));
 app.use("/cart", require("./routes/cart/cart.routes"));
 app.use("/address", require("./routes/address/address.routes"));
 app.use("/feedbacks", require("./routes/feedbacks/feedbacks.routes"));
 app.use("/orders", require("./routes/order/order.routes"));
 
+app.use("/testimonials", require("./routes/testimonials/testimonials.routes"));
 app.use("/dynamic-pages", require("./routes/dynamicPage/dynamicPage.routes"));
 app.use("/hero-products", require("./routes/heroProduct/heroProduct.routes"));
 app.use("/roles", require("./routes/roles/roles.routes"));

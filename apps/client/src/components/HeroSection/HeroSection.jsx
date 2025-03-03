@@ -1,14 +1,16 @@
 import React from "react";
-import tree_leaf from "../../../public/bg.png";
-import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+
 import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
 
+import tree_leaf from "../../../public/bg.png";
+import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+
 const fetchHeroProduct = async (cookieStore) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_SERVER_URL}/hero-products`,
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`,
       {
         headers: {
           Cookie: cookieStore,
@@ -65,14 +67,14 @@ const HeroProduct = async () => {
                 {heroProduct.category || "Demo"}
               </h3>
               {/* <div
-          className="text-5xl font-bold mb-6"
-          dangerouslySetInnerHTML={{
-            __html: Title,
-          }}></div> */}
+                className="text-5xl font-bold mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: Title,
+                }}></div> */}
               <div
                 className="text-white mb-10 prose-lg drop-shadow-lg"
                 dangerouslySetInnerHTML={{
-                  __html: heroProduct.shortDescription,
+                  __html: `${heroProduct.shortDescription}`,
                 }}></div>
               <div className="flex max-lg:justify-center gap-4">
                 <Link

@@ -1,0 +1,45 @@
+/* Increase specificity by targeting the Swiper container as well */
+.my-swiper .swiper-button-next,
+.my-swiper .swiper-button-prev {
+  color: green !important; /* Use !important to ensure the style is applied */
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 43px;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.my-swiper .swiper-button-next:hover,
+.my-swiper .swiper-button-prev:hover {
+  color: rgba(3, 47, 3, 0.8) !important;
+}
+
+.my-swiper .swiper-button-next::after,
+.my-swiper .swiper-button-prev::after {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Custom styles for Swiper pagination dots */
+.my-swiper .swiper-pagination-bullet {
+  background-color: gray; /* Default color for inactive dots */
+  opacity: 1; /* Ensure dots are fully visible */
+  width: 8px; /* Adjust size */
+  height: 8px; /* Adjust size */
+  margin: 0 6px !important; /* Adjust spacing between dots */
+  transition: background-color 0.3s ease;
+}
+
+.my-swiper .swiper-pagination-bullet-active {
+  background-color: green; /* Active dot color */
+  width: 20px;
+  border-radius: 10px;
+  transition: 0.2s ease-in-out;
+}
+
+.swiper-slide {
+ box-shadow: 10px;
+}
