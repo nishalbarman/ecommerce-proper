@@ -251,13 +251,13 @@ const ViewProduct = () => {
                   }}
                   spaceBetween={10}
                   slidesPerView={4}
-                  className="w-full h-24 max-sm:h-14 ">
+                  className="w-full h-24 max-sm:h-14">
                   {/* Main Image Thumbnail */}
                   <SwiperSlide>
                     <img
                       src={`${filteredVariant?.previewImage || product.previewImage}`}
                       alt={product ? product?.title : undefined}
-                      className="w-full h-full object-contain rounded-lg cursor-pointer select-none"
+                      className="w-full border border-gray-300 shadow h-full object-cover rounded-lg cursor-pointer select-none"
                     />
                   </SwiperSlide>
 
@@ -268,7 +268,7 @@ const ViewProduct = () => {
                         <img
                           src={`${image}`}
                           alt={`Product Image ${index + 1}`}
-                          className="w-full h-full object-contain rounded-lg cursor-pointer select-none"
+                          className="w-full border border-gray-300 shadow h-full object-cover rounded-lg cursor-pointer select-none"
                         />
                       </SwiperSlide>
                     )

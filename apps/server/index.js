@@ -35,16 +35,16 @@ const extractToken = async (req, res, next) => {
       req.url === "/hook/razorpay" ||
       req.url === "/stripe/hook" ||
       req.url === "/get-image-bg-color" ||
-      (req.method == "GET" &&
+      (req.method === "GET" &&
         req.url.startsWith("/products") &&
         !req.url.startsWith("/products/admin-view")) ||
       req.url.startsWith("/products/view/") ||
-      (req.method == "POST" &&
+      (req.method === "POST" &&
         req.url.startsWith("/products/variant/instock")) ||
-      (req.method == "POST" && req.url === "/contact/create") ||
-      (req.method == "GET" && req.url === "/hero-products") ||
-      (req.method == "GET" && req.url.startsWith("/new-arrival")) ||
-      req.url === "/categories" ||
+      (req.method === "POST" && req.url === "/contact/create") ||
+      (req.method === "GET" && req.url === "/hero-products") ||
+      (req.method === "GET" && req.url.startsWith("/new-arrival")) ||
+      (req.method === "GET" && req.url === "/categories") ||
       req.url.startsWith("/testimonials") ||
       req.url === "/categories/view/:categoryId" ||
       req.url === "/orders/get-order-chart-data" ||

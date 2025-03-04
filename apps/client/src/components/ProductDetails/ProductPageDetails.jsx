@@ -169,7 +169,7 @@ export default function ProductDetails({
                 <img
                   src={`${filteredVariant?.previewImage || product.previewImage}`}
                   alt={product ? product?.title : undefined}
-                  className="w-full h-full !border shadow-lg border-primary object-contain rounded-lg cursor-pointer select-none"
+                  className="w-full h-full !border shadow-lg border-primary object-cover rounded-lg cursor-pointer select-none"
                 />
               </SwiperSlide>
 
@@ -180,7 +180,7 @@ export default function ProductDetails({
                     <img
                       src={`${image}`}
                       alt={`Product Image ${index + 1}`}
-                      className="w-full h-full !border shadow-lg border-primary  object-contain rounded-lg cursor-pointer select-none"
+                      className="w-full h-full !border shadow-lg border-primary  object-cover rounded-lg cursor-pointer select-none"
                     />
                   </SwiperSlide>
                 )
