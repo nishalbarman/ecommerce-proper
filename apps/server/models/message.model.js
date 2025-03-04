@@ -5,8 +5,8 @@ const messageSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true },
     message: { type: String, required: true },
-    phone: { type: Number, required: true },
-    status: { type: Boolean, default: false },
+    phone: { type: Number, required: false },
+    readStatus: { type: Boolean, default: false },
   },
   {
     timestamps: true,
@@ -45,11 +45,11 @@ Message.schema.path("message").validate({
   message: "Message minimum length should be 10 characters",
 });
 
-Message.schema.path("phone").validate({
-  validator: function (value) {
-    return value.toString().length === 10;
-  },
-  message: "phone number must be of 10 digit",
-});
+// Message.schema.path("phone").validate({
+//   validator: function (value) {
+//     return value.toString().length === 10;
+//   },
+//   message: "phone number must be of 10 digit",
+// });
 
 module.exports = Message;

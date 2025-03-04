@@ -5,6 +5,10 @@
 @plugin "@tailwindcss/typography";
 @plugin 'tailwind-scrollbar';
 
+html {
+  overflow-x: hidden;
+}
+
 @layer utilities {
   .scrollbar::-webkit-scrollbar {
     width: 10px;
@@ -22,5 +26,8 @@
 
   .scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgb(30, 41, 54);
+  }
+  .zoom {
+    zoom: 1.2;
   }
 }

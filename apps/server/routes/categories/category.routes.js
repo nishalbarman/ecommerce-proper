@@ -87,26 +87,6 @@ router.patch("/update/:categoryId", checkRole(1), async (req, res) => {
       return res.status(400).json({ message: "Category Id Not Found" });
     }
 
-    // const category = await Category.findById(categoryId);
-
-    if (
-      !!categoryData?.categoryImageUrl &&
-      categoryData?.categoryImageUrl.length === 1
-    ) {
-      try {
-        const url = await ImageUploadHelper.uploadBulkImages(
-          categoryData.categoryImageUrl
-        );
-        console.log(url);
-        categoryData.categoryImageUrl = url[0];
-      } catch (error) {
-        console.error(error);
-        return res.status(400).json({ message: "File upload error" });
-      }
-    } else {
-      delete categoryData.categoryImageUrl;
-    }
-
     if (categoryData?.categoryName) {
       categoryData.categoryKey = categoryData.categoryName
         .trim()

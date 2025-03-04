@@ -41,6 +41,7 @@ const extractToken = async (req, res, next) => {
       req.url.startsWith("/products/view/") ||
       (req.method == "POST" &&
         req.url.startsWith("/products/variant/instock")) ||
+      (req.method == "POST" && req.url === "/contact/create") ||
       (req.method == "GET" && req.url === "/hero-products") ||
       (req.method == "GET" && req.url.startsWith("/new-arrival")) ||
       req.url === "/categories" ||
@@ -107,6 +108,7 @@ app.use("/cart", require("./routes/cart/cart.routes"));
 app.use("/address", require("./routes/address/address.routes"));
 app.use("/feedbacks", require("./routes/feedbacks/feedbacks.routes"));
 app.use("/orders", require("./routes/order/order.routes"));
+app.use("/contact", require("./routes/contact/contact.routes"));
 
 app.use("/testimonials", require("./routes/testimonials/testimonials.routes"));
 app.use("/dynamic-pages", require("./routes/dynamicPage/dynamicPage.routes"));

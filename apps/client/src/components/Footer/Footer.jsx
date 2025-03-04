@@ -12,7 +12,8 @@ function Footer() {
 
   return (
     <div className="bg-primary relative">
-      <div className="h-full w-full absolute top-0 left-0">
+      {/* Tree leaf image with pointer-events: none; */}
+      <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
         <Image
           className="select-none drag-none"
           src={tree_leaf}
@@ -22,6 +23,8 @@ function Footer() {
           quality={100}
         />
       </div>
+
+      {/* Green leaf falling image */}
       <div className="h-full absolute top-0 left-[45%] opacity-[0.1]">
         <Image
           className="select-none drag-none"
@@ -134,16 +137,19 @@ function Footer() {
           </p>
           <div className="font-andika flex flex-col gap-[16px]">
             <p className=" font-andika font-andika text-white">
-              <Link href={"/"}>Privacy Policy</Link>
+              <Link href={"/dynamic/refund-policy"}>Refund Policy</Link>
             </p>
             <p className=" font-andika font-andika text-white">
-              <Link href={"/"}>Terms Of Use</Link>
+              <Link href={"/dynamic/privacy-policy"}>Privacy Policy</Link>
             </p>
             <p className=" font-andika font-andika text-white">
-              <Link href={"/"}>Faq</Link>
+              <Link href={"/dynamic/terms-and-conditions"}>Terms Of Use</Link>
             </p>
             <p className=" font-andika font-andika text-white">
-              <Link href={"/"}>Contact</Link>
+              <Link href={"/dynamic/faq"}>Faq</Link>
+            </p>
+            <p className=" font-andika font-andika text-white">
+              <Link href={"/dynamic/contact"}>Contact</Link>
             </p>
           </div>
         </div>

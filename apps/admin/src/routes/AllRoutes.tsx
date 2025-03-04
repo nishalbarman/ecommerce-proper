@@ -18,6 +18,7 @@ import HeroProductAdd from "../components/HeroProduct/HeroProduct";
 import DynamicPageAdd from "../components/DynamicPage/DynamicPage";
 import AdminTestimonialsPage from "../components/TestimonialsSection/TestimonialsSec";
 import NewArrivalList from "../components/NewArrivalSection/NewArrivalList";
+import AdminContacts from "../components/ContactSection/ContactSection";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -123,6 +124,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <HeroProductAdd />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/contacts"
+        element={
+          <PrivateRoute>
+            <AdminContacts />
           </PrivateRoute>
         }
       />

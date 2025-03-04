@@ -92,7 +92,7 @@ function SignupForm() {
     <>
       {isVerifyScreenVisible ? (
         <>
-          <div className="flex flex-col items-center justify-center  col-start-1 md:col-start-2 gap-[20px] w-[100%]">
+          <div className="flex flex-col items-center justify-center col-start-1 md:col-start-2 gap-[20px] w-full">
             <div className="flex flex-col items-center justify-center w-fill h-fill gap-5">
               <Image src={"/assets/email.svg"} width={60} height={60} />
               <h3 className="text-3xl font-semibold font-andika text-center">

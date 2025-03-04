@@ -14,7 +14,7 @@ import no_image from "../../assets/no-image.svg";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ViewImage from "../ViewImage/ViewImage";
 
-const ProductAdd = () => {
+const CategoryList = () => {
   const [categoryData, setCategoryData] = useState<Category>({
     categoryName: "",
     categoryImageUrl: "",
@@ -493,4 +493,4 @@ const ProductAdd = () => {
   );
 };
 
-export default ProductAdd;
+export default CategoryList;
