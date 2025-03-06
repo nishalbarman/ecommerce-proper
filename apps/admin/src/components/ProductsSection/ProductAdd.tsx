@@ -769,26 +769,45 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
                     <div className="flex items-center mb-3">
                       {productData.isVariantAvailable && (
-                        <input
-                          type="number"
-                          className="form-input p-2 border border-gray-300 rounded-md flex-1"
-                          onChange={(e) => {
-                            setVariantQuantity(+e.target.value);
-                          }}
-                          value={variantQuantity}
-                          onWheel={(e) => {
-                            e.preventDefault();
-                          }}
-                          min={0}
-                          placeholder="Number of variants requried"
-                          aria-label="Variant quantity"
-                        />
+                        <div className="flex items-center border-none border-gray-300 rounded-lg w-fit">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVariantQuantity((prev) => (prev || 0) - 1);
+                            }}
+                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-l-lg focus:outline-none h-full">
+                            -
+                          </button>
+                          <input
+                            type="number"
+                            className="form-input p-2 border border-gray-300 rounded-md flex-1"
+                            onChange={(e) => {
+                              setVariantQuantity(+e.target.value);
+                            }}
+                            value={variantQuantity}
+                            onWheel={(e) => {
+                              e.preventDefault();
+                            }}
+                            min={0} 
+                            placeholder="Number of variants requried"
+                            aria-label="Variant quantity"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVariantQuantity((prev) => (prev || 0) + 1);
+                            }}
+                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-r-lg focus:outline-none">
+                            +
+                          </button>
+                        </div>
                       )}
                     </div>
 
                     {!!productData?.isVariantAvailable &&
-                      variantQuantity !== undefined && (
-                        <p className="text-body-secondary ">
+                      variantQuantity !== undefined &&
+                      variantQuantity > 0 && (
+                        <p className="text-body-secondary mb-2">
                           Fill the variant details:
                         </p>
                       )}
@@ -796,7 +815,8 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                 </div>
 
                 {!!productData?.isVariantAvailable &&
-                  variantQuantity !== undefined && (
+                  variantQuantity !== undefined &&
+                  variantQuantity > 0 && (
                     <div className="grid grid-cols-1 grid-flow-rows gap-4 [1680px]:grid-cols-2 w-full [1680px]:border [1680px]:p-2 rounded-sm">
                       {Array.from({
                         length:
