@@ -51,17 +51,17 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
   return (
     <motion.div
       // initial={{ width: 0 }}
-      animate={width <= 765 ? (navbarToogle ? "closed" : "open") : "open"}
+      animate={width <= 1023 ? (navbarToogle ? "closed" : "open") : "open"}
       variants={variants}
       className={`z-50 min-h-screen w-64 bg-gray-800 text-white flex top-0 bottom-0 flex-col fixed  overflow-y-auto scrollbar ${
-        width <= 765 ? (navbarToogle ? "hidden" : "visible") : "visible"
+        width <= 1023 ? (navbarToogle ? "hidden" : "visible") : "visible"
       }`}>
       <motion.div
-        animate={width <= 765 ? (navbarToogle ? "closed" : "open") : "open"}
+        animate={width <= 1023 ? (navbarToogle ? "closed" : "open") : "open"}
         variants={sidebarInnerDivVarient}
         transition={{ delay: 0.2 }}>
         <div
-          className="absolute right-2 top-2 border border-white rounded-sm md:hidden"
+          className="absolute right-2 top-2 border border-white rounded-sm lg:hidden"
           onClick={() => {
             console.log(navbarToogle);
             setNavbarToogle((prev: boolean) => !prev);

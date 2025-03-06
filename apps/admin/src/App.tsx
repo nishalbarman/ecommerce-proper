@@ -16,7 +16,7 @@ function App() {
       {location.pathname !== "/login" && (
         <>
           <div
-            className="md:hidden px-5 bg-white h-14 flex items-center"
+            className="lg:hidden px-5 bg-white h-14 flex items-center"
             onClick={() => {
               setNavbarToogle((prev: boolean) => !prev);
             }}>
@@ -28,7 +28,9 @@ function App() {
           />
         </>
       )}
-      <AllRoutes />
+      <main className="ml-64 max-lg:ml-0">
+        <AllRoutes />
+      </main>
     </div>
   );
 }

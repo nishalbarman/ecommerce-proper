@@ -21,13 +21,18 @@ html {
 
   .scrollbar::-webkit-scrollbar-thumb {
     background: rgb(172, 187, 205);
-    border: 3px solid rgb(172, 187, 205);
+    /* border: 3px solid rgb(172, 187, 205); */
   }
 
-  .scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgb(30, 41, 54);
-  }
   .zoom {
     zoom: 1.2;
+  }
+
+  .zoom-normal {
+    zoom: 1;
+  }
+
+  .zoom-out {
+    zoom: 0.3;
   }
 }

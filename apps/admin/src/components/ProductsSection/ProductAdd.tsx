@@ -267,9 +267,9 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
   return (
     <div
-      className={`flex flex-col flex-1bg-gray-100 ${
-        !updateProductId && "ml-64 p-3 md:p-6 "
-      } max-md:ml-0`}>
+      className={`flex flex-col flex-1 bg-gray-100 ${
+        !updateProductId && "p-3 md:p-6 "
+      } ""`}>
       {!updateProductId && (
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Product</h1>
@@ -282,7 +282,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
         </div>
       ) : (
         <div
-          className={`bg-white rounded mb-4 max-md:p-2 md:zoom ${
+          className={`bg-white rounded mb-4 max-md:p-2 ${
             !updateProductId && "p-3 md:p-6 shadow-md"
           }`}>
           {!updateProductId && (
@@ -413,72 +413,39 @@ const ProductAdd: React.FC<ProductAddProps> = ({
             </div>
 
             <div className="bg-white p-4 rounded shadow-lg border">
-              <h3 className="text-xl font-semibold mb-3">Product Images</h3>
+              <h3 className="text-xl font-semibold mb-2">Product Images</h3>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <div>
+                  <div className="flex items-center">
                     <label
                       htmlFor="productPreviewImage"
-                      className="block text-sm font-medium text-gray-700">
+                      className="block text-sm font-medium text-gray-700 whitespace-nowrap">
                       Preview Image{" "}
                       {!updateProductId && (
                         <span className="text-red-500 font-extrabold">*</span>
                       )}
                     </label>
 
-                    <div className="mt-1 flex items-center justify-center w-fit h-fit w-full">
-                      {/* <label
-                      htmlFor={`productPreviewImage`}
-                      className="cursor-pointer bg-white p-8 rounded-md border-2 border-dashed border-gray-600 shadow-md mt-1 w-full">
-                      <div className="flex flex-row items-center justify-start gap-3 w-full">
-                        <svg
-                          viewBox="0 0 640 512"
-                          className="h-12 fill-gray-600">
-                          <path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"></path>
-                        </svg>
-
-                        <span className="bg-gray-600 text-white py-1 px-3 rounded-lg transition-all duration-300 hover:bg-gray-800">
-                          Browse file
-                        </span>
+                    <div className="mt-1 flex items-center justify-end w-fit h-fit w-full">
+                      <div className="px-3">
+                        <AssetPicker
+                          classX="h-5"
+                          htmlFor="productPreviewImage"
+                          fileSelectCallback={(
+                            imageItems: Array<FileLibraryListItem>
+                          ) => {
+                            console.log("Selected Image Link-->", imageItems);
+                            setProductData((prev) => {
+                              return {
+                                ...prev,
+                                previewImage: imageItems[0].imageLink,
+                              };
+                            });
+                          }}
+                          multiSelect={false}
+                        />
                       </div>
-                      <input
-                        id="productPreviewImage"
-                        type="file"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border border-gray-300 hidden"
-                        aria-label="Preview Image"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const base64convertedFiles =
-                            (await convertImagesToBase64(
-                              e.target.files as FileList
-                            )) as Base64StringWithType[];
-
-                          setProductData((prev) => {
-                            return {
-                              ...prev,
-                              previewImage: base64convertedFiles,
-                            };
-                          });
-                        }}
-                        required={!updateProductId}
-                      />
-                    </label> */}
-                      <AssetPicker
-                        htmlFor="productPreviewImage"
-                        fileSelectCallback={(
-                          imageItems: Array<FileLibraryListItem>
-                        ) => {
-                          console.log("Selected Image Link-->", imageItems);
-                          setProductData((prev) => {
-                            return {
-                              ...prev,
-                              previewImage: imageItems[0].imageLink,
-                            };
-                          });
-                        }}
-                        multiSelect={false}
-                      />
                     </div>
                   </div>
 
@@ -489,82 +456,44 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         src={productData?.previewImage as string}
                       />
                     ) : (
-                      <img
-                        className="w-full h-full w-[150px] aspect-square object-contain"
-                        src={no_image}
-                      />
+                      <div className="flex justify-center items-center w-full h-[400px]">
+                        <span>No Image Selected</span>
+                      </div>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <div>
+                  <div className="flex items-center ">
                     <label
                       htmlFor="productSlideImage"
-                      className="block text-sm font-medium text-gray-700">
+                      className="block text-sm font-medium text-gray-700 whitespace-nowrap">
                       Slider Images{" "}
                       {!updateProductId && (
                         <span className="text-red-500 font-extrabold">*</span>
                       )}
                     </label>
-
-                    <div className="mt-1 flex items-center justify-center w-fit h-fit w-full">
-                      {/* <label
-                      htmlFor={`productSlideImage`}
-                      className="cursor-pointer bg-white p-8 rounded-md border-2 border-dashed border-gray-600 shadow-md mt-1 w-full">
-                      {" "}
-                      <div className="flex flex-row items-center justify-start gap-3 w-full">
-                        <svg
-                          viewBox="0 0 640 512"
-                          className="h-12 fill-gray-600">
-                          <path d="M144 480C64.5 480 0 415.5 0 336c0-62.8 40.2-116.2 96.2-135.9c-.1-2.7-.2-5.4-.2-8.1c0-88.4 71.6-160 160-160c59.3 0 111 32.2 138.7 80.2C409.9 102 428.3 96 448 96c53 0 96 43 96 96c0 12.2-2.3 23.8-6.4 34.6C596 238.4 640 290.1 640 352c0 70.7-57.3 128-128 128H144zm79-217c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l39-39V392c0 13.3 10.7 24 24 24s24-10.7 24-24V257.9l39 39c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-80-80c-9.4-9.4-24.6-9.4-33.9 0l-80 80z"></path>
-                        </svg>
-
-                        <span className="bg-gray-600 text-white py-1 px-3 rounded-lg transition-all duration-300 hover:bg-gray-800">
-                          Browse file
-                        </span>
+                    <div className="mt-1 flex items-center justify-end w-fit h-fit w-full">
+                      <div className="px-3">
+                        <AssetPicker
+                          classX="h-5"
+                          htmlFor="productSlideImage"
+                          fileSelectCallback={(
+                            imageItems: Array<FileLibraryListItem>
+                          ) => {
+                            console.log("Selected Image Link-->", imageItems);
+                            setProductData((prev) => {
+                              return {
+                                ...prev,
+                                slideImages: imageItems.map(
+                                  (eachImage) => eachImage.imageLink
+                                ),
+                              };
+                            });
+                          }}
+                          multiSelect={true}
+                        />
                       </div>
-                      <input
-                        id="productSlideImage"
-                        type="file"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border border-gray-300 hidden"
-                        aria-label="Slide Images"
-                        accept="image/*"
-                        onChange={async (e) => {
-                          const base64convertedFiles =
-                            (await convertImagesToBase64(
-                              e.target.files as FileList
-                            )) as Base64StringWithType[];
-
-                          setProductData((prev) => {
-                            return {
-                              ...prev,
-                              slideImages: base64convertedFiles,
-                            };
-                          });
-                        }}
-                        multiple={true}
-                        required={!updateProductId}
-                      />
-                    </label> */}
-
-                      <AssetPicker
-                        htmlFor="productSlideImage"
-                        fileSelectCallback={(
-                          imageItems: Array<FileLibraryListItem>
-                        ) => {
-                          console.log("Selected Image Link-->", imageItems);
-                          setProductData((prev) => {
-                            return {
-                              ...prev,
-                              slideImages: imageItems.map(
-                                (eachImage) => eachImage.imageLink
-                              ),
-                            };
-                          });
-                        }}
-                        multiSelect={true}
-                      />
                     </div>
                   </div>
 
@@ -592,10 +521,9 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         )}
                       </Swiper>
                     ) : (
-                      <img
-                        className="w-full h-full w-[150px] aspect-square object-contain"
-                        src={no_image}
-                      />
+                      <div className="flex justify-center items-center w-full h-[400px]">
+                        <span>No Image Selected</span>
+                      </div>
                     )}
                   </div>
                 </div>

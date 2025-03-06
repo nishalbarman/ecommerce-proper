@@ -6,7 +6,12 @@ import { useAppSelector } from "../../redux/index";
 import { DynamicPage } from "../../types";
 import cAxios from "../../axios/cutom-axios";
 import no_image from "../../assets/no-image.svg";
-import { FaChevronDown, FaChevronLeft, FaChevronRight, FaChevronUp } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaChevronLeft,
+  FaChevronRight,
+  FaChevronUp,
+} from "react-icons/fa";
 import CustomCKE from "../CustomCKE/CustomCKE";
 
 const DynamicPageAdd = () => {
@@ -136,7 +141,7 @@ const DynamicPageAdd = () => {
   const [isFormCollapsed, setIsFormCollapsed] = useState(true);
 
   return (
-    <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100 ml-64 max-md:ml-0">
+    <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">Dynamic Pages</h1>
       </div>

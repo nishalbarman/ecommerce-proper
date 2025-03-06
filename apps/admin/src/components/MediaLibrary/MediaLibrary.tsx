@@ -50,7 +50,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
   return (
     <>
       <ReactMediaLibrary
-        // defaultSelectedItemIds={[]}
+        defaultSelectedItemIds={[listOfImages && listOfImages[0]?._id]}
         fileLibraryList={listOfImages}
         modalTitle={title}
         fileUploadCallback={fileUploadCallback}
