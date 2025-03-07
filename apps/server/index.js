@@ -81,7 +81,11 @@ const extractToken = async (req, res, next) => {
 app.use(
   cors({
     // origin: "*",
-    origin: ["http://localhost:5000", "http://localhost:3000"], // Allow requests from this origin
+    origin: [
+      "http://localhost:5000",
+      "http://localhost:3000",
+      "https://jharna-mehendi-fully-custom-admin.vercel.app",
+    ], // Allow requests from this origin
     credentials: true,
   })
 );
