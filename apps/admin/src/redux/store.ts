@@ -63,26 +63,33 @@ const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Create an array of middleware
+const middlewares = [
+  cartApi.middleware,
+  wishlistApi.middleware,
+  userApi.middleware,
+  authApi.middleware,
+  addressApi.middleware,
+  categoryApi.middleware,
+  centerAddressApi.middleware,
+  roleApi.middleware,
+  productApi.middleware,
+  newArrivalApi.middleware,
+  imageApi.middleware,
+];
+
 export const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
+  middleware: (getDefaultMiddleware) => {
+    const defaultMiddleware = getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    })
-      // .concat(productsApi.middleware)
-      .concat(cartApi.middleware)
-      .concat(wishlistApi.middleware)
-      .concat(userApi.middleware)
-      .concat(authApi.middleware)
-      .concat(addressApi.middleware)
-      .concat(categoryApi.middleware)
-      .concat(centerAddressApi.middleware)
-      .concat(roleApi.middleware)
-      .concat(productApi.middleware)
-      .concat(newArrivalApi.middleware)
-      .concat(imageApi.middleware),
+    });
+
+    // Use type assertion to resolve type compatibility issue
+    return defaultMiddleware.concat(...(middlewares as any));
+  },
 });
 
 // store.subscribe(() => {
