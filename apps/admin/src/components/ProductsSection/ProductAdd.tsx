@@ -788,7 +788,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             onWheel={(e) => {
                               e.preventDefault();
                             }}
-                            min={0} 
+                            min={0}
                             placeholder="Number of variants requried"
                             aria-label="Variant quantity"
                           />
