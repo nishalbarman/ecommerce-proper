@@ -6,15 +6,12 @@ import Link from "next/link";
 import {
   isValidIndianMobileNumber,
   isValidPassword,
-  getBackendUrl,
 } from "@/helpter/utils";
 
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { setUserAuthData } from "@store/redux";
-import { useDispatch } from "react-redux";
 
 const validateInputs = (name, value) => {
   switch (name) {

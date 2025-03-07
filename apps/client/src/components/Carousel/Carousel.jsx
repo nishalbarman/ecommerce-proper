@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import styles from "./Carousel.module.css";
-// import { updateBanner } from "@store/redux"
 import axios from "axios";
 
 const CustomPrevArrow = ({ onClick }) => {

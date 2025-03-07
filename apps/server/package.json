@@ -5,9 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node --env-file=.env ./dist/index.js",
+    "start": "node ./dist/index.js",
     "dev": "concurrently \"yarn dev:validator\" \"yarn dev:firebase-utils\" \"yarn server_dev_start\"",
-    "server_dev_start": "nodemon --env-file=.env index.js",
+    "server_dev_start": "nodemon index.js",
     "dev:validator": "yarn workspace custom-validator-renting dev",
     "dev:firebase-utils": "yarn workspace firebase-utils dev",
     "build": "concurrently \"yarn build:firebase-utils\" \"yarn build:validator\" \"yarn build:tsup-build\"",
