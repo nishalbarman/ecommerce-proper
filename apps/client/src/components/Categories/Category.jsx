@@ -1,8 +1,9 @@
 import React from "react";
 import axios from "axios";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
-import CategorySlider from "../Categories/CategorySlider";
+// import CategorySlider from "../Categories/CategorySlider";
 import { cookies } from "next/headers";
+import CategorySlider from "./CategorySlider/CategorySlider";
 
 async function getCategories() {
   try {
@@ -28,14 +29,18 @@ export default async function Category() {
   console.log(categories);
 
   return (
-    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem]">
+    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
       <TitleWithBar title={"Browse By Category"} />
-      <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6">
+      <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6 max-sm:zoom-0_1">
         <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap">
           See Our Categories
         </span>
       </div>
-      <CategorySlider items={categories || []} />
+      {/* <CategorySlider items={categories || []} /> */}
+      <div className="mx-auto">
+      {/* max-w-7xl  */}
+        <CategorySlider categories={categories || []} />
+      </div>
     </div>
   );
 }

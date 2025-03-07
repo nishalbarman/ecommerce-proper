@@ -38,7 +38,7 @@ const HeroProduct = async () => {
   return (
     <>
       {" "}
-      <div className="bg-primary py-20 relative">
+      <div className="bg-primary py-20 relative max-sm:zoom-0_1">
         <div className="h-full w-full absolute top-0 left-0">
           <Image
             className="select-none drag-none"

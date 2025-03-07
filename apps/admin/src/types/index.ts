@@ -110,6 +110,16 @@ export type Category = {
   categoryKey?: string;
 };
 
+export type Feature = {
+  _id?: string;
+  featureName: string;
+  featureImageUrl: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number | undefined;
+  featureKey?: string;
+};
+
 export type Role = {
   _id?: string;
   roleName: string;

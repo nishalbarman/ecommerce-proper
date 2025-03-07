@@ -10,6 +10,7 @@ import Categories from "@/components/Categories/Category";
 import ExploreProducts from "@/components/ExploreProducts/ExploreProducts";
 import NewArrivalSection from "@/components/NewArrivalSection/NewArrivalSection";
 import Features from "@/components/Features/Features";
+import FeatureSection from "@/components/FeatureSection/FeatureSection";
 import Footer from "@/components/Footer/Footer";
 import { getBackendUrl } from "@/helpter/utils";
 import HeroProduct from "@/components/HeroSection/HeroSection";
@@ -40,11 +41,10 @@ export default async function Page() {
       <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
 
       <BestSelling />
-      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div>
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-3"></div>
 
       <Categories />
-
-      <div className="w-full h-[1px] mt-20"></div>
+      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
 
       <Testimonials />
 
@@ -53,9 +53,14 @@ export default async function Page() {
       {/* <MiddleBanner /> */}
       {/* <ExploreProducts /> */}
       {/* <NewArrivalSection /> */}
+      <div className="w-full h-[1px] mt-20 max-sm:mt-10"></div>
+      <FeatureSection />
+      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
+      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mb-3"></div> */}
 
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div> */}
-      <Features />
+      {/* <Features /> */}
+      <div className="w-full h-[1px] bg-black opacity-[0.1]"></div>
     </>
   );
 }

@@ -3,12 +3,12 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs } from "swiper/modules";
 import "swiper/css";
-import { useRef } from "react"; // Add useRef
 import Image from "next/image";
-import TestimonialCard from "../TestimonialsSection/TestimonialCard";
 import "./swiper-style.css";
+import FeatureItem from "@/components/Features/FeatureItem";
+import NeutralCard from "../NeutralCard";
 
-const CustomSlider = ({ testimonials }) => {
+const FeaturesSlider = ({ features }) => {
   return (
     <div>
       <Swiper
@@ -23,7 +23,7 @@ const CustomSlider = ({ testimonials }) => {
             spaceBetween: 0,
           },
           877: {
-            slidesPerView: 2,
+            slidesPerView: 3,
             spaceBetween: 5,
           },
           1024: {
@@ -35,9 +35,13 @@ const CustomSlider = ({ testimonials }) => {
         // centeredSlides={true}
         className="w-full bg-transparent mb-4">
         {/* Slider Images */}
-        {testimonials.map((testi, index) => (
+        {features.map((feat, index) => (
           <SwiperSlide key={index}>
-            <TestimonialCard {...testi} />
+            <NeutralCard
+              key={index}
+              title={feat.featureName}
+              icon={feat.featureImageUrl}
+            />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -45,4 +49,4 @@ const CustomSlider = ({ testimonials }) => {
   );
 };
 
-export default CustomSlider;
+export default FeaturesSlider;

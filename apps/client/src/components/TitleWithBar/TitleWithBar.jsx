@@ -3,7 +3,8 @@ import Image from "next/image";
 
 function TitleWithBar({ title }) {
   return (
-    <div className="w-full flex gap-2 items-center mb-7 max-[597px]:mb-[13px]">
+    <div className="w-full flex gap-2 items-center mb-3 max-[597px]:mb-[13px] max-sm:zoom-0_1">
+      {/* mb-7 */}
       <Image
         className="max-[597px]:w-3 h-[23px] "
         src="/assets/red_bar.svg"

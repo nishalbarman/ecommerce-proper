@@ -149,7 +149,7 @@ function Footer() {
               <Link href={"/dynamic/faq"}>Faq</Link>
             </p>
             <p className=" font-andika font-andika text-white">
-              <Link href={"/dynamic/contact"}>Contact</Link>
+              <Link href={"/contact"}>Contact</Link>
             </p>
           </div>
         </div>

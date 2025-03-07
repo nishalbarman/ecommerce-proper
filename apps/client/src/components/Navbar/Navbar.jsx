@@ -41,8 +41,8 @@ async function Navbar({ title }) {
           <Link
             className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black"
             href={"/"}>
-            {/* {title} */}
-            <img src="https://i.ibb.co/LhJhWSxQ/ce61ea9739ef.jpg" className="mix-blend-multiply h-12"/>
+            {title}
+            {/* <img src="https://i.ibb.co/LhJhWSxQ/ce61ea9739ef.jpg" className="mix-blend-multiply h-12"/> */}
           </Link>
         </span>
       </div>

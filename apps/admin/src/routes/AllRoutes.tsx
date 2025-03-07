@@ -19,6 +19,7 @@ import DynamicPageAdd from "../components/DynamicPage/DynamicPage";
 import AdminTestimonialsPage from "../components/TestimonialsSection/TestimonialsSec";
 import NewArrivalList from "../components/NewArrivalSection/NewArrivalList";
 import AdminContacts from "../components/ContactSection/ContactSection";
+import FeatureList from "../components/FeatureSection.jsx/FeatureList";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -106,6 +107,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <CategoryList />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/features"
+        element={
+          <PrivateRoute>
+            <FeatureList />
           </PrivateRoute>
         }
       />

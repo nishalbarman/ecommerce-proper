@@ -29,12 +29,14 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+  opacity: 0.3;
 }
 
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   filter: invert(1);
   background-color: white;
+  opacity: 1;
 }
 
 .swiper-button-prev {

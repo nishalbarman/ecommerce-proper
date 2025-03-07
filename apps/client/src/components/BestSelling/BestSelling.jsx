@@ -16,9 +16,9 @@ async function BestSelling() {
   console.log("Product Data", productData);
 
   return (
-    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem]">
+    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
       <TitleWithBar title={"Our Mehendi Products"} />
-      <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6">
+      <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6 max-sm:zoom-0_1">
         <span className="text-2xl xl:text-3xl font-bold align-center max-[597px]:text-[20px]">
           {/* Best Selling Products */}
           Collection of Mehendi Products

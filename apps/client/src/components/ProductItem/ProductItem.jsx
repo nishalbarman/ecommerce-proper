@@ -74,7 +74,7 @@ function ProductItem({
 
   const handleVisitProduct = (e) => {
     e.stopPropagation();
-    navigator.push(`/product/${_id}`);
+    navigator.push(`/products/view/${_id}`);
   };
 
   const handleAddToWishlist = (e) => {

@@ -159,6 +159,20 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
             </li>
           </ul>
 
+          <h2 className="mt-8 mb-4 text-sm text-gray-500">FEATURES</h2>
+          <ul className="text-md">
+            <li>
+              <Link
+                to="/features"
+                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
+                  location.pathname === "/features" && "bg-[rgb(43,49,61)]"
+                }`}>
+                <FaTachometerAlt className="mr-4" />
+                <span>Features</span>
+              </Link>
+            </li>
+          </ul>
+
           <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">
             Testimonials
           </h2>

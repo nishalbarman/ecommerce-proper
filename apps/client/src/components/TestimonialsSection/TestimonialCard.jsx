@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import { VscVerifiedFilled } from "react-icons/vsc";
 
 function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
   return (
@@ -19,7 +20,10 @@ function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
             <span className="title-font font-medium text-gray-900 text-black">
               {clientName}
             </span>
-            <span className="text-gray-500 text-sm">Buyer</span>
+            <div className="flex justify-start gap-1 items-center">
+              <span className="text-gray-500 text-sm">Verified</span>
+              <VscVerifiedFilled color="#32deed" />
+            </div>
           </span>
         </a>
 

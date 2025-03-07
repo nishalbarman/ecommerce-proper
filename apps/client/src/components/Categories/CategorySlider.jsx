@@ -70,15 +70,22 @@ export default function CategorySlider({ items }) {
       {
         breakpoint: 841, // Adjust as needed
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 2,
           slidesToScroll: 3,
         },
       },
       {
         breakpoint: 571, // Adjust as needed
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 0, // Adjust as needed
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
         },
       },
     ],

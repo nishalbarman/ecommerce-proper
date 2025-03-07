@@ -84,7 +84,7 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 w-full">
-      <div className="flex w-full max-w-md flex-col space-y-8 bg-white p-8 shadow-lg">
+      <div className="flex w-full max-w-md flex-col space-y-8 bg-white p-8 shadow-lg ml-0 lg:-ml-64">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">
             Welcome to {import.meta.env.VITE_APP_NAME}!
