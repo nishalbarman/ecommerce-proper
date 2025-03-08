@@ -50,7 +50,10 @@ const Login = () => {
       );
 
       dispatch(setUserAuthData({ ...response.data.user }));
-      setCookie("token", response.data.user.jwtToken);
+      setCookie("token", response.data.user.jwtToken, {
+        secure: true,
+        sameSite: "none",
+      });
       navigator("/");
       toast.update(toastId, {
         type: "success",

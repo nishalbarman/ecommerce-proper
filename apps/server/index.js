@@ -28,6 +28,7 @@ app.use(
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
+      "http://localhost:3001",
       "https://jharna-mehendi-fully-custom-admin.vercel.app",
     ], // Allow requests from this origin
     credentials: true,
