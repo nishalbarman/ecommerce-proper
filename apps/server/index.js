@@ -1,4 +1,5 @@
-// const dotEnv = require("dotenv");
+const dotEnv = require("dotenv");
+dotEnv.config();
 const express = require("express");
 const cors = require("cors");
 const { rateLimit } = require("express-rate-limit");
@@ -21,63 +22,6 @@ const limiter = rateLimit({
 
 const app = express();
 
-const extractToken = async (req, res, next) => {
-  try {
-    console.log(req.url);
-
-    const publicRoute =
-      req.url === "/" ||
-      req.url === "/helloworld" ||
-      req.url === "/auth/admin-login" ||
-      req.url === "/auth/login" ||
-      req.url === "/auth/signup" ||
-      req.url === "/auth/sendOtp" ||
-      req.url === "/hook/razorpay" ||
-      req.url === "/stripe/hook" ||
-      req.url === "/get-image-bg-color" ||
-      (req.method === "GET" &&
-        req.url.startsWith("/products") &&
-        !req.url.startsWith("/products/admin-view")) ||
-      req.url.startsWith("/products/view/") ||
-      (req.method === "POST" &&
-        req.url.startsWith("/products/variant/instock")) ||
-      (req.method === "POST" && req.url === "/contact/create") ||
-      (req.method === "GET" && req.url === "/hero-products") ||
-      (req.method === "GET" && req.url.startsWith("/new-arrival")) ||
-      (req.method === "GET" && req.url.startsWith("/categories")) ||
-      (req.method === "GET" && req.url.startsWith("/features")) ||
-      req.url.startsWith("/testimonials") ||
-      req.url === "/categories/view/:categoryId" ||
-      req.url === "/orders/get-order-chart-data" ||
-      req.url === "/uploader/image/imgbb/upload" ||
-      req.url.startsWith("/dynamic-pages") ||
-      req.url.startsWith("/uploader/image/list");
-
-    if (publicRoute) {
-      return next();
-    }
-
-    const token = req.cookies?.token;
-
-    console.log("What are cookies -->", JSON.stringify(req.cookies));
-
-    console.log("Token", token);
-
-    if (!token) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    req.jwt = { token: token };
-
-    return next();
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ message: error.message || "Some unkown error occured!" });
-  }
-};
-
 app.use(
   cors({
     // origin: "*",
@@ -99,7 +43,7 @@ app.use("/stripe/hook", require("./hooks/stripe-hook.routes"));
 app.use(limiter);
 app.use(express.json({ limit: "50mb" }));
 
-app.use(extractToken);
+// app.use(extractToken);
 
 app.use("/user", require("./routes/users/user.routes"));
 app.use("/auth", require("./routes/auth/authentication.routes"));

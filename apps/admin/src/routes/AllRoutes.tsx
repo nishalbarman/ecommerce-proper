@@ -165,8 +165,22 @@ const AllRoutes: React.FC = () => {
         }
       />
 
-      <Route path="/asset-manager" element={<AssetManagerPage />} />
-      <Route path="/roles" element={<RoleList />} />
+      <Route
+        path="/asset-manager"
+        element={
+          <PrivateRoute>
+            <AssetManagerPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/roles"
+        element={
+          <PrivateRoute>
+            <RoleList />
+          </PrivateRoute>
+        }
+      />
     </Routes>
   );
 };

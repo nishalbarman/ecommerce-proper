@@ -6,7 +6,7 @@ const checkRole = require("../../middlewares");
 const TAG = "roles.routes.js:--";
 
 // Get all roles
-router.get("/", async (req, res) => {
+router.get("/", checkRole(1), async (req, res) => {
   try {
     const searchQuery = req.query;
 
@@ -121,7 +121,7 @@ router.delete("/:roleId", checkRole(1), async (req, res) => {
 });
 
 // Get a single role by ID
-router.get("/view/:roleId", async (req, res) => {
+router.get("/view/:roleId", checkRole(1), async (req, res) => {
   try {
     const roleId = req.params?.roleId;
 

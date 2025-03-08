@@ -324,7 +324,7 @@ const RoleList = () => {
                 {/* Pagination Controls */}
                 <div className="flex max-md:flex-col gap-3 justify-between items-center mt-5 border-t-2 pt-4">
                   <span>
-                    Page {paginationPage} of {rolesData.totalPages}
+                    Page {paginationPage} of {rolesData?.totalPages || 0}
                   </span>
                   <div className="flex items-center justify-between min-md:justify-center max-md:w-full gap-2">
                     <button
@@ -339,10 +339,10 @@ const RoleList = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, rolesData.totalPages)
+                          Math.min(prev + 1, rolesData?.totalPages || 0)
                         )
                       }
-                      disabled={paginationPage === rolesData.totalPages}
+                      disabled={paginationPage === (rolesData?.totalPages || 0)}
                       className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
                       <FaChevronRight />
                     </button>
