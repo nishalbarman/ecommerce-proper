@@ -13,6 +13,7 @@ import cAxios from "../../axios/cutom-axios";
 import no_image from "../../assets/no-image.svg";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ViewImage from "../ViewImage/ViewImage";
+import { MdDeleteOutline } from "react-icons/md";
 
 const CategoryList = () => {
   const [categoryData, setCategoryData] = useState<Category>({
@@ -238,51 +239,62 @@ const CategoryList = () => {
                 />
                 {!updateCategoryId && (
                   <p className="text-red-500 text-sm mt-1">
-                    Please provide a valid category name with minimum length of
+                    Note: Please provide a valid category name with minimum length of
                     3 characters.
                   </p>
                 )}
               </div>
-              <div className="mb-4 w-1/2">
+
+              <div className="mb-4 w-full md:w-1/2 xl:w-1/4">
                 <label
                   htmlFor="previewImage"
                   className="block font-semibold mb-2 w-full">
                   Category Image
                 </label>
                 <div className="flex max-md:flex-col gap-4 h-40">
-                  <AssetPicker
-                    htmlFor="previewImage"
-                    fileSelectCallback={(
-                      imageItems: Array<FileLibraryListItem>
-                    ) => {
-                      setCategoryData((prev) => {
-                        return {
-                          ...prev,
-                          categoryImageUrl: imageItems[0].imageLink,
-                        };
-                      });
-                    }}
-                    multiSelect={false}
-                  />
-
-                  <div className="w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
-                    {categoryData.categoryImageUrl ? (
+                  {!categoryData.categoryImageUrl ? (
+                    <AssetPicker
+                      classX="h-40"
+                      htmlFor="previewImage"
+                      fileSelectCallback={(
+                        imageItems: Array<FileLibraryListItem>
+                      ) => {
+                        setCategoryData((prev) => {
+                          return {
+                            ...prev,
+                            categoryImageUrl: imageItems[0].imageLink,
+                          };
+                        });
+                      }}
+                      multiSelect={false}
+                    />
+                  ) : (
+                    <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                       <img
                         className="w-full h-full w-[200px] aspect-square object-contain"
                         src={categoryData.categoryImageUrl as string}
                       />
-                    ) : (
-                      <img
-                        className="w-full h-full w-60 aspect-square object-contain"
-                        src={no_image}
-                      />
-                    )}
-                  </div>
+                      <button
+                        onClick={() => {
+                          setCategoryData((prev) => {
+                            return {
+                              ...prev,
+                              categoryImageUrl: null,
+                            };
+                          });
+                        }}
+                        type="button"
+                        className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        {/* Remove */}
+                        <MdDeleteOutline size={20} />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {!updateCategoryId && (
                   <p className="text-red-500 text-sm mt-1">
-                    Only image files are allowed (.jpg, .jpeg, .png, .gif)
+                    Note: Only image files are allowed (.jpg, .jpeg, .png, .gif)
                   </p>
                 )}
               </div>

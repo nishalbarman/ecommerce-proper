@@ -114,7 +114,7 @@ export default async function ContactUsRoute(props) {
           <div className="mt-4">
             <div className="flex items-center justify-center gap-2">
               <a
-                href={"https://api.whatsapp.com/send?phone=916001465372"}
+                href={"https://api.whatsapp.com/send?phone=919395150257"}
                 target="_blank"
                 className="text-gray-500 underline">
                 {/* <FaWhatsapp color={"gray"} size={24} /> */}

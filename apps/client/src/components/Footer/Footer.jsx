@@ -65,92 +65,105 @@ function Footer() {
         </div>
 
         {/* Supports */}
-        <div>
-          <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-            Support
-          </p>
-          {/* socials */}
-          <div className="mb-5 max-md:text-center text-white">
-            <div className="flex max-md:justify-center items-center gap-2">
-              <a
-                href={webData.WhatsAppLink}
-                target="_blank"
-                className="text-white">
-                <FaWhatsapp color={"white"} size={22} />
-              </a>
-
-              <a
-                href={`${webData.FacebookLink}`}
-                target="_blank"
-                className="text-gray-500">
-                <PiFacebookLogoBold color={"white"} size={23} />
-                {/* facebook */}
-              </a>
-
-              <a
-                href={`${webData.InstagramLink}`}
-                target="_blank"
-                className="text-gray-500">
-                <FaInstagram color={"white"} size={22} />
-              </a>
-            </div>
-          </div>
-
-          <div className=" flex flex-col gap-2 max-md:text-center">
-            <p className="text-white ">{webData.Address}</p>
-            <p className="text-white ">Vill./P.O. - Assam, Test</p>
-
-            <p className="text-white">
-              <a href={`mailto:${webData.BrandEmail}`}>{webData.BrandEmail}</a>
-              <a href={`mailto:${webData.BrandEmail}`}>
-                thisisanemail@gmail.com
-              </a>
+        <div className="lg:w-1/5 max-md:text-center max-md:border-t-1 max-md:border-t-[#e1e1e1] max-md:py-8 w-full flex flex-col items-center justify-start">
+          <div>
+            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
+              Support
             </p>
+            {/* socials */}
+            <div className="mb-5 max-md:text-center text-white">
+              <div className="flex max-md:justify-center items-center gap-2 invert-[100%]">
+                <a
+                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  href={webData.WhatsAppLink}
+                  target="_blank">
+                  <FaWhatsapp color={"#FFFFFF"} size={22} />
+                </a>
+                <a
+                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  href={`${webData.FacebookLink}`}
+                  target="_blank">
+                  <PiFacebookLogoBold color={"white"} size={23} />
+                  {/* facebook */}
+                </a>
+
+                <a
+                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  href={`${webData.InstagramLink}`}
+                  target="_blank">
+                  <FaInstagram color={"white"} size={22} />
+                </a>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 max-md:text-center">
+              <p className="text-white ">{webData.Address}</p>
+              <p className="text-white">
+                Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
+                Assam, 781***
+              </p>
+
+              <p className="text-white">
+                <a href={`mailto:${webData.BrandEmail}`}>
+                  {webData.BrandEmail}
+                </a>
+                <a href={`mailto:${webData.BrandEmail}`}>
+                  thisisanemail@gmail.com
+                </a>
+              </p>
+            </div>
           </div>
         </div>
 
         {/* My accounts */}
-        <div>
-          <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-            Account
-          </p>
-          <div className="font-andika flex flex-col gap-[16px]">
-            <p className=" font-andika font-andika text-white">
-              <Link href="/my-account">My Account</Link>
+        <div className="lg:w-1/6 w-full flex flex-col items-center justify-start">
+          <div>
+            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
+              Account
             </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href="/auth/login">Login / Register</Link>
-            </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href="/cart">Cart</Link>
-            </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href="/wishlist">Wishlist</Link>
-            </p>
+            <div className="font-andika flex flex-col gap-[16px]">
+              <p className="font-andika font-andika text-white">
+                <Link href="/my-account">My Account</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href="/auth/login">Login / Register</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href="/cart">Cart</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href="/wishlist">Wishlist</Link>
+              </p>
+            </div>
           </div>
         </div>
 
         {/* quick links */}
-        <div>
-          <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-            Quick Link
-          </p>
-          <div className="font-andika flex flex-col gap-[16px]">
-            <p className=" font-andika font-andika text-white">
-              <Link href={"/dynamic/refund-policy"}>Refund Policy</Link>
+        <div className="lg:w-1/5 w-full flex flex-col items-center justify-start">
+          <div>
+            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
+              Quick Link
             </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href={"/dynamic/privacy-policy"}>Privacy Policy</Link>
-            </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href={"/dynamic/terms-and-conditions"}>Terms Of Use</Link>
-            </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href={"/dynamic/faq"}>Faq</Link>
-            </p>
-            <p className=" font-andika font-andika text-white">
-              <Link href={"/contact"}>Contact</Link>
-            </p>
+            <div className="font-andika flex flex-col gap-[16px]">
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/dynamic/refund-policy"}>Refund Policy</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/dynamic/privacy-policy"}>Privacy Policy</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/dynamic/terms-and-conditions"}>Terms Of Use</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/dynamic/faq"}>Faq</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/dynamic/about"}>About Me</Link>
+              </p>
+              <p className=" font-andika font-andika text-white">
+                <Link href={"/contact"}>Contact</Link>
+              </p>
+            </div>
           </div>
         </div>
 

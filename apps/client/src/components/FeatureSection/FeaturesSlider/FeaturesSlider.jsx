@@ -27,7 +27,7 @@ const FeaturesSlider = ({ features }) => {
             spaceBetween: 5,
           },
           1024: {
-            slidesPerView: 3,
+            slidesPerView: 4,
             spaceBetween: 10,
           },
         }}
