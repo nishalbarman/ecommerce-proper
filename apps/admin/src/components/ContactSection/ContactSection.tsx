@@ -110,7 +110,7 @@ const ContactsList = () => {
         <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
           <div>
             <div className="bg-white shadow-md rounded-md p-4">
-              <h2 className="text-lg font-semibold mb-4">Contacts</h2>
+              <h2 className="text-lg font-semibold mb-4">Messages</h2>
               {isContactsLoading ? (
                 <div className="flex justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
@@ -145,8 +145,15 @@ const ContactsList = () => {
                         <tr
                           key={index}
                           className={`${!item.readStatus && "font-bold"}`}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            {index + 1}
+                          <td
+                            className={`px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center`}>
+                            {!item.readStatus ? (
+                              <div className="h-6 w-6 rounded-full bg-red-600 text-white flex items-center justify-center">
+                                {index + 1}
+                              </div>
+                            ) : (
+                              `${index + 1}`
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {item.name}

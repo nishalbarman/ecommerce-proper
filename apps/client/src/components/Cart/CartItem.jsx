@@ -8,9 +8,13 @@ import Link from "next/link";
 import { useCookies } from "next-client-cookies";
 import { deleteCartItem, updateCartItem } from "@/lib/cart";
 import { addProductToWishlist, deleteWishlistItem } from "@/lib/wishlist";
+import { useSelector } from "react-redux";
 
-function CartItem({ item, cartItems, wishlistItems }) {
+function CartItem({ item, userCartItems, userWishlistItems }) {
   const { _id, user, product, variant, quantity, productType } = item;
+
+  const wishlistItems = useSelector((state) => state.wishlistSlice.wishlists);
+  const cartItems = useSelector((state) => state.cartSlice.cart);
 
   const dispatch = useDispatch();
   const cookiesStore = useCookies();
@@ -96,22 +100,25 @@ function CartItem({ item, cartItems, wishlistItems }) {
               className="text-[rgba(0,0,0,0.7)] font-semibold text-[16px] mb-[8px] cursor-pointer w-[100%] hover:text-[rgba(0,0,0,0.9)] font-andika text-left"
               href={`/products/${_id}`}>
               <p className="text-[rgba(0,0,0,0.7)] font-semibold text-[16px] mb-[8px] cursor-pointer w-[100%] hover:text-[rgba(0,0,0,0.9)] font-andika text-left">
-                {title}
+                {product.title}
               </p>
             </Link>
             <p className="mb-[8px]">
               <span className="text-[rgb(51,51,51)] text-[18px] font-bold">
-                ₹{discountedPrice}
+                ₹{product.discountedPrice}
               </span>{" "}
-              {!!originalPrice && (
+              {!!product.originalPrice && (
                 <span className="text-[rgb(94,99,107)] ml-[5px] text-[14px] line-through">
-                  ₹{originalPrice}
+                  ₹{product.originalPrice}
                 </span>
               )}
             </p>
-            {!!originalPrice && (
+            {!!product.originalPrice && (
               <p className="text-[rgb(50,140,91)] text-[16px] mb-[10px]">
-                You saved <span>₹{originalPrice - discountedPrice} INR</span>
+                You saved{" "}
+                <span>
+                  ₹{product.originalPrice - product.discountedPrice} INR
+                </span>
               </p>
             )}
             {/* max-[961px]:flex-col max-[961px]:gap-2 */}
@@ -145,11 +152,9 @@ function CartItem({ item, cartItems, wishlistItems }) {
 
           <div className="ml-[40px] max-[588px]:ml-0 max-[588px]:w-[100%] max-[588px]:flex max-[588px]:items-center max-[588px]:justify-center">
             <img
-              className="rounded-[5px] h-[150px] max-[500px]:aspcet-square"
-              src={
-                "https://imgs.search.brave.com/rKZrmkTSLXfWaqAnvfSt_tW5IIPY3CC1G9d_ujAhEPo/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTM5/NTE5MTU4NC9waG90/by9ibHVldG9vdGgt/c3BlYWtlci1pc29s/YXRlZC1vbi13aGl0/ZS5qcGc_cz02MTJ4/NjEyJnc9MCZrPTIw/JmM9cFVhVWk1TVNq/SmJpbXdkXzBrQ2Nv/a1BlWHQ0WHlhQ3Qx/UnQ2S2h3ZXJzYz0"
-              }
-              alt={title}
+              className="h-[150px] rounded-md w-60 object-contain max-[500px]:aspcet-square"
+              src={product.previewImage}
+              alt={product.title}
             />
           </div>
         </div>
@@ -205,7 +210,7 @@ function CartItem({ item, cartItems, wishlistItems }) {
       </div> */}
 
       {/* quantity modal  */}
-      {/* <div
+      <div
         ref={quantityModalRef}
         onClick={() => {
           quantityModalRef.current?.classList.add("hidden");
@@ -311,7 +316,7 @@ function CartItem({ item, cartItems, wishlistItems }) {
             10
           </p>
         </div>
-      </div> */}
+      </div>
     </>
   );
 }

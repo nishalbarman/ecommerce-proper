@@ -113,6 +113,7 @@ export type Category = {
 export type Feature = {
   _id?: string;
   featureName: string;
+  featureDescription: string;
   featureImageUrl: string | null;
   createdAt?: string;
   updatedAt?: string;

@@ -13,11 +13,15 @@ function ClientWishlistIcon() {
 
   const dispatch = useDispatch();
 
-  const { data: userWishlistItems } = useGetWishlistQuery();
+  const { data: userWishlistItems } = useGetWishlistQuery({
+    productType: "buy",
+  });
 
   useEffect(() => {
     if (token && userWishlistItems?.length > 0) {
       const wishlistData = {};
+
+      console.log("User Wishlist Items", userWishlistItems);
 
       userWishlistItems?.forEach((item) => {
         wishlistData[item.product._id] = {
@@ -30,7 +34,7 @@ function ClientWishlistIcon() {
       });
       dispatch(
         updateWishlist({
-          totalCount: data.length || 0,
+          totalCount: userWishlistItems.length || 0,
           wishlists: wishlistData,
         })
       );

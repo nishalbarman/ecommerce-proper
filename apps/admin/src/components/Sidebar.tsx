@@ -13,6 +13,7 @@ import {
   FaCubes,
   FaCog,
 } from "react-icons/fa";
+import { FaMessage } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import { motion } from "framer-motion";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -64,6 +65,16 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToggle, setNavbarToggle }) => {
           title: "Track Order",
           icon: <FaFileAlt className="mr-4" />,
           path: "/orders/view",
+        },
+      ],
+    },
+    {
+      title: "MESSAGE",
+      items: [
+        {
+          title: "Messages",
+          icon: <FaMessage className="mr-4" />,
+          path: "/contacts",
         },
       ],
     },

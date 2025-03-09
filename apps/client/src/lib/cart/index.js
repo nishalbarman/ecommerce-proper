@@ -1,21 +1,28 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
-import { getBackendUrl } from "@/helpter/utils";
-
-export const fetchCart = async ({ page = 0, limit = 0 } = {}) => {
+export const fetchCart = async ({
+  cookies = undefined,
+  page = 0,
+  limit = 10,
+} = {}) => {
   try {
-    const url = new URL("${process.env.NEXT_PUBLIC_SERVER_URL}/cart/list");
+    const url = new URL(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`);
     url.searchParams.append("productType", "buy");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
 
-    console.log(url.href);
+    console.log("fetchCart Function LOG", url.href);
 
     const res = await fetch(url.href, {
-      next: { tags: ["Cart"] },
+      headers: {
+        Cookie: cookies,
+      },
+      next: { tags: ["Cart"] }, // Revalidation tag for Next.js
     });
+
     const data = await res.json();
     console.log("Cart items", data);
     return data;
@@ -32,15 +39,11 @@ export const addProductToCart = async ({
   quantity = 1,
 }) => {
   try {
-    const backendUrl = getBackendUrl();
-
-    const url = new URL(
-      "${process.env.NEXT_PUBLIC_SERVER_URL}/cart/create",
-      backendUrl
-    );
+    const url = new URL(`/cart/create`, process.env.NEXT_PUBLIC_SERVER_URL);
 
     const res = await fetch(url.href, {
       headers: {
+        credentials: "include",
         method: "POST",
       },
       body: JSON.stringify({
@@ -62,11 +65,12 @@ export const addProductToCart = async ({
 
 export const updateCartItem = async ({ id = undefined, updatedItem = {} }) => {
   try {
-    const backendUrl = getBackendUrl();
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
     const url = new URL(`/api/cart/update/${id}`, backendUrl);
 
     const res = await fetch(url.href, {
+      credentials: "include",
       headers: {
         method: "PATCH",
         authorization: `Bearer ${token}`,
@@ -88,7 +92,7 @@ export const updateCartItemQuantity = async ({
   quantity = 1,
 }) => {
   try {
-    const backendUrl = getBackendUrl();
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
     const url = new URL(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/update`,
@@ -97,6 +101,7 @@ export const updateCartItemQuantity = async ({
     url.searchParams.append(cart, id);
 
     const res = await fetch(url.href, {
+      credentials: "include",
       headers: {
         method: "PATCH",
       },
@@ -115,7 +120,7 @@ export const updateCartItemQuantity = async ({
 
 export const deleteCartItem = async ({ id = undefined, token = undefined }) => {
   try {
-    const backendUrl = getBackendUrl();
+    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
     const url = new URL(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/delete/${id}`,
@@ -123,6 +128,7 @@ export const deleteCartItem = async ({ id = undefined, token = undefined }) => {
     );
 
     await fetch(url.href, {
+      credentials: "include",
       headers: {
         method: "DELETE",
       },

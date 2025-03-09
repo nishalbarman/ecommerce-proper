@@ -99,10 +99,11 @@ const ProductSlider = ({ items }) => {
 
   const navigator = useRouter();
 
-  const wishlistItems = useSelector((state) => state.wishlistSlice?.wishlists);
-  console.log(wishlistItems);
+  const wishlistIdMapped = useSelector(
+    (state) => state.wishlistSlice?.wishlists
+  );
 
-  const cartItems = useSelector((state) => state.cartSlice?.cart);
+  const cartIdMapped = useSelector((state) => state.cartSlice?.cart);
 
   const [addNewWishlist, { isLoading, isError }] = useAddWishlistMutation();
   const [
@@ -132,6 +133,8 @@ const ProductSlider = ({ items }) => {
               deleteCartIconVisible: false,
               deleteWishlistIconVisible: false,
             }}
+            wishlistIdMapped={wishlistIdMapped}
+            cartIdMapped={cartIdMapped}
           />
         </div>
       ))}

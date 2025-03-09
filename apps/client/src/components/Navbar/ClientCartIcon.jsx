@@ -13,7 +13,9 @@ function ClientCartIcon() {
 
   const dispatch = useDispatch();
 
-  const { data: userCartItems } = useGetCartQuery();
+  const { data: { cart: userCartItems } = {} } = useGetCartQuery({
+    productType: "buy",
+  });
 
   useEffect(() => {
     if (userCartItems?.length > 0 && token) {
@@ -31,7 +33,7 @@ function ClientCartIcon() {
 
       dispatch(
         updateCart({
-          totalCount: cartData.length || 0,
+          totalCount: userCartItems.length || 0,
           cartItems: cartDataForStore,
         })
       );

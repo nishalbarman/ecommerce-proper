@@ -17,34 +17,31 @@ const limiter = rateLimit({
   standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
   // store: ... , // Redis, Memcached, etc. See below.
-  message: { message: "Take a break dear, you sending too much requests." },
+  message: { message: "Take a break dear, you are sending too much requests." },
 });
 
 const app = express();
 
 app.use(
   cors({
-    // origin: "*",
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
       "http://localhost:3001",
       "https://jharna-mehendi-fully-custom-admin.vercel.app",
-    ], // Allow requests from this origin
+    ],
     credentials: true,
   })
 );
 
 app.use(cookieParser());
+app.use(limiter);
 
 // payment hooks
 /!* these route need raw json data so thats why placing it before experss.json() *!/;
 app.use("/stripe/hook", require("./hooks/stripe-hook.routes"));
 
-app.use(limiter);
 app.use(express.json({ limit: "50mb" }));
-
-// app.use(extractToken);
 
 app.use("/user", require("./routes/users/user.routes"));
 app.use("/auth", require("./routes/auth/authentication.routes"));

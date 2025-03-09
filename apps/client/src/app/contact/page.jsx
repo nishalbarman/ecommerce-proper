@@ -1,7 +1,5 @@
 import React from "react";
 import toast from "react-hot-toast";
-// import { FaInstagram, FaWhatsapp } from "react-icons/fa";
-// import { PiFacebookLogoBold } from "react-icons/pi";
 
 import submitContactMessage from "@/actions/contact/sendMessage";
 
@@ -40,7 +38,7 @@ export default async function ContactUsRoute(props) {
           </div>
         )}
         <div className="lg:w-1/2 md:w-2/3 mx-auto">
-          <form method="POST" action={submitContactMessage}>
+          <form action={submitContactMessage}>
             <div className="flex flex-wrap -m-2">
               <div className="p-2 w-1/2">
                 <div className="relative">

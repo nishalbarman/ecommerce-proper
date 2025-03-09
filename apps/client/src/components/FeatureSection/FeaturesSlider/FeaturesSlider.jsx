@@ -40,6 +40,7 @@ const FeaturesSlider = ({ features }) => {
             <NeutralCard
               key={index}
               title={feat.featureName}
+              description={feat.featureDescription}
               icon={feat.featureImageUrl}
             />
           </SwiperSlide>

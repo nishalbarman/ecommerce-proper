@@ -4,9 +4,12 @@ import Footer from "../../components/Footer/Footer";
 
 import { fetchCart } from "@/lib/cart";
 import Navbar from "@/components/Navbar/Navbar";
+import { cookies } from "next/headers";
 
 export default async function page() {
-  const userCartItems = await fetchCart();
+  const cookieStore = await cookies();
+
+  const userCartItems = await fetchCart({ cookies: cookieStore });
   const userWishlistItems = await fetchCart();
 
   return (
@@ -19,7 +22,6 @@ export default async function page() {
           />
         </div>
       </main>
-      <Footer />
     </>
   );
 }

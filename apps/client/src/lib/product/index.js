@@ -36,8 +36,8 @@ export async function fetchProducts({
     }
 
     const res = await fetch(url.href, {
+      credentials: "include",
       headers: {
-        credentials: "include",
         method: "GET",
         Cookie: cookies,
       },

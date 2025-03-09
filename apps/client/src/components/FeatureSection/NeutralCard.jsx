@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-const NeutralCard = ({ title, icon }) => {
+const NeutralCard = ({ title, description, icon }) => {
   console.log("title, icon", title, icon);
 
   return (
@@ -17,7 +17,7 @@ const NeutralCard = ({ title, icon }) => {
       {/* Semi-transparent border */}
       <div className="absolute inset-2 border-2 border-white/30 rounded-md"></div>
 
-      <div className="flex flex-col items-center -mt-3 justify-center h-full p-5 border-1 border-black">
+      <div className="flex flex-col items-center -mt-2 justify-center h-full p-5 border-1 border-black">
         {/* Icon */}
         {icon && (
           <Image
@@ -33,6 +33,9 @@ const NeutralCard = ({ title, icon }) => {
         {/* Text */}
         <div className="relative inset-0 text-xl font-bold text-white text-center">
           {title}
+        </div>
+        <div className="relative inset-0 text-sm font-andika text-white text-center mt-2">
+          {description}
         </div>
       </div>
     </div>

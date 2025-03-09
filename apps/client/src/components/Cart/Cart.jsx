@@ -8,12 +8,25 @@ import Image from "next/image";
 import Link from "next/link";
 import useRazorpay from "react-razorpay";
 
+import { RiRefund2Fill, RiSecurePaymentLine } from "react-icons/ri";
+import { HiFire } from "react-icons/hi2";
+
 import "../../app/scrollbar.css";
 import "./spinner.css";
 
 import CartItem from "./CartItem";
+import { useGetCartQuery, useGetWishlistQuery } from "@store/redux";
 
-function Cart({ userCartItems, userWishlistItems }) {
+function Cart() {
+  const { data: { cart: userCartItems } = {} } = useGetCartQuery({
+    productType: "buy",
+  });
+  const { data: userWishlistItems } = useGetWishlistQuery({
+    productType: "buy",
+  });
+
+  console.log("User Cart Items From CART.jsx", userCartItems);
+
   const [Razorpay] = useRazorpay();
 
   const [couponCode, setCouponCode] = useState({
@@ -298,6 +311,8 @@ function Cart({ userCartItems, userWishlistItems }) {
     let subtotalPrice = 0;
     let totalDiscountPrice = 0;
 
+    console.log("User Cart Items FROM CART.JAVASCRIPT", userCartItems);
+
     userCartItems?.forEach((item) => {
       totalPrice +=
         (item.originalPrice || item.discountedPrice) * (item.quantity || 1);
@@ -326,15 +341,15 @@ function Cart({ userCartItems, userWishlistItems }) {
   }, [userCartItems, appliedCoupon]);
 
   const getPaymentGateways = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
-      );
-      console.log(response.data.data);
-      setPaymentGatewaysList(response.data.data);
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const response = await axios.get(
+    //     `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
+    //   );
+    //   console.log(response.data.data);
+    //   setPaymentGatewaysList(response.data.data);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   useEffect(() => {
@@ -351,8 +366,10 @@ function Cart({ userCartItems, userWishlistItems }) {
   return (
     <>
       {userCartItems?.length && (
-        <div className="flex justify-between items-center mb-10">
-          <p className="text-xl font-andika">Cart ({userCartItems?.length})</p>
+        <div className="flex justify-end items-center mb-10">
+          {/* <p className="text-xl font-andika">
+            <b>My Bag</b> ({userCartItems?.length})
+          </p> */}
           <button className="rounded-[4px] border-[1px] border-[black] h-[45px] w-[150px] p-[0px_20px]">
             Remove All
           </button>
@@ -386,13 +403,13 @@ function Cart({ userCartItems, userWishlistItems }) {
                 </p>
               </div>
               <div className="h-[100vh] classname">
-                {Object.values(cartData)?.map((item) => {
+                {userCartItems?.map((item) => {
                   return (
                     <CartItem
                       key={item._id}
                       item={item}
-                      userWishlistItems={userWishlistItems}
-                      userCartItems={userCartItems}
+                      // userWishlistItems={userWishlistItems}
+                      // userCartItems={userCartItems}
                     />
                   );
                 })}
@@ -576,33 +593,36 @@ function Cart({ userCartItems, userWishlistItems }) {
                     )}
                   </button>
                 </div>
-                <div className="flex justify-around p-[15px]">
-                  <div className="flex flex-col justify-center items-center">
-                    <img
+                <div className="flex justify-around p-[15px] mt-2">
+                  <div className="flex flex-col justify-center items-center gap-y-2">
+                    {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/cart-badge-trust.svg"
                       alt="cart_100%_secure"
-                    />
+                    /> */}
+                    <RiSecurePaymentLine size={20} />
                     <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
                       100% SECURE PAYMENTS
                     </p>
                   </div>
-                  <div className="flex flex-col justify-center items-center">
-                    <img
+                  <div className="flex flex-col justify-center items-center gap-y-2">
+                    {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/cart-easy-return.svg"
                       alt="quick_return"
-                    />
+                    /> */}
+                    <RiRefund2Fill size={20} />
                     <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
                       EASY RETURNS & QUICK REFUNDS
                     </p>
                   </div>
-                  <div className="flex flex-col justify-center items-center">
-                    <img
+                  <div className="flex flex-col justify-center items-center gap-y-2">
+                    {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/quality-check.svg"
                       alt="quality_assurance"
-                    />
+                    /> */}
+                    <HiFire size={20} />
                     <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
                       QUALITY ASSURANCE
                     </p>

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 type Cart = {
   _id: string;
@@ -18,6 +18,7 @@ export const cartApi = createApi({
   reducerPath: "cart",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       headers.set(
         "authorization",
@@ -28,10 +29,10 @@ export const cartApi = createApi({
   }),
   tagTypes: ["Cart"],
   endpoints: (builder) => ({
-    getCart: builder.query<Cart, string>({
-      query: (productType) => `cart?productType=${productType}`,
+    getCart: builder.query<Cart, any>({
+      query: ({ productType }) => `cart?productType=${productType || "buy"}`,
       providesTags: ["Cart"],
-      transformResponse: (res: any, meta, arg) => res.data,
+      // transformResponse: (res: any, meta, arg) => res.cart,
       transformErrorResponse: (res: any, meta, arg) => res.message,
     }),
 
@@ -40,7 +41,7 @@ export const cartApi = createApi({
         variant = undefined,
         productId,
         rentDays = undefined,
-        productType = "rent",
+        productType = "buy",
         quantity = 1,
       }) => ({
         url: `cart`,

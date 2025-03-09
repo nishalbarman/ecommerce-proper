@@ -5,23 +5,9 @@ const getTokenDetails = require("../../helpter/getTokenDetails");
 const checkRole = require("../../middlewares");
 
 /* GET ALL WISHLIST -- User Route */
-router.get("/", async (req, res) => {
+router.get("/", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    console.log(userDetails);
-
-    if (!userDetails) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const productType = req.headers["producttype"];
+    const productType = req.headers["producttype"] || "buy";
 
     console.log("Product Type -->", productType);
 
@@ -31,6 +17,8 @@ router.get("/", async (req, res) => {
     const LIMIT = searchQuery.limit || 20;
     const SKIP = (PAGE - 1) * LIMIT;
 
+    const userDetails = req.user;
+
     const wishlistDetails = await Wishlist.find({
       user: userDetails._id,
       productType,
@@ -38,7 +26,7 @@ router.get("/", async (req, res) => {
       .sort({ createdAt: "desc" })
       .skip(SKIP)
       .limit(LIMIT)
-      .populate("product")
+      .populate([{ path: "product", select: "_id" }])
       .select("-user");
 
     console.log("Wishlist data -->", wishlistDetails);
@@ -55,17 +43,11 @@ router.get("/", async (req, res) => {
 });
 
 /* ADD TO WISHLIST -- User Route */
-router.post("/", async (req, res) => {
+router.post("/", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
     if (!userDetails) {
-      return res.status(400).json({ message: "No token provided." });
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
     // console.log("RequestBody-->", req.body);
@@ -73,10 +55,16 @@ router.post("/", async (req, res) => {
     const productType = req.headers["producttype"];
     const { productId } = req.body;
 
-    // console.log("Wishlist Product ID-->", productId);
+    console.log("Wishlist Product ID-->", productId);
+
+    if (!productId) {
+      return res.status(400).json({
+        message: "Product ID is not given on request",
+      });
+    }
 
     const wishlistCount = await Wishlist.countDocuments({
-      product: productId,
+      // product: productId,
       user: userDetails._id,
       productType,
     });
@@ -124,7 +112,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/:wishlistId", checkRole(0), async (req, res) => {
+router.delete("/:wishlistId", checkRole(0, 1), async (req, res) => {
   try {
     const wishlistId = req.params?.wishlistId;
 

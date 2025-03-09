@@ -21,6 +21,7 @@ import { MdDeleteOutline } from "react-icons/md";
 const FeatureList = () => {
   const [featureData, setFeatureData] = useState<Feature>({
     featureName: "",
+    featureDescription: "",
     featureImageUrl: "",
   });
 
@@ -118,6 +119,7 @@ const FeatureList = () => {
       toast.success(response?.data?.message);
       setFeatureData({
         featureName: "",
+        featureDescription: "",
         featureImageUrl: "",
       });
       getFeatures();
@@ -155,6 +157,7 @@ const FeatureList = () => {
       toast.success(response?.data?.message);
       setFeatureData({
         featureName: "",
+        featureDescription: "",
         featureImageUrl: "",
       });
 
@@ -219,32 +222,66 @@ const FeatureList = () => {
             )}
 
             <form onSubmit={handleCategorySubmit} className="mt-4">
-              <div className="mb-4">
-                <label
-                  htmlFor="featureName"
-                  className="block font-semibold mb-2">
-                  Feature Name
-                </label>
-                <input
-                  type="text"
-                  id="featureName"
-                  placeholder={!!updateFeatureById ? "Updated name" : "Feature"}
-                  value={featureData.featureName}
-                  onChange={(e) => {
-                    setFeatureData((prev) => {
-                      return { ...prev, featureName: e.target.value };
-                    });
-                  }}
-                  minLength={3}
-                  required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {!updateFeatureById && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Please provide a valid feature name with minimum length of 3
-                    characters.
-                  </p>
-                )}
+              <div>
+                <div className="mb-4">
+                  <label
+                    htmlFor="featureName"
+                    className="block font-semibold mb-2">
+                    Feature Name
+                  </label>
+                  <input
+                    type="text"
+                    id="featureName"
+                    placeholder={
+                      !!updateFeatureById ? "Updated name" : "Feature"
+                    }
+                    value={featureData.featureName}
+                    onChange={(e) => {
+                      setFeatureData((prev) => {
+                        return { ...prev, featureName: e.target.value };
+                      });
+                    }}
+                    minLength={3}
+                    required
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {!updateFeatureById && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Please provide a valid feature name with minimum length of
+                      3 characters.
+                    </p>
+                  )}
+                </div>
+                <div className="mb-4">
+                  <label
+                    htmlFor="featureDescription"
+                    className="block font-semibold mb-2">
+                    Feature Description
+                  </label>
+                  <input
+                    type="text"
+                    id="featureDescription"
+                    placeholder={
+                      !!updateFeatureById
+                        ? "Updated Description"
+                        : "Description"
+                    }
+                    value={featureData.featureDescription}
+                    onChange={(e) => {
+                      setFeatureData((prev) => {
+                        return { ...prev, featureDescription: e.target.value };
+                      });
+                    }}
+                    minLength={3}
+                    required
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {!updateFeatureById && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Note: Keep it simple and short.
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="mb-4 w-full md:w-1/2 xl:w-1/4">
                 <label
@@ -255,7 +292,7 @@ const FeatureList = () => {
                 <div className="flex max-md:flex-col gap-4 h-40">
                   {!featureData.featureImageUrl ? (
                     <AssetPicker
-                    classX="h-40"
+                      classX="h-40"
                       htmlFor="previewImage"
                       fileSelectCallback={(
                         imageItems: Array<FileLibraryListItem>
@@ -333,6 +370,7 @@ const FeatureList = () => {
                   onClick={() => {
                     setFeatureData({
                       featureName: "",
+                      featureDescription: "",
                       featureImageUrl: "",
                     });
                     setUpdateFeatureId(undefined);

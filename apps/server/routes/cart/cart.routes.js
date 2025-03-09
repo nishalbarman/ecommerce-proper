@@ -3,30 +3,31 @@ const router = express.Router();
 const Cart = require("../../models/cart.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const { Product } = require("../../models/product.model");
+const checkRole = require("../../middlewares");
 
-router.get("/", async (req, res) => {
+router.get("/", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
-      return res.status(400).json({ message: "Authorization failed" });
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
     const searchQuery = req.query;
 
-    const PAGE = searchQuery.page || 1;
-    const LIMIT = searchQuery.limit || 20;
+    const PAGE = +searchQuery.page || 1;
+    const LIMIT = +searchQuery.limit || 20;
     const SKIP = (PAGE - 1) * LIMIT;
+    if (SKIP < 0) {
+      SKIP = 0;
+    }
+
+    const totalCount = await Cart.countDocuments({});
+    const totalPages = Math.ceil(totalCount / LIMIT);
 
     const cartDetails = await Cart.find({
       user: userDetails._id,
-      productType: searchQuery.productType,
+      productType: searchQuery.productType || "buy",
     })
       .sort({ createdAt: "desc" })
       .skip(SKIP)
@@ -34,7 +35,7 @@ router.get("/", async (req, res) => {
       .populate([
         {
           path: "product",
-          select: "-showPictures -description -stars -productVariant",
+          select: "-slideImages -description -stars -productVariant",
         },
         {
           path: "variant",
@@ -42,45 +43,26 @@ router.get("/", async (req, res) => {
       ])
       .select("-user");
 
-    // Check if wishlistDetails has any items
-    if (cartDetails.length === 0) {
-      return res.json({
-        data: [],
-      }); // Return null if no wishlist details are found
-    }
-
-    // Check if product field is null or empty in the first item
-    if (!cartDetails[0].product) {
-      return res.json({
-        data: [],
-      }); // Return null if no wishlist details are found
-    }
-
     return res.json({
-      data: cartDetails,
+      totalCount: totalCount,
+      totalPages: totalPages,
+      cart: cartDetails,
     });
   } catch (error) {
     console.log(error);
     return res.json({
-      status: false,
       message: "Internal server error!",
     });
   }
 });
 
 /* ADD TO CART */
-router.post("/", async (req, res) => {
+router.post("/", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
-      return res.status(400).json({ message: "Authorization failed" });
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
     const productInfo = req.body;
@@ -99,10 +81,16 @@ router.post("/", async (req, res) => {
     }
 
     const product = await Product.findById(productInfo.productId);
-    if (product?.isVariantAvailable && !productInfo?.variant) {
+    // if (product?.isVariantAvailable && !productInfo?.variant) {
+    //   return res.status(400).json({
+    //     message:
+    //       "Product varient available but not selected, kindly select proper size or color",
+    //   });
+    // }
+
+    if (!product) {
       return res.status(400).json({
-        message:
-          "Product varient available but not selected, kindly select proper size or color",
+        message: "Product ID Invalid!",
       });
     }
 
@@ -155,25 +143,14 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:productType", async (req, res) => {
+router.patch("/:productType", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    // handle invalid token
-    if (!token) {
-      return res.status(400).json({
-        message: "Token validation failed",
-      });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
     if (!userDetails) {
-      return res.status(400).json({ message: "Authorization failed" });
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
-    const productType = req.params?.productType;
-
-    // console.log(productType);
+    const productType = req.params?.productType || "buy";
 
     if (!productType) {
       return res.status(400).json({ message: "Product Type is Missing" });
@@ -229,21 +206,13 @@ router.patch("/:productType", async (req, res) => {
   }
 });
 
-router.delete("/:cart_item_id", async (req, res) => {
+router.delete("/:cart_item_id", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({
-        message: "Token validation failed",
-      });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
       return res.status(400).json({
-        message: "Token validation failed",
+        message: "User Details Not Found",
       });
     }
 
@@ -274,18 +243,12 @@ router.delete("/:cart_item_id", async (req, res) => {
   }
 });
 
-router.post("/incart/:productId", async (req, res) => {
+router.post("/incart/:productId", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({ message: "No token provided." });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
-      return res.status(400).json({ message: "Authorization failed" });
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
     const searchParams = req.params;
