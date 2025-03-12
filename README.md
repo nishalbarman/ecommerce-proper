@@ -1,6 +1,8 @@
 # Jharna Mehendi
 
-Welcome to the Jharna Mehendi monorepo! This repository contains multiple applications and packages designed to work together to deliver a full-stack solution. The projects include an admin dashboard, a client-facing web application, server-side components, and several utility packages.
+Welcome to the Jharna Mehendi codebase. This repository contains multiple applications and packages designed to work together to deliver a full-stack solution. The projects include an admin dashboard, a client-facing web application, server-side components, and several utility packages.
+
+> **Note:** This project is proprietary. No one is allowed to use, distribute, or modify the code without explicit permission from the owner.
 
 ---
 
@@ -14,16 +16,16 @@ Welcome to the Jharna Mehendi monorepo! This repository contains multiple applic
 - [Testing](#testing)
 - [Deployment](#deployment)
 - [Contributing](#contributing)
-- [License](#license)
+- [License & Usage Restrictions](#license--usage-restrictions)
 
 ---
 
 ## Overview
 
-This repository is organized as a monorepo using Turborepo for optimized build and caching. The codebase comprises several parts:
+This repository is organized as a monorepo. The codebase comprises several parts:
 
-- **apps/admin**: Contains the admin dashboard built with React and Vite. It includes Hot Module Replacement (HMR) and ESLint rules to ensure code quality. See the [admin README](apps/admin/README.md) for more details.
-- **apps/client**: The client-side application built with Next.js. It features components such as [`LoginForm`](apps/client/src/components/Auth/LoginForm.jsx) and [`ProductItem`](apps/client/src/components/ProductItem/ProductItem.jsx) that handle authentication and product display.
+- **apps/admin**: Contains the admin dashboard built with React and Vite.
+- **apps/client**: The client-side application built with Next.js.
 - **apps/hooks** and **apps/server**: Provide additional functionalities and backend services.
 - **packages**: Reusable libraries such as `custom-click`, `firebase-utils`, `redux`, and `validator`.
 
@@ -33,7 +35,6 @@ This repository is organized as a monorepo using Turborepo for optimized build a
 
 ```plaintext
 .
-├── .cache_ggshield
 ├── .env.example
 ├── .eslintrc.js
 ├── .gitignore
@@ -41,22 +42,10 @@ This repository is organized as a monorepo using Turborepo for optimized build a
 ├── netlify.toml
 ├── package.json
 ├── README.md
-├── test
 ├── turbo.json
 ├── .turbo/
-│   ├── cache/
-│   ├── cookies/
-│   │   └── 1.cookie
-│   └── daemon/
-│       ├── 1675e8e6458a30e4-turbo.log.2025-02-22
-│       ├── 1675e8e6458a30e4-turbo.log.2025-02-26
-│       ├── 1675e8e6458a30e4-turbo.log.2025-03-07
-│       └── 1675e8e6458a30e4-turbo.log.2025-03-09
 ├── .vercel/
 │   └── project.json
-├── README.txt
-├── .vscode/
-│   └── settings.json
 ├── apps/
 │   ├── admin/
 │   │   ├── .env
@@ -162,18 +151,20 @@ Deployment is configured through [Netlify](netlify.toml) and [Vercel](.vercel/pr
 
 ## Contributing
 
-Contributions are welcome! Please follow these guidelines:
+Contributions are not open to the public. If you have been granted permission to contribute, please adhere to the following guidelines:
 
 - Fork the repository.
 - Create a new branch for your feature or bug fix.
 - Submit a pull request describing your changes.
 - Ensure that all tests pass and follow the existing code style.
 
+If you do not have permission, please contact the project maintainers for access.
+
 ---
 
-## License
+## License & Usage Restrictions
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This codebase is proprietary and confidential. All rights are reserved. Unauthorized use, distribution, reproduction, or modification of the code is strictly prohibited. For licensing inquiries or permissions, please contact the project owner.
 
 ---
 
