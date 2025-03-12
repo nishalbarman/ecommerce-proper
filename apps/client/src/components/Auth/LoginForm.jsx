@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-import {
-  isValidIndianMobileNumber,
-  isValidPassword,
-} from "@/helpter/utils";
+import { isValidIndianMobileNumber, isValidPassword } from "@/helpter/utils";
 
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { setLoginCookies } from "@/actions/cookies";
 
 const validateInputs = (name, value) => {
   switch (name) {
@@ -71,6 +69,7 @@ function LoginForm() {
       if (response?.data?.user) {
         // dispatch(setUserAuthData({ ...response.data.user }));
         const redirectPath = searchParams?.get("redirect") || null;
+        await setLoginCookies(response.data.user.jwtToken);
         navigator.push(`/${redirectPath || ""}`);
       }
     } catch (error) {
@@ -117,6 +116,7 @@ function LoginForm() {
           onClick={() => {
             setIsPasswordVisible((prev) => !prev);
           }}
+          alt="Eye"
           src={"/assets/eye.svg"}
           width={25}
           height={25}

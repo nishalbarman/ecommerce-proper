@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,9 @@ import { deleteWishlistItem } from "@/lib/wishlist";
 import { deleteCartItem } from "@/lib/cart";
 import {
   useAddOneToCartMutation,
+  useAddWishlistMutation,
   useDeleteCartMutation,
+  useDeleteWishlistMutation,
   useGetCartQuery,
   useGetWishlistQuery,
 } from "@store/redux";
@@ -162,7 +164,7 @@ function ProductItem({
     }
   };
 
-  const handleLoveButtonClicked = () => {
+  const handleLoveButtonClicked = (e) => {
     e.stopPropagation();
     if (!token) {
       return toast.success("You need to be logged in first.");
