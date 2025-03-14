@@ -1,14 +1,25 @@
 import React from "react";
-import NeutralCard from "./NeutralCard";
-import FeaturesSkeleton from "./FeaturesSkeleton";
 import FeaturesSlider from "./FeaturesSlider/FeaturesSlider";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
+import { cookies } from "next/headers";
 
 // Fetch data on the server
 const fetchFeatures = async (page, limit) => {
   try {
+    // await new Promise((res) => {
+    //   setTimeout(() => {
+    //     res(true);
+    //   }, 10000);
+    // });
+
+    const cookieStore = await cookies();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/features?page=${page}&limit=${limit}`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/features?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Cookie: cookieStore,
+        },
+      }
     );
     const data = await response.json();
     return data.features;

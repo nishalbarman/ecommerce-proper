@@ -7,6 +7,11 @@ export async function fetchProducts({
   cookies = undefined,
 }) {
   try {
+    // await new Promise((res) => {
+    //   setTimeout(() => {
+    //     res(true);
+    //   }, 10000);
+    // });
     const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
     const url = new URL(`/products`, backendUrl);

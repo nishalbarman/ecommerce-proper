@@ -10,6 +10,12 @@ import Image from "next/image";
 // Fetch data on the server
 const fetchTestimonials = async () => {
   try {
+    // await new Promise((res) => {
+    //   setTimeout(() => {
+    //     res(true);
+    //   }, 10000);
+    // });
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/testimonials`
     );
@@ -70,7 +76,7 @@ const Testimonials = async () => {
           </div>
         </div>
         <div className="text-black w-full relative">
-          <CustomSlider testimonials={testimonials}></CustomSlider>
+          <CustomSlider testimonials={testimonials} />
         </div>
       </div>
     </div>

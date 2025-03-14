@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ProductItem from "../ProductItem/ProductItem";
+import ProductItem from "../ProductComps/ProductItem/ProductItem";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 

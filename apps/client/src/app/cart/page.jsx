@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Cart from "../../components/Cart/Cart";
 import Footer from "../../components/Footer/Footer";
 

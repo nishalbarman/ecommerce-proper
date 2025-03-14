@@ -1,25 +1,61 @@
-import React from "react";
+"use client";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Thumbs } from "swiper/modules";
+
+import TitleWithBar from "../TitleWithBar/TitleWithBar";
+import FeatureCardSkeleton from "./FeatureCardSkeleton";
+
+import "swiper/css";
+import "../../styles/swiper-style.css";
 
 const FeaturesSkeleton = () => {
   return (
-    <div className="relative w-auto h-60 rounded-lg shadow-md overflow-hidden p-5 animate-pulse">
-      {/* Diagonal split background */}
-      <div className="absolute inset-0 flex">
-        {/* Light green half (top-left to bottom-right) */}
-        <div className="w-full h-full bg-[#91BC78] clip-path-diagonal-left"></div>
-        {/* Dark green half (top-right to bottom-left) */}
-        <div className="w-full h-full bg-[#9BC387] clip-path-diagonal-right"></div>
+    <div className="container mx-auto w-full h-fit max-md:px-2">
+      <TitleWithBar title={"Features"} />
+      <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6 max-sm:zoom-0_1">
+        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap">
+          Why to Order from Us
+        </span>
       </div>
-
-      {/* Semi-transparent border */}
-      <div className="absolute inset-2 border-2 border-white/30 rounded-md"></div>
-
-      <div className="flex flex-col items-center justify-center h-full p-5">
-        {/* Leaf icon placeholder */}
-        <div className="relative inset-0 mb-5 w-10 h-10 bg-[#87B66D] rounded-full"></div>
-
-        {/* Text placeholder */}
-        <div className="relative inset-0 w-3/4 h-6 bg-[#87B66D] rounded"></div>
+      {/* <CategorySlider items={categories || []} /> */}
+      <div className="mx-auto">
+        {/* max-w-7xl  */}
+        <div>
+          <Swiper
+            modules={[Navigation, Pagination, Thumbs]}
+            navigation={true}
+            spaceBetween={10}
+            slidesPerView={3}
+            height={"auto"}
+            breakpoints={{
+              0: {
+                slidesPerView: 1,
+                spaceBetween: 0,
+              },
+              877: {
+                slidesPerView: 3,
+                spaceBetween: 5,
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 10,
+              },
+            }}
+            enabled={true}
+            // centeredSlides={true}
+            className="w-full bg-transparent mb-4">
+            <SwiperSlide>
+              <FeatureCardSkeleton />
+            </SwiperSlide>
+            <SwiperSlide>
+              <FeatureCardSkeleton />
+            </SwiperSlide>
+            <SwiperSlide>
+              <FeatureCardSkeleton />
+            </SwiperSlide>
+          </Swiper>
+        </div>
       </div>
     </div>
   );

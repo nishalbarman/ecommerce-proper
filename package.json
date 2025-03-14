@@ -6,7 +6,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "eslint-plugin-next": "^0.0.0",

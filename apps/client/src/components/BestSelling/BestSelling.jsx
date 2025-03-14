@@ -1,8 +1,8 @@
 import React from "react";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
-import ProductSlider from "../ProductSlider/ProductSlider";
 import { cookies } from "next/headers";
 import { fetchProducts } from "@/lib/product";
+import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
 
 async function BestSelling() {
   const cookieStore = await cookies();

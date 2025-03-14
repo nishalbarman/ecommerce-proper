@@ -5,7 +5,7 @@ import ViewAllProducts from "../ExploreProducts/ViewAllProducts";
 
 import { fetchProducts } from "@/lib/product";
 
-import ProductItem from "../ProductItem/ProductItem";
+import ProductItem from "../ProductComps/ProductItem/ProductItem";
 
 async function ExploreProducts() {
   const projectData = await fetchProducts({

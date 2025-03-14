@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCookies } from "next-client-cookies";
 import toast from "react-hot-toast";
 
-import RateStar from "../RatingStart";
+import RateStar from "../../RatingStart";
 
 import { deleteWishlistItem } from "@/lib/wishlist";
 import { deleteCartItem } from "@/lib/cart";

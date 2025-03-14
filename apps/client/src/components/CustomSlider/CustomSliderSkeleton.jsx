@@ -7,8 +7,9 @@ import { useRef } from "react"; // Add useRef
 import Image from "next/image";
 import TestimonialCard from "../TestimonialsSection/TestimonialCard";
 import "./swiper-style.css";
+import TestimonialCardSkeleton from "../TestimonialsSection/TestimonialCardSkeleton";
 
-const CustomSlider = ({ testimonials }) => {
+const CustomSliderSkeleton = ({ testimonials }) => {
   return (
     <div>
       <Swiper
@@ -32,17 +33,19 @@ const CustomSlider = ({ testimonials }) => {
           },
         }}
         enabled={true}
-        // centeredSlides={true}
         className="w-full bg-transparent mb-4">
-        {/* Slider Images */}
-        {testimonials?.map((testi, index) => (
-          <SwiperSlide key={index}>
-            <TestimonialCard {...testi} />
-          </SwiperSlide>
-        ))}
+        <SwiperSlide>
+          <TestimonialCardSkeleton />
+        </SwiperSlide>
+        <SwiperSlide>
+          <TestimonialCardSkeleton />
+        </SwiperSlide>
+        <SwiperSlide>
+          <TestimonialCardSkeleton />
+        </SwiperSlide>
       </Swiper>
     </div>
   );
 };
 
-export default CustomSlider;
+export default CustomSliderSkeleton;

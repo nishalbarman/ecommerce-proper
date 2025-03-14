@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import ProductDetails from "@/components/ProductDetails/ProductPageDetails";
+import ProductDetails from "@/components/ProductComps/ProductDetails/ProductPageDetails";
 
 // Server action to handle variant selection
 async function handleVariantSelection(prevState, formData) {

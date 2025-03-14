@@ -15,6 +15,11 @@ import Footer from "@/components/Footer/Footer";
 import { getBackendUrl } from "@/helpter/utils";
 import HeroProduct from "@/components/HeroSection/HeroSection";
 import Testimonials from "@/components/TestimonialsSection/TestimonialsSection";
+import { Suspense } from "react";
+import HeroSkeleton from "@/components/HeroSection/HeroSkeleton";
+import ProductSliderSkel from "@/components/ProductComps/ProductSlider/ProductSliderSkeleton";
+import TestimonialsSkeleton from "@/components/TestimonialsSection/TestimonialsSectionSkeleton";
+import FeaturesSkeleton from "@/components/FeatureSection/FeaturesSkeleton";
 
 const getSaleDetails = async () => {
   try {
@@ -35,31 +40,34 @@ export default async function Page() {
   return (
     <>
       {/* <BannerTop /> */}
-      <HeroProduct />
+      <Suspense fallback={<HeroSkeleton />}>
+        <HeroProduct />
+      </Suspense>
       {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
       <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
 
-      <BestSelling />
+      <Suspense fallback={<ProductSliderSkel />}>
+        <BestSelling />
+      </Suspense>
       <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-3"></div>
 
-      <Categories />
+      <Suspense fallback={<ProductSliderSkel />}>
+        <Categories />
+      </Suspense>
+
       <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
+      <Suspense fallback={<TestimonialsSkeleton />}>
+        <Testimonials />
+      </Suspense>
 
-      <Testimonials />
-
-      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
-
-      {/* <MiddleBanner /> */}
-      {/* <ExploreProducts /> */}
-      {/* <NewArrivalSection /> */}
       <div className="w-full h-[1px] mt-20 max-sm:mt-10"></div>
-      <FeatureSection />
-      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
-      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mb-3"></div> */}
 
-      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20"></div> */}
-      {/* <Features /> */}
+      <Suspense fallback={<FeaturesSkeleton />}>
+        <FeatureSection />
+      </Suspense>
+
+      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
       <div className="w-full h-[1px] bg-black opacity-[0.1]"></div>
     </>
   );

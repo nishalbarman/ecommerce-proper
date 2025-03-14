@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
 // import CategorySlider from "../Categories/CategorySlider";
 import { cookies } from "next/headers";
@@ -7,6 +6,12 @@ import CategorySlider from "./CategorySlider/CategorySlider";
 
 async function getCategories() {
   try {
+    // await new Promise((res) => {
+    //   setTimeout(() => {
+    //     res(true);
+    //   }, 10000);
+    // });
+
     const url = new URL(`/categories`, process.env.NEXT_PUBLIC_SERVER_URL);
 
     console.log(url.href);
@@ -38,7 +43,7 @@ export default async function Category() {
       </div>
       {/* <CategorySlider items={categories || []} /> */}
       <div className="mx-auto">
-      {/* max-w-7xl  */}
+        {/* max-w-7xl  */}
         <CategorySlider categories={categories || []} />
       </div>
     </div>
