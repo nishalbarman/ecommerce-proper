@@ -5,7 +5,7 @@ module.exports = function generateUniqueID(prefix) {
   const year = now.getFullYear(); // Current year
 
   // Combine the prefix, timestamp, and year to create the unique ID
-  const uniqueID = `${prefix}-${timestamp}/${year}`;
+  const uniqueID = `${prefix}-${timestamp}-${year}`;
 
   return uniqueID;
-}
+};

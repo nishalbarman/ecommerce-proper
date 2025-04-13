@@ -334,7 +334,9 @@ const OrderList = () => {
         key={0}
         onClick={() => {
           // View profile logic...
-          navigate(`/orders/view?groupId=${row.original.orderGroupID}`);
+          navigate(
+            `/orders/view?groupId=${encodeURI(row.original.orderGroupID)}`
+          );
           // setViewOrder(row)
           closeMenu();
         }}
