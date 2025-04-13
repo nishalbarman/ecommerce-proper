@@ -17,7 +17,7 @@ router.get("/", checkRole(1, 0), async (req, res) => {
 
     const PAGE = +searchQuery.page || 1;
     const LIMIT = +searchQuery.limit || 20;
-    const SKIP = (PAGE - 1) * LIMIT;
+    let SKIP = (PAGE - 1) * LIMIT;
     if (SKIP < 0) {
       SKIP = 0;
     }
