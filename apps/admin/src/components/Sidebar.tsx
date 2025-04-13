@@ -109,6 +109,16 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
       ],
     },
     {
+      title: "COUPONS",
+      items: [
+        {
+          title: "View Coupons",
+          icon: <FaTags className="mr-4" />,
+          path: "/coupons",
+        },
+      ],
+    },
+    {
       title: "FEATURES",
       items: [
         {

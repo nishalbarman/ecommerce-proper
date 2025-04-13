@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const couponSchema = new mongoose.Schema({
   code: { type: String, required: true },
+  minPurchasePrice: { type: Number, required: true },
   off: { type: Number, required: true },
   isPercentage: { type: Boolean, required: true },
   description: { type: String, required: true },

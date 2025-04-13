@@ -31,7 +31,7 @@ app.use(
       "https://jharna-mehendi-admin.web.app",
     ],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     exposedHeaders: ["set-cookie"],
   })
 );
@@ -72,6 +72,7 @@ app.use("/testimonials", require("./routes/testimonials/testimonials.routes"));
 app.use("/dynamic-pages", require("./routes/dynamicPage/dynamicPage.routes"));
 app.use("/hero-products", require("./routes/heroProduct/heroProduct.routes"));
 app.use("/roles", require("./routes/roles/roles.routes"));
+app.use("/coupons", require("./routes/coupon/coupon.routes"));
 
 app.use(
   "/uploader/image/imgbb",

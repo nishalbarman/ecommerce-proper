@@ -20,6 +20,7 @@ import AdminTestimonialsPage from "../components/TestimonialsSection/Testimonial
 import NewArrivalList from "../components/NewArrivalSection/NewArrivalList";
 import AdminContacts from "../components/ContactSection/ContactSection";
 import FeatureList from "../components/FeatureSection.jsx/FeatureList";
+import CouponList from "../components/CouponSection/CouponList";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -107,6 +108,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <CategoryList />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/coupons"
+        element={
+          <PrivateRoute>
+            <CouponList />
           </PrivateRoute>
         }
       />

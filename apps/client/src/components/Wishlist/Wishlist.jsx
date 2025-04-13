@@ -3,10 +3,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { useDeleteWishlistMutation } from "@/redux/src/index";
 import {
   useAddOneToCartMutation,
-  useDeleteCartMutation,
+  useDeleteWishlistMutation,
+  useGetWishlistQuery,
 } from "@/redux/src/index";
 
 import ProductItem from "../ProductComps/ProductItem/ProductItem";
@@ -14,6 +14,8 @@ import Link from "next/link";
 import Image from "next/image";
 
 function Wishlist() {
+  const { data: wishlistData, error: wishlistError } = useGetWishlistQuery();
+
   const wishlist = useSelector((state) => state.wishlistSlice.wishlistItems);
   const wishlistCount = useSelector((state) => state.wishlistSlice.totalItems);
 
@@ -28,7 +30,7 @@ function Wishlist() {
   return (
     <>
       {/* empty wishlist display */}
-      {wishlistCount <= 0 && (
+      {wishlistData?.length <= 0 && (
         <div className="flex flex-col justify-center items-center gap-[10px] mt-[40px]">
           <Image
             draggable={false}
@@ -50,29 +52,34 @@ function Wishlist() {
         </div>
       )}
 
-      {wishlistCount > 0 && (
+      {wishlistData?.length > 0 && (
         <div className="flex justify-between items-center">
-          <p className="text-xl font-andika">Wishlist ({wishlistCount})</p>
+          <p className="text-xl font-andika">Wishlist ({wishlistData?.length})</p>
           <button className="rounded-[4px] border-[1px] border-[black] h-[45px] p-[0px_20px]">
             Move All to Bag
           </button>
         </div>
       )}
 
-      {wishlistCount > 0 && (
+      {wishlistData?.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl-grid-cols-6 gap-5 items-center m-[40px_0] w-[100%] z-1">
-          {Object.values(wishlist)?.map((item) => {
+          {wishlistData?.map((item) => {
             return (
               <div className="min-md:w-[250px]">
                 <ProductItem
-                  {...item}
-                  wishlistItems={wishlist}
-                  isEyeVisible={false}
-                  isWishlistIconVisible={false}
-                  deleteWishlistIconVisible={true}
-                  removeOneWishlist={removeOneWishlist}
-                  addOneToCart={addOneToCart}
-                  addToCartText="Move to Cart"
+                  // {...item}
+                  wishlistItemId={item._id}
+                  productDetails={item.product}
+                  options={{
+                    wishlistItems: wishlist,
+                    isEyeVisible: true,
+                    isWishlistIconVisible: false,
+                    deleteCartIconVisible: false,
+                    deleteWishlistIconVisible: true,
+                    removeOneWishlist: removeOneWishlist,
+                    addOneToCart: addOneToCart,
+                    addToCartText: "Move to Cart",
+                  }}
                 />
               </div>
             );

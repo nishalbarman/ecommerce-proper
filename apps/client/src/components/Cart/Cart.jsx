@@ -92,7 +92,7 @@ function Cart() {
       }
 
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupon?code=${couponCode.value}`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode.value}`
       );
 
       const data = response.data;
@@ -107,9 +107,12 @@ function Cart() {
 
       const couponDiscountPrice = data.coupon.isPercentage
         ? (subtotalPrice / 100) * (parseInt(data.coupon.off) || 0)
-        : subtotalPrice > (data.coupon.minimumPayAmount || subtotalPrice + 100)
+        : subtotalPrice > data.coupon.minPurchasePrice
           ? data.coupon.off
           : 0;
+
+      console.log("What is coupon discout price", couponDiscountPrice);
+
       setCouponDiscountPrice(couponDiscountPrice);
       setAppliedCoupon(couponDiscountPrice > 0 ? data.coupon : null);
       setSubtotalPrice((prev) => prev - couponDiscountPrice);

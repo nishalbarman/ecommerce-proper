@@ -33,6 +33,7 @@ import { imageApi } from "./apis/imageApi";
 import { roleApi } from "./apis/roleApi";
 import { productApi } from "./apis/productApi";
 import { newArrivalApi } from "./apis/newArrivalApi";
+import { couponApi } from "./apis/couponApi";
 
 const rootReducer = combineReducers({
   [userApi.reducerPath]: userApi.reducer,
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
   [roleApi.reducerPath]: roleApi.reducer,
   [productApi.reducerPath]: productApi.reducer,
   [newArrivalApi.reducerPath]: newArrivalApi.reducer,
+  [couponApi.reducerPath]: couponApi.reducer,
 });
 
 const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
@@ -76,6 +78,7 @@ const middlewares = [
   productApi.middleware,
   newArrivalApi.middleware,
   imageApi.middleware,
+  couponApi.middleware,
 ];
 
 export const store = configureStore({

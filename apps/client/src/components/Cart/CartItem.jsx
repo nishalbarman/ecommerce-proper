@@ -9,6 +9,7 @@ import { useCookies } from "next-client-cookies";
 import { deleteCartItem, updateCartItem } from "@/lib/cart";
 import { addProductToWishlist, deleteWishlistItem } from "@/lib/wishlist";
 import { useSelector } from "react-redux";
+import { useAddWishlistMutation, useDeleteCartMutation } from "@/redux/src";
 
 function CartItem({ item, userCartItems, userWishlistItems }) {
   const { _id, user, product, variant, quantity, productType } = item;
@@ -45,6 +46,9 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
   const quantityModalRef = useRef();
   const sizeModalRef = useRef();
 
+  const [addNewWishlist] = useAddWishlistMutation();
+  const [deleteOneCartItem] = useDeleteCartMutation();
+
   const handleAddToWishlist = (e) => {
     e.stopPropagation();
 
@@ -57,18 +61,17 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
       // dispatch(removeWishlistProduct(_id));
       deleteWishlistItem({ id: _id });
     } else {
-      addNewWishlist(_id);
-
-      addProductToWishlist({
-        user,
-        product,
-        variant,
-        quantity,
-        productType,
-      });
+      addNewWishlist({ id: _id });
+      // addProductToWishlist({
+      //   user,
+      //   product,
+      //   variant,
+      //   quantity,
+      //   productType,
+      // });
 
       if (cartItems?.hasOwnProperty(_id)) {
-        deleteCartItem({ id: _id });
+        deleteOneCartItem({ id: _id });
       }
     }
   };
@@ -78,8 +81,8 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
     if (!token) {
       return toast.success("You need to be logged in first.");
     }
-    removeOneFromCart(_id);
-    dispatch(removeCartProduct(_id));
+    deleteOneCartItem({ id: _id });
+    // dispatch(removeCartProduct(_id));
   };
 
   const handleOnQuanityChangeClick = (e) => {
@@ -263,7 +266,7 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
           </p>
           <p
             onClick={() => {
-              setProductQuantity(4);
+              setProductQuantity(5);
               quantityModalRef.current?.classList.add("hidden");
             }}
             className="text-center hover:bg-[rgb(230,230,230)] text-[18px] p-[19px_40px] border-none tracking-[2px] leading-[1.428571429px] bg-[#fff] cursor-pointer rounded"

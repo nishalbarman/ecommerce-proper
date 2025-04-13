@@ -26,7 +26,7 @@ router.get("/", checkRole(1, 0), async (req, res) => {
       .sort({ createdAt: "desc" })
       .skip(SKIP)
       .limit(LIMIT)
-      .populate([{ path: "product", select: "_id" }])
+      .populate("product")
       .select("-user");
 
     console.log("Wishlist data -->", wishlistDetails);
@@ -118,7 +118,10 @@ router.delete("/:wishlistId", checkRole(0, 1), async (req, res) => {
 
     console.log(wishlistId);
 
-    const wishlistDetails = await Wishlist.findByIdAndDelete(wishlistId);
+    const wishlistDetails = await Wishlist.findOneAndDelete({
+      _id: wishlistId,
+      user: req.user._id,
+    });
 
     if (!wishlistDetails) {
       return res.status(400).json({

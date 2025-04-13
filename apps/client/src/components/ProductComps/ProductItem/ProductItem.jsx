@@ -24,13 +24,23 @@ import { useSelector } from "react-redux";
 function ProductItem({
   productDetails = {},
   addToCartText = "Add To Cart",
+
+  wishlistItemId = null,
+  cartItemId = null,
+
   options: {
-    isRatingVisible = true,
-    isEyeVisible = true,
-    isWishlistIconVisible = true,
-    deleteCartIconVisible = false,
-    deleteWishlistIconVisible = false,
-  } = {},
+    isRatingVisible,
+    isEyeVisible,
+    isWishlistIconVisible,
+    deleteCartIconVisible,
+    deleteWishlistIconVisible,
+  } = {
+    isRatingVisible: true,
+    isEyeVisible: true,
+    isWishlistIconVisible: true,
+    deleteCartIconVisible: false,
+    deleteWishlistIconVisible: false,
+  },
 
   wishlistIdMapped,
   cartIdMapped,
@@ -190,6 +200,8 @@ function ProductItem({
     }
   };
 
+  const [removeWishlistProduct] = useDeleteWishlistMutation();
+
   const handleCartProductRemove = (e) => {
     e.stopPropagation();
     if (!token) {
@@ -199,13 +211,13 @@ function ProductItem({
     // dispatch(removeCartProduct(_id));
   };
 
-  const handleWishlistProductRemove = (e) => {
+  const handleWishlistProductRemove = async (e) => {
     e.stopPropagation();
     if (!token) {
       return toast.success("You need to be logged in first.");
     }
-    removeWishlistProduct(_id);
-    // dispatch(removeWishlistProduct(_id));
+
+    if (wishlistItemId) removeWishlistProduct({ id: wishlistItemId });
   };
 
   return (

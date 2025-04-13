@@ -9,7 +9,7 @@ export default function Page() {
   const token = cookiesStore?.get("token") || null;
 
   if (!token) {
-    redirect("/auth/login?redirect=cart");
+    redirect("/auth/login?redirect=wishlist");
   }
 
   return (
@@ -19,7 +19,6 @@ export default function Page() {
           <Wishlist />
         </div>
       </main>
-      <Footer />
     </>
   );
 }

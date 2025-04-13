@@ -670,49 +670,6 @@ router.patch("/update/:productId", checkRole(1), async (req, res) => {
       return res.status(400).json({ message: error.join(", ") });
     }
 
-    // try {
-    //   if (productData.previewImage.length > 0) {
-    //     productData.previewImage = await ImageUploadHelper.uploadBulkImages(
-    //       productData.previewImage
-    //     );
-    //   }
-
-    //   if (productData.slideImages.length > 0) {
-    //     const slideImages = await ImageUploadHelper.uploadBulkImages(
-    //       productData.slideImages
-    //     );
-    //     productData.slideImages = slideImages;
-    //   }
-
-    //   const variants = productData?.productVariant;
-
-    //   for (let i = 0; i < variants.length; i++) {
-    //     console.log(variants[i]);
-
-    //     if (variants[i].previewImage.length > 0) {
-    //       variants[i].previewImage = await ImageUploadHelper.uploadBulkImages(
-    //         variants[i].previewImage
-    //       );
-    //     }
-
-    //     if (variants[i].slideImages.length > 0) {
-    //       const slideImages = await ImageUploadHelper.uploadBulkImages(
-    //         variants[i].slideImages
-    //       );
-    //       variants[i].slideImages = slideImages;
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   return res.status(400).json({ message: "File upload error" });
-    // }
-
-    // Now here till this point we have uploaded all the images in firebase storage.. (previewImage, slideImages, variant.previewImage, variant.slideImages ...)
-
-    // Now we are going to update the product
-
-    // Update product document
-
     const productUpdatedData = {
       title: productData.title,
       category: productData.category,

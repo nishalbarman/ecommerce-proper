@@ -418,21 +418,21 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹1,299</span>
+                <span>₹{totalPrice}</span>
               </div>
               <div className="flex justify-between">
                 <span>Delivery Charges</span>
-                <span className="text-green-600">FREE</span>
+                <span className="text-green-600">₹{totalShippingPrice}</span>
               </div>
               <div className="flex justify-between">
                 <span>Coupon Discount</span>
-                <span className="text-green-600">-₹100</span>
+                <span className="text-green-600">-₹{totalDiscountPrice}</span>
               </div>
 
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between font-bold">
                   <span>Total</span>
-                  <span>₹1,199</span>
+                  <span>₹{subtotalPrice}</span>
                 </div>
               </div>
             </div>
