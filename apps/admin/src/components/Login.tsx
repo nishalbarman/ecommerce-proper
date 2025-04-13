@@ -51,8 +51,12 @@ const Login = () => {
 
       dispatch(setUserAuthData({ ...response.data.user }));
       setCookie("token", response.data.user.jwtToken, {
+        httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain: ".jharna-mehendi-api.onrender.com", // Note the leading dot
+        path: "/",
+        maxAge: 86400000,
       });
       navigator("/");
       toast.update(toastId, {

@@ -31,8 +31,18 @@ app.use(
       "https://jharna-mehendi-admin.web.app",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    exposedHeaders: ["set-cookie"],
   })
 );
+
+// In your Express server (development only)
+if (process.env.NODE_ENV === "development") {
+  app.use((req, res, next) => {
+    req.secure = true; // Trick Express into thinking it's HTTPS
+    next();
+  });
+}
 
 app.use(cookieParser());
 app.use(limiter);

@@ -77,18 +77,28 @@ router.post("/admin-login", async (req, res) => {
       secret
     );
 
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        name: user.name,
-        email: user.email,
-        roleName: user.role.roleName,
-        roleNumber: user.role.roleNumber,
-        roleKey: user.role.roleKey,
-        mobileNo: user.mobileNo,
-        jwtToken: jwtToken,
-      },
-    });
+    return res
+      .cookie("token", jwtToken, {
+        secure: process.env.NODE_ENV === "production", // true in production
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        // Omit domain for localhost, set only in production
+        ...(process.env.NODE_ENV === "production" && {
+          domain: "jharna-mehendi-api.onrender.com",
+        }),
+      })
+      .status(200)
+      .json({
+        message: "Login successful",
+        user: {
+          name: user.name,
+          email: user.email,
+          roleName: user.role.roleName,
+          roleNumber: user.role.roleNumber,
+          roleKey: user.role.roleKey,
+          mobileNo: user.mobileNo,
+          jwtToken: jwtToken,
+        },
+      });
   } catch (error) {
     globalErrorHandler(res, error);
   }

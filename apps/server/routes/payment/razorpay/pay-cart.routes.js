@@ -147,8 +147,8 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
 
     // const paymentTxnId = uuidv4();
     // const orderGroupID = uuidv4();
-    const paymentTxnId = generateUniqueId("PM");
-    const orderGroupID = generateUniqueId("JK");
+    const paymentTxnId = generateUniqueId("PT");
+    const orderGroupID = generateUniqueId("OD");
 
     console.log("What is the payment final amount", paymentObject.amount);
 
