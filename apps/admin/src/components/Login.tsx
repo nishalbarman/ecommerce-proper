@@ -45,7 +45,7 @@ const Login = () => {
       ); // postable form data
 
       const response = await axios.post(
-        `${process.env.VITE_APP_API_URL}/auth/admin-login`,
+        `${import.meta.env.VITE_APP_API_URL}/auth/admin-login`,
         extractedData
       );
 

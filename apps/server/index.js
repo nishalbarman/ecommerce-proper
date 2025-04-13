@@ -27,8 +27,8 @@ app.use(
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
-      "http://localhost:3001",
       "https://jharna-mehendi-fully-custom-admin.vercel.app",
+      "https://jharna-mehendi-admin.web.app",
     ],
     credentials: true,
   })
@@ -86,7 +86,10 @@ app.use("/hook/razorpay", require("./hooks/razorpay-hook.routes"));
 app.use("/pay/paytm/cart", require("./routes/payment/paytm/pay-cart.routes"));
 
 /!*---- razorpay */;
-app.use("/pay/razorpay/cart", require("./routes/payment/razorpay/pay-cart.routes"));
+app.use(
+  "/pay/razorpay/cart",
+  require("./routes/payment/razorpay/pay-cart.routes")
+);
 
 /!* ---- stripe */;
 app.use("/stripe/cart", require("./routes/payment/stripe/pay-cart.routes"));

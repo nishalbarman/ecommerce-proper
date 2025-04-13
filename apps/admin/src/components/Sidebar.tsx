@@ -20,11 +20,11 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import anime_image from "../assets/shinobu.jpg";
 
 type SidebarProps = {
-  navbarToggle: boolean;
-  setNavbarToggle: (value: boolean) => void;
+  navbarToogle: boolean;
+  setNavbarToogle: (value: boolean) => void;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ navbarToggle, setNavbarToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
   const navigator = useNavigate();
   const location = useLocation();
   const [width, setWidth] = useState<number>(window.innerWidth);
@@ -203,19 +203,19 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToggle, setNavbarToggle }) => {
 
   return (
     <motion.div
-      animate={isMobile ? (navbarToggle ? "closed" : "open") : "open"}
+      animate={isMobile ? (navbarToogle ? "closed" : "open") : "open"}
       variants={variants}
       className={`z-50 min-h-screen w-64 bg-gray-800 text-white flex top-0 bottom-0 flex-col fixed overflow-y-auto scrollbar ${
-        isMobile ? (navbarToggle ? "hidden" : "visible") : "visible"
+        isMobile ? (navbarToogle ? "hidden" : "visible") : "visible"
       }`}
       aria-label="Sidebar">
       <motion.div
-        animate={isMobile ? (navbarToggle ? "closed" : "open") : "open"}
+        animate={isMobile ? (navbarToogle ? "closed" : "open") : "open"}
         variants={sidebarInnerDivVariant}
         transition={{ delay: 0.2 }}>
         <div
           className="absolute right-2 top-2 border border-white rounded-sm lg:hidden"
-          onClick={() => setNavbarToggle(!navbarToggle)}
+          onClick={() => setNavbarToogle(!navbarToogle)}
           role="button"
           aria-label="Close Sidebar">
           <IoMdClose size={20} />

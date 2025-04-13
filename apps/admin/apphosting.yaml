@@ -1,0 +1,6 @@
+env:
+  - variable: VITE_APP_API_URL
+    value: "https://jharna-mehendi-api.onrender.com"
+
+  - variable: VITE_APP_NAME
+    value: "Jharna Mehendi"
