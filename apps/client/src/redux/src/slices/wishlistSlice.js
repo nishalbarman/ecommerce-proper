@@ -1,11 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type stateProps = {
-  wishlists: String[];
-  totalCount: number;
-};
-
-const initialState: stateProps = {
+const initialState = {
   wishlists: [],
   totalCount: 0,
 };
@@ -14,7 +9,7 @@ export const wishlistSlice = createSlice({
   name: "wishlistSlice",
   initialState,
   reducers: {
-    updateWishlist: (state, action: PayloadAction) => {
+    updateWishlist: (state, action) => {
       return action.payload;
     },
     clearWishlist: () => {

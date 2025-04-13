@@ -32,7 +32,7 @@ const CustomSlider = ({ testimonials }) => {
           },
         }}
         enabled={true}
-        // centeredSlides={true}
+        centeredSlides={true}
         className="w-full bg-transparent mb-4">
         {/* Slider Images */}
         {testimonials?.map((testi, index) => (

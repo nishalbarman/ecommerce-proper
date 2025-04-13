@@ -1,13 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type stateProps = {
-  message: string;
-  duration: number;
-  isVisible?: boolean;
-  actionText: string | false;
-};
-
-const initialState: stateProps = {
+const initialState = {
   message: "How it looks",
   duration: 300,
   isVisible: true,
@@ -18,7 +11,7 @@ export const globalMessage = createSlice({
   name: "global_message",
   initialState,
   reducers: {
-    setReduxGlobalMessage: (state, action: PayloadAction<stateProps>) => {
+    setReduxGlobalMessage: (state, action) => {
       return { ...state, ...action.payload };
     },
     clearReduxGlobalMessage: () => {

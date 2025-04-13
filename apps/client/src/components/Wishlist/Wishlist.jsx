@@ -3,8 +3,11 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { useDeleteWishlistMutation } from "@store/redux";
-import { useAddOneToCartMutation, useDeleteCartMutation } from "@store/redux";
+import { useDeleteWishlistMutation } from "@/redux/src/index";
+import {
+  useAddOneToCartMutation,
+  useDeleteCartMutation,
+} from "@/redux/src/index";
 
 import ProductItem from "../ProductComps/ProductItem/ProductItem";
 import Link from "next/link";

@@ -83,13 +83,10 @@ app.use("/hook/razorpay", require("./hooks/razorpay-hook.routes"));
 
 // stripe payment gateway
 /!* ---- paytm */;
-app.use("/paytm/cart", require("./routes/payment/paytm/pay-cart.routes"));
+app.use("/pay/paytm/cart", require("./routes/payment/paytm/pay-cart.routes"));
 
 /!*---- razorpay */;
-app.use(
-  "/pay/razorpay/cart",
-  require("./routes/payment/razorpay/pay-cart.routes")
-);
+app.use("/pay/razorpay/cart", require("./routes/payment/razorpay/pay-cart.routes"));
 
 /!* ---- stripe */;
 app.use("/stripe/cart", require("./routes/payment/stripe/pay-cart.routes"));

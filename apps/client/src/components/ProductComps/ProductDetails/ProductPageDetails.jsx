@@ -12,6 +12,11 @@ import "@/styles/swiper-style.css";
 import "@/styles/view-product.css";
 import RateStar from "@/components/RatingStart";
 import checkStock from "@/actions/product/checkStock";
+import ReviewStats from "@/components/ReviewForm/ReviewStats";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { addToCart } from "@/actions/cart";
+import { useAddOneToCartMutation } from "@/redux/src";
 
 export default function ProductDetails({
   product,
@@ -24,6 +29,8 @@ export default function ProductDetails({
   productId,
   handleVariantSelection,
 }) {
+  const navigate = useRouter();
+
   const [selectedSize, setSelectedSize] = useState(initialSelectedSize);
   const [selectedColor, setSelectedColor] = useState(initialSelectedColor);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -112,6 +119,91 @@ export default function ProductDetails({
     return validCombinations.has(`${size}-${color}`);
   };
 
+  const [quantity, setQuantity] = useState(1);
+  const [inCart, setInCart] = useState(false);
+  const [isAddToCartLoading, setIsAddToCartLoading] = useState(false);
+
+  const checkCartStatus = async (productId, variantId) => {
+    console.log("Checking cart status for:", {
+      productId,
+      variantId,
+    });
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/incart/${productId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": `application/json`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            variant: !!variantId ? variantId : null,
+          }),
+        }
+      );
+      const data = await response.json();
+      console.log("Cart status response:", data);
+      return data.incart;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    console.log("filterd variant:", product, filteredVariant);
+    (async () => {
+      const inCart = await checkCartStatus(product._id, filteredVariant?._id);
+      setInCart(inCart);
+    })();
+  }, [filteredVariant, product]);
+
+  // Handle form submission
+
+  const [addToCart] = useAddOneToCartMutation();
+
+  const handleAddToCart = async () => {
+    try {
+      setIsAddToCartLoading(true);
+      const cartObject = {
+        productId: product._id,
+        quantity,
+        // rentDays,
+        productType: product.productType,
+      };
+
+      if (product.isVariantAvailable && product.productVariant.length > 0) {
+        cartObject.variant = state.matchedVariant._id;
+      }
+
+      const response = await addToCart(cartObject).unwrap();
+      setInCart(true);
+      toast.success(response.message);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+      toast.error(error.message);
+    } finally {
+      setIsAddToCartLoading(false);
+    }
+  };
+
+  const handleBuyNow = () => {
+    const queryParams = new URLSearchParams();
+    queryParams.set("productId", product._id);
+    queryParams.set("quantity", quantity.toString());
+    queryParams.set("productType", product.type);
+
+    if (filteredVariant?._id) {
+      queryParams.set("variantId", filteredVariant._id);
+    }
+    if (product.type === "rent") {
+      queryParams.set("rentDays", rentDays.toString());
+    }
+
+    navigate(`/checkout?${queryParams.toString()}`);
+  };
+
   return (
     <div className="container mx-auto mt-16">
       <div className="w-full p-4 text-black min-h-[100vh] bg-white rounded-md">
@@ -169,7 +261,7 @@ export default function ProductDetails({
                 <img
                   src={`${filteredVariant?.previewImage || product.previewImage}`}
                   alt={product ? product?.title : undefined}
-                  className="w-full h-full !border shadow-lg border-primary object-cover rounded-lg cursor-pointer select-none"
+                  className="w-full h-full !border shadow-lg border-primary object-contain rounded-lg cursor-pointer select-none"
                 />
               </SwiperSlide>
 
@@ -180,95 +272,17 @@ export default function ProductDetails({
                     <img
                       src={`${image}`}
                       alt={`Product Image ${index + 1}`}
-                      className="w-full h-full !border shadow-lg border-primary  object-cover rounded-lg cursor-pointer select-none"
+                      className="w-full h-full !border shadow-lg border-primary  object-contain rounded-lg cursor-pointer select-none"
                     />
                   </SwiperSlide>
                 )
               )}
             </Swiper>
 
-            <div className="mt-10">
-              {/* Variants (Only if VariantAvailable is true) */}
-              {product &&
-                product.isVariantAvailable &&
-                productVariants?.length > 0 && (
-                  <form ref={formRef} action={formAction}>
-                    <input type="hidden" name="productId" value={productId} />
-                    <input type="hidden" name="size" value={selectedSize} />
-                    <input type="hidden" name="color" value={selectedColor} />
-                    <button type="submit" style={{ display: "none" }} />
-                    <div className="mb-6">
-                      <h2 className="text-xl font-semibold mb-2">
-                        Select Variant
-                      </h2>
-                      <div className="flex flex-wrap gap-2">
-                        {/* Size Selection */}
-                        <div className="w-full">
-                          <h3 className="text-lg font-semibold mb-2">Size</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {availableSizes.map((size, index) => (
-                              <button
-                                key={index}
-                                type="button"
-                                onClick={() => setSelectedSize(size)}
-                                disabled={
-                                  !isCombinationValid(size, selectedColor)
-                                }
-                                className={`px-4 py-2 border rounded-lg ${
-                                  selectedSize === size
-                                    ? "bg-primary bg-gray-200 text-black border-black "
-                                    : "bg-white text-black hover:bg-gray-100"
-                                } ${
-                                  !isCombinationValid(size, selectedColor)
-                                    ? "opacity-50 cursor-not-allowed border-none diagonal-line"
-                                    : ""
-                                }`}>
-                                {size}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Color Selection */}
-                        <div className="w-full mt-4">
-                          <h3 className="text-lg font-semibold mb-2">Color</h3>
-                          <div className="flex flex-wrap gap-2">
-                            {availableColors.map((color, index) => (
-                              <button
-                                key={index}
-                                type="button"
-                                onClick={() => setSelectedColor(color)}
-                                className={`px-4 py-2 border rounded-lg ${
-                                  selectedColor === color
-                                    ? "bg-primary bg-gray-200 text-black border-black "
-                                    : "bg-white text-black hover:bg-gray-100"
-                                }`}>
-                                {color}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Warning if combination does not exist */}
-                      {!combinationExists && (
-                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-red-600">
-                            This combination of size and color does not exist.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Display error message */}
-                      {error && (
-                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                          <p className="text-red-600">{error}</p>
-                        </div>
-                      )}
-                    </div>
-                  </form>
-                )}
-            </div>
+            <ReviewStats
+              averageRating={product.stars}
+              totalReviews={product.totalFeedbacks}
+            />
           </div>
 
           {/* Right Side: Product Details */}
@@ -316,20 +330,198 @@ export default function ProductDetails({
               </p>
             </div>
 
+            <div className="mb-3 rounded-sm">
+              {/* Variants (Only if VariantAvailable is true) */}
+              {product &&
+                product.isVariantAvailable &&
+                productVariants?.length > 0 && (
+                  <form
+                    className="border shadow p-4 "
+                    ref={formRef}
+                    action={formAction}>
+                    <input type="hidden" name="productId" value={productId} />
+                    <input type="hidden" name="size" value={selectedSize} />
+                    <input type="hidden" name="color" value={selectedColor} />
+                    <button type="submit" style={{ display: "none" }} />
+                    <div className="mb-6">
+                      <h2 className="text-sm font-semibold mb-2">
+                        Select Option
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {/* Size Selection */}
+                        <div className="w-full">
+                          <h3 className="text-lg font-semibold mb-2">Size</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {availableSizes.map((size, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => setSelectedSize(size)}
+                                disabled={
+                                  !isCombinationValid(size, selectedColor)
+                                }
+                                className={`px-4 py-2 border rounded-lg ${
+                                  selectedSize === size
+                                    ? "bg-primary bg-gray-200 text-black "
+                                    : "bg-white text-black hover:bg-gray-100"
+                                } ${
+                                  !isCombinationValid(size, selectedColor)
+                                    ? "opacity-50 cursor-not-allowed border-none diagonal-line"
+                                    : ""
+                                }`}>
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Color Selection */}
+                        <div className="w-full mt-4">
+                          <h3 className="text-lg font-semibold mb-2">Color</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {availableColors.map((color, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => setSelectedColor(color)}
+                                className={`px-4 py-2 border rounded-lg ${
+                                  selectedColor === color
+                                    ? "bg-primary bg-gray-200 text-black "
+                                    : "bg-white text-black hover:bg-gray-100"
+                                }`}>
+                                {color}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Warning if combination does not exist */}
+                      {!combinationExists && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600">
+                            This combination of size and color does not exist.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Display error message */}
+                      {error && (
+                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                          <p className="text-red-600">{error}</p>
+                        </div>
+                      )}
+                    </div>
+                  </form>
+                )}
+            </div>
+
             {/* Stock Availability */}
-            <div className="mb-6 bg-green-50 p-6 rounded-lg">
-              <h2 className="text-sm font-semibold mb-2">Availability</h2>
-              {combinationExists ? (
-                <p className="text-gray-600">
+            {!inStock && (
+              <div className="mb-6 bg-red-50 p-6 rounded-lg">
+                <h2 className="text-sm font-semibold mb-2">Availability</h2>
+                {/* {combinationExists ? ( */}
+                <p className="text-red-600 font-bold">
                   {inStock ? "In stock" : "Out of stock"}
                 </p>
-              ) : (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                {/* ) : ( */}
+                {/* <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-red-600">
                     This combination of size and color does not exist.
                   </p>
-                </div>
+                </div> */}
+                {/* )} */}
+              </div>
+            )}
+
+            {/* Quantity Selector */}
+            <div className="mb-6 bg-gray-50 p-6 rounded-lg">
+              <h2 className="text-sm font-semibold mb-4">Quantity</h2>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                  className="w-10 h-10 flex items-center justify-center border rounded-full">
+                  -
+                </button>
+                <span className="text-lg font-medium">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((prev) => Math.min(50, prev + 1))}
+                  className="w-10 h-10 flex items-center justify-center border rounded-full">
+                  +
+                </button>
+              </div>
+
+              {product.type === "rent" && (
+                <>
+                  <h2 className="text-sm font-semibold mb-4 mt-6">
+                    Rental Duration
+                  </h2>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() =>
+                        setRentDays((prev) => Math.max(1, prev - 1))
+                      }
+                      className="w-10 h-10 flex items-center justify-center border rounded-full">
+                      -
+                    </button>
+                    <span className="text-lg font-medium">{rentDays} days</span>
+                    <button
+                      onClick={() =>
+                        setRentDays((prev) => Math.min(30, prev + 1))
+                      }
+                      className="w-10 h-10 flex items-center justify-center border rounded-full">
+                      +
+                    </button>
+                  </div>
+                </>
               )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-4 mb-12">
+              <form action={handleAddToCart}>
+                <input type="hidden" name="productId" value={product._id} />
+                <input type="hidden" name="productType" value={product.type} />
+                <input type="hidden" name="quantity" value={quantity} />
+                {filteredVariant?._id && (
+                  <input
+                    type="hidden"
+                    name="variantId"
+                    value={filteredVariant._id}
+                  />
+                )}
+
+                {!inCart ? (
+                  <button
+                    type="submit"
+                    disabled={!inStock || isAddToCartLoading}
+                    className={`flex-1 py-3 px-6 rounded-lg font-medium ${
+                      !inStock || isAddToCartLoading
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-black text-white hover:bg-gray-800"
+                    }`}>
+                    {isAddToCartLoading ? "Adding..." : "Add to Cart"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/cart")}
+                    className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800">
+                    Go to Cart
+                  </button>
+                )}
+              </form>
+
+              <button
+                onClick={handleBuyNow}
+                disabled={!inStock}
+                className={`flex-1 py-3 px-6 rounded-lg font-medium ${
+                  !inStock
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-primary-dark"
+                }`}>
+                Buy Now
+              </button>
             </div>
 
             {/* Description */}

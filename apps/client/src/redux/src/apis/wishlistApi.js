@@ -1,20 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 export const wishlistApi = createApi({
   reducerPath: "wishlistApi",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
-      headers.set(
-        "producttype",
-        `${(getState() as any).product_store.productType}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
+      headers.set("producttype", `${getState().product_store.productType}`);
       return headers;
     },
   }),
@@ -25,7 +20,7 @@ export const wishlistApi = createApi({
         url: `wishlist`,
         method: "GET",
       }),
-      transformResponse: (response, meta, arg) => (response as any).data,
+      transformResponse: (response, meta, arg) => response.data,
       // transformErrorResponse: (response, meta, arg) => response.message,
       providesTags: ["Wishlist"],
     }),
@@ -41,8 +36,8 @@ export const wishlistApi = createApi({
     }),
 
     deleteWishlist: builder.mutation({
-      query: ({ _id }) => ({
-        url: `wishlist/${_id}`,
+      query: ({ id }) => ({
+        url: `wishlist/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Wishlist"],

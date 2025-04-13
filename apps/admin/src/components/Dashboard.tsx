@@ -71,7 +71,7 @@ const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
           />
         </div> */}
       </div>
-      <div className="flex flex-col items-center min-h-screen bg-white shadow-lg rounded">
+      {/* <div className="flex flex-col items-center min-h-screen bg-white shadow-lg rounded">
         <h1 className="text-4xl mt-20">
           Hi <span className="font-bold">{auth?.name || "Guest"}</span>,{" "}
           <span className="italic">Welcome to Admin Panel</span> 💁‍♂️✌️
@@ -82,9 +82,9 @@ const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
             className="w-60 h-60 object-contain mix-blend-multiply aspect-sqaure"
           />
         </div>
-      </div>
+      </div> */}
 
-      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-gray-900">Revenue</h2>
           <p className="text-2xl font-semibold text-gray-900">Rs. 123,000</p>
@@ -111,8 +111,8 @@ const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
           <p className="text-2xl font-semibold text-gray-900">10k</p>
           <p className="text-red-500 mt-2">-71% of total goals</p>
         </div>
-      </div> */}
-      {/* <div className="grid grid-cols-1 grid-rows-flow lg:grid-cols-2  w-full gap-7">
+      </div>
+      <div className="grid grid-cols-1 grid-rows-flow lg:grid-cols-2  w-full gap-7">
         <div className="bg-white p-4 rounded-lg shadow-md mb-6 w-full ">
           <div className="flex justify-between">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">Orders</h2>
@@ -199,7 +199,7 @@ const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
             <TransactionsTable />
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };

@@ -18,7 +18,7 @@ import {
   useDeleteWishlistMutation,
   useGetCartQuery,
   useGetWishlistQuery,
-} from "@store/redux";
+} from "@/redux/src/index";
 import { useSelector } from "react-redux";
 
 function ProductItem({
@@ -107,7 +107,7 @@ function ProductItem({
         _id: wishlistItemID,
       }).unwrap();
 
-      toast.succes("Wishlist removed");
+      toast.success("Wishlist removed");
     } catch (error) {
       toast.show("Wishlist remove failed");
       setOnWishlist(true);
@@ -222,7 +222,7 @@ function ProductItem({
         )}
 
         {/* add to cart button */}
-        {!deleteCartIconVisible && (
+        {/* {!deleteCartIconVisible && (
           <button
             disabled={onCart}
             className="w-[100%] justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition duration-300 ease-in-out min-[593px]:group-hover/product_item:flex min-[593px]:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] max-sm:h-[40px] max-sm:text-[15px] flex items-center justify-center h-[48px] rounded-b bg-[rgba(0,0,0,0.7)] text-white "
@@ -245,7 +245,7 @@ function ProductItem({
               />
             )}
           </button>
-        )}
+        )} */}
 
         {/* all interactive icons */}
         <div className="cursor-pointer absolute top-3 right-3 z-[999] flex flex-col gap-2 items-center w-fit">

@@ -11,31 +11,32 @@ import {
   REGISTER,
   PersistConfig,
 } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { userAPI } from "./apis/userApi";
-import { addressSlice } from "./slices/addressSlice";
-import { authApi } from "./apis/authApi";
-import { addressApi } from "./apis/addressApi";
+import { userAPI } from "./apis/userApi.js";
+import { addressSlice } from "./slices/addressSlice.js";
+import { authApi } from "./apis/authApi.js";
+import { addressApi } from "./apis/addressApi.js";
 
-import { wishlistApi } from "./apis/wishlistApi";
+import { wishlistApi } from "./apis/wishlistApi.js";
 // import { productsApi } from "./apis/productApi.ts.bak";
-import { categoryApi } from "./apis/categoryApi";
-import { storeTypeSlice } from "./slices/storeTypeSlice";
-import { cartApi } from "./apis/cartApi";
-import { centerAddressSlice } from "./slices/centerAddressSlice";
-import { centerAddressApi } from "./apis/centerAddresApi";
+import { categoryApi } from "./apis/categoryApi.js";
+import { storeTypeSlice } from "./slices/storeTypeSlice.js";
+import { cartApi } from "./apis/cartApi.js";
+import { centerAddressSlice } from "./slices/centerAddressSlice.js";
+import { centerAddressApi } from "./apis/centerAddresApi.js";
 // import { orderSlice } from "./slices/orderSlice";
-import { productSortingFilteringSlice } from "./slices/productSortingFiltering";
-import { authSlice } from "./slices/authSlice";
-import { refetchSlice } from "./slices/refetchSlice";
-import { globalMessage } from "./slices/messageSlice";
-import { checkoutInformationSlice } from "./slices/checkoutSlice";
-import { wishlistSlice } from "./slices/wishlistSlice";
-import { cartSlice } from "./slices/cartSlice";
+import { productSortingFilteringSlice } from "./slices/productSortingFiltering.js";
+import { authSlice } from "./slices/authSlice.js";
+import { refetchSlice } from "./slices/refetchSlice.js";
+import { globalMessage } from "./slices/messageSlice.js";
+import { checkoutInformationSlice } from "./slices/checkoutSlice.js";
+import { wishlistSlice } from "./slices/wishlistSlice.js";
+import { cartSlice } from "./slices/cartSlice.js";
 
 const rootReducer = combineReducers({
   [userAPI.reducerPath]: userAPI.reducer,
@@ -65,29 +66,36 @@ const rootReducer = combineReducers({
   [globalMessage.name]: globalMessage.reducer,
 });
 
-const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
+const persistConfig = {
   key: "root",
   storage: AsyncStorage,
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Create an array of middleware
+const middlewares = [
+  cartApi.middleware,
+  wishlistApi.middleware,
+  authApi.middleware,
+  addressApi.middleware,
+  categoryApi.middleware,
+  centerAddressApi.middleware,
+  userAPI.middleware,
+];
+
 export const store = configureStore({
   reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
+  middleware: (getDefaultMiddleware) => {
+    const defaultMiddleware = getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    })
-      // .concat(productsApi.middleware)
-      .concat(cartApi.middleware)
-      .concat(wishlistApi.middleware)
-      .concat(userAPI.middleware)
-      .concat(authApi.middleware)
-      .concat(addressApi.middleware)
-      .concat(categoryApi.middleware)
-      .concat(centerAddressApi.middleware),
+    });
+
+    // Use type assertion to resolve type compatibility issue
+    return defaultMiddleware.concat(...middlewares);
+  },
 });
 
 // store.subscribe(() => {
@@ -97,7 +105,3 @@ export const store = configureStore({
 export const persistor = persistStore(store);
 
 setupListeners(store.dispatch);
-
-// Types for the root state and dispatch
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;

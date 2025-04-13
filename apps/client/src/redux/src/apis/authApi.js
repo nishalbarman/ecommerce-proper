@@ -1,19 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUserAuthData } from "../slices/authSlice";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
-
-type User = {
-  name: string;
-  email: string;
-  mobileNo: string;
-  jwtToken: string;
-};
-
-interface Auth {
-  message: string;
-  user: User;
-}
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 export const authApi = createApi({
   reducerPath: "authApi",

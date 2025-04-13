@@ -1,17 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUserAuthData } from "../slices/authSlice";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 export const userAPI = createApi({
   reducerPath: "user",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),

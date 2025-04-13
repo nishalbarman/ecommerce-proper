@@ -1,7 +1,7 @@
 import React from "react";
 import TestimonialCardSkeleton from "./TestimonialCardSkeleton";
 import TestimonialCard from "./TestimonialCard";
-import CustomSlider from "../CustomSlider/CustomSlider";
+import TestimonialSlider from "./TestimonialSlider/TestimonialSlider";
 
 import tree_leaf from "../../../public/bg.png";
 import green_leaf_falling from "../../../public/green_leaf_falling.gif";
@@ -76,7 +76,7 @@ const Testimonials = async () => {
           </div>
         </div>
         <div className="text-black w-full relative">
-          <CustomSlider testimonials={testimonials} />
+          <TestimonialSlider testimonials={testimonials} />
         </div>
       </div>
     </div>

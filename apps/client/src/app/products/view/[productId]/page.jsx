@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import ProductDetails from "@/components/ProductComps/ProductDetails/ProductPageDetails";
 
+import ReviewSection from "@/components/ReviewSection/ReviewSection";
+import { cookies } from "next/headers";
+
 // Server action to handle variant selection
 async function handleVariantSelection(prevState, formData) {
   "use server";
@@ -105,6 +108,8 @@ async function handleVariantSelection(prevState, formData) {
 }
 
 export default async function ViewProduct({ params }) {
+  const cookie = await cookies();
+
   const { productId } = await params;
 
   try {
@@ -148,17 +153,20 @@ export default async function ViewProduct({ params }) {
     }
 
     return (
-      <ProductDetails
-        product={product}
-        productVariants={productVariants}
-        availableSizes={availableSizes}
-        availableColors={availableColors}
-        validCombinations={validCombinations}
-        selectedSize={selectedSize}
-        selectedColor={selectedColor}
-        productId={productId}
-        handleVariantSelection={handleVariantSelection}
-      />
+      <>
+        <ProductDetails
+          product={product}
+          productVariants={productVariants}
+          availableSizes={availableSizes}
+          availableColors={availableColors}
+          validCombinations={validCombinations}
+          selectedSize={selectedSize}
+          selectedColor={selectedColor}
+          productId={productId}
+          handleVariantSelection={handleVariantSelection}
+        />
+        <ReviewSection product={product} cookie={cookie} />
+      </>
     );
   } catch (error) {
     console.error("Error fetching product details:", error);

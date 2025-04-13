@@ -1,19 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-type stateProps = {
-  sort: {
-    id: number;
-    value: string;
-  };
-  filter: {
-    color: string[];
-    category: string[];
-    price: null | number;
-    rating: null | number;
-  };
-};
-
-const initialState: stateProps = {
+const initialState = {
   sort: {
     id: 0,
     value: "",
@@ -30,36 +17,22 @@ export const productSortingFilteringSlice = createSlice({
   name: "sort_filter_products",
   initialState,
   reducers: {
-    setSort: (
-      state,
-      action: PayloadAction<{
-        id: number;
-        value: string;
-      }>
-    ) => {
+    setSort: (state, action) => {
       state.sort = action.payload;
     },
-    setFilter: (
-      state,
-      action: PayloadAction<{
-        color: string[];
-        category: string[];
-        price: null | number;
-        rating: null | number;
-      }>
-    ) => {
+    setFilter: (state, action) => {
       state.filter = action.payload;
     },
-    setColor: (state, action: PayloadAction<string[]>) => {
+    setColor: (state, action) => {
       state.filter.color = action.payload;
     },
-    setCategory: (state, action: PayloadAction<string[]>) => {
+    setCategory: (state, action) => {
       state.filter.category = action.payload;
     },
-    setPrice: (state, action: PayloadAction<number>) => {
+    setPrice: (state, action) => {
       state.filter.price = action.payload;
     },
-    setRating: (state, action: PayloadAction<number>) => {
+    setRating: (state, action) => {
       state.filter.rating = action.payload;
     },
     clearAll: () => {

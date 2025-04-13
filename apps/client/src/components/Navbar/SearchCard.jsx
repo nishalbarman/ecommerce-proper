@@ -7,7 +7,7 @@
 
 // import MyAccount from "./MyAccount";
 // import { useDispatch } from "react-redux";
-// import { useGetCartQuery, useGetWishlistQuery } from "@store/redux";
+// import { useGetCartQuery, useGetWishlistQuery } from "@/redux/src/index";
 
 // function SearchCard() {
 //   const navigator = useRouter();

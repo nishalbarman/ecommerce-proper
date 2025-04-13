@@ -7,7 +7,7 @@ const { sendMail } = require("../helpter/sendEmail");
 const Cart = require("../models/cart.model");
 const { default: mongoose } = require("mongoose");
 const PaymentTransModel = require("../models/transaction.model");
-const Address = require("../models/address.model");
+const Address = require("../models/centerAddress.model");
 const ShiprocketUtils = require("../helpter/ShiprocketUtils");
 const { Product } = require("../models/product.model");
 

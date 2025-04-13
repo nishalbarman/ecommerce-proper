@@ -10,12 +10,13 @@ import useRazorpay from "react-razorpay";
 
 import { RiRefund2Fill, RiSecurePaymentLine } from "react-icons/ri";
 import { HiFire } from "react-icons/hi2";
+import { IoIosArrowDroprightCircle, IoIosArrowForward } from "react-icons/io";
 
 import "../../app/scrollbar.css";
 import "./spinner.css";
 
 import CartItem from "./CartItem";
-import { useGetCartQuery, useGetWishlistQuery } from "@store/redux";
+import { useGetCartQuery, useGetWishlistQuery } from "@/redux/src/index";
 
 function Cart() {
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
@@ -24,8 +25,6 @@ function Cart() {
   const { data: userWishlistItems } = useGetWishlistQuery({
     productType: "buy",
   });
-
-  console.log("User Cart Items From CART.jsx", userCartItems);
 
   const [Razorpay] = useRazorpay();
 
@@ -47,6 +46,7 @@ function Cart() {
 
   const [subtotalPrice, setSubtotalPrice] = useState(0); // purchase price
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
+  const [totalShippingPrice, setTotalShippingPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0); // original price without the discounts
   const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
 
@@ -125,7 +125,7 @@ function Cart() {
 
       setTimeout(() => {
         couponThankYouRef.current?.classList.add("hidden");
-      }, 800);
+      }, 1000);
     } catch (error) {
       console.log(error);
     } finally {
@@ -138,6 +138,7 @@ function Cart() {
     setCouponDiscountPrice(0);
   };
 
+  // payu checkout
   const initiatePayment = (pay) => {
     const form = document.createElement("form");
     form.method = "POST";
@@ -222,23 +223,26 @@ function Cart() {
     }
   }, [appliedCoupon, gatewayOption]);
 
+  // razor pay checkouts
   const handleRazorPayContinue = useCallback(async () => {
-    if (!gatewayOption) return;
+    // if (!gatewayOption) return;
 
     if (true) {
       try {
         setIsPaymentLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/razorpay/create-cart-order${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          {},
+          { withCredentials: true }
         ); // generate razor pay order id and also apply coupon if applicable
 
         const config = {
-          key: "***REMOVED***",
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
           amount: response.data.payment.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
           currency: "INR",
-          name: "Crafter Ecommerce", //your business name
+          name: process.env.NEXT_PUBLIC_BUSSINESS_NAME, //your business name
           description: response.data.payment.productinfo,
-          // image: "https://example.com/your_logo",
+          image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
           order_id: response.data.payment.razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
           handler: function (response) {
             console.log(response);
@@ -289,6 +293,8 @@ function Cart() {
         razorPay.open();
       } catch (error) {
         console.error(error.message);
+      } finally {
+        setIsPaymentLoading(false);
       }
     } else {
       navigation.push("/billing?redirect=cart&form=submit");
@@ -296,14 +302,15 @@ function Cart() {
   }, [Razorpay, appliedCoupon, gatewayOption]);
 
   const handlePayment = (e) => {
-    switch (gatewayOption) {
-      case "razorpay":
-        return handleRazorPayContinue(e);
-      case "payu":
-        return handlePayUContinue(e);
-      default:
-        return handleRazorPayContinue(e);
-    }
+    // switch (gatewayOption) {
+    //   case "razorpay":
+    //     return handleRazorPayContinue(e);
+    //   case "payu":
+    //     return handlePayUContinue(e);
+    //   default:
+    //     return handleRazorPayContinue(e);
+    // }
+    handleRazorPayContinue(e);
   };
 
   useEffect(() => {
@@ -311,19 +318,55 @@ function Cart() {
     let subtotalPrice = 0;
     let totalDiscountPrice = 0;
 
+    let shippingPrice = 0;
+
     console.log("User Cart Items FROM CART.JAVASCRIPT", userCartItems);
 
+    // userCartItems?.forEach((item) => {
+    //   totalPrice +=
+    //     (item.originalPrice || item.discountedPrice) * (item.quantity || 1);
+    //   subtotalPrice += item.discountedPrice * (item.quantity || 1);
+    //   totalDiscountPrice += !!item.originalPrice
+    //     ? (item.quantity || 1) * (item.originalPrice - item.discountedPrice)
+    //     : 0;
+    // });
+
     userCartItems?.forEach((item) => {
-      totalPrice +=
-        (item.originalPrice || item.discountedPrice) * (item.quantity || 1);
-      subtotalPrice += item.discountedPrice * (item.quantity || 1);
-      totalDiscountPrice += !!item.originalPrice
-        ? (item.quantity || 1) * (item.originalPrice - item.discountedPrice)
-        : 0;
+      if (!item.product && !item.variant) return;
+
+      if (shippingPrice === 0) shippingPrice += item.product.shippingPrice || 0;
+
+      console.log(
+        "Item shipping price cart item",
+        item.product.shippingPrice,
+        shippingPrice
+      );
+
+      if (item.variant) {
+        totalPrice +=
+          (item.variant.originalPrice || item.variant.discountedPrice) *
+          (item.quantity || 1);
+        subtotalPrice += item.variant.discountedPrice * (item.quantity || 1);
+        totalDiscountPrice += !!item.variant.originalPrice
+          ? (item.quantity || 1) *
+            (item.variant.originalPrice - item.variant.discountedPrice)
+          : 0;
+      } else if (item.product) {
+        totalPrice +=
+          (item.product.originalPrice || item.product.discountedPrice) *
+          (item.quantity || 1);
+        subtotalPrice += item.product.discountedPrice * (item.quantity || 1);
+        totalDiscountPrice += !!item.product.originalPrice
+          ? (item.quantity || 1) *
+            (item.product.originalPrice - item.product.discountedPrice)
+          : 0;
+      }
     });
+    console.log("Total Price", totalPrice + shippingPrice);
 
     setTotalPrice(totalPrice);
     setTotalDiscountPrice(totalDiscountPrice);
+    setTotalShippingPrice(shippingPrice);
 
     if (!!appliedCoupon && appliedCoupon._id) {
       let couponDiscountPrice = appliedCoupon?.isPercentage
@@ -334,319 +377,318 @@ function Cart() {
           : 0;
 
       setCouponDiscountPrice(couponDiscountPrice);
-      setSubtotalPrice(subtotalPrice - (couponDiscountPrice || 0));
+      setSubtotalPrice(
+        subtotalPrice - (couponDiscountPrice || 0) + shippingPrice
+      );
     } else {
-      setSubtotalPrice(subtotalPrice);
+      setSubtotalPrice(subtotalPrice + shippingPrice);
     }
   }, [userCartItems, appliedCoupon]);
 
-  const getPaymentGateways = async () => {
-    // try {
-    //   const response = await axios.get(
-    //     `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
-    //   );
-    //   console.log(response.data.data);
-    //   setPaymentGatewaysList(response.data.data);
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  };
+  // const getPaymentGateways = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
+  //     );
+  //     console.log(response.data.data);
+  //     setPaymentGatewaysList(response.data.data);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    console.log(paymentGatewayList);
-    setGatewayOption(
-      paymentGatewayList.length > 0 ? paymentGatewayList[0].title : null
-    );
-  }, [paymentGatewayList]);
+  // useEffect(() => {
+  //   console.log(paymentGatewayList);
+  //   setGatewayOption(
+  //     paymentGatewayList.length > 0 ? paymentGatewayList[0].title : null
+  //   );
+  // }, [paymentGatewayList]);
 
-  useEffect(() => {
-    getPaymentGateways();
-  }, []);
+  // useEffect(() => {
+  //   getPaymentGateways();
+  // }, []);
 
   return (
     <>
-      {userCartItems?.length && (
-        <div className="flex justify-end items-center mb-10">
-          {/* <p className="text-xl font-andika">
+      {!!userCartItems?.length && (
+        <>
+          <div className="flex justify-end items-center mb-10">
+            {/* <p className="text-xl font-andika">
             <b>My Bag</b> ({userCartItems?.length})
           </p> */}
-          <button className="rounded-[4px] border-[1px] border-[black] h-[45px] w-[150px] p-[0px_20px]">
-            Remove All
-          </button>
-        </div>
-      )}
-      {userCartItems?.length && (
-        <div className="main-div">
-          <p className="mb-2 pl-[5px] text-[17px] text-[#181818]">
-            <b>My Bag </b>
-            <span id="total-items">
-              {userCartItems?.length}{" "}
-              {userCartItems.length > 1 ? "items" : "item"}
-            </span>
-          </p>
+            <button className="rounded-[4px] border-[1px] border-[black] h-[45px] w-[150px] p-[0px_20px]">
+              Remove All
+            </button>
+          </div>
 
-          {/* Cart items, price and coupon section  */}
-          <div className="flex max-[961px]:flex-col gap-[20px] ">
-            {/* cart items container  */}
-            <div
-              className="w-[58.33333333%] max-[961px]:w-[100%]"
-              id="cart-item-container">
-              <div className="flex rounded-[5px] bg-[rgb(252,255,238)] items-center p-[20px] mb-[20px]">
-                <img
-                  className="w-[19px] h-[12px] duration-2000 transition mr-[5px]"
-                  src="/assets/truck.svg"
-                  alt="truck"
-                />
-                <p className="text-black text-[15px]">
-                  {/* Yay! You get FREE delivery on this order */}
-                  Get FREE delivery over ₹499
-                </p>
-              </div>
-              <div className="h-[100vh] classname">
-                {userCartItems?.map((item) => {
-                  return (
-                    <CartItem
-                      key={item._id}
-                      item={item}
-                      // userWishlistItems={userWishlistItems}
-                      // userCartItems={userCartItems}
-                    />
-                  );
-                })}
-              </div>
-            </div>
+          <div className="main-div min-h-screen">
+            <p className="mb-2 pl-[5px] text-[17px] text-[#181818]">
+              <b>My Bag </b>
+              <span id="total-items">
+                {userCartItems?.length}{" "}
+                {userCartItems.length > 1 ? "items" : "item"}
+              </span>
+            </p>
 
-            {/* payments details and coupons */}
-            <div className="w-[41.66666667%] max-[961px]:w-[100%]">
-              <div id="coupons_text">
-                {/* <div className="mb-[15px] rounded-[4px] border-[1px] border-[rgb(234,234,234)] bg-[rgb(255,255,255)] text-[rgb(45,45,45)] leading-[1.44] text-[14px] p-[5px_15px]">
-                  <p className="text-[16px]">
-                    Whistles! Get extra 20% Cashback on any orders. Coupon code
-                    - MASAI20. Applicable for new/old customers!
-                  </p>
-                </div> */}
-                <div className="mb-[15px] rounded-[4px] border-[1px] border-[rgb(234,234,234)] bg-[rgb(255,255,255)] text-[rgb(45,45,45)] leading-[1.44] text-[14px] p-[5px_15px]">
-                  <p className="text-[16px]">
-                    Whistles! Get extra 10% off on any orders. Coupon code:
-                    NEW10. Applicable for new customers!
+            {/* Cart items, price and coupon section  */}
+            <div className="flex max-[961px]:flex-col gap-[20px] ">
+              {/* cart items container  */}
+              <div
+                className="w-[58.33333333%] max-[961px]:w-[100%]"
+                id="cart-item-container">
+                <div className="flex rounded-[5px] bg-[rgb(252,255,238)] items-center p-[20px] mb-[20px]">
+                  <img
+                    className="w-[19px] h-[12px] duration-2000 transition mr-[5px]"
+                    src="/assets/truck.svg"
+                    alt="truck"
+                  />
+                  <p className="text-black text-[15px]">
+                    {/* Yay! You get FREE delivery on this order */}
+                    Get FREE delivery over ₹499
                   </p>
                 </div>
+                <div className="">
+                  {userCartItems?.map((item) => {
+                    return <CartItem key={item._id} item={item} />;
+                  })}
+                </div>
               </div>
-              <div className="apply_coupon_outer p-[6px] border-[1px] border-[#eaeaea] text-overflow-none overflow-none">
-                <div
-                  onClick={() => {
-                    couponApplyModalRef.current?.classList.remove("hidden");
-                  }}
-                  className="flex items-center justify-between items-center cursor-pointer h-[32px] w-[100%] bg-[rgba(66,162,161,0.1)] rounded-[5px] p-[10px] text-overflow-none overflow-none"
-                  id="couponApply">
-                  <span className="font-bold text-[12px] text-[#42a2a2] w-auto text-center overflow-none text-nowrap text-overflow-none">
-                    Apply Coupon / Gift Card
-                  </span>
 
-                  <div className="flex items-center justify-center gap-1">
-                    <span className="font-bold text-[12px] text-[#42a2a2] text-left overflow-none text-nowrap text-overflow-none">
-                      Redeem!
+              {/* payments details and coupons */}
+              <div className="w-[41.66666667%] max-[961px]:w-[100%] sticky">
+                <div id="coupons_text">
+                  <div className="mb-[15px] rounded-[4px] border-[1px] border-[rgb(234,234,234)] bg-[rgb(255,255,255)] text-[rgb(45,45,45)] leading-[1.44] text-[14px] p-[5px_15px]">
+                    <p className="text-[16px] font-marker">
+                      Whistles! Get extra 10% off on any orders. Coupon code:
+                      NEW10. Applicable for new customers!
+                    </p>
+                  </div>
+                </div>
+                <div className="apply_coupon_outer p-[6px] border-[1px] border-[#eaeaea] text-overflow-none overflow-none">
+                  <div
+                    onClick={() => {
+                      couponApplyModalRef.current?.classList.remove("hidden");
+                    }}
+                    className="flex items-center justify-between items-center cursor-pointer h-[32px] w-[100%] bg-[rgba(66,162,161,0.1)] rounded-[5px] p-[10px] text-overflow-none overflow-none"
+                    id="couponApply">
+                    <span className="font-bold text-[12px] text-[#42a2a2] w-auto text-center overflow-none text-nowrap text-overflow-none font-andika">
+                      Apply Coupon / Gift Card
                     </span>
-                    <img
-                      className="inline"
-                      src="/assets/coupon-redeem-arrow.png"
-                      alt=""
-                    />
-                  </div>
-                </div>
-              </div>
 
-              <div id="couponApplied">
-                {!!appliedCoupon && (
-                  <div className="coupon_card mb-[15px] rounded-[4px] leading-[3px] p-[3px_15px_15px_15px] bg-[rgb(255,251,234)]">
-                    <div className="cpn_title_flex flex justify-between items-center">
-                      <div className="title_coupon_check flex justify-between items-center">
-                        <img
-                          className="inline-block w-[14px] h-[14px] mr-[5px]"
-                          src="/assets/small-tickmark-checked.png"
-                          alt="coupon_applied"
-                        />
-                        <p
-                          className="font-bold text-[13px] text-[rgb(0,0,0)] leading-[1.9]"
-                          id="cpn_title">
-                          Coupon Applied{" "}
-                          <span className="coupon_code p-[3px] text-[#000] border-[1px] border-[#51cccc] border-style-[dashed] text-[12px] uppercase text-nowrap overflow-hidden ml-[3px]">
-                            {appliedCoupon?.code}
-                          </span>
-                        </p>
-                      </div>
-                      <span
-                        onClick={handleCouponRemove}
-                        className="p-[15px_10px] text-[rgb(230,17,17)] text-[11px] font-bold cursor-pointer"
-                        id="removeBtn">
-                        REMOVE
+                    <div className="flex items-center justify-center gap-1 h-fill">
+                      <span className="font-bold text-[12px] text-[#42a2a2] text-left overflow-none text-nowrap text-overflow-none font-andika">
+                        Redeem!
                       </span>
+                      <IoIosArrowDroprightCircle
+                        color="#42a2a2"
+                        fill="#42a2a2"
+                      />
                     </div>
-                    <p className="mt-[10px] text-[13px] text-[rgba(0,0,0,0.75)] leading-[1.4]">
-                      {appliedCoupon?.description}
-                    </p>
                   </div>
-                )}
-              </div>
-
-              <div className=" border-[1px] border-[#e0e0e0] mb-[20px] pr-0">
-                <div className="text-[11px] uppercase bg-[rgb(235,235,235)] p-[13px_20px] font-bold mb-[20px]">
-                  <p>PRICE SUMMARY</p>
                 </div>
 
-                <div className="flex p-[0px_20px] pb-[4px]">
-                  <p className="text-left w-[100%] text-[14px] ">
-                    Total MRP (Incl. of taxes)
-                  </p>
-                  <p
-                    className="text-right w-[100%] text-[14px] "
-                    id="originalprice">
-                    ₹{totalPrice}
-                  </p>
-                </div>
-                <div className="flex p-[0px_20px] pb-[10px]">
-                  <p className="text-left w-[100%] text-[14px] ">
-                    Shipping Charges{" "}
-                  </p>
-                  <p
-                    className="text-right w-[100%] text-[14px] "
-                    id="shippingprice">
-                    FREE
-                  </p>
-                </div>
-                {totalDiscountPrice > 0 && (
-                  <div className="flex p-[0px_20px] pb-[15px]">
-                    <p className="text-left w-[100%] text-[14px]">
-                      Bag Discount
-                    </p>
-                    <p
-                      className="text-right w-[100%] text-[14px]"
-                      id="bagdiscount">
-                      - ₹{totalDiscountPrice}
-                    </p>
-                  </div>
-                )}
-                {couponDiscountPrice > 0 && (
-                  <div className="flex p-[0px_20px] pb-[15px]">
-                    <p className="text-left w-[100%] text-[14px]">
-                      Coupon Discount
-                    </p>
-                    <p
-                      className="text-right w-[100%] text-[14px]"
-                      id="bagdiscount">
-                      - ₹{couponDiscountPrice}
-                    </p>
-                  </div>
-                )}
-                <div className="flex p-[0px_20px] pb-[15px] font-bold">
-                  <p className="text-left w-[100%] text-[14px]">Subtotal </p>
-                  <p className="text-right w-[100%] text-[14px]" id="subtotal">
-                    ₹{subtotalPrice}
-                  </p>
-                </div>
-
-                {/* payment gateways */}
-                <div className="flex flex-col font-bold border-t-[2px] border-t-[rgba(0,0,0,0.12)]">
-                  <div className="text-[11px] uppercase bg-[rgb(235,235,235)] p-[13px_20px] font-bold mb-[20px]">
-                    <p>SELECT Payment GATEWAY</p>
-                  </div>
-                  <div className="flex flex-col p-[0px_20px] mb-[-10px] font-bold justify-center gap-1">
-                    {paymentGatewayList.map(({ title, imageUrl }, index) => {
-                      return (
-                        <label key={index} className="flex items-center gap-4">
-                          <input
-                            className="w-4 h-4"
-                            type="checkbox"
-                            name="gateway"
-                            value={title}
-                            checked={gatewayOption === title}
-                            onChange={(e) => {
-                              setGatewayOption(title);
-                            }}
-                          />{" "}
+                <div id="couponApplied">
+                  {!!appliedCoupon && (
+                    <div className="coupon_card mb-[15px] rounded-[4px] leading-[3px] p-[3px_15px_15px_15px] bg-[rgb(255,251,234)]">
+                      <div className="cpn_title_flex flex justify-between items-center">
+                        <div className="title_coupon_check flex justify-between items-center">
                           <img
-                            src={imageUrl}
-                            className="inline-block h-10 object-contain aspect-[3/1]"
-                            alt={title}
+                            className="inline-block w-[14px] h-[14px] mr-[5px]"
+                            src="/assets/small-tickmark-checked.png"
+                            alt="coupon_applied"
                           />
-                        </label>
-                      );
-                    })}
-                  </div>
+                          <p
+                            className="font-bold text-[13px] text-[rgb(0,0,0)] leading-[1.9]"
+                            id="cpn_title">
+                            Coupon Applied{" "}
+                            <span className="coupon_code p-[3px] text-[#000] border-[1px] border-[#51cccc] border-style-[dashed] text-[12px] uppercase text-nowrap overflow-hidden ml-[3px]">
+                              {appliedCoupon?.code}
+                            </span>
+                          </p>
+                        </div>
+                        <span
+                          onClick={handleCouponRemove}
+                          className="p-[15px_10px] text-[rgb(230,17,17)] text-[11px] font-bold cursor-pointer"
+                          id="removeBtn">
+                          REMOVE
+                        </span>
+                      </div>
+                      <p className="mt-[10px] text-[13px] text-[rgba(0,0,0,0.75)] leading-[1.4]">
+                        {appliedCoupon?.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="price_bottom_section flex text-[12px] p-[10px_20px] border-t-[1px] border-t-[rgba(0,0,0,0.12)] shadow-none static mt-[30px] w-[100%]">
-                  <div className="block text-[#000] leading-[20px] p-[0_0_4px] w-[100%]">
-                    <p className="text-[14px] mb-[1px]">Total</p>
-                    <p className="text-[18px]" id="totalprice">
+
+                <div className=" border-[1px] border-[#e0e0e0] mb-[20px] pr-0">
+                  <div className="text-[11px] uppercase bg-[rgb(235,235,235)] p-[13px_20px] font-bold mb-[20px]">
+                    <p>PRICE SUMMARY</p>
+                  </div>
+
+                  <div className="flex p-[0px_20px] pb-[4px]">
+                    <p className="text-left w-[100%] text-[14px] ">
+                      Total MRP (Incl. of taxes)
+                    </p>
+                    <p
+                      className="text-right w-[100%] text-[14px] "
+                      id="originalprice">
+                      ₹{totalPrice}
+                    </p>
+                  </div>
+                  <div className="flex p-[0px_20px] pb-[10px]">
+                    <p className="text-left w-[100%] text-[14px] ">
+                      Shipping Charges{" "}
+                    </p>
+                    <p
+                      className="text-right w-[100%] text-[14px] "
+                      id="shippingprice">
+                      {totalShippingPrice || "FREE"}
+                    </p>
+                  </div>
+                  {totalDiscountPrice > 0 && (
+                    <div className="flex p-[0px_20px] pb-[15px]">
+                      <p className="text-left w-[100%] text-[14px]">
+                        Bag Discount
+                      </p>
+                      <p
+                        className="text-right w-[100%] text-[14px]"
+                        id="bagdiscount">
+                        - ₹{totalDiscountPrice}
+                      </p>
+                    </div>
+                  )}
+                  {couponDiscountPrice > 0 && (
+                    <div className="flex p-[0px_20px] pb-[15px]">
+                      <p className="text-left w-[100%] text-[14px]">
+                        Coupon Discount
+                      </p>
+                      <p
+                        className="text-right w-[100%] text-[14px]"
+                        id="bagdiscount">
+                        - ₹{couponDiscountPrice}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex p-[0px_20px] pb-[15px] font-bold">
+                    <p className="text-left w-[100%] text-[14px]">Subtotal </p>
+                    <p
+                      className="text-right w-[100%] text-[14px]"
+                      id="subtotal">
                       ₹{subtotalPrice}
                     </p>
                   </div>
 
-                  {/* border-[rgb(66,162,162)] bg-[#42a2a2]  */}
-                  <button
-                    onClick={handlePayment}
-                    disabled={isPaymentLoading || !gatewayOption}
-                    className="text-white p-[15px] bg-[rgb(219,69,69)] rounded-[5px] text-[16px] leading-[18px] uppercase w-[100%] border-none cursor-pointer disabled:bg-[rgba(219,69,69,0.3)] disabled:cursor-not-allowed">
-                    Continue{" "}
-                    {isPaymentLoading && (
-                      <div className="spinner max-lg:ml-5"></div>
-                    )}
-                  </button>
-                </div>
-                <div className="flex justify-around p-[15px] mt-2">
-                  <div className="flex flex-col justify-center items-center gap-y-2">
-                    {/* <img
+                  {/* payment gateways */}
+                  <div className="flex flex-col font-bold border-t-[2px] border-t-[rgba(0,0,0,0.12)]">
+                    <div className="text-[11px] uppercase bg-[rgb(235,235,235)] p-[13px_20px] font-bold mb-[20px]">
+                      <p>SELECT Payment GATEWAY</p>
+                    </div>
+                    <div className="flex flex-col p-[0px_20px] mb-[-10px] font-bold justify-center gap-1">
+                      {paymentGatewayList.map(({ title, imageUrl }, index) => {
+                        return (
+                          <label
+                            key={index}
+                            className="flex items-center gap-4">
+                            <input
+                              className="w-4 h-4"
+                              type="checkbox"
+                              name="gateway"
+                              value={title}
+                              checked={gatewayOption === title}
+                              onChange={(e) => {
+                                setGatewayOption(title);
+                              }}
+                            />{" "}
+                            <img
+                              src={imageUrl}
+                              className="inline-block h-10 object-contain aspect-[3/1]"
+                              alt={title}
+                            />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="price_bottom_section flex text-[12px] p-[10px_20px] border-t-[1px] border-t-[rgba(0,0,0,0.12)] shadow-none static mt-[30px] w-[100%]">
+                    <div className="block text-[#000] leading-[20px] p-[0_0_4px] w-[100%]">
+                      <p className="text-[14px] mb-[1px]">Total</p>
+                      <p className="text-[18px]" id="totalprice">
+                        ₹{subtotalPrice}
+                      </p>
+                    </div>
+
+                    {/* border-[rgb(66,162,162)] bg-[#42a2a2]  */}
+                    <button
+                      // onClick={handlePayment}
+                      onClick={() => navigation.push("/checkout")}
+                      // disabled={isPaymentLoading || !gatewayOption}
+                      disabled={isPaymentLoading}
+                      className="text-white p-[15px] bg-[rgb(219,69,69)] rounded-[5px] text-[16px] leading-[18px] uppercase w-[100%] border-none cursor-pointer">
+                      {/* disabled:bg-[rgba(219,69,69,0.3)] disabled:cursor-not-allowed */}
+
+                      {!isPaymentLoading ? (
+                        "Continue"
+                      ) : (
+                        <>
+                          <span className="text-white">Please Wait ...</span>
+                          <div className="spinner max-lg:ml-1"></div>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div className="flex justify-around p-[15px] mt-2">
+                    <div className="flex flex-col justify-center items-center gap-y-2">
+                      {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/cart-badge-trust.svg"
                       alt="cart_100%_secure"
                     /> */}
-                    <RiSecurePaymentLine size={20} />
-                    <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
-                      100% SECURE PAYMENTS
-                    </p>
-                  </div>
-                  <div className="flex flex-col justify-center items-center gap-y-2">
-                    {/* <img
+                      <RiSecurePaymentLine size={20} />
+                      <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
+                        100% SECURE PAYMENTS
+                      </p>
+                    </div>
+                    <div className="flex flex-col justify-center items-center gap-y-2">
+                      {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/cart-easy-return.svg"
                       alt="quick_return"
                     /> */}
-                    <RiRefund2Fill size={20} />
-                    <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
-                      EASY RETURNS & QUICK REFUNDS
-                    </p>
-                  </div>
-                  <div className="flex flex-col justify-center items-center gap-y-2">
-                    {/* <img
+                      <RiRefund2Fill size={20} />
+                      <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
+                        EASY RETURNS & QUICK REFUNDS
+                      </p>
+                    </div>
+                    <div className="flex flex-col justify-center items-center gap-y-2">
+                      {/* <img
                       className="w-[40px] h-[40px] mb-[6px] text-[#8f98a9]"
                       src="/assets/quality-check.svg"
                       alt="quality_assurance"
                     /> */}
-                    <HiFire size={20} />
-                    <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
-                      QUALITY ASSURANCE
-                    </p>
+                      <HiFire size={20} />
+                      <p className="text-[8px] leading-[12px] text-center text-[#c7cbd4]">
+                        QUALITY ASSURANCE
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* empty cart display */}
       {!userCartItems?.length && (
         <div
           id="emptydisplay"
-          className="flex flex-col justify-center items-center gap-[10px] mt-[40px]">
-          <Image
+          className="flex flex-col justify-center items-center min-h-[calc(100vh-100px)]">
+          <img
             draggable={false}
-            className="m-auto w-[300px] select-none user-drag-none"
-            src="/assets/empty-cart.svg"
-            width={500}
-            height={500}
+            className="mx-auto select-none user-drag-none w-[200px] mb-[20px]"
+            // src="/assets/empty-cart.svg"
+            src="https://i.ibb.co/S7wS79F3/d24a3ddf1d51.png"
             alt="empty-bag"
-            style={{ margin: "auto" }}
           />
           <p className="text-[18px] text-[rgb(0,0,0,0.8)] text-center">
             Nothing in the bag

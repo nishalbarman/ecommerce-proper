@@ -1,6 +1,6 @@
 "use client";
 
-import { updateWishlist, useGetWishlistQuery } from "@store/redux";
+import { updateWishlist, useGetWishlistQuery } from "@/redux/src/index";
 import { useCookies } from "next-client-cookies";
 import Image from "next/image";
 import Link from "next/link";
@@ -44,7 +44,7 @@ function ClientWishlistIcon() {
   return (
     <Link href={"/wishlist"}>
       <div className="h-fit w-fit relative cursor-pointer">
-        {userWishlistItems?.length && (
+        {!!userWishlistItems?.length && (
           <div
             className={`box-content absolute z-[1] flex items-center justify-center aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 bg-[#DB4444] min-w-4 min-h-4`}>
             <span className="text-[10px] text-white font-semibold">

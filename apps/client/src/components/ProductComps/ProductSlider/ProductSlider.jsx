@@ -13,9 +13,12 @@ import Image from "next/image";
 import {
   useAddWishlistMutation,
   useDeleteWishlistMutation,
-} from "@store/redux";
+} from "@/redux/src/index";
 
-import { useAddOneToCartMutation, useDeleteCartMutation } from "@store/redux";
+import {
+  useAddOneToCartMutation,
+  useDeleteCartMutation,
+} from "@/redux/src/index";
 
 const CustomPrevArrow = ({ onClick }) => {
   return (

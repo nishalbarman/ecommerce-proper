@@ -81,12 +81,12 @@ router.post("/", checkRole(1, 0), async (req, res) => {
     }
 
     const product = await Product.findById(productInfo.productId);
-    // if (product?.isVariantAvailable && !productInfo?.variant) {
-    //   return res.status(400).json({
-    //     message:
-    //       "Product varient available but not selected, kindly select proper size or color",
-    //   });
-    // }
+    if (product?.isVariantAvailable && !productInfo?.variant) {
+      return res.status(400).json({
+        message:
+          "Product varient available but not selected, kindly select proper size or color",
+      });
+    }
 
     if (!product) {
       return res.status(400).json({
@@ -206,7 +206,7 @@ router.patch("/:productType", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.delete("/:cart_item_id", checkRole(1, 0), async (req, res) => {
+router.delete("/one/:cart_item_id", checkRole(1, 0), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -278,6 +278,26 @@ router.post("/incart/:productId", checkRole(1, 0), async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.json({
+      status: false,
+      message: "Internal server error!",
+    });
+  }
+});
+
+router.delete("/make-cart-empty", checkRole(1, 0), async (req, res) => {
+  try {
+    const userDetails = req.user;
+
+    const cartDetails = await Cart.deleteMany({
+      user: userDetails._id,
+    });
+
+    return res.json({
+      message: "Cart items deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       status: false,
       message: "Internal server error!",
     });

@@ -5,6 +5,9 @@ const checkRole = (...allowedRoles) => {
 
   return (req, res, next) => {
     try {
+      console.log("Complete path of the request", req.path);
+      console.log("Request Method", req.method);
+
       const token = req?.cookies?.token;
 
       console.log("What are cookies -->", JSON.stringify(req?.cookies));

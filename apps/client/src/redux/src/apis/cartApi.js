@@ -1,38 +1,25 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
-
-type Cart = {
-  _id: string;
-  user: string;
-  product: string;
-  variant: string;
-  quantity: number;
-  rentDays: number;
-  productType: string;
-  size: string;
-  color: string;
-};
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 export const cartApi = createApi({
-  reducerPath: "cart",
+  reducerPath: "cartApi",
+  tagTypes: ["Cart"],
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),
-  tagTypes: ["Cart"],
+
   endpoints: (builder) => ({
-    getCart: builder.query<Cart, string>({
-      query: (productType) => `cart?productType=${productType}`,
+    getCart: builder.query({
+      query: ({ productType }) => `cart?productType=${productType || "buy"}`,
       providesTags: ["Cart"],
-      transformResponse: (res: any, meta, arg) => res.data,
-      transformErrorResponse: (res: any, meta, arg) => res.message,
+      // transformResponse: (res: any, meta, arg) => res.cart,
+      transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
     addOneToCart: builder.mutation({
@@ -40,7 +27,7 @@ export const cartApi = createApi({
         variant = undefined,
         productId,
         rentDays = undefined,
-        productType = "rent",
+        productType = "buy",
         quantity = 1,
       }) => ({
         url: `cart`,
@@ -66,7 +53,7 @@ export const cartApi = createApi({
         };
       },
       invalidatesTags: ["Cart"],
-      transformErrorResponse: (res, meta, arg) => (res as any).message,
+      transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
     updateRentDaysCart: builder.mutation({
@@ -80,7 +67,7 @@ export const cartApi = createApi({
         };
       },
       invalidatesTags: ["Cart"],
-      transformErrorResponse: (res, meta, arg) => (res as any).message,
+      transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
     updateQuantityCart: builder.mutation({
@@ -94,12 +81,21 @@ export const cartApi = createApi({
         };
       },
       invalidatesTags: ["Cart"],
-      transformErrorResponse: (res, meta, arg) => (res as any).message,
+      transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
     deleteCart: builder.mutation({
       query: (id) => ({
         url: `cart/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Cart"],
+      // transformErrorResponse: (res, meta, arg) => res.message,
+    }),
+
+    removeAllCart: builder.mutation({
+      query: (id) => ({
+        url: `cart/make-cart-empty`,
         method: "DELETE",
       }),
       invalidatesTags: ["Cart"],
@@ -115,4 +111,5 @@ export const {
   useUpdateCartMutation,
   useUpdateRentDaysCartMutation,
   useUpdateQuantityCartMutation,
+  useRemoveAllCartMutation,
 } = cartApi;

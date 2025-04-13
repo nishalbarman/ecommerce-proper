@@ -1,24 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const Address = require("../../models/address.model");
-const getTokenDetails = require("../../helpter/getTokenDetails");
+const UserAddress = require("../../models/userAddress.model");
 const User = require("../../models/user.model");
 const mongoose = require("mongoose");
 
-router.get("/", async (req, res) => {
+const checkRole = require("../../middlewares");
+
+router.get("/", checkRole(0, 1), async (req, res) => {
   try {
-    console.log("Here in address router");
-
-    const token = req.jwt.token || null;
-
-    if (!token) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
-      });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
       return res.status(400).json({
@@ -27,7 +17,7 @@ router.get("/", async (req, res) => {
       });
     }
 
-    const address = await Address.find({
+    const address = await UserAddress.find({
       user: userDetails._id,
     })
       .sort({ createdAt: "desc" })
@@ -44,44 +34,24 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", checkRole(0, 1), async (req, res) => {
   try {
-    const token = req?.jwt?.token || null;
+    const userDetails = req.user;
 
-    if (!token) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
-      });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    if (!userDetails) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
-      });
-    }
-
-    const oldAddressCount = await Address.countDocuments({
+    const oldAddressCount = await UserAddress.countDocuments({
       user: userDetails._id,
     });
 
     if (oldAddressCount >= 5) {
       return res.status(400).json({
         status: false,
-        message: "Address limit reached, you can only add upto 5 addresses",
+        message: "UserAddress limit reached, you can only add upto 5 addresses",
       });
     }
 
-    const newAddress = new Address({
+    const newAddress = new UserAddress({
       user: userDetails._id,
       ...req.body,
-      location: {
-        type: "Point",
-        coordinates: [+req.body.longitude, +req.body.latitude],
-      },
     });
     await newAddress.save();
 
@@ -105,25 +75,69 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.patch("/:address_item_id", async (req, res) => {
+router.get("/get-default-address", checkRole(0, 1), async (req, res) => {
   try {
-    const token = req.jwt.token || null;
+    const userDetails = req.user;
 
-    // handle invalid token
-    if (!token) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
-      });
+    const user = await User.findOneById(userDetails._id)
+      .sort({ createdAt: "desc" })
+      .select("defaultAddress");
+
+    return res.json({
+      defaultAddress: user?.defaultAddress,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal server error!",
+    });
+  }
+});
+
+router.post("/update-default-address", checkRole(0, 1), async (req, res) => {
+  try {
+    const reqBody = req.body;
+    const userDetails = req.user;
+
+    if (reqBody.addressId) {
+      return res.status(400).json({ message: "Invalid request" });
     }
 
-    const userDetails = getTokenDetails(token);
-    if (!userDetails) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
-      });
+    const addressDetail = await UserAddress.finedOne(reqBody.addressId);
+
+    if (!addressDetail) {
+      return res.status(400).json({ message: "Invalid Adress Id" });
     }
+
+    const updatedAddress = await User.findByIdAndUpdate(userDetails._id, {
+      $set: {
+        defaultAddress: addressDetail._id,
+      },
+    });
+
+    return res.json({
+      message: "Default Address Updated.",
+    });
+  } catch (err) {
+    console.log(err);
+    if (err instanceof mongoose.Error) {
+      /* I added custom validator functions in mongoose models, so the code is to chcek whether the errors are from mongoose or not */
+      const errArray = [];
+      for (let key in err.errors) {
+        errArray.push(err.errors[key].properties.message);
+      }
+
+      return res
+        .status(400)
+        .json({ message: errArray.join(", ").replaceAll(" Path", "") });
+    }
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.patch("/:address_item_id", checkRole(0, 1), async (req, res) => {
+  try {
+    const userDetails = req.user;
 
     const { address_item_id } = req.params;
 
@@ -144,7 +158,7 @@ router.patch("/:address_item_id", async (req, res) => {
       });
     }
 
-    const address = await Address.findOneAndUpdate(
+    const address = await UserAddress.findOneAndUpdate(
       {
         user: userDetails._id,
         _id: address_item_id,
@@ -169,17 +183,9 @@ router.patch("/:address_item_id", async (req, res) => {
   }
 });
 
-router.delete("/:address_item_id", async (req, res) => {
+router.delete("/:address_item_id", checkRole(0, 1), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-
-    if (!token) {
-      return res.status(400).json({
-        message: "Token validation failed",
-      });
-    }
-
-    const userDetails = getTokenDetails(token);
+    const userDetails = req.user;
 
     if (!userDetails) {
       return res.status(400).json({
@@ -191,7 +197,7 @@ router.delete("/:address_item_id", async (req, res) => {
 
     console.log("address_item_id", address_item_id);
 
-    const addressDetails = await Address.findOneAndDelete({
+    const addressDetails = await UserAddress.findOneAndDelete({
       _id: address_item_id,
       user: userDetails._id,
     });

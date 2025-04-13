@@ -1,11 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type stateProps = {
-  cart: String[];
-  totalCount: number;
-};
-
-const initialState: stateProps = {
+const initialState = {
   cart: [],
   totalCount: 0,
 };
@@ -14,7 +9,7 @@ export const cartSlice = createSlice({
   name: "cartSlice",
   initialState,
   reducers: {
-    updateCart: (state, action: PayloadAction) => {
+    updateCart: (state, action) => {
       return action.payload;
     },
     clearCart: () => {

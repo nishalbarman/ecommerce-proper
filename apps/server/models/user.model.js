@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     resetToken: { type: String, default: "" },
     role: { type: mongoose.Types.ObjectId, ref: "roles" }, // 0 means normal user, 1 means admin, 2 means seller
     // address: [{ type: mongoose.Types.ObjectId, ref: "addresses" }],
-    defaultSelectedAddress: { type: mongoose.Types.ObjectId, ref: "addresses" },
+    defaultAddress: { type: mongoose.Types.ObjectId, ref: "addresses" },
 
     // center related field
     center: { type: mongoose.Types.ObjectId, ref: "center_details" },

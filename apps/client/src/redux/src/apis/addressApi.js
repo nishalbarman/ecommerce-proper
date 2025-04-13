@@ -1,32 +1,30 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
-export const centerAddressApi = createApi({
-  reducerPath: "centerAddressApi",
+export const addressApi = createApi({
+  reducerPath: "addressApi",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),
   tagTypes: ["Address"],
   endpoints: (builder) => ({
-    getCenterAddress: builder.query({
+    getAddress: builder.query({
       query: () => ({
         url: `address`,
         method: "GET",
       }),
       providesTags: ["Address"],
-      transformResponse: (response, meta, arg) => (response as any).data,
+      transformResponse: (response, meta) => response.data,
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    addCenterAddress: builder.mutation({
+    addAddress: builder.mutation({
       query: ({ address }) => ({
         url: `address`,
         method: "POST",
@@ -36,7 +34,7 @@ export const centerAddressApi = createApi({
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    deleteCenterAddress: builder.mutation({
+    deleteAddress: builder.mutation({
       query: (id) => ({
         url: `address/${id}`,
         method: "DELETE",
@@ -45,8 +43,8 @@ export const centerAddressApi = createApi({
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    updateCenterAddress: builder.mutation({
-      query: ({ id, updatedAddress }: { id: string; updatedAddress: any }) => ({
+    updateAddress: builder.mutation({
+      query: ({ id, updatedAddress }) => ({
         url: `address/${id}`,
         method: "PATCH",
         body: updatedAddress,
@@ -58,8 +56,8 @@ export const centerAddressApi = createApi({
 });
 
 export const {
-  useGetCenterAddressQuery,
-  useAddCenterAddressMutation,
-  useUpdateCenterAddressMutation,
-  useDeleteCenterAddressMutation,
-} = centerAddressApi;
+  useGetAddressQuery,
+  useAddAddressMutation,
+  useUpdateAddressMutation,
+  useDeleteAddressMutation,
+} = addressApi;

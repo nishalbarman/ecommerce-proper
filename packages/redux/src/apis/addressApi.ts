@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 type location = {
   type: string;
@@ -28,6 +28,7 @@ export const addressApi = createApi({
   reducerPath: "addressApi",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
+    credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       headers.set(
         "authorization",

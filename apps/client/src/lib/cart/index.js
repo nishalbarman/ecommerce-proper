@@ -1,30 +1,24 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { cookies } from "next/headers";
 
-export const fetchCart = async ({
-  cookies = undefined,
-  page = 0,
-  limit = 10,
-} = {}) => {
+export const fetchCart = async ({ page = 0, limit = 10 } = {}) => {
   try {
     const url = new URL(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`);
     url.searchParams.append("productType", "buy");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
 
-    console.log("fetchCart Function LOG", url.href);
-
     const res = await fetch(url.href, {
+      credentials: "include",
+      method: "GET",
       headers: {
-        Cookie: cookies,
+        "Content-Type": "application/json",
       },
       next: { tags: ["Cart"] }, // Revalidation tag for Next.js
     });
 
     const data = await res.json();
-    console.log("Cart items", data);
     return data;
   } catch (error) {
     console.error(error);
@@ -42,8 +36,8 @@ export const addProductToCart = async ({
     const url = new URL(`/cart/create`, process.env.NEXT_PUBLIC_SERVER_URL);
 
     const res = await fetch(url.href, {
+      credentials: "include",
       headers: {
-        credentials: "include",
         method: "POST",
       },
       body: JSON.stringify({
@@ -56,8 +50,6 @@ export const addProductToCart = async ({
     });
 
     revalidateTag("Cart");
-
-    // return res.json();
   } catch (error) {
     console.error(error);
   }
@@ -71,10 +63,8 @@ export const updateCartItem = async ({ id = undefined, updatedItem = {} }) => {
 
     const res = await fetch(url.href, {
       credentials: "include",
-      headers: {
-        method: "PATCH",
-        authorization: `Bearer ${token}`,
-      },
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedItem),
     });
 

@@ -9,7 +9,7 @@ const User = require("../../../models/user.model");
 const Cart = require("../../../models/cart.model");
 const Coupon = require("../../../models/coupon.model");
 const Order = require("../../../models/order.model");
-const Address = require("../../../models/address.model");
+const UserAddress = require("../../../models/userAddress.model");
 const PaymentTransModel = require("../../../models/transaction.model");
 const generateUniqueId = require("../../../helpter/generateUniqueId");
 
@@ -21,15 +21,15 @@ const razorpayInstance = new RazorPay({
   key_secret: RAZORPAY_SECRET,
 });
 
-router.post("/:productType", checkRole(0), async (req, res) => {
+router.post("/:productType", checkRole(0, 1), async (req, res) => {
   try {
-    const productType = req.params?.productType;
+    const productType = req.params?.productType || "buy";
     const address = req.body?.address;
 
     const userDetails = req.user;
 
     if (!productType || !address) {
-      return res.status(400).json({ message: "Parameters missing" });
+      return res.status(400).json({ message: "Invalid Request" });
     }
 
     const appliedCouponID = req.query.coupon || null;
@@ -141,7 +141,7 @@ router.post("/:productType", checkRole(0), async (req, res) => {
 
     const productNames = paymentObject.productinfo.join(", ");
 
-    const addressDocument = await Address.findById(address);
+    const addressDocument = await UserAddress.findById(address);
 
     const user = await User.findById(userDetails._id);
 
@@ -149,6 +149,8 @@ router.post("/:productType", checkRole(0), async (req, res) => {
     // const orderGroupID = uuidv4();
     const paymentTxnId = generateUniqueId("PM");
     const orderGroupID = generateUniqueId("JK");
+
+    console.log("What is the payment final amount", paymentObject.amount);
 
     // create one razor pay order with the amount
     const razorpayOrder = await razorpayInstance.orders.create({
@@ -192,7 +194,7 @@ router.post("/:productType", checkRole(0), async (req, res) => {
 
           address: {
             address: {
-              prefix: addressDocument?.prefix,
+              // prefix: addressDocument?.prefix,
               streetName: addressDocument.streetName,
               locality: addressDocument.locality,
               city: addressDocument.locality,
@@ -200,7 +202,7 @@ router.post("/:productType", checkRole(0), async (req, res) => {
               postalCode: addressDocument.postalCode,
               country: addressDocument.country,
             },
-            location: [addressDocument.longitude, addressDocument.latitude],
+            // location: [addressDocument.longitude, addressDocument.latitude],
           },
 
           // center: centerAddresses[0]._id,

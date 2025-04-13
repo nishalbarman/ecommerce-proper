@@ -9,12 +9,6 @@ import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 
 const fetchHeroProduct = async (cookieStore) => {
   try {
-    // await new Promise((res) => {
-    //   setTimeout(() => {
-    //     res(true);
-    //   }, 10000);
-    // });
-
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`,
       {
@@ -63,7 +57,7 @@ const HeroProduct = async () => {
             />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col lg:flex-row items-center">
               <div className="lg:w-1/2 text-center lg:text-left z-2">
                 <h3 className="text-white text-lg font-light mb-6 drop-shadow-lg">
@@ -94,7 +88,7 @@ const HeroProduct = async () => {
               </div>
               <div className="lg:w-1/2 justify-center hidden md:flex mt-10 ml-5 lg:mt-0 animate-zoomInOut">
                 <Image
-                  className="h-[600px] w-auto object-contain select-none drag-none"
+                  className="h-[600px] w-auto object-contain select-none drag-none drop-shadow-lg"
                   src={`${heroProduct?.imageUrl || ""}`}
                   alt={heroProduct?.title}
                   objectFit="contain"

@@ -8,13 +8,14 @@ import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
 
-import tree_leaf from "../../public/bg.png";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Jharna Mehendi - Get your mehendi now.",
   description: "Get variaties of mehendi for your special occusions.",
+  icons: {
+    icon: "/favicon/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

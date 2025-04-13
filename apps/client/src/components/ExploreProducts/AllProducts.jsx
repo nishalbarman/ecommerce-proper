@@ -8,12 +8,12 @@ import { useSelector } from "react-redux";
 import {
   useAddWishlistMutation,
   useDeleteWishlistMutation,
-} from "@store/redux/wishlist";
+} from "@/redux/src/index";
 
 import {
   useAddOneToCartMutation,
   useDeleteCartMutation,
-} from "@store/redux/cart";
+} from "@/redux/src/index";
 
 function AllProducts({ exploreProductData }) {
   const navigator = useRouter();

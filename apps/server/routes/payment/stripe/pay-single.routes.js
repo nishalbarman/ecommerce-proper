@@ -9,7 +9,7 @@ const User = require("../../../models/user.model");
 const { Product, ProductVariant } = require("../../../models/product.model");
 const Coupon = require("../../../models/coupon.model");
 const Order = require("../../../models/order.model");
-const Address = require("../../../models/address.model");
+const Address = require("../../../models/centerAddress.model");
 const Center = require("../../../models/center.model");
 const PaymentTransModel = require("../../../models/transaction.model");
 

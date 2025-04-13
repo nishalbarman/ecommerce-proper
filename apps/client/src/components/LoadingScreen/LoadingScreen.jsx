@@ -4,33 +4,41 @@ import { FaRocket } from "react-icons/fa";
 const SpaceshipLoading = () => {
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-white overflow-hidden">
-      {/* Redirecting Text */}
+      <img
+        draggable={false}
+        className="mx-auto select-none user-drag-none w-[200px] mb-[20px] animate-pulse"
+        // src="/assets/empty-cart.svg"
+        src="https://i.ibb.co/S7wS79F3/d24a3ddf1d51.png"
+        alt="heart-mehendi"
+      />
 
+      {/* Redirecting Text */}
+      {/* 
       <div className="self-center w-20 animate-speeder">
         <FaRocket
-          color="#DB4444"
-          fill="#DB4444"
-          colorRendering={"#DB4444"}
+          color="primary"
+          fill="primary"
+          colorRendering={"primary"}
           size={50}
           className="rotate-[45deg]"
         />
-      </div>
+      </div> */}
 
       {/* Spaceship Body */}
-      <div className="relative flex justify-center items-center w-20 h-20">
-        {/* Laser Beams */}
+      {/* <div className="relative flex justify-center items-center w-20 h-20"> */}
+      {/* Laser Beams */}
 
-        <h1 className="text-sm font-sans font-semibold uppercase animate-speeder_slow whitespace-nowrap">
+      {/* <h1 className="text-sm font-sans font-semibold uppercase animate-speeder_slow whitespace-nowrap">
           Getting The Data
-        </h1>
+        </h1> */}
 
-        <div className="absolute w-full h-full">
+      {/* <div className="absolute w-full h-full">
           <span className="absolute w-1/5 h-[2px] bg-black top-[20%] animate-lf"></span>
           <span className="absolute w-1/5 h-[2px] bg-black top-[40%] animate-lf2"></span>
           <span className="absolute w-1/5 h-[2px] bg-black top-[60%] animate-lf3"></span>
           <span className="absolute w-1/5 h-[2px] bg-black top-[80%] animate-lf4"></span>
-        </div>
-      </div>
+        </div> */}
+      {/* </div> */}
     </div>
   );
 };

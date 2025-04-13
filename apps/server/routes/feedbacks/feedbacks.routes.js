@@ -6,28 +6,13 @@ const getTokenDetails = require("../../helpter/getTokenDetails");
 const Feedback = require("../../models/feedback.model");
 const Order = require("../../models/order.model");
 
+const checkRole = require("../../middlewares");
+
 const TAG = "feedbacks.routes.js:--";
 
 // get all feedbacks, helpfull to track by admin.. this route lists all available feedbacks for all products
-router.get("/", async (req, res) => {
+router.get("/", checkRole(1), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    console.log(TAG, userDetails);
-
-    if (!userDetails || userDetails.role !== 1) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
     const searchParams = req.query;
     let dbSearchQuery = {};
     if (searchParams?.productId) {
@@ -53,28 +38,12 @@ router.get("/", async (req, res) => {
 });
 
 // get the feedbacks for one individual product
-router.post("/list/:productId", async (req, res) => {
+router.get("/list/:productId", async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    if (!userDetails) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
     const { productId } = req.params;
-    const productType = req.body?.productType;
     const searchParams = req.query;
 
-    if (!productId || !productType) {
+    if (!productId) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -84,13 +53,11 @@ router.post("/list/:productId", async (req, res) => {
 
     const feedbackCount = await Feedback.countDocuments({
       product: productId,
-      productType: productType,
     });
     const totalPages = Math.ceil(feedbackCount / LIMIT);
 
     const feedbacks = await Feedback.find({
       product: productId,
-      productType: productType,
     })
       .sort({ createdAt: "desc" })
       .skip(SKIP)
@@ -108,23 +75,6 @@ router.post("/list/:productId", async (req, res) => {
 // FEEDBACK: get one feedback with feedback id
 router.get("/:feedbackId", async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    console.log(TAG, userDetails);
-
-    if (!userDetails) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
     const params = req.params;
     console.log(TAG, params);
 
@@ -147,22 +97,8 @@ router.get("/:feedbackId", async (req, res) => {
 });
 
 // FEEDBACK CREATE ROUTE
-router.post("/", async (req, res) => {
+router.post("/", checkRole(1), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Not authorized" });
-    }
-
-    const userDetails = getTokenDetails(token);
-    if (!userDetails) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Not authorized" });
-    }
-
     const reqBody = req.body;
     const productType = req.body?.productType;
 
@@ -185,28 +121,28 @@ router.post("/", async (req, res) => {
       !reqBody.givenStars > 5 ||
       !reqBody.givenStars <= 0
     ) {
-      error.push("review start is not properly set");
+      error.push("Review star is not properly set");
     }
 
     // ENABLE THESE LINES ONE PUSHED TO FINAL PRODUCTION
     // check if user really purchased the product
-    const userOrder = await Order.findOne({
-      user: userDetails._id,
-      product: reqBody.product,
-      orderType: productType,
-      orderStatus: "Delivered",
-    });
+    // const userOrder = await Order.findOne({
+    //   user: req.user._id,
+    //   product: reqBody.product,
+    //   orderType: productType,
+    //   orderStatus: "Delivered",
+    // });
 
-    if (!userOrder) {
-      return res.status(400).json({
-        message:
-          "You did not purchased this order yet! So not possible to add review.",
-      });
-    }
+    // if (!userOrder) {
+    //   return res.status(400).json({
+    //     message:
+    //       "You did not purchased this order yet! So not possible to add review.",
+    //   });
+    // }
 
     // check if this user have already gave review or not
     const alreadyGivenFeedback = await Feedback.countDocuments({
-      user: userDetails._id,
+      user: req.user._id,
       product: reqBody.product,
       productType: productType,
     });
@@ -216,15 +152,15 @@ router.post("/", async (req, res) => {
     if (alreadyGivenFeedback !== 0) {
       const feedbackUpdate = await Feedback.updateOne(
         {
-          user: userDetails._id,
+          user: req.user._id,
           product: reqBody.product,
           productType: productType,
         },
         {
           $set: {
             ...reqBody,
-            givenBy: userDetails.name,
-            user: userDetails._id,
+            givenBy: req.user.name,
+            user: req.user._id,
             productType: productType,
           },
         }
@@ -237,8 +173,8 @@ router.post("/", async (req, res) => {
     // insert into database
     const feedback = new Feedback({
       ...reqBody,
-      givenBy: userDetails.name,
-      user: userDetails._id,
+      givenBy: req.user.name,
+      user: req.user._id,
       productType: productType,
     });
     await feedback.save();
@@ -272,23 +208,8 @@ router.post("/", async (req, res) => {
 });
 
 // FETCH FEEDBACK FOR ONE PRODUCT GIVEN BY ONE USER
-router.post("/view/:productId", async (req, res) => {
+router.post("/view/:productId", checkRole(0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
-    if (!token) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
-    const userDetails = getTokenDetails(token);
-
-    if (!userDetails) {
-      return res
-        .status(401)
-        .json({ redirect: "/auth/login", message: "Authorization failed!" });
-    }
-
     const productId = req.params?.productId;
     const productType = req.body?.productType;
 
@@ -299,7 +220,7 @@ router.post("/view/:productId", async (req, res) => {
     const feedback = await Feedback.findOne({
       product: productId,
       productType: productType,
-      user: userDetails._id,
+      user: req.user._id,
     });
 
     return res.status(200).json({ feedback: feedback });

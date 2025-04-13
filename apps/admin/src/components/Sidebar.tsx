@@ -223,8 +223,9 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToggle, setNavbarToggle }) => {
 
         <div className="flex items-center justify-start px-3 h-20 border-b border-gray-700 gap-2">
           <img
-            src={anime_image}
-            className="w-14 h-14 rounded-full"
+            // src={anime_image}
+            src={"https://i.ibb.co/Q3FPrQQm/64c844d378e5.png"}
+            className="h-14 rounded-full"
             alt="Admin Avatar"
           />
           <h1 className="text-2xl font-semibold ml-1">Admin</h1>

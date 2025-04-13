@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCart, useGetCartQuery } from "@store/redux";
+import { updateCart, useGetCartQuery } from "@/redux/src/index";
 import { useCookies } from "next-client-cookies";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,17 +8,16 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 function ClientCartIcon() {
-  const cookieStore = useCookies();
-  const token = cookieStore.get("token");
-
   const dispatch = useDispatch();
 
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
     productType: "buy",
   });
 
+  console.log("userCartItems", userCartItems);
+
   useEffect(() => {
-    if (userCartItems?.length > 0 && token) {
+    if (userCartItems?.length > 0) {
       const cartDataForStore = {};
 
       userCartItems?.forEach((item) => {
@@ -43,7 +42,7 @@ function ClientCartIcon() {
   return (
     <Link href="/cart">
       <div className="h-fit w-fit relative cursor-pointer">
-        {userCartItems?.length && (
+        {!!userCartItems?.length && (
           <div
             className={`box-content absolute z-[1] flex items-center justify-center  aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 bg-[#DB4444] min-w-4 min-h-4`}>
             <span className="text-[10px] text-white font-semibold">

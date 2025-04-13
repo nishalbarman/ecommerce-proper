@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 
-const Address = require("../../models/address.model");
+const Address = require("../../models/centerAddress.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const User = require("../../models/user.model");
 const mongoose = require("mongoose");

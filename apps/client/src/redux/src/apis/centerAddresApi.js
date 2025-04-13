@@ -1,54 +1,29 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
-type location = {
-  type: string;
-  coordinates: [number, number]; // Array of [longitude, latitude]
-};
-
-type Address = {
-  _id: string;
-  user: string;
-  prefix: string;
-  locality: string;
-  postalCode: string;
-  country: string;
-  streetName: string;
-  city: string;
-  state: string;
-  longitude: number;
-  latitude: number;
-  location: location;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export const addressApi = createApi({
-  reducerPath: "addressApi",
+export const centerAddressApi = createApi({
+  reducerPath: "centerAddressApi",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),
   tagTypes: ["Address"],
   endpoints: (builder) => ({
-    getAddress: builder.query<Address, any>({
+    getCenterAddress: builder.query({
       query: () => ({
         url: `address`,
         method: "GET",
       }),
       providesTags: ["Address"],
-      transformResponse: (response: any, meta) => response.data,
+      transformResponse: (response, meta, arg) => response.data,
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    addAddress: builder.mutation({
+    addCenterAddress: builder.mutation({
       query: ({ address }) => ({
         url: `address`,
         method: "POST",
@@ -58,7 +33,7 @@ export const addressApi = createApi({
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    deleteAddress: builder.mutation({
+    deleteCenterAddress: builder.mutation({
       query: (id) => ({
         url: `address/${id}`,
         method: "DELETE",
@@ -67,7 +42,7 @@ export const addressApi = createApi({
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
-    updateAddress: builder.mutation({
+    updateCenterAddress: builder.mutation({
       query: ({ id, updatedAddress }) => ({
         url: `address/${id}`,
         method: "PATCH",
@@ -80,8 +55,8 @@ export const addressApi = createApi({
 });
 
 export const {
-  useGetAddressQuery,
-  useAddAddressMutation,
-  useUpdateAddressMutation,
-  useDeleteAddressMutation,
-} = addressApi;
+  useGetCenterAddressQuery,
+  useAddCenterAddressMutation,
+  useUpdateCenterAddressMutation,
+  useDeleteCenterAddressMutation,
+} = centerAddressApi;

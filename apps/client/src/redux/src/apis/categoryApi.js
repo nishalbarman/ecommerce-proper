@@ -1,17 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.SERVER_API}/`;
-console.log(SERVER_URL);
+const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
 
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "authorization",
-        `Bearer ${(getState() as any).auth.jwtToken}`
-      );
+      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),
