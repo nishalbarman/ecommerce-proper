@@ -105,8 +105,8 @@ const orderListSchema = new mongoose.Schema(
 );
 
 const Order = mongoose.models.orders || mongoose.model("orders", orderSchema);
-const OrderList =
-  mongoose.models.order_list || mongoose.model("order_list", orderListSchema);
+// const OrderList =
+//   mongoose.models.order_list || mongoose.model("order_list", orderListSchema);
 
 module.exports = Order;
 // module.exports = { OrderList };

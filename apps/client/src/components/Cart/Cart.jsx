@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
@@ -17,6 +17,7 @@ import "./spinner.css";
 
 import CartItem from "./CartItem";
 import { useGetCartQuery, useGetWishlistQuery } from "@/redux/src/index";
+import { updateAppliedCoupon } from "@/redux/src/slices/appliedCouponSlice";
 
 function Cart() {
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
@@ -42,7 +43,13 @@ function Cart() {
 
   const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
 
-  const [appliedCoupon, setAppliedCoupon] = useState(null); // coupon which needs to be sent to server, coupon will be stored here after applying. // id of the coupon
+  const appliedCouponReduxStore = useSelector(
+    (state) => state.appliedCouponSlice
+  );
+
+  const [appliedCoupon, setAppliedCoupon] = useState(
+    appliedCouponReduxStore._id ? appliedCouponReduxStore : null
+  ); // coupon which needs to be sent to server, coupon will be stored here after applying. // id of the coupon
 
   const [subtotalPrice, setSubtotalPrice] = useState(0); // purchase price
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
@@ -115,6 +122,7 @@ function Cart() {
 
       setCouponDiscountPrice(couponDiscountPrice);
       setAppliedCoupon(couponDiscountPrice > 0 ? data.coupon : null);
+      dispatch(updateAppliedCoupon(data.coupon));
       setSubtotalPrice((prev) => prev - couponDiscountPrice);
 
       couponApplyModalRef.current?.classList.add("hidden");

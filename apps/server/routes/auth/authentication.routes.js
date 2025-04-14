@@ -79,6 +79,7 @@ router.post("/admin-login", async (req, res) => {
 
     return res
       .cookie("token", jwtToken, {
+        httpOnly: process.env.NODE_ENV === "production",
         secure: process.env.NODE_ENV === "production", // true in production
         sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
         // Omit domain for localhost, set only in production
@@ -303,6 +304,15 @@ router.post("/signup", async (req, res) => {
       message: "Internal server error",
     });
   }
+});
+
+router.post("/logout", async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+  return res.status(200).json({ message: "Logged out" });
 });
 
 module.exports = router;

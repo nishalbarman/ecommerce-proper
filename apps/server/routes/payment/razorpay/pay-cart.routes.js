@@ -114,8 +114,7 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
       if (!!appliedCoupon) {
         const discountedPrice = appliedCoupon?.isPercentage
           ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
-          : paymentObject.amount >
-              (appliedCoupon.minimumPayAmount || paymentObject.amount + 100)
+          : paymentObject.amount > appliedCoupon.minPurchasePrice
             ? appliedCoupon.off
             : 0;
 

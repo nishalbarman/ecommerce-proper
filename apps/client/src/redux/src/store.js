@@ -37,6 +37,7 @@ import { globalMessage } from "./slices/messageSlice.js";
 import { checkoutInformationSlice } from "./slices/checkoutSlice.js";
 import { wishlistSlice } from "./slices/wishlistSlice.js";
 import { cartSlice } from "./slices/cartSlice.js";
+import { appliedCouponSlice } from "./slices/appliedCouponSlice.js";
 
 const rootReducer = combineReducers({
   [userAPI.reducerPath]: userAPI.reducer,
@@ -54,6 +55,7 @@ const rootReducer = combineReducers({
 
   [categoryApi.reducerPath]: categoryApi.reducer,
   [storeTypeSlice.name]: storeTypeSlice.reducer,
+  [appliedCouponSlice.name]: appliedCouponSlice.reducer,
   [checkoutInformationSlice.name]: checkoutInformationSlice.reducer,
   // [orderSlice.name]: orderSlice.reducer,
   [centerAddressApi.reducerPath]: centerAddressApi.reducer,
@@ -69,6 +71,16 @@ const rootReducer = combineReducers({
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
+  blacklist: [
+    cartApi.reducerPath,
+    wishlistApi.reducerPath,
+    wishlistSlice.name,
+
+    cartSlice.name,
+    categoryApi.reducerPath,
+
+    appliedCouponSlice.name,
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -98,9 +110,9 @@ export const store = configureStore({
   },
 });
 
-// store.subscribe(() => {
-//   console.log("State after change:", store.getState().mapSelectedAddress);
-// });
+store.subscribe(() => {
+  console.log("State after change:", store.getState().appliedCouponSlice);
+});
 
 export const persistor = persistStore(store);
 

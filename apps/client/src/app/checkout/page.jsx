@@ -14,7 +14,7 @@ import {
 } from "@/redux/src/index";
 import AddressForm from "@/components/AddressForm/AddressForm";
 import useRazorpay from "react-razorpay";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
 export default function CheckoutPage() {
@@ -46,21 +46,14 @@ export default function CheckoutPage() {
 
   const [Razorpay] = useRazorpay();
 
-  const [couponCode, setCouponCode] = useState({
-    value: "",
-    isTouched: false,
-    isError: false,
-    error: "Coupon invalid",
-  });
-
-  const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
-
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [gatewayOption, setGatewayOption] = useState(null);
 
-  const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
+  // const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
 
-  const [appliedCoupon, setAppliedCoupon] = useState(null); // coupon which needs to be sent to server, coupon will be stored here after applying. // id of the coupon
+  const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
+
+  console.log("applied coupon from checkrout page", appliedCoupon);
 
   const [subtotalPrice, setSubtotalPrice] = useState(0); // purchase price
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
@@ -256,17 +249,6 @@ export default function CheckoutPage() {
 
     let shippingPrice = 0;
 
-    console.log("User Cart Items FROM CART.JAVASCRIPT", userCartItems);
-
-    // userCartItems?.forEach((item) => {
-    //   totalPrice +=
-    //     (item.originalPrice || item.discountedPrice) * (item.quantity || 1);
-    //   subtotalPrice += item.discountedPrice * (item.quantity || 1);
-    //   totalDiscountPrice += !!item.originalPrice
-    //     ? (item.quantity || 1) * (item.originalPrice - item.discountedPrice)
-    //     : 0;
-    // });
-
     userCartItems?.forEach((item) => {
       if (!item.product && !item.variant) return;
 
@@ -305,12 +287,15 @@ export default function CheckoutPage() {
     setTotalShippingPrice(shippingPrice);
 
     if (!!appliedCoupon && appliedCoupon._id) {
-      let couponDiscountPrice = appliedCoupon?.isPercentage
+      const couponDiscountPrice = appliedCoupon.isPercentage
         ? (subtotalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
-        : subtotalPrice >
-            (appliedCoupon.minimumPayAmount || subtotalPrice + 100)
+        : subtotalPrice > appliedCoupon.minPurchasePrice
           ? appliedCoupon.off
           : 0;
+
+      console.log("What is coupon discount price", couponDiscountPrice);
+
+      setCouponDiscountPrice(couponDiscountPrice);
 
       setCouponDiscountPrice(couponDiscountPrice);
       setSubtotalPrice(

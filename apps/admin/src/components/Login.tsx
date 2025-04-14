@@ -46,18 +46,13 @@ const Login = () => {
 
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_URL}/auth/admin-login`,
-        extractedData
+        extractedData,
+        {
+          withCredentials: true,
+        }
       );
 
       dispatch(setUserAuthData({ ...response.data.user }));
-      setCookie("token", response.data.user.jwtToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        domain: ".jharna-mehendi-api.onrender.com", // Note the leading dot
-        path: "/",
-        maxAge: 86400000,
-      });
       navigator("/");
       toast.update(toastId, {
         type: "success",
@@ -70,8 +65,7 @@ const Login = () => {
       toast.update(toastId, {
         type: "error",
         render:
-          error.response?.data.message ||
-          "Opps, some error occured. Please try again",
+          error.response?.data.message || "Login failed! Please try again",
         autoClose: 2000,
         isLoading: false,
       });

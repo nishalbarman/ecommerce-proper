@@ -207,6 +207,11 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
           icon: <FaExchangeAlt className="mr-4" />,
           path: "/preferences",
         },
+        {
+          title: "Logout",
+          icon: <FaExchangeAlt className="mr-4" />,
+          path: "/logout",
+        },
       ],
     },
   ];

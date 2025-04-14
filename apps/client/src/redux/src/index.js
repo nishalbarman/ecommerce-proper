@@ -8,6 +8,7 @@ export * from "./slices/refetchSlice";
 export * from "./slices/messageSlice";
 export * from "./slices/wishlistSlice";
 export * from "./slices/cartSlice";
+export * from "./slices/appliedCouponSlice";
 
 export * from "./apis/addressApi";
 export * from "./apis/authApi";

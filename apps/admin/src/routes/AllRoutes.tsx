@@ -21,6 +21,7 @@ import NewArrivalList from "../components/NewArrivalSection/NewArrivalList";
 import AdminContacts from "../components/ContactSection/ContactSection";
 import FeatureList from "../components/FeatureSection.jsx/FeatureList";
 import CouponList from "../components/CouponSection/CouponList";
+import Logout from "../components/Logout";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -191,6 +192,8 @@ const AllRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
+
+      <Route path="/logout" element={<Logout />} />
     </Routes>
   );
 };

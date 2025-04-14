@@ -244,7 +244,7 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 });
 
 //! Order details for normal user, orders can be viewed with the transaction id
-router.get("/view/:paymentTransactionId", checkRole(0), async (req, res) => {
+router.get("/view/:paymentTransactionId", checkRole(0, 1), async (req, res) => {
   try {
     const paymentTransactionId = req.params?.paymentTransactionId;
 
@@ -263,7 +263,7 @@ router.get("/view/:paymentTransactionId", checkRole(0), async (req, res) => {
 });
 
 //! ORDER LISTING ROUTE FOR NORMAL USERS
-router.get("/l/:productType", checkRole(0), async (req, res) => {
+router.get("/l/:productType", checkRole(0, 1), async (req, res) => {
   try {
     const searchQuery = req.query;
 
@@ -370,38 +370,19 @@ router.patch("/update-status", checkRole(1, 2), async (req, res) => {
 });
 
 //! ORDER CANCELLATION ROUTE CAN BE USED BY ADMIN AND NORMAL USERS
-router.patch("/cancel", async (req, res) => {
+router.patch("/cancel", checkRole(1, 0), async (req, res) => {
   try {
-    const token = req?.jwt?.token;
+    const userDetails = req.user;
 
-    if (!token) {
-      return res.status(401).json({
-        message: "Token validation failed",
-      });
-    }
+    const orderGroupId = req.body?.orderGroupId;
 
-    const userDetails = getTokenDetails(token);
-
-    if (!userDetails) {
-      return res.status(401).json({
-        message: "Authorization failed",
-      });
-    }
-
-    const orderId = req.body?.orderId;
-
-    if (!orderId) {
+    if (!orderGroupId) {
       return res.status(400).json({ message: "Order ID is missing!" });
     }
     // order can only be cancelled when the order state is among these three states
     const orderFilter = {
-      _id: orderId,
+      orderGroupID: orderGroupId,
     };
-
-    console.log(userDetails?.role);
-    if (!userDetails?.role && userDetails?.role !== 0) {
-      return res.status(400).json({ message: "User role missing" });
-    }
 
     if (userDetails.role === 0) {
       orderFilter.user = userDetails._id;
@@ -417,9 +398,9 @@ router.patch("/cancel", async (req, res) => {
       orderFilter.center = center;
     }
 
-    console.log(userDetails);
+    // return res.json(orderFilter);
 
-    const order = await Order.findOneAndUpdate(orderFilter, {
+    const order = await Order.updateMany(orderFilter, {
       $set: {
         orderStatus: "Cancelled",
       },
