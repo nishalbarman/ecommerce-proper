@@ -78,24 +78,23 @@ export const updateCartItem = async ({ id = undefined, updatedItem = {} }) => {
 
 export const updateCartItemQuantity = async ({
   id = undefined,
-  productType = undefined,
+  productType = "buy",
   quantity = 1,
 }) => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-
     const url = new URL(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/update`,
-      backendUrl
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/update-qty/${productType}`,
+      process.env.NEXT_PUBLIC_SERVER_URL
     );
-    url.searchParams.append(cart, id);
 
     const res = await fetch(url.href, {
       credentials: "include",
+      method: "PATCH",
       headers: {
-        method: "PATCH",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        cartItemId: id,
         quantity: quantity,
       }),
     });

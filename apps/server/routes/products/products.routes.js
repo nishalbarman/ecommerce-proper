@@ -3,6 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const cheerio = require("cheerio");
 const { Product, ProductVariant } = require("../../models/product.model");
+const Wishlist = require("../../models/wishlist.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const { isValidUrl } = require("custom-validator-renting");
 const Order = require("../../models/order.model");
@@ -10,6 +11,7 @@ const Order = require("../../models/order.model");
 const checkRole = require("../../middlewares");
 
 const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
+const Cart = require("../../models/cart.model");
 
 const TAG = "products/route.js:--";
 
@@ -783,7 +785,7 @@ router.post("/variant/instock/:productId", async (req, res) => {
   }
 });
 
-// ADMIN ROUTE : Product delete route
+// ADMIN ROUTE : Product delete route -- maybe delete method does not allow request body
 router.post("/delete", checkRole(1), async (req, res) => {
   try {
     const deletableProductIds = req.body?.deletableProductIds;
@@ -798,6 +800,8 @@ router.post("/delete", checkRole(1), async (req, res) => {
       await ProductVariant.deleteMany(
         product?.productVariantmap?.map((variant) => variant._id)
       );
+      await Cart.deleteMany({ product: product._id });
+      await Wishlist.deleteMany({ product: product._id });
       await Product.findByIdAndDelete(productId);
     });
 

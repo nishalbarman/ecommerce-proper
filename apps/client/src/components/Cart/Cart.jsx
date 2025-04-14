@@ -111,7 +111,7 @@ function Cart() {
           ? data.coupon.off
           : 0;
 
-      console.log("What is coupon discout price", couponDiscountPrice);
+      console.log("What is coupon discount price", couponDiscountPrice);
 
       setCouponDiscountPrice(couponDiscountPrice);
       setAppliedCoupon(couponDiscountPrice > 0 ? data.coupon : null);
@@ -375,7 +375,7 @@ function Cart() {
       let couponDiscountPrice = appliedCoupon?.isPercentage
         ? (subtotalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
         : subtotalPrice >
-            (appliedCoupon.minimumPayAmount || subtotalPrice + 100)
+            (appliedCoupon.minPurchasePrice || subtotalPrice + 100)
           ? appliedCoupon.off
           : 0;
 
@@ -723,10 +723,11 @@ function Cart() {
           </p>
           <form onSubmit={handleCouponFormSubmit} id="coupon-form">
             <input
-              onKeyUp={handleCouponCodeKeyUp}
+              onChange={handleCouponCodeKeyUp}
               className="text-[14px] uppercase outline-none p-[5px_0px] border-b-[2px] border-b-[#42a2a2] w-[100%] mb-[10px] placeholder:text-[rgba(0,0,0,0.3)] placeholder:opacity-[1] placeholder:font-bold focus:border-b-[2px] focus:border-b-[#42a2a2]"
               type="text"
               id="cpn_code"
+              value={couponCode.value}
               placeholder="ENTER CODE"
               autoComplete="false"
             />

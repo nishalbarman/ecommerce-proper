@@ -156,19 +156,19 @@ router.patch("/:productType", checkRole(1, 0), async (req, res) => {
       return res.status(400).json({ message: "Product Type is Missing" });
     }
 
-    const cart_item_id = req.query?.cart;
+    const cartItemId = req.query?.cart;
 
-    if (!cart_item_id) {
+    if (!cartItemId) {
       return res.status(400).send({ message: "Cart Item Id Missing" });
     }
 
     const rentDays = req.body?.rentDays;
     const quantity = req.body?.quantity;
-    const size = req.body?.size;
-    const color = req.body?.color;
+    // const size = req.body?.size;
+    // const color = req.body?.color;
 
     const cartProduct = await Cart.findOne({
-      _id: cart_item_id,
+      _id: cartItemId,
       user: userDetails._id,
       productType,
     });
@@ -187,12 +187,55 @@ router.patch("/:productType", checkRole(1, 0), async (req, res) => {
       cartProduct.quantity = quantity;
     }
 
-    if (!!size) {
-      cartProduct.size = size;
+    // if (!!size) {
+    //   cartProduct.size = size;
+    // }
+
+    // if (!!color) {
+    //   cartProduct.color = color;
+    // }
+
+    await cartProduct.save({ validateBeforeSave: false });
+
+    return res.json({
+      message: "Cart Updated",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+router.patch("/update-qty/:productType", checkRole(1, 0), async (req, res) => {
+  try {
+    const userDetails = req.user;
+    if (!userDetails) {
+      return res.status(400).json({ message: "User Details Not Found" });
     }
 
-    if (!!color) {
-      cartProduct.color = color;
+    const productType = req.params?.productType || "buy";
+
+    if (!productType) {
+      return res.status(400).json({ message: "Product Type is Missing" });
+    }
+
+    const cartItemId = req.query?.cartId;
+    const cartItemQuantity = req.body?.quantity;
+
+    const cartProduct = await Cart.findOne({
+      _id: cartItemId,
+      user: userDetails._id,
+      productType,
+    });
+
+    if (!cartProduct) {
+      return res.status(400).json({
+        message: "No items in cart",
+      });
+    }
+
+    if (!!cartItemQuantity) {
+      cartProduct.quantity = cartItemQuantity;
     }
 
     await cartProduct.save({ validateBeforeSave: false });
@@ -206,7 +249,7 @@ router.patch("/:productType", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.delete("/one/:cart_item_id", checkRole(1, 0), async (req, res) => {
+router.delete("/one/:cartItemId", checkRole(1, 0), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -216,10 +259,10 @@ router.delete("/one/:cart_item_id", checkRole(1, 0), async (req, res) => {
       });
     }
 
-    const { cart_item_id } = req.params;
+    const { cartItemId } = req.params;
 
     const cartDetails = await Cart.findOneAndDelete({
-      _id: cart_item_id,
+      _id: cartItemId,
       user: userDetails._id,
     });
 

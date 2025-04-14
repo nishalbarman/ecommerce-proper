@@ -6,7 +6,11 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useCookies } from "next-client-cookies";
-import { deleteCartItem, updateCartItem } from "@/lib/cart";
+import {
+  deleteCartItem,
+  updateCartItem,
+  updateCartItemQuantity,
+} from "@/lib/cart";
 import { addProductToWishlist, deleteWishlistItem } from "@/lib/wishlist";
 import { useSelector } from "react-redux";
 import { useAddWishlistMutation, useDeleteCartMutation } from "@/redux/src";
@@ -27,21 +31,22 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
 
   useEffect(() => {
     if (productQuantity > 0) {
-      updateCartItem({
+      updateCartItemQuantity({
         id: _id,
-        updatedItem: { quantity: productQuantity },
+        productType: "buy",
+        quantity: productQuantity,
       });
     }
   }, [productQuantity]);
 
-  useEffect(() => {
-    if (productSize?._id) {
-      updateCartItem({
-        id: _id,
-        updatedItem: { quantity: productQuantity },
-      });
-    }
-  }, [productSize]);
+  // useEffect(() => {
+  //   if (productSize?._id) {
+  //     updateCartItem({
+  //       id: _id,
+  //       updatedItem: { quantity: productQuantity },
+  //     });
+  //   }
+  // }, [productSize]);
 
   const quantityModalRef = useRef();
   const sizeModalRef = useRef();
