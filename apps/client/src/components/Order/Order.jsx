@@ -81,7 +81,7 @@ const OrderHistoryPage = () => {
   };
 
   return (
-    <div className="min-h-screen py-8 pt-3 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 pt-3 px-4 sm:px-6 lg:px-8 mt-7">
       <div className="container mx-auto">
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200">

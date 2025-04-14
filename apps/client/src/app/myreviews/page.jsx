@@ -111,134 +111,131 @@ const MyFeedbackPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-          <Link href="/myaccount">
-            <span className="inline-flex items-center text-blue-600 hover:text-blue-800">
-              <FaChevronLeft className="mr-2" /> Back to My Account
-            </span>
-          </Link>
-        </div>
+    <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
+      <div className="h-fill w-fill ">
+        <div className="min-h-screen py-8 pt-3 px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto">
+            <div className="bg-white shadow rounded-lg overflow-hidden mt-7">
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  My Feedback
+                </h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  View and manage your product feedback
+                </p>
+              </div>
 
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
-            <h1 className="text-2xl font-semibold text-gray-900">
-              My Feedback
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              View and manage your product feedback
-            </p>
-          </div>
-
-          <div className="px-6 py-5">
-            {feedbacks.length > 0 ? (
-              <div className="space-y-6">
-                {feedbacks.map((feedback) => (
-                  <div
-                    key={feedback._id}
-                    className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        {/* <h3 className="text-lg font-medium text-gray-900">
+              <div className="px-6 py-5">
+                {feedbacks.length > 0 ? (
+                  <div className="space-y-6">
+                    {feedbacks.map((feedback) => (
+                      <div
+                        key={feedback._id}
+                        className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            {/* <h3 className="text-lg font-medium text-gray-900">
                           {feedback.title || "No Title"}
                         </h3> */}
-                        <Link href={`/products/view/${feedback.product._id}`}>
-                          <h3 className="underline mb-3 text-lg font-medium text-gray-900">
-                            {feedback.product.title || "No Title"}
-                          </h3>
-                        </Link>
-                        <div className="mt-1 flex items-center space-x-4">
-                          {renderStars(feedback.starsGiven)}
-                          <span className="text-sm text-gray-500">
-                            {formatDate(feedback.createdAt)}
-                          </span>
-                          {feedback.product && (
-                            <span className="text-sm text-blue-600">
-                              <Link
-                                href={`/products/view/${feedback.product._id}`}>
-                                View Product
-                              </Link>
-                            </span>
-                          )}
+                            <Link
+                              href={`/products/view/${feedback.product._id}`}>
+                              <h3 className="underline mb-3 text-lg font-medium text-gray-900">
+                                {feedback.product.title || "No Title"}
+                              </h3>
+                            </Link>
+                            <div className="mt-1 flex items-center space-x-4">
+                              {renderStars(feedback.starsGiven)}
+                              <span className="text-sm text-gray-500">
+                                {formatDate(feedback.createdAt)}
+                              </span>
+                              {feedback.product && (
+                                <span className="text-sm text-blue-600">
+                                  <Link
+                                    href={`/products/view/${feedback.product._id}`}>
+                                    View Product
+                                  </Link>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex space-x-2 items-center">
+                            <Link href={`/feedback/edit/${feedback._id}`}>
+                              <button className="text-blue-600 hover:text-blue-800">
+                                <FaEdit className="w-5 h-5" />
+                              </button>
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteFeedback(feedback._id)}
+                              className="text-red-600 hover:text-red-800">
+                              <FaTrash className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
+                        <p className="mt-2 text-sm text-gray-600">
+                          {feedback.description}
+                        </p>
+                        {feedback.givenBy && (
+                          <p className="mt-2 text-xs text-gray-500">
+                            Submitted as: {feedback.givenBy}
+                          </p>
+                        )}
                       </div>
-                      <div className="flex space-x-2 items-center">
-                        <Link href={`/feedback/edit/${feedback._id}`}>
-                          <button className="text-blue-600 hover:text-blue-800">
-                            <FaEdit className="w-5 h-5" />
-                          </button>
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteFeedback(feedback._id)}
-                          className="text-red-600 hover:text-red-800">
-                          <FaTrash className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-600">
-                      {feedback.description}
-                    </p>
-                    {feedback.givenBy && (
-                      <p className="mt-2 text-xs text-gray-500">
-                        Submitted as: {feedback.givenBy}
-                      </p>
-                    )}
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">
+                      You haven't submitted any feedback yet.
+                    </p>
+                    <Link href="/products">
+                      <span className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Browse Products
+                      </span>
+                    </Link>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">
-                  You haven't submitted any feedback yet.
-                </p>
-                <Link href="/products">
-                  <span className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    Browse Products
-                  </span>
-                </Link>
-              </div>
-            )}
-          </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Page <span className="font-medium">{currentPage}</span> of{" "}
-                    <span className="font-medium">{totalPages}</span>
-                  </p>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        Page <span className="font-medium">{currentPage}</span>{" "}
+                        of <span className="font-medium">{totalPages}</span>
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className={`px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${
+                          currentPage === 1
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-gray-50"
+                        }`}>
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className={`px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${
+                          currentPage === totalPages
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-700 hover:bg-gray-50"
+                        }`}>
+                        Next
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${
-                      currentPage === 1
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    }`}>
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${
-                      currentPage === totalPages
-                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-white text-gray-700 hover:bg-gray-50"
-                    }`}>
-                    Next
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 

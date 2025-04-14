@@ -16,7 +16,7 @@ export default function page() {
   return (
     <>
       <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
-        <div className="h-fill w-fill m-[40px_0]">
+        <div className="h-fill w-fill ">
           <Order />
         </div>
       </main>
