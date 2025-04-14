@@ -285,7 +285,7 @@ router.get("/", checkRole(1), async (req, res) => {
 });
 
 // Get a single user by ID (Admin-only)
-router.get("/:id", checkRole(1), async (req, res) => {
+router.get("/admin/view/:id", checkRole(1), async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -488,6 +488,53 @@ router.delete("/:id", checkRole(1), async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Add this to your user routes file (user.routes.js)
+router.get("/me", checkRole(0, 1), async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Find user in database (excluding sensitive fields)
+    const user = await User.findById(userId)
+      .select("-password -emailVerifyToken -resetToken")
+      .populate("role", "roleName roleNumber roleKey")
+      .populate("defaultAddress")
+      .populate("center");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return user data
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      mobileNo: user.mobileNo,
+      isEmailVerfied: user.isEmailVerfied,
+      isMobileNoVerified: user.isMobileNoVerified,
+      role: user.role,
+      defaultAddress: user.defaultAddress,
+      center: user.center,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
+    });
   }
 });
 

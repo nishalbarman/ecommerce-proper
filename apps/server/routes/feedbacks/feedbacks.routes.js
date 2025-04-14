@@ -37,6 +37,29 @@ router.get("/", checkRole(1), async (req, res) => {
   }
 });
 
+router.get("/all", checkRole(1, 0), async (req, res) => {
+  try {
+    let dbSearchQuery = { user: req.user._id };
+
+    const searchParams = req.query;
+
+    const PAGE = searchParams.page || 1;
+    const LIMIT = searchParams.limit || 20;
+    const SKIP = (PAGE - 1) * LIMIT;
+
+    const feedbacks = await Feedback.find(dbSearchQuery)
+      .sort({ createdAt: "desc" })
+      .populate("product")
+      .skip(SKIP)
+      .limit(LIMIT);
+
+    return res.status(200).json({ data: feedbacks || [] });
+  } catch (error) {
+    console.error(TAG, error);
+    return res.status(500).json({ message: error.message });
+  }
+});
+
 // get the feedbacks for one individual product
 router.get("/list/:productId", async (req, res) => {
   try {

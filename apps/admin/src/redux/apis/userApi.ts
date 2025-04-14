@@ -20,13 +20,14 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     // Get all users with pagination
     getUsers: builder.query({
-      query: ({ page = 1, limit = 10, userType="user" }) => `user?userType=${userType}&page=${page}&limit=${limit}`,
+      query: ({ page = 1, limit = 10, userType = "user" }) =>
+        `user?userType=${userType}&page=${page}&limit=${limit}`,
       providesTags: ["User"],
     }),
 
     // Get a single user by ID
     getUserById: builder.query({
-      query: (id) => `user/${id}`,
+      query: (id) => `user/admin/view/${id}`,
       providesTags: ["User"],
     }),
 

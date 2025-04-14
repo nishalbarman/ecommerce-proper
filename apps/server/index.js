@@ -29,6 +29,7 @@ app.use(
       "http://localhost:3000",
       "https://jharna-mehendi-fully-custom-admin.vercel.app",
       "https://jharna-mehendi-admin.web.app",
+      "https://jharna-mehendi.onrender.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
