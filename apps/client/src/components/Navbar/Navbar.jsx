@@ -67,7 +67,7 @@ async function Navbar({ title }) {
         })}
       </div> */}
       <div className="flex items-center justify-center gap-5 h-[100%]">
-        {token ? (
+        {!!token ? (
           <>
             {/* search bar with icon */}
             <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">

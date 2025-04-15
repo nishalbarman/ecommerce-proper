@@ -28,7 +28,7 @@ const obfuscator = withNextJsObfuscator({
   reservedStrings: [],
   seed: 0,
   selfDefending: false,
-  simplify: false,
+  simplify: true,
   sourceMap: false,
   sourceMapBaseUrl: "",
   sourceMapFileName: "",

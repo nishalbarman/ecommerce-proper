@@ -135,11 +135,12 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    if (!user?.isMobileNoVerified) {
-      return res.status(403).json({
-        message: "Account not verified yet!",
-      });
-    }
+    // TODO : Uncomment this code when mobile verification is implemented
+    // if (!user?.isMobileNoVerified) {
+    //   return res.status(403).json({
+    //     message: "Account not verified yet!",
+    //   });
+    // }
 
     const jwtToken = jwt.sign(
       {
@@ -258,7 +259,7 @@ router.post("/signup", async (req, res) => {
       mobileNo,
       password: hashedPass,
       mobileNoVerifyToken: verifyToken,
-      role: "65f1c390dd964b2b01a2ee64", // default id for user role
+      role: "67ba036ea088fcf4f8e539c1", // default id for user role
     });
 
     const jwtToken = jwt.sign(
@@ -307,12 +308,14 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/logout", async (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-  });
-  return res.status(200).json({ message: "Logged out" });
+  return res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    })
+    .status(200)
+    .json({ message: "Logged out" });
 });
 
 module.exports = router;

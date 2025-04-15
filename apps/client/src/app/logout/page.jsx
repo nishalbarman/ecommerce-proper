@@ -11,7 +11,8 @@ function page() {
   const doLogout = async () => {
     try {
       const serverUrl = getBackendUrl();
-      await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/logout`);
+      axios.defaults.withCredentials = true;
+      await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/auth/logout`);
     } catch (error) {
       console.log("Axios Error-->", error);
     } finally {

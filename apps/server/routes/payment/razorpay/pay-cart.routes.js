@@ -149,11 +149,11 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
     const paymentTxnId = generateUniqueId("PT");
     const orderGroupID = generateUniqueId("OD");
 
-    console.log("What is the payment final amount", paymentObject.amount);
+    console.log("What is the payment final amount", +paymentObject.amount);
 
     // create one razor pay order with the amount
     const razorpayOrder = await razorpayInstance.orders.create({
-      amount: paymentObject.amount,
+      amount: parseInt(paymentObject.amount),
       currency: "INR",
       receipt: paymentTxnId,
       partial_payment: false,
