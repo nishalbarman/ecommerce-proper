@@ -17,9 +17,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { userAPI } from "./apis/userApi.js";
+// import { userAPI } from "./apis/userApi.js";
 import { addressSlice } from "./slices/addressSlice.js";
-import { authApi } from "./apis/authApi.js";
+// import { authApi } from "./apis/authApi.js";
 import { addressApi } from "./apis/addressApi.js";
 
 import { wishlistApi } from "./apis/wishlistApi.js";
@@ -40,8 +40,8 @@ import { cartSlice } from "./slices/cartSlice.js";
 import { appliedCouponSlice } from "./slices/appliedCouponSlice.js";
 
 const rootReducer = combineReducers({
-  [userAPI.reducerPath]: userAPI.reducer,
-  [authApi.reducerPath]: authApi.reducer,
+  // [userAPI.reducerPath]: userAPI.reducer,
+  // [authApi.reducerPath]: authApi.reducer,
   [authSlice.name]: authSlice.reducer,
   [addressSlice.name]: addressSlice.reducer,
   [addressApi.reducerPath]: addressApi.reducer,
@@ -89,11 +89,11 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const middlewares = [
   cartApi.middleware,
   wishlistApi.middleware,
-  authApi.middleware,
+  // authApi.middleware,
   addressApi.middleware,
   categoryApi.middleware,
   centerAddressApi.middleware,
-  userAPI.middleware,
+  // userAPI.middleware,
 ];
 
 export const store = configureStore({

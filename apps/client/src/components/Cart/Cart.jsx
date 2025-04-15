@@ -16,10 +16,13 @@ import "../../app/scrollbar.css";
 import "./spinner.css";
 
 import CartItem from "./CartItem";
-import { useGetCartQuery, useGetWishlistQuery } from "@/redux/src/index";
-import { updateAppliedCoupon } from "@/redux/src/slices/appliedCouponSlice";
+import { WishlistApi, CartApi, AppliedCouponSlice } from "@/redux";
 
 function Cart() {
+  const { useGetCartQuery } = CartApi;
+  const { useGetWishlistQuery } = WishlistApi;
+  const { updateAppliedCoupon } = AppliedCouponSlice;
+
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
     productType: "buy",
   });

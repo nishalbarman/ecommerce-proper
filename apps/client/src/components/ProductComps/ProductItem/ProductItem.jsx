@@ -11,14 +11,7 @@ import RateStar from "../../RatingStart";
 
 import { deleteWishlistItem } from "@/lib/wishlist";
 import { deleteCartItem } from "@/lib/cart";
-import {
-  useAddOneToCartMutation,
-  useAddWishlistMutation,
-  useDeleteCartMutation,
-  useDeleteWishlistMutation,
-  useGetCartQuery,
-  useGetWishlistQuery,
-} from "@/redux/src/index";
+import { WishlistApi, CartApi } from "@/redux";
 import { useSelector } from "react-redux";
 
 function ProductItem({
@@ -69,6 +62,15 @@ function ProductItem({
     isVariantAvailable,
     productVariant,
   } = productDetails;
+
+  const { useAddOneToCartMutation, useDeleteCartMutation, useGetCartQuery } =
+    CartApi;
+
+  const {
+    useAddWishlistMutation,
+    useDeleteWishlistMutation,
+    useGetWishlistQuery,
+  } = WishlistApi;
 
   const cookiesStore = useCookies();
 

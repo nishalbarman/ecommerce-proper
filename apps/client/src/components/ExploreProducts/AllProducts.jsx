@@ -8,12 +8,9 @@ import { useSelector } from "react-redux";
 import {
   useAddWishlistMutation,
   useDeleteWishlistMutation,
-} from "@/redux/src/index";
+} from "@/redux/index";
 
-import {
-  useAddOneToCartMutation,
-  useDeleteCartMutation,
-} from "@/redux/src/index";
+import { useAddOneToCartMutation, useDeleteCartMutation } from "@/redux/index";
 
 function AllProducts({ exploreProductData }) {
   const navigator = useRouter();

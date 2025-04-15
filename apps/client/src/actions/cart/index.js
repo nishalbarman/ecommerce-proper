@@ -1,7 +1,6 @@
 // actions/cart/addToCart.ts
 "use server";
 
-import { useAddOneToCartMutation } from "@/redux/src";
 import { cookies } from "next/headers";
 
 export async function addToCart(formData) {
@@ -32,20 +31,15 @@ export async function addToCart(formData) {
       cartObject.variant = variantId;
     }
 
-    const [addToCart, { isLoading: isAddToCartLoading }] =
-      useAddOneToCartMutation();
-
-    // const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`, {
-    //   method: "POST",
-    //   credentials: "include",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Cookies: `token=${token}`,
-    //   },
-    //   body: JSON.stringify(cartObject),
-    // });
-
-    const response = await addToCart(cartObject).unwrap();
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Cookies: `token=${token}`,
+      },
+      body: JSON.stringify(cartObject),
+    });
 
     return {
       success: true,

@@ -2,7 +2,7 @@
 import withNextJsObfuscator from "nextjs-obfuscator";
 const obfuscator = withNextJsObfuscator({
   compact: true,
-  controlFlowFlattening: true,
+  controlFlowFlattening: false,
   controlFlowFlatteningThreshold: 0.75,
   deadCodeInjection: false,
   deadCodeInjectionThreshold: 0.4,
@@ -21,7 +21,7 @@ const obfuscator = withNextJsObfuscator({
   log: false,
   numbersToExpressions: false,
   optionsPreset: "default",
-  renameGlobals: true,
+  renameGlobals: false,
   renameProperties: false,
   renamePropertiesMode: "safe",
   reservedNames: [],
@@ -62,7 +62,7 @@ const nextConfig = obfuscator({
     "firebase-utils",
   ],
   images: {
-    domains: ["n3.sdlcdn.com", "storage.googleapis.com", "i.ibb.co"],
+    domains: ["storage.googleapis.com", "i.ibb.co"],
   },
   async headers() {
     return [

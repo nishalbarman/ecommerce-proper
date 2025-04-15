@@ -13,10 +13,13 @@ import {
 } from "@/lib/cart";
 import { addProductToWishlist, deleteWishlistItem } from "@/lib/wishlist";
 import { useSelector } from "react-redux";
-import { useAddWishlistMutation, useDeleteCartMutation } from "@/redux/src";
+import { WishlistApi, CartApi } from "@/redux";
 
 function CartItem({ item, userCartItems, userWishlistItems }) {
   const { _id, user, product, variant, quantity, productType } = item;
+
+  const { useDeleteCartMutation } = CartApi;
+  const { useAddWishlistMutation } = WishlistApi;
 
   const wishlistItems = useSelector((state) => state.wishlistSlice.wishlists);
   const cartItems = useSelector((state) => state.cartSlice.cart);

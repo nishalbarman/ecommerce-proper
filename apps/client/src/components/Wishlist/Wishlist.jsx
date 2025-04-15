@@ -3,17 +3,16 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import {
-  useAddOneToCartMutation,
-  useDeleteWishlistMutation,
-  useGetWishlistQuery,
-} from "@/redux/src/index";
+import { WishlistApi, CartApi } from "@/redux";
 
 import ProductItem from "../ProductComps/ProductItem/ProductItem";
 import Link from "next/link";
 import Image from "next/image";
 
 function Wishlist() {
+  const { useDeleteWishlistMutation, useGetWishlistQuery } = WishlistApi;
+  const { useAddOneToCartMutation } = CartApi;
+
   const { data: wishlistData, error: wishlistError } = useGetWishlistQuery();
 
   const wishlist = useSelector((state) => state.wishlistSlice.wishlistItems);
@@ -54,7 +53,9 @@ function Wishlist() {
 
       {wishlistData?.length > 0 && (
         <div className="flex justify-between items-center">
-          <p className="text-xl font-andika">Wishlist ({wishlistData?.length})</p>
+          <p className="text-xl font-andika">
+            Wishlist ({wishlistData?.length})
+          </p>
           <button className="rounded-[4px] border-[1px] border-[black] h-[45px] p-[0px_20px]">
             Move All to Bag
           </button>

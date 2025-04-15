@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCart, useGetCartQuery } from "@/redux/src/index";
+import { CartSlice, CartApi } from "@/redux/index";
 import { useCookies } from "next-client-cookies";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +9,9 @@ import { useDispatch } from "react-redux";
 
 function ClientCartIcon() {
   const dispatch = useDispatch();
+
+  const { useGetCartQuery } = CartApi;
+  const { updateCart } = CartSlice;
 
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
     productType: "buy",

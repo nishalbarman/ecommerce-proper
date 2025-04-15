@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Provider } from "react-redux";
-import { store } from "@/redux/src/index";
+import { store } from "@/redux/index";
 
 function ReduxStore({ children }) {
   return <Provider store={store}>{children}</Provider>;

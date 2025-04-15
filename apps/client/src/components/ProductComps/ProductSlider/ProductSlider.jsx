@@ -10,15 +10,7 @@ import { useSelector } from "react-redux";
 import ProductItem from "../ProductItem/ProductItem";
 import Image from "next/image";
 
-import {
-  useAddWishlistMutation,
-  useDeleteWishlistMutation,
-} from "@/redux/src/index";
-
-import {
-  useAddOneToCartMutation,
-  useDeleteCartMutation,
-} from "@/redux/src/index";
+import { CartApi, WishlistApi } from "@/redux";
 
 const CustomPrevArrow = ({ onClick }) => {
   return (
@@ -101,6 +93,9 @@ const ProductSlider = ({ items }) => {
   };
 
   const navigator = useRouter();
+
+  const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
+  const { useAddOneToCartMutation, useDeleteCartMutation } = CartApi;
 
   const wishlistIdMapped = useSelector(
     (state) => state.wishlistSlice?.wishlists

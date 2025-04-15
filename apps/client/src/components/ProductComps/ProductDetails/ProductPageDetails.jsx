@@ -16,7 +16,7 @@ import ReviewStats from "@/components/ReviewForm/ReviewStats";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { addToCart } from "@/actions/cart";
-import { useAddOneToCartMutation } from "@/redux/src";
+import { CartApi } from "@/redux";
 
 export default function ProductDetails({
   product,
@@ -30,6 +30,8 @@ export default function ProductDetails({
   handleVariantSelection,
 }) {
   const navigate = useRouter();
+
+  const { useAddOneToCartMutation } = CartApi;
 
   const [selectedSize, setSelectedSize] = useState(initialSelectedSize);
   const [selectedColor, setSelectedColor] = useState(initialSelectedColor);

@@ -5,13 +5,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
-import {
-  updateCart,
-  useGetAddressQuery,
-  useGetCartQuery,
-  useGetWishlistQuery,
-  useRemoveAllCartMutation,
-} from "@/redux/src/index";
+import { CartApi, AddressApi, WishlistApi, CartSlice } from "@/redux";
+
 import AddressForm from "@/components/AddressForm/AddressForm";
 import useRazorpay from "react-razorpay";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +14,11 @@ import axios from "axios";
 
 export default function CheckoutPage() {
   const router = useRouter();
+
+  const { updateCart } = CartSlice;
+  const { useGetAddressQuery } = AddressApi;
+  const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
+  const { useGetWishlistQuery } = WishlistApi;
 
   const { data: { cart: userCartItems } = {} } = useGetCartQuery({
     productType: "buy",
@@ -231,14 +231,14 @@ export default function CheckoutPage() {
     }
   }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
 
-  const handlePayment = (e) => {
+  const handlePayment = () => {
     switch (gatewayOption) {
       case "razorpay":
-        return handleRazorPayContinue(e);
+        return handleRazorPayContinue();
       case "payu":
-        return handlePayUContinue(e);
+        return handlePayUContinue();
       default:
-        return handleRazorPayContinue(e);
+        return handleRazorPayContinue();
     }
   };
 

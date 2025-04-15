@@ -1,6 +1,6 @@
 "use client";
 
-import { updateWishlist, useGetWishlistQuery } from "@/redux/src/index";
+import { WishlistApi, WishlistSlice } from "@/redux";
 import { useCookies } from "next-client-cookies";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +10,9 @@ import { useDispatch } from "react-redux";
 function ClientWishlistIcon() {
   const cookieStore = useCookies();
   const token = cookieStore.get("token");
+
+  const { useGetWishlistQuery } = WishlistApi;
+  const { updateWishlist } = WishlistSlice;
 
   const dispatch = useDispatch();
 
