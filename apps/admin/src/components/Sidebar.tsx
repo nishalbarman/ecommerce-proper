@@ -12,12 +12,13 @@ import {
   FaStar,
   FaCubes,
   FaCog,
+  FaChevronDown,
+  FaChevronRight,
 } from "react-icons/fa";
 import { FaMessage } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import anime_image from "../assets/shinobu.jpg";
 
 type SidebarProps = {
   navbarToogle: boolean;
@@ -28,6 +29,12 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
   const navigator = useNavigate();
   const location = useLocation();
   const [width, setWidth] = useState<number>(window.innerWidth);
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({});
+
+  // Debugging log
+  console.log("Sidebar rendering with navbarToogle:", navbarToogle);
 
   useEffect(() => {
     const handleResize = () => setWidth(window.innerWidth);
@@ -35,18 +42,42 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const variants = {
-    open: { width: "260px" },
-    closed: { width: "0px" },
-  };
+  // Initialize all sections as expanded by default
+  useEffect(() => {
+    const initialExpandedState = menuItems.reduce(
+      (acc, item) => {
+        acc[item.title] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
+    setExpandedSections(initialExpandedState);
+    console.log("Initialized expanded sections:", initialExpandedState);
+  }, []);
 
-  const sidebarInnerDivVariant = {
-    open: { display: "block" },
-    closed: { display: "none" },
+  const variants = {
+    open: {
+      width: "260px",
+      transition: { duration: 0.3 },
+      display: "block",
+    },
+    closed: {
+      width: "0px",
+      transition: { duration: 0.3 },
+      display: "none",
+    },
   };
 
   const isMobile = width <= 1023;
 
+  const toggleSection = (title: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
+
+  // Your menuItems array remains the same
   const menuItems = [
     // {
     //   title: "Dashboard",
@@ -220,69 +251,86 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
     <motion.div
       animate={isMobile ? (navbarToogle ? "closed" : "open") : "open"}
       variants={variants}
-      className={`z-50 min-h-screen w-64 bg-gray-800 text-white flex top-0 bottom-0 flex-col fixed overflow-y-auto scrollbar ${
-        isMobile ? (navbarToogle ? "hidden" : "visible") : "visible"
-      }`}
+      className={`z-50 min-h-screen bg-gray-800 text-white fixed top-0 bottom-0 overflow-y-auto scrollbar`}
       aria-label="Sidebar">
-      <motion.div
-        animate={isMobile ? (navbarToogle ? "closed" : "open") : "open"}
-        variants={sidebarInnerDivVariant}
-        transition={{ delay: 0.2 }}>
+      <div className="w-[250px]">
+        {" "}
+        {/* Fixed width container */}
+        {/* Close button */}
         <div
-          className="absolute right-2 top-2 border border-white rounded-sm lg:hidden"
+          className="absolute right-2 top-2 border border-white rounded-sm lg:hidden p-1 hover:bg-gray-700 transition-colors"
           onClick={() => setNavbarToogle(!navbarToogle)}
           role="button"
           aria-label="Close Sidebar">
           <IoMdClose size={20} />
         </div>
-
+        {/* Admin profile */}
         <div className="flex items-center justify-start px-3 h-20 border-b border-gray-700 gap-2">
           <img
-            // src={anime_image}
             src={"https://i.ibb.co/Q3FPrQQm/64c844d378e5.png"}
-            className="h-14 rounded-full"
+            className="h-14"
             alt="Admin Avatar"
           />
-          <h1 className="text-2xl font-semibold ml-1">Admin</h1>
+          <h1 className="text-2xl font-semibold ml-1 text-white">Admin</h1>
         </div>
-
+        {/* Navigation */}
         <nav className="flex-1 px-2 py-4">
-          <ul className="text-md">
-            <li>
-              <Link
-                to="/"
-                className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                  location.pathname === "/" && "bg-[rgb(43,49,61)]"
-                }`}>
-                <FaTachometerAlt className="mr-4" />
-                <span>Dashboard</span>
-              </Link>
-            </li>
-          </ul>
+          {/* Dashboard link */}
+          <Link
+            to="/"
+            className={`mb-2 flex items-center hover:bg-gray-700 py-2 px-4 rounded-md cursor-pointer transition-colors ${
+              location.pathname === "/" ? "bg-gray-700" : ""
+            }`}>
+            <FaTachometerAlt className="mr-4 text-white" />
+            <span className="text-white">Dashboard</span>
+          </Link>
+
+          {/* Menu sections */}
           {menuItems.map((section, index) => (
-            <div key={index}>
-              <h2 className="mt-8 mb-4 text-sm text-gray-500 uppercase">
-                {section.title}
-              </h2>
-              <ul className="text-md">
-                {section.items?.map((item, idx) => (
-                  <li key={idx}>
-                    <Link
-                      to={item.path}
-                      className={`mb-[1px] flex items-center hover:bg-[rgb(43,49,61)] py-2 px-4 rounded-md cursor-pointer ${
-                        location.pathname === item.path && "bg-[rgb(43,49,61)]"
-                      }`}
-                      aria-label={item.title}>
-                      {item.icon}
-                      <span>{item.title}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            <div key={index} className="mb-4">
+              {/* Section header */}
+              <div
+                className="flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:text-white uppercase cursor-pointer transition-colors"
+                onClick={() => toggleSection(section.title)}>
+                <span className="text-sm text-gray-500 uppercase">
+                  {section.title}
+                </span>
+                {expandedSections[section.title] ? (
+                  <FaChevronDown className="text-xs" />
+                ) : (
+                  <FaChevronRight className="text-xs" />
+                )}
+              </div>
+
+              {/* Section items */}
+              <AnimatePresence>
+                {expandedSections[section.title] && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden">
+                    {section.items.map((item, idx) => (
+                      <Link
+                        key={idx}
+                        to={item.path}
+                        className={`flex items-center py-2 px-6 hover:bg-gray-700 rounded-md cursor-pointer transition-colors ${
+                          location.pathname === item.path ? "bg-gray-700" : ""
+                        }`}>
+                        <span className="mr-3 text-gray-400">{item.icon}</span>
+                        <span className="text-gray-300 hover:text-white">
+                          {item.title}
+                        </span>
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           ))}
         </nav>
-      </motion.div>
+      </div>
     </motion.div>
   );
 };

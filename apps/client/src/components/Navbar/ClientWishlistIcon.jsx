@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { IoIosHeartEmpty } from "react-icons/io";
 import { FaRegHeart } from "react-icons/fa";
 import { LuHeart } from "react-icons/lu";
+import { BsHeart } from "react-icons/bs";
 
 function ClientWishlistIcon() {
   const cookieStore = useCookies();
@@ -59,7 +60,7 @@ function ClientWishlistIcon() {
             </span>
           </div>
         )}
-        <LuHeart size={25} />
+        <FaRegHeart color="white" fill={"white"} size={23} />
       </div>
     </Link>
   );

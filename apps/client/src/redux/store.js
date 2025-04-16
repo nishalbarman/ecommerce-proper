@@ -38,6 +38,7 @@ import { checkoutInformationSlice } from "./slices/checkoutSlice.js";
 import { wishlistSlice } from "./slices/wishlistSlice.js";
 import { cartSlice } from "./slices/cartSlice.js";
 import { appliedCouponSlice } from "./slices/appliedCouponSlice.js";
+import { productApi } from "./apis/productApi.js";
 
 const rootReducer = combineReducers({
   // [userAPI.reducerPath]: userAPI.reducer,
@@ -49,6 +50,7 @@ const rootReducer = combineReducers({
   [productSortingFilteringSlice.name]: productSortingFilteringSlice.reducer,
   [cartApi.reducerPath]: cartApi.reducer,
   [wishlistApi.reducerPath]: wishlistApi.reducer,
+  [productApi.reducerPath]: productApi.reducer,
 
   [wishlistSlice.name]: wishlistSlice.reducer,
   [cartSlice.name]: cartSlice.reducer,
@@ -74,6 +76,7 @@ const persistConfig = {
   blacklist: [
     cartApi.reducerPath,
     wishlistApi.reducerPath,
+    productApi.reducerPath,
     wishlistSlice.name,
 
     cartSlice.name,
@@ -89,6 +92,7 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 const middlewares = [
   cartApi.middleware,
   wishlistApi.middleware,
+  productApi.middleware,
   // authApi.middleware,
   addressApi.middleware,
   categoryApi.middleware,

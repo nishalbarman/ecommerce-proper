@@ -53,7 +53,7 @@ async function Navbar({ title }) {
         />
         <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
           <Link
-            className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black"
+            className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-white"
             href={"/"}>
             {title}
           </Link>
@@ -68,11 +68,13 @@ async function Navbar({ title }) {
           );
         })}
       </div> */}
-      <div className="flex items-center justify-center gap-5 h-[100%]">
+      <div className="flex items-center justify-center gap-5 h-full">
         {!!token ? (
           <>
             {/* search bar with icon */}
-            <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
+            <Link
+              href={"/products"}
+              className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
               <input
                 className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] bg-transparent p-4"
                 type="text"
@@ -82,10 +84,9 @@ async function Navbar({ title }) {
               <div className="h-[25px] w-[25px] mr-3 flex items-center">
                 <CiSearch size={27} />
               </div>
-            </div>
+            </Link>
 
             <ClientWishlistIcon />
-
             <ClientCartIcon />
 
             <div className="h-fit w-fit relative group mb-[8px]">

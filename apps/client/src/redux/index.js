@@ -18,6 +18,7 @@ export * as CategoryApi from "./apis/categoryApi";
 export * as CenterAddressApi from "./apis/centerAddresApi";
 // export * as UserApi from "./apis/userApi";
 export * as WishlistApi from "./apis/wishlistApi";
+export * as ProductApi from "./apis/productApi";
 
 // Export store normally
 export * from "./store";

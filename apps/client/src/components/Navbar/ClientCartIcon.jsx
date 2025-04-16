@@ -8,6 +8,9 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import { IoCartOutline } from "react-icons/io5";
+import { BsCart2, BsCart3 } from "react-icons/bs";
+import { FiShoppingCart } from "react-icons/fi";
+import { PiShoppingCart, PiShoppingCartSimple } from "react-icons/pi";
 
 function ClientCartIcon() {
   const dispatch = useDispatch();
@@ -55,7 +58,8 @@ function ClientCartIcon() {
             </span>
           </div>
         )}
-        <IoCartOutline size={30} />
+        {/* <BsCart3 color="white" fill={"white"} size={26} /> */}
+        <PiShoppingCart color="white" fill={"white"} size={29} />
       </div>
     </Link>
   );

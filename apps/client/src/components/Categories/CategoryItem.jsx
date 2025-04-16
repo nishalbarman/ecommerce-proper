@@ -2,34 +2,47 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-function CategoryItem({ categoryImageUrl, categoryName, categoryKey }) {
+function CategoryItem({
+  _id: categoryId,
+  categoryImageUrl,
+  categoryName,
+  categoryKey,
+}) {
   return (
-    <div className="relative transition duration-150 ease group/category rounded-md flex flex-col justify-center items-center gap-4 border-solid border-[1px] border-[rgba(0,0,0,0.2)] mr-3 ml-3 h-[145px] bg-white max-[553px]:w-[96%] max-[597px]:h-[120px]">
-      {/* <div className="transition duration-300 ease  translate-y-[-150px] group-hover/category:translate-y-0 backdrop-blur-[2px] absolute flex items-center justify-center w-[100%] h-[100%] bg-[rgba(0,0,0,0.6)] max-[597px]:hidden">
-        <Link
-          href={categoryKey}
-          className="text-white hover:underline underline-offset-1">
-          Visit
-        </Link>
-      </div> */}
-      <Image
-        src={categoryImageUrl}
-        className="select-none max-[597px]:h-[40px] h-[50px] w-[50px] object-cover rounded-full aspect-[1/1]"
-        width={50}
-        height={50}
-        alt={categoryName}
-      />
-      <Link
-        href={categoryKey}
-        className="group-hover/category:underline hidden text-black underline underline-offset-1 max-[597px]:inline">
-        {categoryName}
-      </Link>
-      <Link href={categoryKey}>
-        <span className="max-[597px]:hidden group-hover/category:underline inline block font-andika text-black">
-          {categoryName}
-        </span>
-      </Link>
-    </div>
+    <Link href={`/categories/${categoryId}`} passHref>
+      <div className="relative group transition-all duration-300 ease-in-out rounded-xl overflow-hidden shadow-md hover:shadow-xl w-full h-48 bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-green-200 cursor-pointer">
+        {/* Background gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 opacity-100 transition-opacity duration-300 z-10"></div>
+
+        {/* Category image with zoom effect */}
+        <div className="relative w-full h-full">
+          <Image
+            src={categoryImageUrl}
+            alt={categoryName}
+            fill
+            className="object-contain transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
+
+        {/* Category name with slide-up animation */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 z-20 transform  translate-y-0 transition-transform duration-300">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-sm">
+            <h3 className="text-lg font-bold text-gray-800 text-center truncate">
+              {categoryName}
+            </h3>
+            <p className="text-xs text-gray-500 text-center mt-1 opacity-0 opacity-100 transition-opacity duration-200">
+              Shop now →
+            </p>
+          </div>
+        </div>
+
+        {/* Floating badge */}
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full shadow-sm z-20">
+          <span className="text-xs font-medium text-blue-600">Popular</span>
+        </div>
+      </div>
+    </Link>
   );
 }
 

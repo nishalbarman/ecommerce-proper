@@ -11,6 +11,7 @@ const SpaceshipLoading = () => {
         src="https://i.ibb.co/S7wS79F3/d24a3ddf1d51.png"
         alt="heart-mehendi"
       />
+      <p>Loading ...</p>
 
       {/* Redirecting Text */}
       {/* 

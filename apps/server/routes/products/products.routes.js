@@ -330,93 +330,78 @@ router.get("/", async (req, res) => {
   try {
     const searchQuery = req.query;
 
-    const PAGE = searchQuery?.page || 0; // 0 because of material ui table. It uses 0 as default page number for starting page.
-    const LIMIT = searchQuery?.limit || 50;
+    const PAGE = parseInt(searchQuery?.page) || 0;
+    const LIMIT = parseInt(searchQuery?.limit) || 50;
     const SKIP = PAGE * LIMIT;
 
     const SORT = searchQuery["sort"];
-    const FILTER = searchQuery["filter"];
+    const QUERY = searchQuery["query"];
 
-    // filter result by query params
-    const TYPE = searchQuery?.productType;
-    const CATEGORY = searchQuery?.category;
-    const QUERY = searchQuery?.query;
+    // Initialize filter object
+    const filter = {};
 
-    console.log(CATEGORY);
-
-    const filter = {}; // blank filter object
-
-    if (!!QUERY) {
+    // Text search
+    if (QUERY) {
       filter["$text"] = { $search: QUERY };
     }
 
-    if (TYPE) {
-      filter.productType = { $in: [TYPE, "both"] };
+    // Category filter (array)
+    if (searchQuery.category) {
+      const categories = Array.isArray(searchQuery.category)
+        ? searchQuery.category
+        : [searchQuery.category];
+      filter.category = {
+        $in: categories.map((id) => new mongoose.Types.ObjectId(id)),
+      };
     }
 
-    if (CATEGORY) {
-      filter.category = CATEGORY;
+    // Color filter (array)
+    if (searchQuery.color) {
+      const colors = Array.isArray(searchQuery.color)
+        ? searchQuery.color
+        : [searchQuery.color];
+      filter.color = { $in: colors };
     }
 
-    if (!!FILTER) {
-      const parsedFilter = JSON.parse(decodeURIComponent(FILTER));
-
-      if (parsedFilter.color && parsedFilter.color.length > 0) {
-        filter.color = { $in: parsedFilter.color };
-      }
-
-      if (parsedFilter.category && parsedFilter.category.length > 0) {
-        filter.category = { $in: parsedFilter.category };
-      }
-
-      if (parsedFilter.price && parsedFilter.price.length > 0) {
-        filter.price = {
-          $gt: parsedFilter.price[0],
-          $lt: parsedFilter.price[1],
-        };
-      }
-
-      if (parsedFilter.rating) {
-        filter.rating = {
-          $gt: parsedFilter.rating,
-        };
-      }
-
-      // Object.entries(parsedFilter).map(([key, value]) => {
-      //   if (!!key && !!value && Array.isArray(value)) {
-      //     filter[key] = { $in: value };
-      //   } else if (!!key && !!value) {
-      //     filter[key] = value;
-      //   }
-      // });
+    // Price range filter
+    const minPrice = parseFloat(searchQuery.minPrice) || 0;
+    const maxPrice = parseFloat(searchQuery.maxPrice) || 200;
+    if (minPrice > 0 || maxPrice < 200) {
+      filter.price = {
+        $gte: minPrice,
+        $lte: maxPrice,
+      };
     }
 
-    console.log("FILTER", filter);
+    // Rating filter
+    if (searchQuery.rating) {
+      const rating = parseFloat(searchQuery.rating);
+      if (rating > 0) {
+        filter.rating = { $gte: rating };
+      }
+    }
 
+    console.log("Final filter:", filter);
+
+    // Sorting logic
     let sortObject = { createdAt: "desc" };
 
-    if (!!QUERY) {
+    if (QUERY) {
       delete sortObject.createdAt;
       sortObject.score = { $meta: "textScore" };
     }
 
-    if (!!SORT) {
+    if (SORT) {
       delete sortObject.createdAt;
       switch (SORT) {
         case "popularity":
-          sortObject[
-            filter.productType === "rent" ? "rentTotalOrders" : "buyTotalOrders"
-          ] = "desc";
+          sortObject.totalOrders = "desc";
           break;
         case "low-to-hight-price":
-          sortObject[
-            filter.productType === "rent" ? "rentingPrice" : "discountedPrice"
-          ] = "asc";
+          sortObject.price = "asc";
           break;
         case "hight-to-low-price":
-          sortObject[
-            filter.productType === "rent" ? "rentingPrice" : "discountedPrice"
-          ] = "desc";
+          sortObject.price = "desc";
           break;
         case "newest":
           sortObject.createdAt = "desc";
@@ -426,13 +411,10 @@ router.get("/", async (req, res) => {
       }
     }
 
-    const totalProductsCount = await Product.countDocuments(
-      filter,
-      sortObject || undefined
-    );
+    // Count documents
+    const totalProductsCount = await Product.countDocuments(filter);
 
-    console.log("Product filter --->", filter);
-
+    // Fetch products
     const products = await Product.find(filter)
       .populate(["category", "productVariant"])
       .sort(sortObject)
@@ -447,8 +429,11 @@ router.get("/", async (req, res) => {
       totalProductCount: totalProductsCount,
     });
   } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
+    console.error("Error in product route:", error);
+    return res.status(500).json({
+      message: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 });
 
@@ -565,8 +550,7 @@ router.post("/", checkRole(1), async (req, res) => {
           variant.originalPrice = variant.discountedPrice;
         }
 
-
-        const sizes = variant?.size
+        const sizes = variant?.size;
         // ?.replace(/ /g, "");
         if (!!sizes) {
           sizes.split(",")?.forEach((eachSize) => {
