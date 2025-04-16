@@ -350,13 +350,13 @@ export default function CheckoutPage() {
                       onClick={() => setSelectedAddress(address._id)}
                       className={`border rounded-lg p-4 cursor-pointer ${
                         selectedAddress === address._id
-                          ? "border-primary shadow-md"
+                          ? "border-green-800 shadow-md"
                           : "border-gray-200"
                       }`}>
                       <div className="flex justify-between">
                         <h4 className="font-medium">{address.fullName}</h4>
                         {selectedAddress === address._id && (
-                          <span className="text-primary">✓ Selected</span>
+                          <span className="text-green-600">✓ Selected</span>
                         )}
                       </div>
                       <p className="text-gray-600 mt-2">
@@ -376,7 +376,7 @@ export default function CheckoutPage() {
 
             <button
               onClick={() => setIsAddingAddress(true)}
-              className="mt-6 w-full py-3 border border-primary text-primary font-medium rounded-lg hover:bg-primary/10">
+              className="mt-6 w-full py-3 border border-red-500 text-red-400 font-medium rounded-lg hover:bg-red-300/10">
               + Add New Address
             </button>
 

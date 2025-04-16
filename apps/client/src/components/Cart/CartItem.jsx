@@ -6,7 +6,6 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useCookies } from "next-client-cookies";
-import { updateCartItemQuantity } from "@/lib/cart";
 
 import { useSelector } from "react-redux";
 import { WishlistApi, CartApi } from "@/redux";
@@ -21,13 +20,17 @@ function CartItem({ item }) {
     productType,
   } = item;
 
-  const { useDeleteCartMutation, useUpdateCartVariantMutation } = CartApi;
+  const {
+    useDeleteCartMutation,
+    useUpdateCartVariantMutation,
+    useUpdateQuantityCartMutation,
+  } = CartApi;
   const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
 
   const wishlistMappedItems = useSelector(
     (state) => state.wishlistSlice.wishlists
   );
-  const cartMappedItems = useSelector((state) => state.cartSlice.cart);
+  // const cartMappedItems = useSelector((state) => state.cartSlice.cart);
 
   const dispatch = useDispatch();
   const cookiesStore = useCookies();
@@ -41,6 +44,8 @@ function CartItem({ item }) {
   const [loadingVariants, setLoadingVariants] = useState(false);
   const [updateVariant] = useUpdateCartVariantMutation();
   const variantModalRef = useRef();
+
+  const [updateCartItemQuantity] = useUpdateQuantityCartMutation();
 
   useEffect(() => {
     if (productQuantity > 0) {

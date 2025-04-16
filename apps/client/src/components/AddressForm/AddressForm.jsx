@@ -165,7 +165,7 @@ export default function AddressForm({ onSuccess, onCancel }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`px-4 py-2 bg-primary text-white rounded-md ${
+          className={`px-4 py-2 bg-green-600 text-white rounded-md ${
             isSubmitting ? "opacity-70" : ""
           }`}>
           {isSubmitting ? "Saving..." : "Save Address"}
