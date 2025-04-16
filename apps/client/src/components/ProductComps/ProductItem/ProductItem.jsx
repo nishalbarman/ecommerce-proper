@@ -9,10 +9,14 @@ import toast from "react-hot-toast";
 
 import RateStar from "../../RatingStart";
 
-import { deleteWishlistItem } from "@/lib/wishlist";
-import { deleteCartItem } from "@/lib/cart";
-import { WishlistApi, CartApi } from "@/redux";
+import { WishlistApi, CartApi, CartSlice, WishlistSlice } from "@/redux";
 import { useSelector } from "react-redux";
+
+import { BsHeart, BsHeartFill } from "react-icons/bs";
+import { IoEyeOutline } from "react-icons/io5";
+import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
+
+import { MdDeleteOutline } from "react-icons/md";
 
 function ProductItem({
   productDetails = {},
@@ -35,11 +39,11 @@ function ProductItem({
     deleteWishlistIconVisible: false,
   },
 
-  wishlistIdMapped,
-  cartIdMapped,
+  // wishlistIdMapped,
+  // cartIdMapped,
 }) {
   const {
-    _id,
+    _id: productId,
     previewImage,
     title,
     category: { categoryName, categoryKey } = {},
@@ -61,6 +65,7 @@ function ProductItem({
 
     isVariantAvailable,
     productVariant,
+    rentingPrice,
   } = productDetails;
 
   const { useAddOneToCartMutation, useDeleteCartMutation, useGetCartQuery } =
@@ -72,17 +77,21 @@ function ProductItem({
     useGetWishlistQuery,
   } = WishlistApi;
 
+  const { updateCart } = CartSlice;
+  const { updateWishlist } = WishlistSlice;
+
   const cookiesStore = useCookies();
 
   const dispatch = useDispatch();
   const navigator = useRouter();
 
-  const token = cookiesStore?.get("token") || null;
+  const token = cookiesStore?.get("token");
 
-  const { data: userWishlistItems } = useGetWishlistQuery();
-  const { data: { cart: userCartItems } = {} } = useGetCartQuery({
-    productType: "buy",
-  });
+  const { wishlists: wishlistIdMapped, totalCount: totalWishlistCount } =
+    useSelector((state) => state.wishlistSlice);
+  const { cart: cartIdMapped, totalCount: totalCartCount } = useSelector(
+    (state) => state.cartSlice
+  );
 
   // wishlist mutations -->
   const [addWishlist] = useAddWishlistMutation();
@@ -94,12 +103,12 @@ function ProductItem({
 
   const [onWishlist, setOnWishlist] = useState(false);
   useEffect(() => {
-    setOnWishlist(!!wishlistIdMapped?.hasOwnProperty(_id));
+    setOnWishlist(!!wishlistIdMapped?.hasOwnProperty(productId));
   }, [wishlistIdMapped]);
 
   const [onCart, setOnCart] = useState(false);
   useEffect(() => {
-    setOnCart(!!cartIdMapped?.hasOwnProperty(_id));
+    setOnCart(!!cartIdMapped?.hasOwnProperty(productId));
   }, [cartIdMapped]);
 
   const discount = useRef(
@@ -108,46 +117,21 @@ function ProductItem({
 
   const handleVisitProduct = (e) => {
     e.stopPropagation();
-    navigator.push(`/products/view/${_id}`);
-  };
-
-  const handleRemoveFromWishlist = async () => {
-    try {
-      setOnWishlist(false);
-      const wishlistItemID = wishlistIdMapped[_id];
-      const resPayload = await removeFromWishlist({
-        _id: wishlistItemID,
-      }).unwrap();
-
-      toast.success("Wishlist removed");
-    } catch (error) {
-      toast.show("Wishlist remove failed");
-      setOnWishlist(true);
-      console.error(error);
-    }
-  };
-
-  const handleAddToWishlist = async () => {
-    try {
-      setOnWishlist((prev) => !prev);
-      const resPayload = await addWishlist({ id: _id, productType }).unwrap();
-
-      toast.success("Wishlist added");
-    } catch (error) {
-      toast.error("Wishlist add failed");
-      console.error(error);
-    }
+    navigator.push(`/products/view/${productId}`);
   };
 
   const handleRemoveFromCart = async () => {
     try {
       setOnCart(false);
-      const cartItemID = cartIdMapped[_id];
+      const cartItemID = cartIdMapped[productId];
       const resPayload = await removeFromCart({
-        _id: cartItemID,
+        productId: cartItemID,
       }).unwrap();
 
-      toast.succes("Cart removed");
+      const newCartIdMapped = { ...cartIdMapped };
+      delete newCartIdMapped[productId];
+      dispatch(updateCart(newCartIdMapped));
+      toast.success("Cart removed");
     } catch (error) {
       toast.error("Cart remove failed");
       setOnCart(true);
@@ -160,7 +144,7 @@ function ProductItem({
       setOnCart((prev) => !prev);
       const resPayload = await addToCart({
         variant: undefined,
-        productId: _id,
+        productId: productId,
         rentDays: undefined,
         productType: "buy",
         quantity: 1,
@@ -169,10 +153,59 @@ function ProductItem({
         rentingPrice,
       }).unwrap();
 
+      toast.success("Cart added");
+    } catch (error) {
+      toast.error("Cart add failed");
+      console.error(error);
+    }
+  };
+
+  const handleAddCartButtonClicked = (e) => {
+    e.stopPropagation();
+    if (!token) {
+      return toast.success("You need to be logged in first.");
+    }
+    if (cartIdMapped?.hasOwnProperty(productId)) {
+      handleRemoveFromCart();
+    } else {
+      handleAddToCart();
+    }
+  };
+
+  const handleRemoveFromWishlist = async () => {
+    try {
+      setOnWishlist(false);
+      const wishlistItemID = wishlistIdMapped[productId]?.wishlistId;
+      const resPayload = await removeFromWishlist({
+        wishlistItemID: wishlistItemID,
+      }).unwrap();
+
+      const newWishlistIdMapped = { ...wishlistIdMapped };
+      delete newWishlistIdMapped[productId];
+      dispatch(updateWishlist(newWishlistIdMapped));
+
+      toast.success(resPayload?.message);
+    } catch (error) {
+      console.log("Why wishlist remove failed: ", error);
+      toast.error(
+        error?.data?.message || error?.message || "Wishlist remove failed"
+      );
+      // setOnWishlist(true);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    try {
+      setOnWishlist((prev) => !prev);
+      const resPayload = await addWishlist({
+        id: productId,
+        productType,
+      }).unwrap();
+
       toast.success("Wishlist added");
     } catch (error) {
       toast.error("Wishlist add failed");
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -181,45 +214,11 @@ function ProductItem({
     if (!token) {
       return toast.success("You need to be logged in first.");
     }
-    if (!!wishlistIdMapped?.hasOwnProperty(_id)) {
+    if (!!wishlistIdMapped?.hasOwnProperty(productId)) {
       handleRemoveFromWishlist();
     } else {
       handleAddToWishlist();
     }
-
-    refetch();
-  };
-
-  const handleAddCartButtonClicked = (e) => {
-    e.stopPropagation();
-    if (!token) {
-      return toast.success("You need to be logged in first.");
-    }
-    if (cartIdMapped?.hasOwnProperty(_id)) {
-      handleRemoveFromCart();
-    } else {
-      handleAddToCart();
-    }
-  };
-
-  const [removeWishlistProduct] = useDeleteWishlistMutation();
-
-  const handleCartProductRemove = (e) => {
-    e.stopPropagation();
-    if (!token) {
-      return toast.success("You need to be logged in first.");
-    }
-    deleteCartItem(_id);
-    // dispatch(removeCartProduct(_id));
-  };
-
-  const handleWishlistProductRemove = async (e) => {
-    e.stopPropagation();
-    if (!token) {
-      return toast.success("You need to be logged in first.");
-    }
-
-    if (wishlistItemId) removeWishlistProduct({ id: wishlistItemId });
   };
 
   return (
@@ -236,7 +235,7 @@ function ProductItem({
         )}
 
         {/* add to cart button */}
-        {/* {!deleteCartIconVisible && (
+        {!deleteCartIconVisible && (
           <button
             disabled={onCart}
             className="w-[100%] justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition duration-300 ease-in-out min-[593px]:group-hover/product_item:flex min-[593px]:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] max-sm:h-[40px] max-sm:text-[15px] flex items-center justify-center h-[48px] rounded-b bg-[rgba(0,0,0,0.7)] text-white "
@@ -259,26 +258,20 @@ function ProductItem({
               />
             )}
           </button>
-        )} */}
+        )}
 
         {/* all interactive icons */}
         <div className="cursor-pointer absolute top-3 right-3 z-[999] flex flex-col gap-2 items-center w-fit">
           {/* ADD TO WISHLIST */}
           {isWishlistIconVisible && (
             <div
-              className="flex items-center justify-center p-1 bg-white rounded-full w-[40px] h-[40px] max-[597px]:w-[33px] max-[597px]:h-[33px] group-wishlist hover:invert shadow"
+              className={`flex items-center justify-center bg-white rounded-full w-[40px] h-[40px] max-[597px]:w-[33px] max-[597px]:h-[33px] group-wishlist shadow ${onWishlist ? "hover:bg-black " : "hover:invert"}`}
               onClick={handleLoveButtonClicked}>
-              <Image
-                className={`${wishlistIdMapped?.hasOwnProperty(_id) ? "" : "group-hover/wishlist:invert-1"} max-[597px]:w-[29px] max-[597px]:h-[29px]`}
-                src={
-                  wishlistIdMapped?.hasOwnProperty(_id)
-                    ? "/assets/love-filled.svg"
-                    : "/assets/love.svg"
-                }
-                width={29}
-                height={29}
-                alt={"wishlist icon"}
-              />
+              {onWishlist ? (
+                <BsHeartFill size={19} color="red" fill="red" />
+              ) : (
+                <BsHeart size={19} />
+              )}
             </div>
           )}
 
@@ -287,13 +280,7 @@ function ProductItem({
             <div
               className="cursor-pointer flex items-center justify-center  p-1 bg-white rounded-full w-[40px] h-[40px] max-[597px]:w-8 max-[597px]:h-8 group-viewproduct hover:invert shadow"
               onClick={handleVisitProduct}>
-              <Image
-                className="group-hover/viewproduct:invert-1 max-[597px]:w-5 max-[597px]:h-5"
-                src="/assets/eye.svg"
-                width={23}
-                height={23}
-                alt="eye icon"
-              />
+              <AiOutlineEye size={23} />
             </div>
           )}
 
@@ -316,14 +303,8 @@ function ProductItem({
           {deleteWishlistIconVisible && (
             <div
               className="cursor-pointer flex items-center justify-center  p-1 bg-white rounded-full w-[40px] h-[40px] group-deletewishlist hover:invert shadow"
-              onClick={handleWishlistProductRemove}>
-              <Image
-                className="group-hover/deletewishlist:invert-1"
-                src="/assets/delete.svg"
-                width={17}
-                height={17}
-                alt="delete wishlist icon"
-              />
+              onClick={handleRemoveFromWishlist}>
+              <AiOutlineDelete size={20} />
             </div>
           )}
 
@@ -332,7 +313,7 @@ function ProductItem({
             <div
               className="cursor-pointer hidden items-center justify-center p-1 bg-white rounded-full w-[40px] h-[40px] hover:scale-[1.18] max-[597px]:flex max-[597px]:w-[33px] max-[597px]:h-[33px]"
               onClick={handleAddToCart}>
-              {cartIdMapped?.hasOwnProperty(_id) ? (
+              {cartIdMapped?.hasOwnProperty(productId) ? (
                 <Image src={"/assets/addcart.svg"} width={22} height={22} />
               ) : (
                 <Image

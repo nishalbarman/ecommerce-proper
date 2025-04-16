@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 export async function middleware(request) {
-  const nextCookies = cookies();
+  const nextCookies = await cookies();
   const reqUrl = new URL(request.url);
 
-  const token = nextCookies.get("token")?.value || null;
+  const token = nextCookies.get("token")?.value;
 
   const isPublicPath =
     reqUrl.pathname === "/auth/login" || reqUrl.pathname === "/auth/signup";
@@ -36,7 +36,7 @@ export const config = {
      * - favicon.ico (favicon file)
      */
     {
-      source: "/((?!api|_next/static|_next/image|favicon.ico).*)",
+      source: "/((?!api|_next/static|_next/image|favicon.ico).)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

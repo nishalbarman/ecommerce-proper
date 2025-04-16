@@ -1,7 +1,6 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 
 export default async function submitContactMessage(formData) {
   const name = formData.get("name");
@@ -12,6 +11,7 @@ export default async function submitContactMessage(formData) {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SERVER_URL}/contact/create`,
       {
+        credentials: "include",
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +28,6 @@ export default async function submitContactMessage(formData) {
       return redirect("/contact?status=success");
     }
     return redirect("/contact?status=failed");
-    // return data;
   } catch (error) {
     console.error(error);
     return redirect("/contact?status=failed");

@@ -1,10 +1,6 @@
-import Navbar from "../../../components/Navbar/Navbar";
-import Footer from "../../../components/Footer/Footer";
-
 import LoginForm from "../../../components/Auth/LoginForm";
-import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
   return (
     <>
       <main className="flex m-[20px_0] sm:items-center min-h-[80vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">

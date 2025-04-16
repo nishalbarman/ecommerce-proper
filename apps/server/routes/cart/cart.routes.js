@@ -82,10 +82,11 @@ router.post("/", checkRole(1, 0), async (req, res) => {
 
     const product = await Product.findById(productInfo.productId);
     if (product?.isVariantAvailable && !productInfo?.variant) {
-      return res.status(400).json({
-        message:
-          "Product varient available but not selected, kindly select proper size or color",
-      });
+      productInfo.variant = product?.productVariant[0]?._id;
+      // return res.status(400).json({
+      //   message:
+      //     "Product variant available but not selected, kindly select proper size or color",
+      // });
     }
 
     if (!product) {
@@ -248,6 +249,75 @@ router.patch("/update-qty/:productType", checkRole(1, 0), async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
+
+router.patch(
+  "/update-variant/:cartItemId",
+  checkRole(1, 0),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
+      if (!userDetails) {
+        return res.status(400).json({ message: "User Details Not Found" });
+      }
+
+      const { cartItemId } = req.params;
+      const { variantId, productId } = req.body;
+
+      if (!variantId || !productId) {
+        return res
+          .status(400)
+          .json({ message: "Variant ID and Product ID are required" });
+      }
+
+      // Verify the variant exists for this product
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      if (product.isVariantAvailable) {
+        const variantExists = product.productVariant.some((v) =>
+          v._id.equals(variantId)
+        );
+        if (!variantExists) {
+          return res
+            .status(400)
+            .json({ message: "Invalid variant for this product" });
+        }
+      }
+
+      // Update the cart item
+      const updatedCart = await Cart.findOneAndUpdate(
+        {
+          _id: cartItemId,
+          user: userDetails._id,
+        },
+        { variant: variantId },
+        { new: true }
+      ).populate([
+        {
+          path: "product",
+          select: "-slideImages -description -stars -productVariant",
+        },
+        {
+          path: "variant",
+        },
+      ]);
+
+      if (!updatedCart) {
+        return res.status(404).json({ message: "Cart item not found" });
+      }
+
+      return res.json({
+        message: "Variant updated successfully",
+        cartItem: updatedCart,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
 
 router.delete("/one/:cartItemId", checkRole(1, 0), async (req, res) => {
   try {

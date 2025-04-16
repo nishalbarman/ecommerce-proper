@@ -10,12 +10,7 @@ import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 const fetchHeroProduct = async (cookieStore) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`,
-      {
-        headers: {
-          Cookie: cookieStore,
-        },
-      }
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`
     );
     const data = await response.json();
 
@@ -63,17 +58,13 @@ const HeroProduct = async () => {
                 <h3 className="text-white text-lg font-light mb-6 drop-shadow-lg">
                   {heroProduct.category || "Demo"}
                 </h3>
-                {/* <div
-                className="text-5xl font-bold mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: Title,
-                }}></div> */}
+
                 <div
                   className="text-white mb-10 prose-lg drop-shadow-lg"
                   dangerouslySetInnerHTML={{
                     __html: `${heroProduct.shortDescription}`,
                   }}></div>
-                <div className="flex max-lg:justify-center gap-4">
+                {/* <div className="flex max-lg:justify-center gap-4">
                   <Link
                     href={`/products/${heroProduct.productId}`}
                     className="cursor-pointer bg-black text-white px-6 py-3 rounded">
@@ -84,7 +75,7 @@ const HeroProduct = async () => {
                     className="cursor-pointer border border-black text-black px-6 py-3 rounded">
                     Explore
                   </Link>
-                </div>
+                </div> */}
               </div>
               <div className="lg:w-1/2 justify-center hidden md:flex mt-10 ml-5 lg:mt-0 animate-zoomInOut">
                 <Image

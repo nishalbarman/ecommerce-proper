@@ -4,9 +4,9 @@ import Wishlist from "../../components/Wishlist/Wishlist";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default function Page() {
-  const cookiesStore = cookies();
-  const token = cookiesStore?.get("token") || null;
+export default async function Page() {
+  const cookiesStore = await cookies();
+  const token = cookiesStore?.get("token")?.value;
 
   if (!token) {
     redirect("/auth/login?redirect=wishlist");

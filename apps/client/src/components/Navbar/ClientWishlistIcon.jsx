@@ -7,6 +7,10 @@ import Link from "next/link";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
+import { IoIosHeartEmpty } from "react-icons/io";
+import { FaRegHeart } from "react-icons/fa";
+import { LuHeart } from "react-icons/lu";
+
 function ClientWishlistIcon() {
   const cookieStore = useCookies();
   const token = cookieStore.get("token");
@@ -49,13 +53,13 @@ function ClientWishlistIcon() {
       <div className="h-fit w-fit relative cursor-pointer">
         {!!userWishlistItems?.length && (
           <div
-            className={`box-content absolute z-[1] flex items-center justify-center aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 bg-[#DB4444] min-w-4 min-h-4`}>
+            className={`box-content absolute z-[1] flex items-center justify-center aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 bg-[#DB4444] min-w-4 min-h-4 w-4 h-4 flex items-center`}>
             <span className="text-[10px] text-white font-semibold">
               {userWishlistItems?.length || 0}
             </span>
           </div>
         )}
-        <Image src="/assets/love.svg" alt="love logo" width={31} height={31} />
+        <LuHeart size={25} />
       </div>
     </Link>
   );

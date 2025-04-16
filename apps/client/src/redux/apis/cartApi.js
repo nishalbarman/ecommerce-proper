@@ -84,6 +84,14 @@ export const cartApi = createApi({
       transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
+    updateCartVariant: builder.mutation({
+      query: ({ cartItemId, variantId, productId }) => ({
+        url: `/cart/update-variant/${cartItemId}`,
+        method: "PATCH",
+        body: { variantId, productId },
+      }),
+    }),
+
     deleteCart: builder.mutation({
       query: ({ id }) => ({
         url: `cart/one/${id}`,
@@ -112,4 +120,5 @@ export const {
   useUpdateRentDaysCartMutation,
   useUpdateQuantityCartMutation,
   useRemoveAllCartMutation,
+  useUpdateCartVariantMutation,
 } = cartApi;

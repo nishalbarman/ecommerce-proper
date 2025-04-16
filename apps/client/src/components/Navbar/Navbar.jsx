@@ -1,7 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import { fetchCart } from "@/lib/cart";
-import { fetchWishlist } from "@/lib/wishlist";
 import { cookies } from "next/headers";
 import Image from "next/image";
 import ClientWishlistIcon from "./ClientWishlistIcon";
@@ -14,6 +12,8 @@ import {
   FaStar,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { IoMdSearch } from "react-icons/io";
+import { CiSearch } from "react-icons/ci";
 
 async function Navbar({ title }) {
   const links = [
@@ -40,7 +40,9 @@ async function Navbar({ title }) {
   ];
 
   const cookieStore = await cookies();
-  const token = cookieStore.get("token");
+  const token = cookieStore.get("token")?.value;
+
+  console.log("Token from Navbar function", token);
 
   return (
     <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
@@ -78,12 +80,7 @@ async function Navbar({ title }) {
                 placeholder="What are you looking for?"
               />
               <div className="h-[25px] w-[25px] mr-3 flex items-center">
-                <Image
-                  src="/assets/search.svg"
-                  alt="search logo"
-                  width={27}
-                  height={27}
-                />
+                <CiSearch size={27} />
               </div>
             </div>
 
@@ -107,7 +104,12 @@ async function Navbar({ title }) {
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
                         href={"/myaccount"}>
                         <div className="h-fit w-fit">
-                          <FaUser size={20} color="white" className="text-white" fill="white" />
+                          <FaUser
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
                         </div>
                         My Account
                       </Link>
@@ -117,7 +119,12 @@ async function Navbar({ title }) {
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
                         href={"/myorders"}>
                         <div className="h-fit w-fit">
-                          <FaShoppingBag size={20} color="white" className="text-white" fill="white" />
+                          <FaShoppingBag
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
                         </div>
                         My Orders
                       </Link>
@@ -137,7 +144,12 @@ async function Navbar({ title }) {
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
                         href={"/myreviews"}>
                         <div className="h-fit w-fit">
-                          <FaStar size={20} color="white" className="text-white" fill="white" />
+                          <FaStar
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
                         </div>
                         My Reviews
                       </Link>
@@ -147,7 +159,12 @@ async function Navbar({ title }) {
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
                         href={"/logout"}>
                         <div className="h-fit w-fit">
-                          <FaSignOutAlt size={20} color="white" className="text-white" fill="white" />
+                          <FaSignOutAlt
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
                         </div>
                         Logout
                       </Link>

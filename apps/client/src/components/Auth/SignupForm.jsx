@@ -73,12 +73,12 @@ function SignupForm() {
       );
       toast.dismiss(loadingToast);
       toast.success(response?.data?.message || "Unknown error occured");
-      toast.success(
-        "A verficiation link sent to your mobile no, please verify by clicking on the link.",
-        {
-          duration: 20000,
-        }
-      );
+      // toast.success(
+      //   "A verficiation link sent to your mobile no, please verify by clicking on the link.",
+      //   {
+      //     duration: 20000,
+      //   }
+      // );
       setIsVerifyScreenVisible(true);
     } catch (error) {
       console.log(error);
@@ -92,7 +92,31 @@ function SignupForm() {
     <>
       {isVerifyScreenVisible ? (
         <>
-          <div className="flex flex-col items-center justify-center col-start-1 md:col-start-2 gap-[20px] w-full">
+          <>
+            <div className="flex flex-col items-center justify-center col-start-1 md:col-start-2 gap-[20px] w-full">
+              <div className="flex flex-col items-center justify-center w-fill h-fill gap-5">
+                <Image src={"/assets/email.svg"} width={60} height={60} />
+                <h3 className="text-3xl font-semibold font-andika text-center">
+                  Account created successfully
+                </h3>
+                <p className="text-xl text-center font-andika">
+                  You can now login to your account using the mobile number and
+                  password.
+                </p>
+                <div className="mt-[8px] flex justify-center gap-3">
+                  <span className="text-lg">
+                    You can continue to login{" "}
+                    <Link
+                      className="text-md font-andika font-semibold underline"
+                      href={"/auth/login"}>
+                      Login
+                    </Link>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
+          {/* <div className="flex flex-col items-center justify-center col-start-1 md:col-start-2 gap-[20px] w-full">
             <div className="flex flex-col items-center justify-center w-fill h-fill gap-5">
               <Image src={"/assets/email.svg"} width={60} height={60} />
               <h3 className="text-3xl font-semibold font-andika text-center">
@@ -113,7 +137,7 @@ function SignupForm() {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
         </>
       ) : (
         <div className="flex rounded-md flex-col max-md:shadow-lg p-5 pt-8 pb-8 min-md:p-8 col-start-1 md:col-start-2 gap-[20px]">

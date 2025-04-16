@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
 import Loading from "../cart/loading";
 
@@ -27,53 +26,53 @@ export default function ProductList() {
   const page = parseInt(searchParams.get("page")) || 1;
   const limit = 12;
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Build query params
-        const params = new URLSearchParams();
-        params.set("page", page - 1); // Your API uses 0-based index
-        params.set("limit", limit);
+      // Build query params
+      const params = new URLSearchParams();
+      params.set("page", page - 1); // Your API uses 0-based index
+      params.set("limit", limit);
 
-        if (search) params.set("query", search);
-        if (sort) params.set("sort", sort);
+      if (search) params.set("query", search);
+      if (sort) params.set("sort", sort);
 
-        // Add filters if they exist
-        const activeFilters = {};
-        if (filters.category.length > 0)
-          activeFilters.category = filters.category;
-        if (filters.color.length > 0) activeFilters.color = filters.color;
-        if (filters.price[0] > 0 || filters.price[1] < 200) {
-          activeFilters.price = filters.price;
-        }
-        if (filters.rating > 0) activeFilters.rating = filters.rating;
-
-        if (Object.keys(activeFilters).length > 0) {
-          params.set("filter", JSON.stringify(activeFilters));
-        }
-
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products?${params.toString()}`
-        );
-        const data = await res.json();
-
-        if (res.ok) {
-          setProducts(data.data);
-          setTotalPages(data.totalPages);
-        } else {
-          throw new Error(data.message || "Failed to fetch products");
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      // Add filters if they exist
+      const activeFilters = {};
+      if (filters.category.length > 0)
+        activeFilters.category = filters.category;
+      if (filters.color.length > 0) activeFilters.color = filters.color;
+      if (filters.price[0] > 0 || filters.price[1] < 200) {
+        activeFilters.price = filters.price;
       }
-    };
+      if (filters.rating > 0) activeFilters.rating = filters.rating;
 
-    fetchProducts();
+      if (Object.keys(activeFilters).length > 0) {
+        params.set("filter", JSON.stringify(activeFilters));
+      }
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/products?${params.toString()}`
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        setProducts(data.data);
+        setTotalPages(data.totalPages);
+      } else {
+        throw new Error(data.message || "Failed to fetch products");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }, [page, search, sort, filters]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [page, sort, filters]);
 
   const handlePageChange = (newPage) => {
     const params = new URLSearchParams(searchParams);
@@ -86,6 +85,7 @@ export default function ProductList() {
     const params = new URLSearchParams();
     if (search) params.set("query", search);
     router.push(`/products?${params.toString()}`);
+    fetchProducts();
   };
 
   const handleFilterChange = (filterName, value) => {
@@ -142,11 +142,11 @@ export default function ProductList() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search products..."
-                  className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 transition-colors">
+                  className="px-6 py-2 bg-red-500 text-white rounded-r-lg hover:bg-red-700 transition-colors">
                   Search
                 </button>
               </form>

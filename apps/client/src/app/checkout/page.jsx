@@ -226,8 +226,6 @@ export default function CheckoutPage() {
       razorPay.open();
     } catch (error) {
       console.error(error.message);
-    } finally {
-      setIsPaymentLoading(false);
     }
   }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
 
@@ -425,17 +423,19 @@ export default function CheckoutPage() {
             <button
               onClick={handleContinueToPayment}
               disabled={!selectedAddress}
-              className={`mt-6 w-full py-3 rounded-lg font-medium ${
+              className={`flex justify-center items-center mt-6 w-full py-3 rounded-lg font-medium ${
                 selectedAddress
-                  ? "bg-primary text-white hover:bg-primary-dark"
-                  : "bg-gray-300 cursor-not-allowed"
+                  ? "bg-[#DA4544] text-white hover:bg-primary-dark"
+                  : "bg-[#DA4544] text-white cursor-not-allowed"
               }`}>
               {!isPaymentLoading ? (
-                "Continue to Payment"
+                <span className="text-white">Continue to Payment</span>
               ) : (
                 <>
-                  <span className="text-white">Please Wait ...</span>
-                  <div className="spinner max-lg:ml-1"></div>
+                  <div>
+                    <span className="text-white">Please Wait ...</span>
+                    <div className="spinner max-lg:ml-1"></div>
+                  </div>
                 </>
               )}
             </button>

@@ -565,7 +565,9 @@ router.post("/", checkRole(1), async (req, res) => {
           variant.originalPrice = variant.discountedPrice;
         }
 
-        const sizes = variant?.size?.replace(/ /g, "");
+
+        const sizes = variant?.size
+        // ?.replace(/ /g, "");
         if (!!sizes) {
           sizes.split(",")?.forEach((eachSize) => {
             new_Variant_With_Size_Included.push({ ...variant, size: eachSize });

@@ -1,15 +1,9 @@
 // actions/cart/addToCart.ts
 "use server";
 
-import { cookies } from "next/headers";
 
 export async function addToCart(formData) {
   try {
-    const token = await cookies().get("token")?.value;
-    const allCookies = cookies();
-    if (!token) {
-      throw new Error("Authentication required");
-    }
 
     const productId = formData.get("productId");
     const productType = formData.get("productType");
@@ -36,7 +30,6 @@ export async function addToCart(formData) {
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Cookies: `token=${token}`,
       },
       body: JSON.stringify(cartObject),
     });

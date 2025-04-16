@@ -7,6 +7,8 @@ import Link from "next/link";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
+import { IoCartOutline } from "react-icons/io5";
+
 function ClientCartIcon() {
   const dispatch = useDispatch();
 
@@ -53,13 +55,7 @@ function ClientCartIcon() {
             </span>
           </div>
         )}
-        <Image
-          className="transform translate-y-[1px] cursor-pointer"
-          src="/assets/cart.svg"
-          alt="cart logo"
-          width={28.5}
-          height={28.5}
-        />
+        <IoCartOutline size={30} />
       </div>
     </Link>
   );

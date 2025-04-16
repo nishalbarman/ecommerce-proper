@@ -6,56 +6,58 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useCookies } from "next-client-cookies";
-import {
-  deleteCartItem,
-  updateCartItem,
-  updateCartItemQuantity,
-} from "@/lib/cart";
-import { addProductToWishlist, deleteWishlistItem } from "@/lib/wishlist";
+import { updateCartItemQuantity } from "@/lib/cart";
+
 import { useSelector } from "react-redux";
 import { WishlistApi, CartApi } from "@/redux";
 
-function CartItem({ item, userCartItems, userWishlistItems }) {
-  const { _id, user, product, variant, quantity, productType } = item;
+function CartItem({ item }) {
+  const {
+    _id: cartProductId,
+    user,
+    product,
+    variant,
+    quantity,
+    productType,
+  } = item;
 
-  const { useDeleteCartMutation } = CartApi;
-  const { useAddWishlistMutation } = WishlistApi;
+  const { useDeleteCartMutation, useUpdateCartVariantMutation } = CartApi;
+  const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
 
-  const wishlistItems = useSelector((state) => state.wishlistSlice.wishlists);
-  const cartItems = useSelector((state) => state.cartSlice.cart);
+  const wishlistMappedItems = useSelector(
+    (state) => state.wishlistSlice.wishlists
+  );
+  const cartMappedItems = useSelector((state) => state.cartSlice.cart);
 
   const dispatch = useDispatch();
   const cookiesStore = useCookies();
 
   const token = cookiesStore.get("token");
 
-  const [productSize, setProductSize] = useState(item.size);
   const [productQuantity, setProductQuantity] = useState(quantity);
+
+  const [selectedVariant, setSelectedVariant] = useState(variant);
+  const [availableVariants, setAvailableVariants] = useState([]);
+  const [loadingVariants, setLoadingVariants] = useState(false);
+  const [updateVariant] = useUpdateCartVariantMutation();
+  const variantModalRef = useRef();
 
   useEffect(() => {
     if (productQuantity > 0) {
       updateCartItemQuantity({
-        id: _id,
+        id: cartProductId,
         productType: "buy",
         quantity: productQuantity,
       });
     }
   }, [productQuantity]);
 
-  // useEffect(() => {
-  //   if (productSize?._id) {
-  //     updateCartItem({
-  //       id: _id,
-  //       updatedItem: { quantity: productQuantity },
-  //     });
-  //   }
-  // }, [productSize]);
-
   const quantityModalRef = useRef();
   const sizeModalRef = useRef();
 
   const [addNewWishlist] = useAddWishlistMutation();
   const [deleteOneCartItem] = useDeleteCartMutation();
+  const [deleteOneWishlistItem] = useDeleteWishlistMutation();
 
   const handleAddToWishlist = (e) => {
     e.stopPropagation();
@@ -64,23 +66,15 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
       return toast.success("You need to be logged in first.");
     }
 
-    if (wishlistItems?.hasOwnProperty(_id)) {
-      // removeOneWishlist(_id);
-      // dispatch(removeWishlistProduct(_id));
-      deleteWishlistItem({ id: _id });
+    if (wishlistMappedItems?.hasOwnProperty(product._id)) {
+      deleteOneCartItem({
+        id: cartProductId,
+      });
     } else {
-      addNewWishlist({ id: _id });
-      // addProductToWishlist({
-      //   user,
-      //   product,
-      //   variant,
-      //   quantity,
-      //   productType,
-      // });
-
-      if (cartItems?.hasOwnProperty(_id)) {
-        deleteOneCartItem({ id: _id });
-      }
+      addNewWishlist({ id: product._id });
+      // if (cartMappedItems?.hasOwnProperty(product._id)) {
+      deleteOneCartItem({ id: cartProductId });
+      // }
     }
   };
 
@@ -89,16 +83,65 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
     if (!token) {
       return toast.success("You need to be logged in first.");
     }
-    deleteOneCartItem({ id: _id });
-    // dispatch(removeCartProduct(_id));
+    deleteOneCartItem({ id: cartProductId });
+    // dispatch(removeCartProduct(cartProductId));
   };
 
   const handleOnQuanityChangeClick = (e) => {
     quantityModalRef.current?.classList.remove("hidden");
   };
 
-  const handleOnSizeChangeClick = () => {
-    sizeModalRef.current?.classList.remove("hidden");
+  useEffect(() => {
+    // Fetch variants when component mounts if product has variants
+    if (product?.isVariantAvailable && !availableVariants.length) {
+      fetchProductVariants();
+    }
+  }, [product]);
+
+  const fetchProductVariants = async () => {
+    try {
+      setLoadingVariants(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${product._id}`,
+        { method: "POST" }
+      );
+      const data = await response.json();
+      setAvailableVariants(data.product.productVariant || []);
+    } catch (error) {
+      console.error("Error fetching variants:", error);
+      toast.error("Failed to load variants");
+    } finally {
+      setLoadingVariants(false);
+    }
+  };
+
+  const handleVariantChange = async (newVariantId) => {
+    try {
+      console.log("Updating Variant Data", {
+        cartItemId: item._id,
+        variantId: newVariantId,
+        productId: product._id,
+      });
+
+      const response = await updateVariant({
+        cartItemId: item._id,
+        variantId: newVariantId,
+        productId: product._id,
+      }).unwrap();
+
+      if (response.cartItem) {
+        setSelectedVariant(response.cartItem.variant);
+        toast.success("Option updated successfully");
+        variantModalRef.current?.classList.add("hidden");
+      }
+    } catch (error) {
+      console.error("Error updating variant:", error);
+      toast.error(error.data?.message || "Failed to update variant");
+    }
+  };
+
+  const handleOnVariantChangeClick = () => {
+    variantModalRef.current?.classList.remove("hidden");
   };
 
   return (
@@ -109,7 +152,7 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
           <div>
             <Link
               className="text-[rgba(0,0,0,0.7)] font-semibold text-[16px] mb-[8px] cursor-pointer w-[100%] hover:text-[rgba(0,0,0,0.9)] font-andika text-left"
-              href={`/products/${_id}`}>
+              href={`/products/view/${product._id}`}>
               <p className="text-[rgba(0,0,0,0.7)] font-semibold text-[16px] mb-[8px] cursor-pointer w-[100%] hover:text-[rgba(0,0,0,0.9)] font-andika text-left">
                 {product.title}
               </p>
@@ -132,21 +175,33 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
                 </span>
               </p>
             )}
+
+            {/* Show selected variant details */}
+            {selectedVariant && (
+              <p className="mb-2">
+                Size: <span className="font-bold">{selectedVariant.size}</span>,
+                Color:{" "}
+                <span className="font-bold">{selectedVariant.color}</span>
+              </p>
+            )}
+
             {/* max-[961px]:flex-col max-[961px]:gap-2 */}
             <div className="qp flex justify-start mt-[20px] mb-[30px]  w-fit">
-              {/* {isSizeVaries && item.availableSizes && (
+              {product?.isVariantAvailable && (
                 <div
-                  onClick={handleOnSizeChangeClick}
+                  onClick={handleOnVariantChangeClick}
                   className="mr-[16px] cursor-pointer p-[8px_12px] border-[1px] border-[rgba(0,0,0,0.12)] rounded-[5px]"
-                  id="sizeButton">
-                  <span>Size:</span>{" "}
+                  id="variantButton">
+                  <span>Change:</span>{" "}
                   <b>
-                    {" "}
-                    <span id="size">{productSize?.name}</span>{" "}
+                    <span id="variant">
+                      <span className="font-bold">{selectedVariant.size}</span>,{" "}
+                      <span className="font-bold">{selectedVariant.color}</span>
+                    </span>
                   </b>{" "}
                   <i className="fa-solid fa-angle-down mr-[3px]" />
                 </div>
-              )} */}
+              )}
               <div
                 onClick={handleOnQuanityChangeClick}
                 className="mr-[16px] cursor-pointer p-[8px_12px] border-[1px] border-[rgba(0,0,0,0.12)] rounded-[5px]"
@@ -187,38 +242,43 @@ function CartItem({ item, userCartItems, userWishlistItems }) {
         </div>
       </div>
 
-      {/* size modal */}
-      {/* <div
-        ref={sizeModalRef}
-        onClick={() => {
-          sizeModalRef.current?.classList.add("hidden");
-        }}
-        className="hidden bg-[rgba(0,0,0,0.5)] fixed top-0 left-0 w-[100%] h-[100%] z-[1]"
-        id="size_modal">
+      {/* Variant Modal */}
+      <div
+        ref={variantModalRef}
+        onClick={() => variantModalRef.current?.classList.add("hidden")}
+        className="hidden bg-[rgba(0,0,0,0.5)] fixed top-0 left-0 w-[100%] h-[100%] z-[1]">
         <div
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-          className="size_model_container absolute overflow-hidden w-fit max-h-[100%] top-[50%] left-[50%] bg-[#fff] transform translate-x-[-50%] translate-y-[-50%] p-[20px] rounded-[5px]">
+          onClick={(e) => e.stopPropagation()}
+          className="variant_model_container absolute overflow-y-auto w-fit max-h-[80%] top-[50%] left-[50%] bg-[#fff] transform translate-x-[-50%] translate-y-[-50%] p-[20px] rounded-[5px]">
           <p className="text-center mb-[15px] text-[14px] opacity-[0.7] block">
-            Select Size
+            Select Option
           </p>
 
-          {item?.availableSizes?.map((size) => {
-            return (
-              <p
-                key={size._id}
-                onClick={() => {
-                  setProductSize(size);
-                  sizeModalRef.current?.classList.add("hidden");
-                }}
-                className="text-center hover:bg-[rgb(230,230,230)] text-[18px] p-[19px_40px] border-none tracking-[2px] leading-[1.428571429px] bg-[#fff] cursor-pointer rounded font-andika">
-                {size.name}
-              </p>
-            );
-          })}
+          {loadingVariants ? (
+            <p>Loading ...</p>
+          ) : availableVariants.length > 0 ? (
+            availableVariants.map((variant) => (
+              <div
+                key={variant._id}
+                onClick={() => handleVariantChange(variant._id)}
+                className={`p-3 mb-2 border rounded cursor-pointer hover:bg-gray-100 ${
+                  selectedVariant?._id === variant._id
+                    ? "bg-green-50 border-green-300"
+                    : ""
+                }`}>
+                <p>
+                  Size: <span className="font-bold">{variant.size}</span>
+                </p>
+                <p>
+                  Color: <span className="font-bold">{variant.color}</span>
+                </p>
+              </div>
+            ))
+          ) : (
+            <p>No Options available</p>
+          )}
         </div>
-      </div> */}
+      </div>
 
       {/* quantity modal  */}
       <div

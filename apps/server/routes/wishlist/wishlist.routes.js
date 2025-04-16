@@ -116,21 +116,19 @@ router.delete("/:wishlistId", checkRole(0, 1), async (req, res) => {
   try {
     const wishlistId = req.params?.wishlistId;
 
-    console.log(wishlistId);
-
     const wishlistDetails = await Wishlist.findOneAndDelete({
       _id: wishlistId,
       user: req.user._id,
     });
 
     if (!wishlistDetails) {
-      return res.status(400).json({
+      return res.status(200).json({
         message: "Wishlist not found, maybe already deleted.",
       });
     }
 
     return res.json({
-      message: "Wishlist item deleted",
+      message: "Wishlist removed",
     });
   } catch (error) {
     console.log(error);

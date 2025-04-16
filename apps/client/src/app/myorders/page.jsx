@@ -5,12 +5,12 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Order from "../../components/Order/Order";
 
-export default function page() {
-  const cookiesStore = cookies();
-  const token = cookiesStore?.get("token") || null;
+export default async function page() {
+  const cookiesStore = await cookies();
+  const token = cookiesStore?.get("token")?.value;
 
   if (!token) {
-    redirect("/auth/login?redirect=cart");
+    redirect("/auth/login?redirect=myorders");
   }
 
   return (

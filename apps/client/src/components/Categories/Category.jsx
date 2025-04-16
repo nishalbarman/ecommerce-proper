@@ -6,11 +6,6 @@ import CategorySlider from "./CategorySlider/CategorySlider";
 
 async function getCategories() {
   try {
-    // await new Promise((res) => {
-    //   setTimeout(() => {
-    //     res(true);
-    //   }, 10000);
-    // });
 
     const url = new URL(`/categories`, process.env.NEXT_PUBLIC_SERVER_URL);
 

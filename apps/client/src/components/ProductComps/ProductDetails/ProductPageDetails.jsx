@@ -507,7 +507,7 @@ export default function ProductDetails({
                 ) : (
                   <button
                     type="button"
-                    onClick={() => navigate("/cart")}
+                    onClick={() => navigate.push("/cart")}
                     className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800">
                     Go to Cart
                   </button>
