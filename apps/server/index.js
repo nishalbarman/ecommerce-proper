@@ -27,7 +27,7 @@ app.use(
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
-      "https://jharna-mehendi-fully-custom-admin.vercel.app",
+      "https://jharna-mehendi.vercel.app",
       "https://jharna-mehendi-admin.web.app",
       "https://jharna-mehendi.onrender.com",
     ],
