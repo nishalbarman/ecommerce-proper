@@ -79,13 +79,12 @@ router.post("/admin-login", async (req, res) => {
 
     return res
       .cookie("token", jwtToken, {
-        httpOnly: process.env.NODE_ENV === "production",
-        secure: process.env.NODE_ENV === "production", // true in production
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        httpOnly: false,
+        secure: false, // true in production
+        sameSite: "none",
         // Omit domain for localhost, set only in production
-        ...(process.env.NODE_ENV === "production" && {
-          domain: "jharna-mehendi-api.onrender.com",
-        }),
+
+        // domain: "jharna-mehendi-api.onrender.com",
       })
       .status(200)
       .json({
@@ -160,13 +159,12 @@ router.post("/login", async (req, res) => {
     const oneDay = 24 * 60 * 60 * 1000;
 
     res.cookie("token", jwtToken, {
-      maxAge: Date.now() + oneDay,
-    });
-    res.cookie("name", user.name, {
-      maxAge: Date.now() + oneDay,
-    });
-    res.cookie("email", user.email, {
-      maxAge: Date.now() + oneDay,
+      httpOnly: false,
+      secure: false, // true in production
+      sameSite: "none",
+      // Omit domain for localhost, set only in production
+
+      // domain: "jharna-mehendi-api.onrender.com",
     });
 
     return res.status(200).json({

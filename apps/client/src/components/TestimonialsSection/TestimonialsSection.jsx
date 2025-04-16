@@ -70,9 +70,6 @@ const Testimonials = async () => {
                 About Our Mehendi Products
               </span>
             </h1>
-            <p className="my-10 font-andika">
-              Hear from our happy customers about their experiences.
-            </p>
           </div>
         </div>
         <div className="text-black w-full relative">

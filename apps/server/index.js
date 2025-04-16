@@ -33,7 +33,7 @@ app.use(
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    exposedHeaders: ["set-cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
 
