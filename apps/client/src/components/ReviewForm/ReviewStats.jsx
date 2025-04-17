@@ -17,7 +17,7 @@ export default function ReviewStats({ averageRating, totalReviews }) {
       <div className="flex max-sm:flex-col flex-row items-center md:items-start gap-8 mt-2">
         <div className="text-center">
           <div className="text-5xl font-bold mb-2">
-            {averageRating.toFixed(1)}
+            {averageRating?.toFixed(1)}
           </div>
           <StarRating rating={averageRating} />
           <div className="text-sm text-gray-600 mt-1">

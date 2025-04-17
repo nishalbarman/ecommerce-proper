@@ -72,26 +72,26 @@ function Footer() {
             </p>
             {/* socials */}
             <div className="mb-5 max-md:text-center text-white">
-              <div className="flex max-md:justify-center items-center gap-2 invert-[100%]">
+              <div className="flex max-md:justify-center items-center gap-2 border border-white rounded w-fit px-2">
                 <a
-                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  className="h-10 w-10 flex items-center justify-center rounded-full"
                   href={webData.WhatsAppLink}
                   target="_blank">
-                  <FaWhatsapp color={"#FFFFFF"} size={22} />
+                  <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
                 </a>
                 <a
-                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  className="h-10 w-10 flex items-center justify-center rounded-full"
                   href={`${webData.FacebookLink}`}
                   target="_blank">
-                  <PiFacebookLogoBold color={"white"} size={23} />
+                  <PiFacebookLogoBold color={"white"} fill="white" size={23} />
                   {/* facebook */}
                 </a>
 
                 <a
-                  className="h-10 w-10 bg-red-300 flex items-center justify-center rounded-full"
+                  className="h-10 w-10 flex items-center justify-center rounded-full"
                   href={`${webData.InstagramLink}`}
                   target="_blank">
-                  <FaInstagram color={"white"} size={22} />
+                  <FaInstagram color={"white"} fill="white" size={22} />
                 </a>
               </div>
             </div>

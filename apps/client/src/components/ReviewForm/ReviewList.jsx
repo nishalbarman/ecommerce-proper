@@ -1,10 +1,11 @@
 "use client";
 
-// components/Reviews/ReviewList.js
 import { useState, useEffect } from "react";
 import StarRating from "./StarRating";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { RiUser3Line, RiTimeLine } from "react-icons/ri";
+import { FiLoader } from "react-icons/fi";
 
 export default function ReviewList({ productId, productType = "buy" }) {
   const { jwtToken } = useSelector((state) => state.auth);
@@ -27,8 +28,6 @@ export default function ReviewList({ productId, productType = "buy" }) {
           },
         }
       );
-
-      console.log("Reviews response:", response.data);
 
       if (page === 1) {
         setReviews(response.data.feedbacks);
@@ -57,16 +56,24 @@ export default function ReviewList({ productId, productType = "buy" }) {
   }, [page]);
 
   if (loading && page === 1) {
-    return <div className="text-center py-4">Loading reviews...</div>;
+    return (
+      <div className="flex justify-center py-8">
+        <FiLoader className="animate-spin text-gray-400 text-2xl" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center py-4 text-red-500">{error}</div>;
+    return (
+      <div className="text-center py-8 text-red-500 bg-red-50 rounded-lg p-4">
+        {error}
+      </div>
+    );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-4 text-gray-500">
+      <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg p-4">
         No reviews yet. Be the first to review!
       </div>
     );
@@ -77,25 +84,46 @@ export default function ReviewList({ productId, productType = "buy" }) {
       {reviews.map((review) => (
         <div
           key={review._id}
-          className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold">{review.givenBy}</h3>
-            <div className="text-sm text-gray-500">{review.createdAt}</div>
+          className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-start gap-4 mb-4">
+            <div className="bg-gray-100 p-3 rounded-full">
+              <RiUser3Line className="text-gray-600 text-xl" />
+            </div>
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {review.givenBy}
+                </h3>
+                <div className="flex items-center text-sm text-gray-500">
+                  <RiTimeLine className="mr-1" />
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+              <div className="mb-3">
+                <StarRating rating={review.starsGiven} />
+              </div>
+              <p className="text-gray-700">{review.description}</p>
+            </div>
           </div>
-          <div className="mb-3">
-            <StarRating rating={review.starsGiven} />
-          </div>
-          <p className="text-gray-700">{review.description}</p>
         </div>
       ))}
 
       {hasMore && (
-        <div className="text-center mt-6">
+        <div className="text-center mt-8">
           <button
             onClick={loadMore}
             disabled={loading}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md disabled:opacity-50">
-            {loading ? "Loading..." : "Load More Reviews"}
+            className="px-6 py-3 bg-white border border-gray-200 hover:border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <FiLoader className="animate-spin" />
+                Loading...
+              </span>
+            ) : (
+              "Load More Reviews"
+            )}
           </button>
         </div>
       )}

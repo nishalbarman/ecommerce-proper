@@ -364,7 +364,7 @@ export default function ProductDetails({
                                 }
                                 className={`px-4 py-2 border rounded-lg ${
                                   selectedSize === size
-                                    ? "bg-primary bg-gray-200 text-black "
+                                    ? "bg-primary bg-gray-200 text-white "
                                     : "bg-white text-black hover:bg-gray-100"
                                 } ${
                                   !isCombinationValid(size, selectedColor)
@@ -388,7 +388,7 @@ export default function ProductDetails({
                                 onClick={() => setSelectedColor(color)}
                                 className={`px-4 py-2 border rounded-lg ${
                                   selectedColor === color
-                                    ? "bg-primary bg-gray-200 text-black "
+                                    ? "bg-primary bg-gray-200  text-white "
                                     : "bg-white text-black hover:bg-gray-100"
                                 }`}>
                                 {color}

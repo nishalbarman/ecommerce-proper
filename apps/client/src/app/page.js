@@ -71,10 +71,7 @@ export default async function Page() {
         <FeatureSection />
       </Suspense> */}
 
-      <Suspense fallback={<AboutSkeleton />}>
-        <AboutSection />
-      </Suspense>
-
+      <div className="w-full h-[1px]"></div>
       {/* <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
       <div className="w-full h-[1px] bg-black opacity-[0.1]"></div> */}
     </>
