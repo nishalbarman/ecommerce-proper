@@ -9,6 +9,8 @@ type PrivateRouteProps = {
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   const [cookies] = useCookies(); // cookies will contain all the keys and values of the cookies = {[key]: value}
 
+  console.log("Cookies in private route", cookies);
+
   if (!cookies.token) {
     return <Navigate to={"/login"} />;
   }

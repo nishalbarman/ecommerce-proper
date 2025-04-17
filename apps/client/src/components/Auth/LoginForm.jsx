@@ -70,7 +70,7 @@ function LoginForm() {
         // dispatch(setUserAuthData({ ...response.data.user }));
         const redirectPath = searchParams?.get("redirect") || null;
         // await setLoginCookies(response.data.user.jwtToken);
-        navigator.push(`/${redirectPath || ""}`);
+        navigator.push(`/${redirectPath || "/"}`);
       }
     } catch (error) {
       console.log(error);

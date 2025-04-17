@@ -80,7 +80,7 @@ router.post("/admin-login", async (req, res) => {
     return res
       .cookie("token", jwtToken, {
         httpOnly: false,
-        secure: false, // true in production
+        secure: true, // true in production
         sameSite: "none",
         // Omit domain for localhost, set only in production
 
@@ -158,24 +158,25 @@ router.post("/login", async (req, res) => {
 
     const oneDay = 24 * 60 * 60 * 1000;
 
-    res.cookie("token", jwtToken, {
-      httpOnly: false,
-      secure: false, // true in production
-      sameSite: "none",
-      // Omit domain for localhost, set only in production
+    return res
+      .cookie("token", jwtToken, {
+        httpOnly: false,
+        secure: true, // true in production
+        sameSite: "none",
+        // Omit domain for localhost, set only in production
 
-      // domain: "jharna-mehendi-api.onrender.com",
-    });
-
-    return res.status(200).json({
-      message: "Login successful",
-      user: {
-        name: user.name,
-        email: user.email,
-        mobileNo: user.mobileNo,
-        jwtToken: jwtToken,
-      },
-    });
+        // domain: "jharna-mehendi-api.onrender.com",
+      })
+      .status(200)
+      .json({
+        message: "Login successful",
+        user: {
+          name: user.name,
+          email: user.email,
+          mobileNo: user.mobileNo,
+          jwtToken: jwtToken,
+        },
+      });
   } catch (error) {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {

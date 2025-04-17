@@ -20,6 +20,8 @@ import HeroSkeleton from "@/components/HeroSection/HeroSkeleton";
 import ProductSliderSkel from "@/components/ProductComps/ProductSlider/ProductSliderSkeleton";
 import TestimonialsSkeleton from "@/components/TestimonialsSection/TestimonialsSectionSkeleton";
 import FeaturesSkeleton from "@/components/FeatureSection/FeaturesSkeleton";
+import AboutSkeleton from "@/components/AboutSection/AboutSkeleton";
+import AboutSection from "@/components/AboutSection/AboutSection";
 import MehendiInfo from "@/components/ArrowComponent/MehendiInfo";
 
 const getSaleDetails = async () => {
@@ -63,14 +65,18 @@ export default async function Page() {
         <Testimonials />
       </Suspense>
 
-      <div className="w-full h-[1px] mt-20 max-sm:mt-10"></div>
+      {/* <div className="w-full h-[1px] mt-20 max-sm:mt-10"></div> */}
 
       {/* <Suspense fallback={<FeaturesSkeleton />}>
         <FeatureSection />
       </Suspense> */}
 
-      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
-      <div className="w-full h-[1px] bg-black opacity-[0.1]"></div>
+      <Suspense fallback={<AboutSkeleton />}>
+        <AboutSection />
+      </Suspense>
+
+      {/* <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
+      <div className="w-full h-[1px] bg-black opacity-[0.1]"></div> */}
     </>
   );
 }
