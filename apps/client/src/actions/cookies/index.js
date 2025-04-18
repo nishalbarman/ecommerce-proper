@@ -7,5 +7,7 @@ export async function setLoginCookies(token) {
   cookieStore.set("token", token, {
     sameSite: "none",
     secure: true,
+    httpOnly: true,
+    maxAge: 60 * 60, // 1 hour
   });
 }
