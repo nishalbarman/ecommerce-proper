@@ -29,11 +29,10 @@ app.use(
       "http://localhost:3000",
       "https://jharna-mehendi.vercel.app",
       "https://jharna-mehendi-admin.web.app",
-      "https://jharna-mehendi.onrender.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "Cookies"],
     exposedHeaders: ["Set-Cookie"],
     maxAge: 86400, // 24 hours
   })
