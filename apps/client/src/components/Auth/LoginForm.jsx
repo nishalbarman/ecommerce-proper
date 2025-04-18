@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { setCookiesAfterLogin } from "@/lib/login/setLoginCookie";
 
 const validateInputs = (name, value) => {
   switch (name) {
@@ -70,6 +71,7 @@ function LoginForm() {
         // dispatch(setUserAuthData({ ...response.data.user }));
         const redirectPath = searchParams?.get("redirect") || null;
         // await setLoginCookies(response.data.user.jwtToken);
+        setCookiesAfterLogin({ token: response.data.user.jwtToken });
         navigator.push(`/${redirectPath || "/"}`);
       }
     } catch (error) {
