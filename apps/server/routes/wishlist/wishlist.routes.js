@@ -7,7 +7,7 @@ const checkRole = require("../../middlewares");
 /* GET ALL WISHLIST -- User Route */
 router.get("/", checkRole(1, 0), async (req, res) => {
   try {
-    const productType = req.headers?.producttype || "buy";
+    const productType = req.headers["producttype"] || "buy";
 
     console.log("Product Type -->", productType);
 
@@ -52,7 +52,7 @@ router.post("/", checkRole(1, 0), async (req, res) => {
 
     // console.log("RequestBody-->", req.body);
 
-    const productType = req.headers?.producttype;
+    const productType = req.headers["producttype"];
     const { productId } = req.body;
 
     console.log("Wishlist Product ID-->", productId);
