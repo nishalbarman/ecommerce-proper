@@ -6,7 +6,7 @@ const obfuscator = withNextJsObfuscator({
   controlFlowFlatteningThreshold: 0.75,
   deadCodeInjection: false,
   deadCodeInjectionThreshold: 0.4,
-  debugProtection: true,
+  debugProtection: false,
   debugProtectionInterval: 0,
   disableConsoleOutput: false,
   domainLock: [],
