@@ -5,8 +5,8 @@ const checkRole = (...allowedRoles) => {
 
   return (req, res, next) => {
     try {
-      console.log("Complete path of the request", req.path);
-      console.log("Request Method", req.method);
+      console.log("REQUEST PATH: ", req.path);
+      console.log("REQUEST METHOD: ", req.method);
 
       const token = req?.cookies?.token;
 
@@ -14,25 +14,53 @@ const checkRole = (...allowedRoles) => {
       console.log("The Token Extracted From Cookies -->", token);
 
       if (!token) {
-        return res.status(401).json({ message: "No token found on Cookies." });
+        return res
+          .clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain:
+              process.env.NODE_ENV === "production"
+                ? ".jharna-mehendi.vercel.app"
+                : undefined,
+          })
+          .status(401)
+          .json({
+            message: "No token found on Cookies.",
+            redirectTo: "/auth/login",
+          });
       }
 
       req.jwt = { token: token };
 
-      const userDetails = getTokenDetails(token);
-      if (!userDetails) {
+      let userDetails = getTokenDetails(token);
+      if (userDetails.message === "TOKEN_EXPIRED") {
+        return res
+          .clearCookie("token", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            domain:
+              process.env.NODE_ENV === "production"
+                ? ".jharna-mehendi.vercel.app"
+                : undefined,
+          })
+          .status(401)
+          .json({
+            message: "Token expired, please login again.",
+            redirectTo: "/auth/login",
+          });
+      }
+
+      if (!userDetails || userDetails.message === "TOKEN_INVALID") {
         return res
           .status(400)
           .json({ message: "Token validation failed, JWT validation failed." });
       }
-
+      userDetails = userDetails.userDetails;
       req.user = userDetails;
 
-      console.log(
-        "User Details from checkRole middleware function ->",
-        userDetails.roleNumber
-      );
-
+      console.log("User Details", JSON.stringify(userDetails));
       console.log("Allowed Roles", allowedRoles);
       console.log("User Role", userDetails.roleNumber);
 

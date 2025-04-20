@@ -1,12 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+
+const rateLimit = require("express-rate-limit");
+
 const { Product } = require("../../models/product.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const Feedback = require("../../models/feedback.model");
 const Order = require("../../models/order.model");
 
 const checkRole = require("../../middlewares");
+const FeedbackImage = require("../../models/feedbackImage.model");
+const imgbbUploader = require("imgbb-uploader");
+
+// Rate limiting for image uploads
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 6, // limit each IP to 6 requests per windowMs
+  message:
+    "Too many image uploads from this IP, please try again after a minute",
+});
 
 const TAG = "feedbacks.routes.js:--";
 
@@ -83,6 +96,7 @@ router.get("/list/:productId", async (req, res) => {
       product: productId,
     })
       .sort({ createdAt: "desc" })
+      .populate("images")
       .skip(SKIP)
       .limit(LIMIT);
 
@@ -120,118 +134,106 @@ router.get("/:feedbackId", async (req, res) => {
 });
 
 // FEEDBACK CREATE ROUTE
-router.post("/", checkRole(1), async (req, res) => {
+// Create feedback
+router.post("/", checkRole(0, 1), async (req, res) => {
   try {
-    const reqBody = req.body;
-    const productType = req.body?.productType;
+    const { product, productType, description, starsGiven, imageIds } =
+      req.body;
 
-    const error = [];
+    const errors = [];
 
-    if (!productType) {
-      error.push("Product Type is missing");
+    if (!productType) errors.push("Product type is required");
+    if (!product) errors.push("Product ID is required");
+    if (!description) errors.push("Description is required");
+    if (!starsGiven || starsGiven < 1 || starsGiven > 5) {
+      errors.push("Rating must be between 1 and 5 stars");
     }
 
-    if (!reqBody.product) {
-      error.push("product id is missing");
-    }
-
-    if (!reqBody.description) {
-      error.push("review description is missing");
-    }
-
-    if (
-      !reqBody.givenStars ||
-      !reqBody.givenStars > 5 ||
-      !reqBody.givenStars <= 0
-    ) {
-      error.push("Review star is not properly set");
-    }
-
-    // ENABLE THESE LINES ONE PUSHED TO FINAL PRODUCTION
-    // check if user really purchased the product
-    // const userOrder = await Order.findOne({
-    //   user: req.user._id,
-    //   product: reqBody.product,
-    //   orderType: productType,
-    //   orderStatus: "Delivered",
-    // });
-
-    // if (!userOrder) {
-    //   return res.status(400).json({
-    //     message:
-    //       "You did not purchased this order yet! So not possible to add review.",
-    //   });
-    // }
-
-    // check if this user have already gave review or not
-    const alreadyGivenFeedback = await Feedback.countDocuments({
-      user: req.user._id,
-      product: reqBody.product,
-      productType: productType,
-    });
-
-    console.log("Is Feedback Already Given ->", alreadyGivenFeedback);
-
-    if (alreadyGivenFeedback !== 0) {
-      const feedbackUpdate = await Feedback.updateOne(
-        {
-          user: req.user._id,
-          product: reqBody.product,
-          productType: productType,
-        },
-        {
-          $set: {
-            ...reqBody,
-            givenBy: req.user.name,
-            user: req.user._id,
-            productType: productType,
-          },
-        }
-      );
-      return res.status(200).json({
-        message: `Feedback added`,
+    if (errors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation errors",
+        errors,
       });
     }
 
-    // insert into database
+    // Check if user already reviewed this product
+    const existingFeedback = await Feedback.findOne({
+      user: req.user._id,
+      product,
+      productType,
+    });
+
+    if (existingFeedback) {
+      // Update existing feedback
+      existingFeedback.description = description;
+      existingFeedback.starsGiven = starsGiven;
+
+      if (imageIds && imageIds.length > 0) {
+        // Link images to this feedback
+        await FeedbackImage.updateMany(
+          { _id: { $in: imageIds }, uploadedBy: req.user._id },
+          { feedback: existingFeedback._id }
+        );
+        existingFeedback.images = imageIds;
+      }
+
+      await existingFeedback.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Feedback updated successfully",
+      });
+    }
+
+    // Create new feedback
     const feedback = new Feedback({
-      ...reqBody,
+      description,
+      starsGiven,
+      product,
+      productType,
       givenBy: req.user.name,
       user: req.user._id,
-      productType: productType,
+      images: imageIds || [],
     });
+
     await feedback.save();
 
-    const product = await Product.findById(reqBody.product);
-    console.log(product);
-    // Step 1: Calculate the current total score
-    const totalRatings = product.stars * product.totalFeedbacks;
+    // Link images to this feedback if any
+    if (imageIds && imageIds.length > 0) {
+      await FeedbackImage.updateMany(
+        { _id: { $in: imageIds }, uploadedBy: req.user._id },
+        { feedback: feedback._id }
+      );
+    }
 
-    // Step 2: Add the new rating
-    const newTotalRatings = totalRatings + reqBody.starsGiven;
-
-    // Step 3: Increment the total number of reviews
-    const newTotalFeedbacks = product.totalFeedbacks + 1;
-
-    // Step 4: Calculate the new average rating
+    // Update product rating (your existing logic)
+    const productDoc = await Product.findById(product);
+    const totalRatings = productDoc.stars * productDoc.totalFeedbacks;
+    const newTotalRatings = totalRatings + starsGiven;
+    const newTotalFeedbacks = productDoc.totalFeedbacks + 1;
     const newAverage = (newTotalRatings / newTotalFeedbacks).toFixed(2);
 
-    product.stars = newAverage;
-    product.totalFeedbacks = newTotalFeedbacks;
+    productDoc.stars = newAverage;
+    productDoc.totalFeedbacks = newTotalFeedbacks;
+    await productDoc.save({ validateBeforeSave: false });
 
-    await product.save({ validateBeforeSave: false });
-
-    return res.status(200).json({
-      message: `Feedback added`,
+    return res.status(201).json({
+      success: true,
+      message: "Feedback submitted successfully",
+      data: feedback,
     });
   } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
+    console.error("Feedback submission error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit feedback",
+    });
   }
 });
 
 // FETCH FEEDBACK FOR ONE PRODUCT GIVEN BY ONE USER
-router.post("/view/:productId", checkRole(0), async (req, res) => {
+router.post("/view/:productId", checkRole(0, 1), async (req, res) => {
   try {
     const productId = req.params?.productId;
     const productType = req.body?.productType;
@@ -250,6 +252,73 @@ router.post("/view/:productId", checkRole(0), async (req, res) => {
   } catch (error) {
     console.error(TAG, error);
     return res.status(500).json({ message: error.message });
+  }
+});
+
+// Upload feedback image
+router.post("/upload-image", checkRole(0, 1), async (req, res) => {
+  try {
+    // Extract image data from the request body
+    const imageData = req.body?.imageData;
+
+    if (!imageData)
+      return res.status(403).json({
+        status: false,
+        message: "Image Data Not Found",
+      });
+
+    // Process the base64 string to prepare for upload
+    const base64string = imageData.base64String.replace(
+      /^data:image\/\w+;base64,/,
+      ""
+    );
+
+    let uploadResponse;
+    try {
+      console.log("Going for uploading the image to imagebb");
+      // Upload the image using imgbb API
+      uploadResponse = await imgbbUploader({
+        apiKey: process.env.IMGBB_API_KEY, // MANDATORY
+        base64string: base64string,
+      });
+      console.log("Upload success response", uploadResponse);
+    } catch (err) {
+      console.error(JSON.stringify(err.response));
+      return res.status(403).json({ message: err.message });
+    }
+
+    let mongoResponse;
+    if (uploadResponse) {
+      // Create a new image document in the database
+      mongoResponse = new FeedbackImage({
+        title: uploadResponse.title,
+        imageLink: uploadResponse.display_url,
+        reference: uploadResponse.id,
+        platform: "imgbb",
+        thumbnailUrl: uploadResponse.display_url,
+        uploadedBy: req.user._id,
+      });
+      await mongoResponse.save();
+    }
+
+    if (mongoResponse) {
+      // Return success response with image details
+      return res.status(200).json({
+        message: "Feedback Images Uploaded",
+        data: {
+          ...mongoResponse._doc,
+        },
+      });
+    }
+
+    // If no response, return failure
+    return res.status(200).json({
+      status: false,
+      message: "Feedback Image Upload Failed",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: false, message: error.message });
   }
 });
 

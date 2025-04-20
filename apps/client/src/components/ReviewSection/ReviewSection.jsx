@@ -20,7 +20,7 @@ function ReviewSection({ product, cookie }) {
   return (
     <section className="mt-2 container mx-auto">
       {/* Review Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex max-sm:flex-col gap-3 items-center justify-between mb-8">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <RiChatQuoteLine className="text-red-500" size={24} />
           Customer Reviews
@@ -44,11 +44,11 @@ function ReviewSection({ product, cookie }) {
         </div>
       )}
 
-      <div className="md:col-span-2 mb-10 mt-3">
-        <div className="bg-white p-6 rounded-lg shadow-md w-full">
-          <h3 className="text-lg font-semibold mb-4">Customer Reviews</h3>
+      <div className="md:col-span-2 mb-10 mt-5">
+        {/* <div className="bg-white p-6 rounded-lg shadow-md w-full"> */}
+          {/* <h3 className="text-lg font-semibold mb-4">Customer Re  views</h3> */}
           <ReviewList productId={product._id} cookie={cookie} />
-        </div>
+        {/* </div> */}
       </div>
     </section>
   );

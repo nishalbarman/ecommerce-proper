@@ -41,11 +41,11 @@ function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
             )}
             
             <div className="flex flex-col">
-              <span className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 text-lg flex items-center">
+              <span className="font-bold text-gray-900 group-hover:text-green-600 transition-colors duration-300 text-lg flex items-center">
                 {clientName}
-                <VscVerifiedFilled className="ml-2 text-blue-400 group-hover:text-blue-600 transition-colors duration-300" />
+                <VscVerifiedFilled className="ml-2 text-green-400 group-hover:text-green-600 transition-colors duration-300" />
               </span>
-              <span className="text-gray-500 text-sm group-hover:text-blue-500 transition-colors duration-300">
+              <span className="text-gray-500 text-sm group-hover:text-green-500 transition-colors duration-300">
                 Verified Buyer
               </span>
             </div>

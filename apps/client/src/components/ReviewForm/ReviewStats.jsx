@@ -25,7 +25,7 @@ export default function ReviewStats({ averageRating, totalReviews }) {
           </div>
         </div>
 
-        <div className="flex-1 space-y-2 w-full">
+        {/* <div className="flex-1 space-y-2 w-full">
           {ratingPercentages.map(({ star, percentage }) => (
             <div key={star} className="flex items-center">
               <div className="w-10 text-sm font-medium">{star} star</div>
@@ -39,7 +39,7 @@ export default function ReviewStats({ averageRating, totalReviews }) {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );
