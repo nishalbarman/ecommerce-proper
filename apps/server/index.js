@@ -48,17 +48,17 @@ app.use(
       "x-api-version",
     ],
     exposedHeaders: ["Set-Cookie"],
-    maxAge: 86400, // 24 hours
+    // maxAge: 86400, // 24 hours
   })
 );
 
 // In your Express server (development only)
-if (process.env.NODE_ENV === "development") {
-  app.use((req, res, next) => {
-    req.secure = true; // Trick Express into thinking it's HTTPS
-    next();
-  });
-}
+// if (process.env.NODE_ENV === "development") {
+//   app.use((req, res, next) => {
+//     req.secure = true; // Trick Express into thinking it's HTTPS
+//     next();
+//   });
+// }
 
 app.use(cookieParser());
 app.use(limiter);

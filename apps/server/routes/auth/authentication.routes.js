@@ -82,11 +82,11 @@ router.post("/admin-login", async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain:
-          process.env.NODE_ENV === "production"
-            ? ".jharna-mehendi.vercel.app"
-            : undefined,
-        maxAge: 60 * 60 * 1000, // 1 hour
+        // domain:
+        //   process.env.NODE_ENV === "production"
+        //     ? ".jharna-mehendi.vercel.app"
+        //     : undefined,
+        // maxAge: 60 * 60 * 1000, // 1 hour
       })
       .status(200)
       .json({
@@ -165,11 +165,11 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain:
-          process.env.NODE_ENV === "production"
-            ? ".jharna-mehendi.vercel.app"
-            : undefined,
-        maxAge: 60 * 60 * 1000, // 1 hour
+        // domain:
+        //   process.env.NODE_ENV === "production"
+        //     ? ".jharna-mehendi.vercel.app"
+        //     : undefined,
+        // maxAge: 60 * 60 * 1000, // 1 hour
       })
       .status(200)
       .json({
@@ -316,10 +316,10 @@ router.post("/logout", async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      domain:
-        process.env.NODE_ENV === "production"
-          ? ".jharna-mehendi.vercel.app"
-          : undefined,
+      // domain:
+      //   process.env.NODE_ENV === "production"
+      //     ? ".jharna-mehendi.vercel.app"
+      //     : undefined,
     })
     .status(200)
     .json({ message: "Logged out" });
