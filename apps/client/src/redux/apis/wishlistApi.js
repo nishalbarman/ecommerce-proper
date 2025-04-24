@@ -8,7 +8,7 @@ export const wishlistApi = createApi({
     baseUrl: SERVER_URL,
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set("authorization", `Bearer ${getState().auth.jwtToken}`);
+      headers.set("Authorization", `Bearer ${getState().auth.jwtToken}`);
       headers.set("producttype", `${getState().product_store.productType}`);
       return headers;
     },

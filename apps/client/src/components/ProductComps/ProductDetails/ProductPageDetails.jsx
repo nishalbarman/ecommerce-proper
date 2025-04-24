@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { addToCart } from "@/actions/cart";
 import { CartApi } from "@/redux";
+import { useSelector } from "react-redux";
 
 export default function ProductDetails({
   product,
@@ -125,6 +126,8 @@ export default function ProductDetails({
   const [inCart, setInCart] = useState(false);
   const [isAddToCartLoading, setIsAddToCartLoading] = useState(false);
 
+  const token = useSelector((state) => state.auth.jwtToken);
+
   const checkCartStatus = async (productId, variantId) => {
     console.log("Checking cart status for:", {
       productId,
@@ -136,6 +139,7 @@ export default function ProductDetails({
         {
           method: "POST",
           headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": `application/json`,
           },
           credentials: "include",

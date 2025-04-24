@@ -4,8 +4,9 @@ export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_SERVER_URL,
-    prepareHeaders: (headers) => {
-      // Add any auth headers here if needed
+
+    prepareHeaders: (headers, { getState }) => {
+      headers.set("Authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),

@@ -8,7 +8,8 @@ const checkRole = (...allowedRoles) => {
       console.log("REQUEST PATH: ", req.path);
       console.log("REQUEST METHOD: ", req.method);
 
-      const token = req?.cookies?.token;
+      const token =
+        req?.cookies?.token || req?.headers?.authorization?.split(" ")[1];
 
       console.log("What are cookies -->", JSON.stringify(req?.cookies));
       console.log("The Token Extracted From Cookies -->", token);
@@ -26,7 +27,7 @@ const checkRole = (...allowedRoles) => {
           })
           .status(401)
           .json({
-            message: "No token found on Cookies.",
+            message: "No token found on Cookies/Authorization.",
             redirectTo: "/auth/login",
           });
       }
