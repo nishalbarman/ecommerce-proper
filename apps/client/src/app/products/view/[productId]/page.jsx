@@ -1,175 +1,160 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useState, useEffect } from "react";
 import ProductDetails from "@/components/ProductComps/ProductDetails/ProductPageDetails";
-
 import ReviewSection from "@/components/ReviewSection/ReviewSection";
-import { cookies } from "next/headers";
+import { useParams } from "next/navigation";
+import axiosInstance from "@/services/axiosInstance";
 
-// Server action to handle variant selection
-async function handleVariantSelection(prevState, formData) {
-  "use server";
-
-  const size = formData.get("size");
-  const color = formData.get("color");
-  const productId = formData.get("productId");
-
-  console.log("On action what are the values for variants", {
-    size,
-    color,
-    productId,
+export default function ViewProduct() {
+  const { productId } = useParams();
+  const [product, setProduct] = useState(null);
+  const [productVariants, setProductVariants] = useState([]);
+  const [availableSizes, setAvailableSizes] = useState([]);
+  const [availableColors, setAvailableColors] = useState([]);
+  const [validCombinations, setValidCombinations] = useState(new Set());
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [variantSelection, setVariantSelection] = useState({
+    matchedVariant: null,
+    inStock: false,
+    combinationExists: false,
   });
 
-  try {
-    // Fetch the product and its variants
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
-      { method: "POST" }
-    );
-
-    const responseData = await response.json();
-
-    const product = responseData.product;
-    const isProductVariantAvailable = product.isVariantAvailable;
-    const productVariants = product.productVariant || [];
-
-    console.log("Does the variant get matched", {
-      product,
-      isProductVariantAvailable,
-      productVariants,
-    });
-
-    if (isProductVariantAvailable) {
-      // Find the matched variant based on size and color
-      const matchedVariant = productVariants.find((variant) => {
-        return variant.size === size && variant.color === color;
-      });
-
-      console.log("Does the variant get matched", {
-        matchedVariant,
-      });
-
-      // Check stock availability for the matched variant
-      let inStock = false;
-
-      if (matchedVariant) {
-        console.log(
-          "Is Product In Stock",
-          JSON.stringify({ variant: matchedVariant._id })
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      try {
+        const response = await axiosInstance.post(
+          `/products/view/${productId}`
         );
-        const stockResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ variant: matchedVariant._id }),
-          }
-        );
+        const responseData = response.data;
+        const productData = responseData.product;
+        const variants = productData.productVariant || [];
 
-        const sResponse = await stockResponse.json();
+        setProduct(productData);
+        setProductVariants(variants);
 
-        inStock = sResponse.inStock;
-      }
+        // Extract sizes and colors from variants
+        const sizes = new Set();
+        const colors = new Set();
+        const combinations = new Set();
 
-      console.log("At last", {
-        matchedVariant,
-        inStock,
-        combinationExists: !!matchedVariant,
-      });
+        variants.forEach((variant) => {
+          sizes.add(variant.size);
+          colors.add(variant.color);
+          combinations.add(`${variant.size}-${variant.color}`);
+        });
 
-      return {
-        matchedVariant,
-        inStock,
-        combinationExists: !!matchedVariant,
-      };
-    } else {
-      const stockResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            variant: null,
-          }),
+        setAvailableSizes(Array.from(sizes));
+        setAvailableColors(Array.from(colors));
+        setValidCombinations(combinations);
+
+        // Set default selected size and color
+        if (variants.length > 0) {
+          setSelectedSize(variants[0].size);
+          setSelectedColor(variants[0].color);
+          // Check initial variant availability
+          checkVariantAvailability(variants[0].size, variants[0].color);
         }
-      );
-
-      const sResponse = await stockResponse.json();
-
-      inStock = sResponse.inStock;
-      console.log(inStock);
-    }
-  } catch (error) {
-    console.error("Error handling variant selection:", error);
-    throw new Error("Failed to handle variant selection");
-  }
-}
-
-export default async function ViewProduct({ params }) {
-  const cookie = await cookies();
-
-  const { productId } = await params;
-
-  try {
-    // Fetch product details
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
-      {
-        method: "POST",
+      } catch (err) {
+        setError("Failed to fetch product details");
+        console.error("Error fetching product details:", err);
+      } finally {
+        setLoading(false);
       }
-    );
+    };
 
-    const responseData = await response.json();
+    fetchProductDetails();
+  }, [productId]);
 
-    console.log("Response Data of Product", responseData);
+  const checkVariantAvailability = async (size, color) => {
+    try {
+      if (!product) return;
 
-    const product = responseData.product;
-    const productVariants = product.productVariant || [];
+      const isProductVariantAvailable = product.isVariantAvailable;
 
-    // Extract sizes and colors from variants
-    const sizes = new Set();
-    const colors = new Set();
-    const combinations = new Set();
+      if (isProductVariantAvailable) {
+        // Find the matched variant based on size and color
+        const matchedVariant = productVariants.find(
+          (variant) => variant.size === size && variant.color === color
+        );
 
-    productVariants.forEach((variant) => {
-      sizes.add(variant.size);
-      colors.add(variant.color);
-      combinations.add(`${variant.size}-${variant.color}`);
-    });
+        // Check stock availability for the matched variant
+        let inStock = false;
 
-    const availableSizes = Array.from(sizes);
-    const availableColors = Array.from(colors);
-    const validCombinations = combinations;
+        if (matchedVariant) {
+          const stockResponse = await axiosInstance.post(
+            `/products/variant/instock/${productId}`,
+            { variant: matchedVariant._id }
+          );
+          inStock = stockResponse.data.inStock;
+        }
 
-    // Set default selected size and color
-    let selectedSize = "";
-    let selectedColor = "";
-    if (productVariants.length > 0) {
-      selectedSize = productVariants[0].size;
-      selectedColor = productVariants[0].color;
+        setVariantSelection({
+          matchedVariant,
+          inStock,
+          combinationExists: !!matchedVariant,
+        });
+      } else {
+        const stockResponse = await axiosInstance.post(
+          `/products/variant/instock/${productId}`,
+          { variant: null }
+        );
+        setVariantSelection({
+          inStock: stockResponse.data.inStock,
+          combinationExists: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error checking variant availability:", error);
+      setVariantSelection({
+        matchedVariant: null,
+        inStock: false,
+        combinationExists: false,
+      });
     }
+  };
 
-    return (
-      <>
-        <ProductDetails
-          product={product}
-          productVariants={productVariants}
-          availableSizes={availableSizes}
-          availableColors={availableColors}
-          validCombinations={validCombinations}
-          selectedSize={selectedSize}
-          selectedColor={selectedColor}
-          productId={productId}
-          handleVariantSelection={handleVariantSelection}
-        />
-        <ReviewSection product={product} cookie={cookie} />
-      </>
-    );
-  } catch (error) {
-    console.error("Error fetching product details:", error);
-    notFound();
+  const handleSizeChange = async (size) => {
+    setSelectedSize(size);
+    await checkVariantAvailability(size, selectedColor);
+  };
+
+  const handleColorChange = async (color) => {
+    setSelectedColor(color);
+    await checkVariantAvailability(selectedSize, color);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!product) {
+    return <div>Product not found</div>;
+  }
+
+  return (
+    <>
+      <ProductDetails
+        product={product}
+        productVariants={productVariants}
+        availableSizes={availableSizes}
+        availableColors={availableColors}
+        validCombinations={validCombinations}
+        selectedSize={selectedSize}
+        selectedColor={selectedColor}
+        productId={productId}
+        variantSelection={variantSelection}
+        onSizeChange={handleSizeChange}
+        onColorChange={handleColorChange}
+      />
+      <ReviewSection product={product} />
+    </>
+  );
 }
