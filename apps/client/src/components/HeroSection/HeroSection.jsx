@@ -64,15 +64,15 @@ const HeroProduct = async () => {
               }}></div>
 
             <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-8">
-              <Link
+              {/* <Link
                 href={`/products/${heroProduct.productId}`}
                 className="px-8 py-3 bg-white text-emerald-800 font-medium rounded-lg hover:bg-emerald-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                 View Product
-              </Link>
+              </Link> */}
               <Link
                 href="/products"
                 className="px-8 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                Explore More
+                Explore
               </Link>
             </div>
           </div>

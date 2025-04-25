@@ -5,28 +5,40 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
 import Loading from "../cart/loading";
 import { ProductApi } from "@/redux";
+import { useSelector } from "react-redux";
 
 export default function ProductList() {
   const { useGetProductsQuery } = ProductApi;
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const token = useSelector((state) => state.auth.jwtToken);
+
   // Parse initial filters from URL
   const parseInitialFilters = () => {
     try {
-      const filterParam = searchParams.get("filter");
-      if (filterParam) {
-        return JSON.parse(decodeURIComponent(filterParam));
-      }
+      const categoryParam = searchParams.get("category");
+      const minPrice = searchParams.get("minPrice");
+      const maxPrice = searchParams.get("maxPrice");
+
+      return {
+        category: categoryParam ? categoryParam.split(",") : [],
+        color: [],
+        price: [
+          minPrice ? parseInt(minPrice) : 0,
+          maxPrice ? parseInt(maxPrice) : 200,
+        ],
+        rating: 0,
+      };
     } catch (e) {
       console.error("Error parsing filter params", e);
+      return {
+        category: [],
+        color: [],
+        price: [0, 200],
+        rating: 0,
+      };
     }
-    return {
-      category: [],
-      color: [],
-      price: [0, 200],
-      rating: 0,
-    };
   };
 
   // Initialize state
@@ -47,39 +59,37 @@ export default function ProductList() {
   const page = parseInt(searchParams.get("page")) || 1;
   const limit = 12;
 
-  // RTK Query hook
-  const { data, error, isLoading, isFetching } = useGetProductsQuery({
-    page: page - 1, // Convert to 0-based index
-    limit,
-    query: appliedSearch,
-    sort: appliedSort,
-    // Send filters as individual query parameters
-    ...(appliedFilters.category.length > 0 && {
-      category: appliedFilters.category,
-    }),
-    ...(appliedFilters.color.length > 0 && { color: appliedFilters.color }),
-    ...(appliedFilters.price[0] > 0 && { minPrice: appliedFilters.price[0] }),
-    ...(appliedFilters.price[1] < 200 && { maxPrice: appliedFilters.price[1] }),
-    ...(appliedFilters.rating > 0 && { rating: appliedFilters.rating }),
-  });
-
   // Update the URL building logic
   const updateURL = useCallback(() => {
     const params = new URLSearchParams();
 
+    // Add page
     params.set("page", page);
-    if (appliedSearch) params.set("query", appliedSearch);
-    if (appliedSort !== "newest") params.set("sort", appliedSort);
 
-    // Add filters as individual parameters
-    appliedFilters.category.forEach((cat) => params.append("category", cat));
-    appliedFilters.color.forEach((color) => params.append("color", color));
-    if (appliedFilters.price[0] > 0)
+    // Add search query if exists
+    if (appliedSearch) {
+      params.set("query", appliedSearch);
+    }
+
+    // Add sort if not default
+    if (appliedSort !== "newest") {
+      params.set("sort", appliedSort);
+    }
+
+    // Add category filters as a single comma-separated parameter
+    if (appliedFilters.category.length > 0) {
+      params.set("category", appliedFilters.category.join(","));
+    }
+
+    // Add price range filters
+    if (appliedFilters.price[0] > 0) {
       params.set("minPrice", appliedFilters.price[0]);
-    if (appliedFilters.price[1] < 200)
+    }
+    if (appliedFilters.price[1] < 200) {
       params.set("maxPrice", appliedFilters.price[1]);
-    if (appliedFilters.rating > 0) params.set("rating", appliedFilters.rating);
+    }
 
+    // Update URL without page refresh
     router.replace(`/products?${params.toString()}`, { scroll: false });
   }, [page, appliedSearch, appliedSort, appliedFilters, router]);
 
@@ -87,6 +97,37 @@ export default function ProductList() {
   useEffect(() => {
     updateURL();
   }, []);
+
+  // RTK Query hook with proper filter handling
+  const { data, error, isLoading, isFetching } = useGetProductsQuery(
+    {
+      page: page - 1, // Convert to 0-based index
+      limit,
+      query: appliedSearch || undefined,
+      sort: appliedSort !== "newest" ? appliedSort : undefined,
+      // Always include category and price filters, even if empty
+      category:
+        appliedFilters.category.length > 0
+          ? appliedFilters.category.join(",")
+          : undefined,
+      minPrice:
+        appliedFilters.price[0] > 0 ? appliedFilters.price[0] : undefined,
+      maxPrice:
+        appliedFilters.price[1] < 200 ? appliedFilters.price[1] : undefined,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      // Force refetch when filters change
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+  // Update URL when filters change
+  useEffect(() => {
+    updateURL();
+  }, [appliedFilters, appliedSearch, appliedSort, page, updateURL]);
 
   // Fetch categories
   useEffect(() => {
@@ -138,12 +179,7 @@ export default function ProductList() {
   const applyFilters = () => {
     setAppliedFilters(localFilters);
     // Reset to first page when filters change
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    if (appliedSearch) params.set("query", appliedSearch);
-    if (localSort !== "newest") params.set("sort", localSort);
-    params.set("filter", encodeURIComponent(JSON.stringify(localFilters)));
-    router.push(`/products?${params.toString()}`);
+    setPage(1);
   };
 
   const handleSortChange = (value) => {
@@ -170,7 +206,7 @@ export default function ProductList() {
     setAppliedSort("newest");
     setLocalSearch("");
     setAppliedSearch("");
-    router.push("/products?page=1");
+    setPage(1);
   };
 
   if (error)
@@ -252,13 +288,13 @@ export default function ProductList() {
       <div className="flex gap-2">
         <button
           onClick={applyFilters}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-          Apply Filters
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+          Apply
         </button>
         <button
           onClick={resetFilters}
           className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
-          Reset All
+          Reset
         </button>
       </div>
     </div>
@@ -400,7 +436,7 @@ export default function ProductList() {
 
               {/* Product Grid */}
               {data?.data?.length === 0 ? (
-                <div className="text-center py-12">
+                <div className="text-center py-20">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-16 w-16 mx-auto text-gray-400"

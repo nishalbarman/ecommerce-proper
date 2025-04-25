@@ -4,21 +4,27 @@ export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_SERVER_URL,
-
     prepareHeaders: (headers, { getState }) => {
-      headers.set("Authorization", `Bearer ${getState().auth.jwtToken}`);
+      const token = getState().auth.jwtToken;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
   endpoints: (builder) => ({
     getProducts: builder.query({
-      query: ({ page, limit, query, sort, filter }) => {
+      query: ({ page, limit, query, sort, category, minPrice, maxPrice }) => {
         const params = new URLSearchParams();
         params.set("page", page);
         params.set("limit", limit);
+
+        // Add optional parameters if they exist
         if (query) params.set("query", query);
         if (sort) params.set("sort", sort);
-        if (filter) params.set("filter", filter);
+        if (category) params.set("category", category);
+        if (minPrice) params.set("minPrice", minPrice);
+        if (maxPrice) params.set("maxPrice", maxPrice);
 
         return `products?${params.toString()}`;
       },

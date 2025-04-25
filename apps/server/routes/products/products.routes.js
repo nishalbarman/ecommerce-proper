@@ -345,43 +345,23 @@ router.get("/", async (req, res) => {
       filter["$text"] = { $search: QUERY };
     }
 
-    // Category filter (array)
+    // Category filter (comma-separated string)
     if (searchQuery.category) {
-      const categories = Array.isArray(searchQuery.category)
-        ? searchQuery.category
-        : [searchQuery.category];
+      const categories = searchQuery.category.split(",");
       filter.category = {
         $in: categories.map((id) => new mongoose.Types.ObjectId(id)),
       };
-    }
-
-    // Color filter (array)
-    if (searchQuery.color) {
-      const colors = Array.isArray(searchQuery.color)
-        ? searchQuery.color
-        : [searchQuery.color];
-      filter.color = { $in: colors };
     }
 
     // Price range filter
     const minPrice = parseFloat(searchQuery.minPrice) || 0;
     const maxPrice = parseFloat(searchQuery.maxPrice) || 200;
     if (minPrice > 0 || maxPrice < 200) {
-      filter.price = {
+      filter.discountedPrice = {
         $gte: minPrice,
         $lte: maxPrice,
       };
     }
-
-    // Rating filter
-    if (searchQuery.rating) {
-      const rating = parseFloat(searchQuery.rating);
-      if (rating > 0) {
-        filter.rating = { $gte: rating };
-      }
-    }
-
-    console.log("Final filter:", filter);
 
     // Sorting logic
     let sortObject = { createdAt: "desc" };
@@ -398,10 +378,10 @@ router.get("/", async (req, res) => {
           sortObject.totalOrders = "desc";
           break;
         case "low-to-hight-price":
-          sortObject.price = "asc";
+          sortObject.discountedPrice = "asc";
           break;
         case "hight-to-low-price":
-          sortObject.price = "desc";
+          sortObject.discountedPrice = "desc";
           break;
         case "newest":
           sortObject.createdAt = "desc";
