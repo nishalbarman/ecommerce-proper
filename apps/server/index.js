@@ -37,7 +37,7 @@ app.use(
       "Authorization",
       "Cookies",
       "producttype",
-      "authorization",
+      "Authorization",
       "x-requested-with",
       "accept",
       "accept-version",

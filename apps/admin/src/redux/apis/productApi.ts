@@ -10,7 +10,7 @@ export const productApi = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth.jwtToken; // Adjust based on your state structure
       if (token) {
-        headers.set("authorization", `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },

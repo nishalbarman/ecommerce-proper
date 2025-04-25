@@ -9,7 +9,7 @@ export const userAPI = createApi({
     baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
       headers.set(
-        "authorization",
+        "Authorization",
         `Bearer ${(getState() as any).auth.jwtToken}`
       );
       return headers;

@@ -9,7 +9,7 @@ export const wishlistApi = createApi({
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       headers.set(
-        "authorization",
+        "Authorization",
         `Bearer ${(getState() as any).auth.jwtToken}`
       );
       headers.set(

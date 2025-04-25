@@ -11,7 +11,7 @@ export const userApi = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth.jwtToken;
       if (token) {
-        headers.set("authorization", `Bearer ${token}`);
+        headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },

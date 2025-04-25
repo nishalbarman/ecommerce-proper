@@ -1,8 +1,12 @@
+import { store } from "../redux";
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from "axios";
 
 // Create an Axios instance
 const cAxios: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_APP_API_URL, // Replace with your API base URL
+  headers: {
+    Authorization: `Bearer ${store.getState().auth.jwtToken}`,
+  },
   withCredentials: true, // Enable sending cookies with requests
 });
 
