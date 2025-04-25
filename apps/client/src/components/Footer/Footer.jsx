@@ -25,7 +25,7 @@ function Footer() {
       </div>
 
       {/* Green leaf falling image */}
-      <div className="h-full absolute top-0 left-[45%] opacity-[0.1]">
+      {/* <div className="h-full absolute top-0 left-[45%] opacity-[0.1]">
         <Image
           className="select-none drag-none"
           src={green_leaf_falling}
@@ -34,25 +34,25 @@ function Footer() {
           height={500}
           objectFit="contain"
         />
-      </div>
+      </div> */}
 
-      <div className="flex flex-wrap justify-between gap-5 w-[100%] bg-black p-10 pl-[5%] pr-[5%] lg:pl-[10%] lg:pr-[10%] bg-primary">
+      <div className="flex flex-wrap justify-between gap-8 w-full bg-black p-6 sm:p-8 md:p-10 lg:px-[10%] bg-primary">
         {/* Exclusive */}
-        <div>
-          <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
+        <div className="w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6">
             Exclusive
           </p>
           <div className="flex flex-col gap-4">
             {/* <p className=" font-andika text-white font-semibold mb-[10px]">
               Subscribe
             </p> */}
-            <p className=" font-andika text-white text-sm">
+            <p className="font-andika text-white text-sm">
               Get 10% of your first order
             </p>
-            <div className="flex items-center pr-[15px] justify-between gap-1 w-full h-[45px] border-white border rounded-lg">
+            <div className="flex items-center justify-between gap-1 w-full h-[45px] border-white border rounded-lg pr-4">
               <input
                 placeholder="Enter your email"
-                className="outline-none border-none pl-[15px] rounded-lg bg-[black] h-full w-fill placeholder:text-[#D9D9D9] text-white bg-primary"
+                className="outline-none border-none pl-4 rounded-lg bg-[black] h-full w-full placeholder:text-[#D9D9D9] text-white bg-primary"
               />
               <Image
                 src="/assets/right-triangle.svg"
@@ -65,187 +65,130 @@ function Footer() {
         </div>
 
         {/* Supports */}
-        <div className="lg:w-1/5 max-md:text-center max-md:border-t-1 max-md:border-t-[#e1e1e1] max-md:py-8 w-full flex flex-col items-center justify-start">
-          <div>
-            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-              Support
+        <div className="w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6">
+            Support
+          </p>
+          {/* socials */}
+          <div className="mb-5 text-white">
+            <div className="flex justify-center sm:justify-start items-center gap-2 border border-white rounded w-fit px-2">
+              <a
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                href={webData.WhatsAppLink}
+                target="_blank">
+                <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
+              </a>
+              <a
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                href={`${webData.FacebookLink}`}
+                target="_blank">
+                <PiFacebookLogoBold color={"white"} fill="white" size={23} />
+              </a>
+              <a
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                href={`${webData.InstagramLink}`}
+                target="_blank">
+                <FaInstagram color={"white"} fill="white" size={22} />
+              </a>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-white">{webData.Address}</p>
+            <p className="text-white">
+              Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
+              Assam, 781***
             </p>
-            {/* socials */}
-            <div className="mb-5 max-md:text-center text-white">
-              <div className="flex max-md:justify-center items-center gap-2 border border-white rounded w-fit px-2">
-                <a
-                  className="h-10 w-10 flex items-center justify-center rounded-full"
-                  href={webData.WhatsAppLink}
-                  target="_blank">
-                  <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
-                </a>
-                <a
-                  className="h-10 w-10 flex items-center justify-center rounded-full"
-                  href={`${webData.FacebookLink}`}
-                  target="_blank">
-                  <PiFacebookLogoBold color={"white"} fill="white" size={23} />
-                  {/* facebook */}
-                </a>
-
-                <a
-                  className="h-10 w-10 flex items-center justify-center rounded-full"
-                  href={`${webData.InstagramLink}`}
-                  target="_blank">
-                  <FaInstagram color={"white"} fill="white" size={22} />
-                </a>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 max-md:text-center">
-              <p className="text-white ">{webData.Address}</p>
-              <p className="text-white">
-                Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
-                Assam, 781***
-              </p>
-
-              <p className="text-white">
-                <a href={`mailto:${webData.BrandEmail}`}>
-                  {webData.BrandEmail}
-                </a>
-                <a href={`mailto:${webData.BrandEmail}`}>
-                  thisisanemail@gmail.com
-                </a>
-              </p>
-            </div>
+            <p className="text-white">
+              <a
+                href={`mailto:${webData.BrandEmail}`}
+                className="hover:underline">
+                {webData.BrandEmail}
+              </a>
+            </p>
           </div>
         </div>
 
         {/* My accounts */}
-        <div className="lg:w-1/6 w-full flex flex-col items-center justify-start">
-          <div>
-            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-              Account
-            </p>
-            <div className="font-andika flex flex-col gap-[16px]">
-              <p className="font-andika font-andika text-white">
-                <Link href="/my-account">My Account</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href="/auth/login">Login / Register</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href="/cart">Cart</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href="/wishlist">Wishlist</Link>
-              </p>
-            </div>
+        <div className="w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6">
+            Account
+          </p>
+          <div className="font-andika flex flex-col gap-4">
+            <Link href="/my-account" className="text-white underline">
+              My Account
+            </Link>
+            <Link href="/auth/login" className="text-white underline">
+              Login / Register
+            </Link>
+            <Link href="/cart" className="text-white underline">
+              Cart
+            </Link>
+            <Link href="/wishlist" className="text-white underline">
+              Wishlist
+            </Link>
           </div>
         </div>
 
         {/* quick links */}
-        <div className="lg:w-1/5 w-full flex flex-col items-center justify-start">
-          <div>
-            <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-              Quick Link
-            </p>
-            <div className="font-andika flex flex-col gap-[16px]">
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/dynamic/refund-policy"}>Refund Policy</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/dynamic/privacy-policy"}>Privacy Policy</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/dynamic/terms-and-conditions"}>Terms Of Use</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/dynamic/faq"}>Faq</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/dynamic/about"}>About Me</Link>
-              </p>
-              <p className=" font-andika font-andika text-white">
-                <Link href={"/contact"}>Contact</Link>
-              </p>
-            </div>
+        <div className="w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6">
+            Quick Link
+          </p>
+          <div className="font-andika flex flex-col gap-4">
+            <Link
+              href={"/dynamic/refund-policy"}
+              className="text-white underline">
+              Refund Policy
+            </Link>
+            <Link
+              href={"/dynamic/privacy-policy"}
+              className="text-white underline">
+              Privacy Policy
+            </Link>
+            <Link
+              href={"/dynamic/terms-and-conditions"}
+              className="text-white underline">
+              Terms Of Use
+            </Link>
+            <Link href={"/dynamic/faq"} className="text-white underline">
+              Faq
+            </Link>
+            <Link
+              href={"/dynamic/about"}
+              className="text-white underline">
+              About Me
+            </Link>
+            <Link href={"/contact"} className="text-white underline">
+              Contact
+            </Link>
           </div>
         </div>
-
-        {/* credits links */}
-        {/* <div>
-          <p className=" font-andika text-white text-xl font-bold mt-[24px] mb-[24px]">
-            Credits
-          </p>
-          <div className="font-andika flex flex-col gap-[16px]">
-            <a
-              className="font-andika font-andika text-white"
-              target="_blank"
-              href="https://www.flaticon.com/free-icons/tick"
-              title="tick icons">
-              Vectors Market - Flaticon
-            </a>
-            <p className="font-andika font-andika text-white">
-              <a
-                href="https://iconscout.com/icons/check"
-                className="underline"
-                target="_blank">
-                check
-              </a>{" "}
-              by{" "}
-              <a
-                target="_blank"
-                href="https://iconscout.com/contributors/google-inc"
-                className="underline">
-                Google Inc.
-              </a>{" "}
-              on{" "}
-              <a
-                target="_blank"
-                href="https://iconscout.com"
-                className="underline">
-                IconScout
-              </a>
-            </p>
-            <p className="font-andika font-andika text-white">
-              <a
-                href="https://iconscout.com/icons/cart"
-                className="underline"
-                target="_blank">
-                Cart
-              </a>{" "}
-              by{" "}
-              <a
-                href="https://iconscout.com/contributors/google-inc"
-                className="underline"
-                target="_blank">
-                Google Inc.
-              </a>
-            </p>
-          </div>
-        </div> */}
       </div>
 
-      <div className="bg-[rgba(223,223,223,0.1)] mt-[3.5rem]  h-[1px] w-fill"></div>
+      <div className="bg-[rgba(223,223,223,0.1)] h-[1px] w-full"></div>
 
-      <div className="bg-white flex justify-center items-center">
-        <div className="container px-5 py-7 mx-auto flex items-center sm:flex-row flex-col bg-white">
-          <a className="flex title-font font-medium items-center md:justify-start justify-center text-gray-900">
-            {/* <span className="ml-3 text-xl">{webData.BrandName}</span> */}
-            <span className="ml-3 text-xl font-marker ">{"JharnaMehendi"}</span>
-          </a>
-          <p className="text-sm text-gray-500 sm:ml-4 sm:pl-4 sm:border-l-2 sm:border-gray-200 sm:py-2 sm:mt-0 mt-4 font-andika ">
+      <div className="bg-white py-6">
+        <div className="container px-4 sm:px-6 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center">
+            <span className="text-xl font-marker">JharnaMehendi</span>
+          </div>
+          <p className="text-sm text-gray-500 font-andika">
             © {new Date().getFullYear()}{" "}
-            {/* <Link href={`/`}>{webData.websiteUrl}</Link> */}
-            <Link href={`/`}>NishaChar.in</Link>
+            <Link href={`/`} className="hover:underline">
+              NishaChar.in
+            </Link>
           </p>
-          <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
-            <span className="text-black font-marker ">
-              🧑‍💻 Made By{" "}
-              <a
-                title="Nishal Barman"
-                href="https://nisha-char.web.app/"
-                target="_blank"
-                className="underline font-marker ">
-                Nishachar
-              </a>{" "}
-            </span>
-          </span>
+          <div className="text-black font-marker">
+            🧑‍💻 Made By{" "}
+            <a
+              title="Nishal Barman"
+              href="https://nisha-char.web.app/"
+              target="_blank"
+              className="underline hover:no-underline">
+              Nishachar
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -34,13 +34,13 @@ async function Navbar({ title }) {
   console.log("Token from Navbar function", token);
 
   return (
-    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
+    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
       <div className="flex flex-center items-center w-fit">
         <img
           src="https://i.ibb.co/S7wS79F3/d24a3ddf1d51.png"
-          className="w-14 mr-3"
+          className="w-14 mr-3 max-sm:h-10 max-sm:w-10"
         />
-        <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
+        <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden">
           <Link
             className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-white"
             href={"/"}>

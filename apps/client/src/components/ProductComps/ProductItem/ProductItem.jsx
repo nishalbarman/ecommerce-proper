@@ -17,6 +17,8 @@ import { IoEyeOutline } from "react-icons/io5";
 import { AiOutlineDelete, AiOutlineEye } from "react-icons/ai";
 
 import { MdDeleteOutline } from "react-icons/md";
+import { FaCartShopping, FaCheck } from "react-icons/fa6";
+import Link from "next/link";
 
 function ProductItem({
   productDetails = {},
@@ -222,13 +224,13 @@ function ProductItem({
   };
 
   return (
-    <div className="w-[100%] group/product_item">
+    <div className="w-full group/product_item">
       {/* TOP SECTION */}
-      <div className="relative rounded flex items-center justify-center w-full h-[200px] md:h-[250px] bg-[rgb(244,244,245)]">
+      <div className="relative aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)]">
         {/* discount label */}
         {!!originalPrice && (
-          <div className="z-[999] absolute top-0 left-0 w-[80px] rounded bg-[#DB4444] flex items-center justify-center max-[591px]:w-[60px] p-[3px_5px] ">
-            <span className="text-white text-[14px] max-[591px]:text-[12px]">
+          <div className="z-[999] absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[#DB4444] flex items-center justify-center max-sm:p-1 p-1.5">
+            <span className="text-white text-sm max-sm:text-[12px] font-medium">
               {discount?.current || 0}%
             </span>
           </div>
@@ -238,34 +240,22 @@ function ProductItem({
         {!deleteCartIconVisible && (
           <button
             disabled={onCart}
-            className="w-[100%] justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition duration-300 ease-in-out min-[593px]:group-hover/product_item:flex min-[593px]:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] max-sm:h-[40px] max-sm:text-[15px] flex items-center justify-center h-[48px] rounded-b bg-[rgba(0,0,0,0.7)] text-white "
+            className="w-full justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition-all duration-300 ease-in-out md:group-hover/product_item:flex md:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] h-12 flex items-center justify-center rounded-b bg-[rgba(0,0,0,0.8)] text-white hover:bg-black"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
-              <Image
-                className="invert"
-                alt="check_add_to_cart"
-                src={"/assets/check.svg"}
-                width={20}
-                height={20}
-              />
+              <FaCheck size={20} color="white" fill="white" />
             ) : (
-              <Image
-                alt="add to cart"
-                className="invert"
-                src={"/assets/addcart.svg"}
-                width={25}
-                height={30}
-              />
+              <FaCartShopping size={21} color="white" fill="white" />
             )}
           </button>
         )}
 
         {/* all interactive icons */}
-        <div className="cursor-pointer absolute top-3 right-3 z-[999] flex flex-col gap-2 items-center w-fit">
+        <div className="absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit">
           {/* ADD TO WISHLIST */}
           {isWishlistIconVisible && (
             <div
-              className={`flex items-center justify-center bg-white rounded-full w-[40px] h-[40px] max-[597px]:w-[33px] max-[597px]:h-[33px] group-wishlist shadow ${onWishlist ? "hover:bg-black " : "hover:invert"}`}
+              className={`flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 ${onWishlist ? "hover:bg-red-100" : "hover:bg-gray-100"}`}
               onClick={handleLoveButtonClicked}>
               {onWishlist ? (
                 <BsHeartFill size={19} color="red" fill="red" />
@@ -278,7 +268,7 @@ function ProductItem({
           {/* VIEW PRODUCT INFORMATION */}
           {isEyeVisible && (
             <div
-              className="cursor-pointer flex items-center justify-center  p-1 bg-white rounded-full w-[40px] h-[40px] max-[597px]:w-8 max-[597px]:h-8 group-viewproduct hover:invert shadow"
+              className="hidden md:flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-viewproduct hover:bg-gray-100 shadow-lg transition-all duration-200"
               onClick={handleVisitProduct}>
               <AiOutlineEye size={23} />
             </div>
@@ -287,81 +277,69 @@ function ProductItem({
           {/* DELETE ICON CART */}
           {deleteCartIconVisible && (
             <div
-              className="cursor-pointer flex items-center justify-center p-1 bg-white rounded-full w-[40px] h-[40px] group-deletecart hover:invert shadow"
+              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletecart hover:bg-gray-100 shadow-lg transition-all duration-200"
               onClick={handleCartProductRemove}>
-              <Image
-                className="group-hover/deletecart:invert"
-                src="/assets/delete.svg"
-                width={17}
-                height={17}
-                alt="delete cart icon"
-              />
+              <AiOutlineDelete size={20} />
             </div>
           )}
 
           {/* DELETE ICON WISHLIST */}
           {deleteWishlistIconVisible && (
             <div
-              className="cursor-pointer flex items-center justify-center  p-1 bg-white rounded-full w-[40px] h-[40px] group-deletewishlist hover:invert shadow"
+              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletewishlist hover:bg-gray-100 shadow-lg transition-all duration-200"
               onClick={handleRemoveFromWishlist}>
               <AiOutlineDelete size={20} />
-            </div>
-          )}
-
-          {/* ADD TO CART BUTTON */}
-          {!deleteCartIconVisible && (
-            <div
-              className="cursor-pointer hidden items-center justify-center p-1 bg-white rounded-full w-[40px] h-[40px] hover:scale-[1.18] max-[597px]:flex max-[597px]:w-[33px] max-[597px]:h-[33px]"
-              onClick={handleAddToCart}>
-              {cartIdMapped?.hasOwnProperty(productId) ? (
-                <Image src={"/assets/addcart.svg"} width={22} height={22} />
-              ) : (
-                <Image
-                  src="/assets/add_to_cart_icon.svg"
-                  width={21}
-                  height={21}
-                  alt="add to cart icon"
-                />
-              )}
             </div>
           )}
         </div>
 
         {/* preview product image */}
-        {/* <div className="box-border p-2 h-[100%] w-[100%]"> */}
         <img
-          className="absolute object-contain mix-blend-multiply h-[100%] w-[100%] rounded aspect-sqaure"
+          className="absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg"
           src={previewImage}
           alt={title}
         />
-        {/* </div> */}
       </div>
 
       {/* body section */}
-      <div className="relative w-[100%] flex flex-col items-left md:items-center gap-1 pt-[16px] pb-[16px] bg-white z-[999] overflow-hidden">
-        <span className="text-lg md:text-[19px] font-semibold line-clamp-1">
-          {title}
-        </span>
-        <div className="flex gap-[16px] justify-left md:justify-center w-[100%]">
-          <span className="text-[#DB4444] text-[16px] md:text-[18px]">
-            &#8377;{discountedPrice} INR
-          </span>
-          {!!originalPrice && (
-            <span className="line-through text-[#000] text-[16px] md:text-[18px] opacity-[0.6]">
-              &#8377;{originalPrice} INR
-            </span>
-          )}
+      <div className="w-full flex flex-col gap-2 p-4 bg-white">
+        <div className="md:hidden">
+          <button
+            disabled={onCart}
+            className="w-full flex items-center justify-center h-10 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            onClick={handleAddCartButtonClicked}>
+            {onCart ? (
+              <FaCheck size={19} color="white" fill="white" />
+            ) : (
+              <FaCartShopping size={19} color="white" fill="white" />
+            )}
+          </button>
         </div>
+
+        <div className="space-y-1">
+          <Link href={`/products/view/${productId}`} className="block">
+            <h3 className="text-base md:text-lg font-semibold line-clamp-2 hover:text-gray-600 transition-colors">
+              {title}
+            </h3>
+            <div className="flex items-center gap-3">
+              <span className="text-[#DB4444] text-base md:text-lg font-medium">
+                &#8377;{discountedPrice}
+              </span>
+              {!!originalPrice && (
+                <span className="line-through text-gray-500 text-sm md:text-base">
+                  &#8377;{originalPrice}
+                </span>
+              )}
+            </div>
+          </Link>
+        </div>
+
         {isRatingVisible && (
-          <div className="flex justify-left md:justify-center gap-4 w-[100%] overflow-hidden">
-            <div className="flex items-center gap-[2px] mt-[5px] h-full w-fit">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <RateStar stars={stars} />
             </div>
-            <div className="flex items-center h-full max-sm:hidden">
-              <span className="text-[#000] text-[18px] font-semibold opacity-[0.5]">
-                ({totalFeedbacks})
-              </span>
-            </div>
+            <span className="text-gray-500 text-sm">({totalFeedbacks})</span>
           </div>
         )}
       </div>

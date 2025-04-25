@@ -390,7 +390,7 @@ export default function ViewProduct({ params }) {
 
             {/* Right Side: Product Details */}
             <div className="sm:pl-8 max-sm:py-8 sm:border-l border-gray-200 sm:border-t-0 border-t sm:mt-0">
-              <p className="mb-2">
+              <p className="mb-2 max-md:text-sm">
                 {inStock ? (
                   <span className="text-green-800 font-bold">In stock</span>
                 ) : (
@@ -398,7 +398,7 @@ export default function ViewProduct({ params }) {
                 )}
               </p>
 
-              <h1 className="text-4xl font-bold mb-2 text-gray-800">
+              <h1 className="text-4xl max-md:text-lg font-bold mb-2 text-gray-800">
                 {product && product.title}
               </h1>
 

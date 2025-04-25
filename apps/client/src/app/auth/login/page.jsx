@@ -102,9 +102,7 @@ export default function Page() {
         <div className="grid grid-col-1 max-sm:block md:grid-cols-3 h-fill w-[100%] justify-center">
           {/* <div className="bg-[#CBE4E8] bg-[url(/assets/cart_mobile.png)] bg-no-repeat bg-contain h-[100%]"></div> */}
           <div className="flex rounded-md flex-col max-md:shadow-lg p-5 pt-8 pb-8 min-md:p-8 col-start-1 md:col-start-2 gap-[20px]">
-            <h3 className="text-3xl font-semibold font-andika">
-              Login to Crafter
-            </h3>
+            <h3 className="text-3xl font-semibold font-andika">Login</h3>
             <p className="text-xl font-andika">Enter your details below</p>
             <form
               onSubmit={handleLogin}
@@ -166,7 +164,7 @@ export default function Page() {
 
               <div className="mt-[8px] flex justify-center gap-3">
                 <span className="text-lg text-center">
-                  New here, create an account?{" "}
+                  New here,{"  "}
                   <Link
                     className="text-md font-andika font-semibold underline"
                     href={"/auth/signup"}>

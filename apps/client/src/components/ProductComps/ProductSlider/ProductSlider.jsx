@@ -83,8 +83,8 @@ const ProductSlider = ({ items }) => {
       {
         breakpoint: 528, // Adjust as needed
         settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
+          slidesToShow: 1,
+          slidesToScroll: 1,
         },
       },
     ],

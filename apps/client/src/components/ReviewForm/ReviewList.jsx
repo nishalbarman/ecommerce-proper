@@ -94,8 +94,8 @@ export default function ReviewList({ productId, productType = "buy" }) {
 
   if (error) {
     return (
-      <div className="text-center py-8 text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-2xl p-6 shadow-lg">
-        {error}
+      <div className="container mx-auto text-center py-5 text-white bg-red-200 rounded-md border border-red-500 p-6">
+        <span className="text-red-600 font-bold">{error}</span>
       </div>
     );
   }

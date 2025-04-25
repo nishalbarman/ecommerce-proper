@@ -26,7 +26,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 to-emerald-700 py-24">
+    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 to-emerald-700 py-24 max-md:pt-5">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -49,7 +49,7 @@ const HeroProduct = async () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-10">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Text content */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-6">
@@ -78,7 +78,7 @@ const HeroProduct = async () => {
           </div>
 
           {/* Product image */}
-          <div className="lg:w-1/2 flex justify-center mt-10 lg:mt-0">
+          <div className="max-md:hidden lg:w-1/2 flex justify-center mt-10 lg:mt-0">
             <div className="relative w-full max-w-md aspect-square group">
               <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-md transform rotate-6 scale-95 group-hover:rotate-3 group-hover:scale-100 transition-all duration-500"></div>
               <div className="relative overflow-hidden rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-500">
