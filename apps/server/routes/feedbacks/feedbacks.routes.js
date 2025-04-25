@@ -233,20 +233,29 @@ router.post("/", checkRole(0, 1), async (req, res) => {
 });
 
 // FETCH FEEDBACK FOR ONE PRODUCT GIVEN BY ONE USER
-router.post("/view/:productId", checkRole(0, 1), async (req, res) => {
+router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
   try {
-    const productId = req.params?.productId;
+    const fetchBy = req.params?.fetchBy;
+    const fetchingId = req.params?.fetchingId;
     const productType = req.body?.productType;
 
-    if (!productId || !productType) {
+    if (!fetchingId || !productType) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const feedback = await Feedback.findOne({
-      product: productId,
+    const filter = {
       productType: productType,
       user: req.user._id,
-    });
+    };
+
+    // product can be fetched by user with either product id or feedback id
+    if (fetchBy === "product") {
+      filter.product = fetchingId;
+    } else {
+      filter._id = fetchingId;
+    }
+
+    const feedback = await Feedback.findOne(filter);
 
     return res.status(200).json({ feedback: feedback });
   } catch (error) {

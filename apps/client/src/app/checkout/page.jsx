@@ -26,6 +26,8 @@ import { BsTruck } from "react-icons/bs";
 export default function CheckoutPage() {
   const router = useRouter();
 
+  const token = useSelector((state) => state.auth.jwtToken);
+
   const { updateCart } = CartSlice;
   const { useGetAddressQuery } = AddressApi;
   const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
@@ -123,7 +125,10 @@ export default function CheckoutPage() {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          {
+            headers: {},
+          }
         ); // generate hash with coupon
 
         const pay = response.data.paymentDetails;
@@ -175,7 +180,12 @@ export default function CheckoutPage() {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddress },
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       ); // generate razor pay order id and also apply coupon if applicable
 
       const config = {

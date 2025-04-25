@@ -6,12 +6,12 @@ import { redirect } from "next/navigation";
 import Order from "../../components/Order/Order";
 
 export default async function page() {
-  const cookiesStore = await cookies();
-  const token = cookiesStore?.get("token")?.value;
+  // const cookiesStore = await cookies();
+  // const token = cookiesStore?.get("token")?.value;
 
-  if (!token) {
-    redirect("/auth/login?redirect=myorders");
-  }
+  // if (!token) {
+  //   redirect("/auth/login?redirect=myorders");
+  // }
 
   return (
     <>

@@ -13,10 +13,13 @@ import {
   FaMoneyBillWave,
   FaCreditCard,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const OrderViewPage = ({ params }) => {
   const router = useRouter();
   const { orderTxnId: id } = use(params);
+
+  const token = useSelector((state) => state.auth.jwtToken);
 
   const [orderData, setOrderData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +35,7 @@ const OrderViewPage = ({ params }) => {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -68,6 +72,7 @@ const OrderViewPage = ({ params }) => {
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );

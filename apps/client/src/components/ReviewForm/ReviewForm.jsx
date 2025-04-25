@@ -12,9 +12,9 @@ export default function ReviewForm({
   productId,
   productType = "buy",
   onReviewSubmit,
-  cookie,
 }) {
   const router = useRouter();
+  const jwtToken = useSelector((state) => state.auth.jwtToken);
   const [description, setDescription] = useState("");
   const [starsGiven, setStarsGiven] = useState(0);
   const [images, setImages] = useState([]);
@@ -46,6 +46,7 @@ export default function ReviewForm({
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${jwtToken}`,
             },
             credentials: "include",
             body: JSON.stringify({
@@ -108,6 +109,7 @@ export default function ReviewForm({
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${jwtToken}`,
           },
           credentials: "include",
           body: JSON.stringify({

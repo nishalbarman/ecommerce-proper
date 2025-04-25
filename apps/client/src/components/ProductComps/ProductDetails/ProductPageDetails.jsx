@@ -31,6 +31,7 @@ export default function ProductDetails({
   handleVariantSelection,
 }) {
   const navigate = useRouter();
+  const jwtToken = useSelector((state) => state.auth.jwtToken);
 
   const { useAddOneToCartMutation } = CartApi;
 
@@ -126,8 +127,6 @@ export default function ProductDetails({
   const [inCart, setInCart] = useState(false);
   const [isAddToCartLoading, setIsAddToCartLoading] = useState(false);
 
-  const token = useSelector((state) => state.auth.jwtToken);
-
   const checkCartStatus = async (productId, variantId) => {
     console.log("Checking cart status for:", {
       productId,
@@ -139,8 +138,8 @@ export default function ProductDetails({
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": `application/json`,
+            Authorization: `Bearer ${jwtToken}`,
           },
           credentials: "include",
           body: JSON.stringify({

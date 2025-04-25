@@ -7,9 +7,7 @@ import ReviewForm from "@/components/ReviewForm/ReviewForm";
 
 import { RiChatQuoteLine, RiStarFill } from "react-icons/ri";
 
-function ReviewSection({ product, cookie }) {
-  console.log(product);
-
+function ReviewSection({ product }) {
   const [reviews, setReviews] = useState([]);
   const [hasPurchased, setHasPurchased] = useState(false); // You'll need to determine this from your API
 
@@ -39,15 +37,14 @@ function ReviewSection({ product, cookie }) {
           <ReviewForm
             productId={product._id}
             onReviewSubmit={handleReviewSubmit}
-            cookie={cookie}
           />
         </div>
       )}
 
       <div className="md:col-span-2 mb-10 mt-5">
         {/* <div className="bg-white p-6 rounded-lg shadow-md w-full"> */}
-          {/* <h3 className="text-lg font-semibold mb-4">Customer Re  views</h3> */}
-          <ReviewList productId={product._id} cookie={cookie} />
+        {/* <h3 className="text-lg font-semibold mb-4">Customer Re  views</h3> */}
+        <ReviewList productId={product._id} />
         {/* </div> */}
       </div>
     </section>

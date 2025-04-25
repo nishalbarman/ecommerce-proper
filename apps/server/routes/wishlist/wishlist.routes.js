@@ -82,7 +82,7 @@ router.post("/", checkRole(1, 0), async (req, res) => {
     });
 
     if (wishlistItem) {
-      return res.status(409).json({
+      return res.status(200).json({
         status: true,
         message: "Already in wishlist",
       });
@@ -98,7 +98,7 @@ router.post("/", checkRole(1, 0), async (req, res) => {
 
     return res.json({
       status: true,
-      message: "Item added to wishlist",
+      message: "Added to Wishlist",
     });
   } catch (error) {
     console.log(error);
@@ -128,7 +128,7 @@ router.delete("/:wishlistId", checkRole(0, 1), async (req, res) => {
     }
 
     return res.json({
-      message: "Wishlist removed",
+      message: "Removed from Wishlist",
     });
   } catch (error) {
     console.log(error);

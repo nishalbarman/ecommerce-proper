@@ -6,10 +6,13 @@ import { toast } from "react-toastify";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Loading from "@/app/cart/loading";
+import { useSelector } from "react-redux";
 
 const OrderHistoryPage = () => {
   const router = useRouter();
   const productType = "buy";
+
+  const token = useSelector((state) => state.auth.jwtToken);
 
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +32,7 @@ const OrderHistoryPage = () => {
           },
           withCredentials: true,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );

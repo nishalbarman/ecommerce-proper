@@ -114,9 +114,9 @@ export const store = configureStore({
   },
 });
 
-store.subscribe(() => {
-  console.log("State after change:", store.getState().appliedCouponSlice);
-});
+// store.subscribe(() => {
+//   console.log("State after change:", store.getState().appliedCouponSlice);
+// });
 
 export const persistor = persistStore(store);
 
