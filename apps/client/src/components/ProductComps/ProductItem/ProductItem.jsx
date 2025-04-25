@@ -226,7 +226,7 @@ function ProductItem({
   return (
     <div className="w-full group/product_item">
       {/* TOP SECTION */}
-      <div className="relative aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)]">
+      <div className="relative md:max-h-[300px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)]">
         {/* discount label */}
         {!!originalPrice && (
           <div className="z-[999] absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[#DB4444] flex items-center justify-center max-sm:p-1 p-1.5">
@@ -306,29 +306,39 @@ function ProductItem({
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-10 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            className="w-full flex items-center justify-center h-12 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
-              <FaCheck size={19} color="white" fill="white" />
+              <FaCheck size={20} color="white" fill="white" />
             ) : (
-              <FaCartShopping size={19} color="white" fill="white" />
+              <FaCartShopping size={20} color="white" fill="white" />
             )}
           </button>
         </div>
 
-        <div className="space-y-1">
-          <Link href={`/products/view/${productId}`} className="block">
-            <h3 className="text-base md:text-lg font-semibold line-clamp-2 hover:text-gray-600 transition-colors">
+        <div className="w-full max-md:shadow rounded py-2 px-2">
+          <Link href={`/products/view/${productId}`} className="block group">
+            <h3 className="text-xl font-semibold line-clamp-2 transition-colors duration-200">
               {title}
             </h3>
-            <div className="flex items-center gap-3">
-              <span className="text-[#DB4444] text-base md:text-lg font-medium">
-                &#8377;{discountedPrice}
-              </span>
-              {!!originalPrice && (
-                <span className="line-through text-gray-500 text-sm md:text-base">
-                  &#8377;{originalPrice}
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="flex items-center gap-3">
+                <span className="text-black text-xl md:text-lg font-bold">
+                  &#8377;{discountedPrice}
                 </span>
+                {!!originalPrice && (
+                  <span className="line-through text-gray-400 text-sm md:text-base">
+                    &#8377;{originalPrice}
+                  </span>
+                )}
+              </div>
+              {!!originalPrice && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500">You save</span>
+                  <span className="text-green-600 text-sm font-medium">
+                    &#8377;{originalPrice - discountedPrice}
+                  </span>
+                </div>
               )}
             </div>
           </Link>

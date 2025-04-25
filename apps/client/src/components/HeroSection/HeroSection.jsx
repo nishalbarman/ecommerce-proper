@@ -39,7 +39,7 @@ const HeroProduct = async () => {
         />
       </div>
 
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-10 animate-float">
+      {/* <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-10 animate-float">
         <Image
           src={green_leaf_falling}
           alt="Falling leaves"
@@ -47,7 +47,7 @@ const HeroProduct = async () => {
           height={600}
           className="select-none pointer-events-none"
         />
-      </div>
+      </div> */}
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-10">
         <div className="flex flex-col lg:flex-row items-center gap-12">
