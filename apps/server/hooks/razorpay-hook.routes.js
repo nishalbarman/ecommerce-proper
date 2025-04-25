@@ -136,19 +136,19 @@ router.post("/", async (req, res) => {
           }
 
           await sendMail({
-            from: `"Rent Karo" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
+            from: `"Jharna Mehendi" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
             // to: centerDetails.email, // list of receivers
-            to: "nishalbarman+admin@gmail.com", // list of receivers
-            // bcc: "nishalbarman@gmail.com", // can be the admin email address
-            subject: "RentKaro: New Order Recieved", // Subject line
+            to: process.env.OWNER_EMAIL, // list of receivers
+            bcc: "nishalbarman@gmail.com", // can be the admin email address
+            subject: "A new order recieved.", // Subject line
             html: `<html>
                           <body>
                             <div style="width: 100%; padding: 5px 0px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgb(0,0,0,0.3)">
-                              <h2>Rent Karo</h2>
+                              <h2>Hi Jharna,</h2>
                             </div>
                             <div style="padding: 40px; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;">
                               <center>
-                                <span style="font-size: 18px;">Hey Yo Brother you just got a new order, You got a new order. Fullfill the order as soon as possible.
+                                <span style="font-size: 18px;">Hey you just got a new order, now you got some more work to do. Yo Good Luck!.
                               </center>
                             </div>
                           </body>
