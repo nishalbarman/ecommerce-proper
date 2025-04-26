@@ -21,7 +21,7 @@ const Logout = () => {
     const toastId = toast.loading("Logging out...");
     try {
       await axios.post(
-        `${import.meta.env.VITE_APP_API_URL}/auth/logout`,
+        `${import.meta.env.VITE_APP_API_URL}/logout`,
         {},
         {
           withCredentials: true,
