@@ -52,6 +52,8 @@ const Login = () => {
         }
       );
 
+      console.log("What is login response?", response.data);
+
       dispatch(setUserAuthData({ ...response.data.user }));
       navigator("/");
       toast.update(toastId, {

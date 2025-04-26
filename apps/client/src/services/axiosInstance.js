@@ -83,10 +83,19 @@ axiosInstance.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError);
         store.dispatch(clearToken());
+        if (refreshError.response?.data?.redirectTo) {
+          window.location.href = refreshError.response.data.redirectTo;
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
+    }
+
+    if (error.response?.status === 401 && error.response?.data?.redirectTo) {
+      store.dispatch(clearToken());
+      window.location.href = error.response.data.redirectTo;
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);
