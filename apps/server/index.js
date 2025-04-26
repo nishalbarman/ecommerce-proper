@@ -27,6 +27,8 @@ app.use(
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
+      "https://cartshopping.in",
+      "https://jharna-mehendi.cartshopping.in",
       "https://jharna-mehendi.vercel.app",
       "https://jharna-mehendi-admin.web.app",
       "https://jharna-mehendi-admin.vercel.app",
