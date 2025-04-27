@@ -496,20 +496,6 @@ router.get("/admin-view/:productId", checkRole(1), async (req, res) => {
 // ADMIN ROUTE : Product create route
 router.post("/", checkRole(1), async (req, res) => {
   try {
-    const token = req?.jwt?.token || null;
-    if (!token) {
-      return res.redirect("/auth/login");
-    }
-
-    const userDetails = getTokenDetails(token);
-    if (
-      !userDetails ||
-      !userDetails?.roleNumber ||
-      userDetails.roleNumber !== 1
-    ) {
-      return res.redirect("/auth/login");
-    }
-
     const productData = req.body?.productData;
 
     if (!productData) {

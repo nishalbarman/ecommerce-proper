@@ -19,6 +19,7 @@ import { FaMessage } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { IoSettingsSharp } from "react-icons/io5";
 
 type SidebarProps = {
   navbarToogle: boolean;
@@ -235,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
         // },
         {
           title: "Web Config",
-          icon: <FaExchangeAlt className="mr-4" />,
+          icon: <IoSettingsSharp className="mr-4" />,
           path: "/web-config",
         },
         {
