@@ -255,7 +255,7 @@ function ProductItem({
           {/* ADD TO WISHLIST */}
           {isWishlistIconVisible && (
             <div
-              className={`flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 ${onWishlist ? "hover:bg-red-100" : "hover:bg-gray-100"}`}
+              className={`flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${onWishlist ? "hover:bg-red-100" : "hover:bg-gray-100"}`}
               onClick={handleLoveButtonClicked}>
               {onWishlist ? (
                 <BsHeartFill size={19} color="red" fill="red" />
@@ -268,7 +268,7 @@ function ProductItem({
           {/* VIEW PRODUCT INFORMATION */}
           {isEyeVisible && (
             <div
-              className="hidden md:flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-viewproduct hover:bg-gray-100 shadow-lg transition-all duration-200"
+              className="hidden md:flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-viewproduct hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"
               onClick={handleVisitProduct}>
               <AiOutlineEye size={23} />
             </div>
@@ -302,7 +302,7 @@ function ProductItem({
       </div>
 
       {/* body section */}
-      <div className="w-full flex flex-col gap-2 p-4 bg-white">
+      <div className="w-full flex flex-col gap-2 py-4 bg-white">
         <div className="md:hidden">
           <button
             disabled={onCart}

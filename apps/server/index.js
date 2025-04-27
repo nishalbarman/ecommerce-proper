@@ -76,6 +76,7 @@ app.use("/dynamic-pages", require("./routes/dynamicPage/dynamicPage.routes"));
 app.use("/hero-products", require("./routes/heroProduct/heroProduct.routes"));
 app.use("/roles", require("./routes/roles/roles.routes"));
 app.use("/coupons", require("./routes/coupon/coupon.routes"));
+app.use("/api/web-config", require("./routes/webConfig/webConfig.routes"));
 
 app.use(
   "/uploader/image/imgbb",

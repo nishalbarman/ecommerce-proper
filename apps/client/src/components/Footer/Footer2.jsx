@@ -4,9 +4,27 @@ import { IoCheckmarkSharp, IoSendSharp } from "react-icons/io5";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiFacebookLogoBold } from "react-icons/pi";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import axios from "axios";
 
 export default async function Footer() {
-  const webData = {};
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`
+    );
+    webData = response.data;
+  } catch (error) {
+    console.error("Failed to fetch web config:", error);
+    // Fallback data
+    webData = {
+      brandName: "Your Brand",
+      brandEmail: "contact@example.com",
+      address: "123 Street, City, Country",
+      whatsAppLink: "#",
+      facebookLink: "#",
+      instagramLink: "#",
+      websiteUrl: "https://example.com",
+    };
+  }
 
   return (
     <>
@@ -156,7 +174,7 @@ export default async function Footer() {
                 href="https://nisha-char.web.app/"
                 target="_blank"
                 className="underline">
-                Nishachar
+                NishaChar
               </a>{" "}
             </span>
           </span>

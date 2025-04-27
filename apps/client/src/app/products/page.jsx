@@ -3,9 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
-import Loading from "../cart/loading";
+import Loading from "@/components/LoadingComponent/Loading";
 import { ProductApi } from "@/redux";
 import { useSelector } from "react-redux";
+
+import { FiCheckCircle, FiShoppingBag } from "react-icons/fi";
+import Link from "next/link";
+import { MdErrorOutline } from "react-icons/md";
 
 export default function ProductList() {
   const { useGetProductsQuery } = ProductApi;
@@ -211,8 +215,19 @@ export default function ProductList() {
 
   if (error)
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-red-500 text-lg">Error: {error.message}</div>
+      <div className="flex flex-col items-center justify-center min-h-[72vh] text-center">
+        <div className="bg-gray-100 p-6 rounded-full mb-6">
+          <MdErrorOutline className="w-12 h-12 text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Error 😟</h2>
+        <p className="text-gray-600 mb-6">
+          Looks like there is an error while loading products.
+        </p>
+        <Link
+          href="/"
+          className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+          Go To Home Page
+        </Link>
       </div>
     );
 
@@ -456,7 +471,7 @@ export default function ProductList() {
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
                     {data?.data?.map((product) => (
                       <ProductItem
                         key={product._id}

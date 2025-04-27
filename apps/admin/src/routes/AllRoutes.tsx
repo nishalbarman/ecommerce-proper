@@ -22,6 +22,7 @@ import AdminContacts from "../components/ContactSection/ContactSection";
 import FeatureList from "../components/FeatureSection.jsx/FeatureList";
 import CouponList from "../components/CouponSection/CouponList";
 import Logout from "../components/Logout";
+import WebConfigPage from "@/components/WebConfig/WebConfig";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -37,7 +38,7 @@ const AllRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/center/add"
         element={
           <PrivateRoute>
@@ -52,7 +53,7 @@ const AllRoutes: React.FC = () => {
             <CenterList />
           </PrivateRoute>
         }
-      />
+      /> */}
 
       <Route
         path="/new-arrival"
@@ -163,6 +164,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <DynamicPageAdd />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/web-config"
+        element={
+          <PrivateRoute>
+            <WebConfigPage />
           </PrivateRoute>
         }
       />

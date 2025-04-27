@@ -209,34 +209,34 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
         },
       ],
     },
-    {
-      title: "CENTER",
-      items: [
-        {
-          title: "Create Center",
-          icon: <FaCog className="mr-4" />,
-          path: "/center/add",
-        },
-        {
-          title: "View Centers",
-          icon: <FaFileAlt className="mr-4" />,
-          path: "/center/list",
-        },
-      ],
-    },
+    // {
+    //   title: "CENTER",
+    //   items: [
+    //     {
+    //       title: "Create Center",
+    //       icon: <FaCog className="mr-4" />,
+    //       path: "/center/add",
+    //     },
+    //     {
+    //       title: "View Centers",
+    //       icon: <FaFileAlt className="mr-4" />,
+    //       path: "/center/list",
+    //     },
+    //   ],
+    // },
     {
       title: "SETTINGS",
       items: [
         { title: "Roles", icon: <FaCogs className="mr-4" />, path: "/roles" },
+        // {
+        //   title: "Requests",
+        //   icon: <FaKey className="mr-4" />,
+        //   path: "/requests",
+        // },
         {
-          title: "Requests",
-          icon: <FaKey className="mr-4" />,
-          path: "/requests",
-        },
-        {
-          title: "Preferences",
+          title: "Web Config",
           icon: <FaExchangeAlt className="mr-4" />,
-          path: "/preferences",
+          path: "/web-config",
         },
         {
           title: "Logout",

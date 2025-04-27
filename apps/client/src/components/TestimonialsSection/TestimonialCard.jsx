@@ -21,7 +21,7 @@ function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
           
           {/* Testimonial text */}
           <div className="py-2 relative z-10">
-            <p className="leading-relaxed text-gray-700 text-lg font-medium italic transition-all duration-300 group-hover:text-gray-800">
+            <p className="leading-relaxed text-lg font-medium italic transition-all duration-300 group-hover:text-gray-800 text-gray-600">
               {clientSpeech}
             </p>
           </div>

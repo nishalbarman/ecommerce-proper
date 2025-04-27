@@ -64,7 +64,7 @@ const Testimonials = async () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="mx-auto text-center w-2/4 max-md:w-3/4 max-sm:zoom-0_1">
-            <h1 className="text-white text-4xl leading-2xl font-bold">
+            <h1 className="text-white text-4xl leading-[50px] font-bold">
               Our Customer Said{" "}
               <span className="text-black font-light">
                 About Our Mehendi Products

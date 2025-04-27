@@ -2,8 +2,9 @@ import React from "react";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
 import { cookies } from "next/headers";
 import { fetchProducts } from "@/lib/product";
-import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
+// import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
 import Link from "next/link";
+import ProductSlider from "../ProductComps/ProductSliderTwo/ProductSlider";
 
 async function BestSelling() {
   const cookieStore = await cookies();
@@ -31,7 +32,8 @@ async function BestSelling() {
           View All
         </Link>
       </div>
-      <ProductSlider items={productData?.data} />
+      {/* <ProductSlider items={productData?.data} /> */}
+      <ProductSlider products={productData?.data} />
 
       <Link
         href="/products"

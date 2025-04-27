@@ -6,9 +6,28 @@ import { PiFacebookLogoBold } from "react-icons/pi";
 
 import tree_leaf from "../../../public/bg.png";
 import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+import axios from "axios";
 
-function Footer() {
-  const webData = {};
+async function Footer() {
+  let webData = {};
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`
+    );
+    webData = response.data;
+  } catch (error) {
+    console.error("Failed to fetch web config:", error);
+    // Fallback data
+    webData = {
+      brandName: "..........",
+      brandEmail: "..........",
+      address: "..........",
+      whatsAppLink: "#",
+      facebookLink: "#",
+      instagramLink: "#",
+      websiteUrl: "..........",
+    };
+  }
 
   return (
     <div className="bg-primary relative">
@@ -74,19 +93,19 @@ function Footer() {
             <div className="flex justify-center sm:justify-start items-center gap-2 border border-white rounded w-fit px-2">
               <a
                 className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                href={webData.WhatsAppLink}
+                href={webData.whatsAppLink}
                 target="_blank">
                 <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
               </a>
               <a
                 className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                href={`${webData.FacebookLink}`}
+                href={`${webData.facebookLink}`}
                 target="_blank">
                 <PiFacebookLogoBold color={"white"} fill="white" size={23} />
               </a>
               <a
                 className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-                href={`${webData.InstagramLink}`}
+                href={`${webData.instagramLink}`}
                 target="_blank">
                 <FaInstagram color={"white"} fill="white" size={22} />
               </a>
@@ -94,16 +113,16 @@ function Footer() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="text-white">{webData.Address}</p>
-            <p className="text-white">
+            <p className="text-white">{webData.address}</p>
+            {/* <p className="text-white">
               Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
               Assam, 781***
-            </p>
+            </p> */}
             <p className="text-white">
               <a
                 href={`mailto:${webData.BrandEmail}`}
                 className="hover:underline">
-                {webData.BrandEmail}
+                {webData.brandEmail}
               </a>
             </p>
           </div>
@@ -154,9 +173,7 @@ function Footer() {
             <Link href={"/dynamic/faq"} className="text-white underline">
               Faq
             </Link>
-            <Link
-              href={"/dynamic/about"}
-              className="text-white underline">
+            <Link href={"/dynamic/about"} className="text-white underline">
               About Me
             </Link>
             <Link href={"/contact"} className="text-white underline">
@@ -171,22 +188,24 @@ function Footer() {
       <div className="bg-white py-6">
         <div className="container px-4 sm:px-6 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center">
-            <span className="text-xl font-marker">JharnaMehendi</span>
+            <span className="text-xl max-sm:font-inconsolata font-marker ">
+              {webData.brandName || "..."}
+            </span>
           </div>
           <p className="text-sm text-gray-500 font-andika">
             © {new Date().getFullYear()}{" "}
             <Link href={`/`} className="hover:underline">
-              NishaChar.in
+              {webData.websiteUrl || "..."}
             </Link>
           </p>
-          <div className="text-black font-marker">
+          <div className="text-black max-sm:font-inconsolata font-marker ">
             🧑‍💻 Made By{" "}
             <a
               title="Nishal Barman"
               href="https://nisha-char.web.app/"
               target="_blank"
               className="underline hover:no-underline">
-              Nishachar
+              NishaChar
             </a>
           </div>
         </div>
