@@ -34,7 +34,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 
-import TransactionsTable from "./TransactionsTable";
+import TransactionsTable from "./DataTable";
 import { useAppSelector } from "../redux";
 
 import anime_image from "../assets/shinobu.webp";

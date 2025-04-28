@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const transactionSchema = new mongoose.Schema({
   orderGroupID: { type: String, required: true },
   paymentTransactionID: { type: String, required: true },
-  order: { type: [mongoose.Types.ObjectId], ref: "orders" },
-  user: { type: mongoose.Types.ObjectId, required: true },
+  order: { type: [mongoose.Types.ObjectId], ref: "orders", required: true },
+  user: { type: mongoose.Types.ObjectId, ref: "users", required: true },
 
   paymentStatus: { type: String, enum: ["Pending", "Paid", "Failed", "COC"] },
 

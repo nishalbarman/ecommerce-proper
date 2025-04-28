@@ -23,6 +23,7 @@ import FeatureList from "../components/FeatureSection.jsx/FeatureList";
 import CouponList from "../components/CouponSection/CouponList";
 import Logout from "../components/Logout";
 import WebConfigPage from "@/components/WebConfig/WebConfig";
+import DashboardWithData from "@/components/DashboardWithData";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -34,7 +35,7 @@ const AllRoutes: React.FC = () => {
         path="/"
         element={
           <PrivateRoute>
-            <Dashboard setNavbarToogle={setNavbarToogle} />
+            <DashboardWithData setNavbarToogle={setNavbarToogle} />
           </PrivateRoute>
         }
       />
