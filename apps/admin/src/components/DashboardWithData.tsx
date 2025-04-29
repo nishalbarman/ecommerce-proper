@@ -336,7 +336,7 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
             data={prepareChartData(
               usersChart,
               "Users",
-              "rgba(153, 102, 255, 1)"
+              "rgb(86, 31, 195)"
             )}
             options={options}
           />

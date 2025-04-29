@@ -9,6 +9,7 @@ const shipRocketLogin = require("../../helpter/shipRocketLogin");
 const PaymentTransModel = require("../../models/transaction.model");
 
 //! ORDER LISTING ROUTE FOR ADMIN AND CENTER
+// Update the /list route to support payment status filtering
 router.get("/list", checkRole(1, 2), async (req, res) => {
   try {
     const searchQuery = req.query;
@@ -18,48 +19,49 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
     const SKIP = +PAGE * LIMIT;
 
     const orderStatus = searchQuery?.orderStatus;
+    const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
 
     const role = req?.jwt?.role;
 
-    const filterQuery = {};
+    const filterQuery = {
+      orderGroupID: { $exists: true, $ne: null },
+      // ...(orderStatus && { orderStatus }), // Existing order status filter
+      ...(role === 2 && { center: req.jwt?.center }),
+    };
 
-    if (role === 2) {
-      filterQuery.center = req.jwt?.center;
+    // Add payment status filter if provided
+    if (paymentStatus && paymentStatus !== "all") {
+      filterQuery.paymentStatus = paymentStatus;
     }
 
-    if (orderStatus) {
+    if (orderStatus && orderStatus !== "all") {
       filterQuery.orderStatus = orderStatus;
     }
 
     const pipeline = [
       {
-        $match: {
-          orderGroupID: { $exists: true, $ne: null },
-          orderStatus: orderStatus ? orderStatus : { $exists: true },
-          ...(role === 2 && { center: req.jwt?.center }),
-        },
+        $match: filterQuery, // Use the updated filter query
       },
-      // {
-      //   $sort: { createdAt: 1 },
-      // },
       {
         $group: {
           _id: "$orderGroupID",
           totalDocumentCount: { $sum: 1 },
           totalPrice: { $sum: "$price" },
           paymentTransactionId: { $push: "$paymentTxnId" },
+          paymentStatus: { $first: "$paymentStatus" }, // Include payment status
+          orderStatus: { $first: "$orderStatus" }, // Include payment status
           orderType: { $push: "$orderType" },
           orders: { $push: "$$ROOT" },
-          createdAt: { $first: "$createdAt" }, // Extract createdAt from the first order in each group
+          createdAt: { $first: "$createdAt" },
         },
       },
       {
         $addFields: {
-          createdAt: "$createdAt", // Add createdAt field to the grouped document
+          createdAt: "$createdAt",
         },
       },
       {
-        $sort: { createdAt: -1 }, // Sort the output list based on createdAt in descending order
+        $sort: { createdAt: -1 },
       },
       {
         $group: {
@@ -106,6 +108,8 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
                     paymentTransactionId: {
                       $arrayElemAt: ["$$group.paymentTransactionId", 0],
                     },
+                    paymentStatus: "$$group.paymentStatus", // Include payment status
+                    orderStatus: "$$group.orderStatus", // Include payment status
                     orderType: {
                       $arrayElemAt: ["$$group.orderType", 0],
                     },
@@ -115,7 +119,7 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
                     },
                     user: { $arrayElemAt: ["$user", 0] },
                     orders: "$$group.orders",
-                    createdAt: "$$group.createdAt", // Include createdAt field
+                    createdAt: "$$group.createdAt",
                   },
                 },
               },
@@ -129,7 +133,9 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
 
     const orderDetails = await Order.aggregate(pipeline);
 
-    return res.json(orderDetails[0]);
+    return res.json(
+      orderDetails[0] || { globalTotalDocumentCount: 0, groupedOrders: [] }
+    );
   } catch (error) {
     console.log(error);
     return res.status(500).json({

@@ -14,6 +14,7 @@ import {
   FaCreditCard,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import Loading from "@/components/LoadingComponent/Loading";
 
 const OrderViewPage = ({ params }) => {
   const router = useRouter();
@@ -119,11 +120,7 @@ const OrderViewPage = ({ params }) => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!orderData) {
@@ -304,9 +301,13 @@ const OrderViewPage = ({ params }) => {
                     </h3>
                     {firstOrderItem.address ? (
                       <div className="mt-1 text-sm text-gray-900">
-                        <p>{firstOrderItem.address.address.streetName}</p>
-                        <p>{firstOrderItem.address.address.postalCode}</p>
-                        <p>{firstOrderItem.address.address.country}</p>
+                        <p>
+                          {firstOrderItem.address.physicalAddress?.streetName}
+                        </p>
+                        <p>
+                          {firstOrderItem.address.physicalAddress?.postalCode}
+                        </p>
+                        <p>{firstOrderItem.address.physicalAddress?.country}</p>
                       </div>
                     ) : (
                       <p className="mt-1 text-sm text-gray-500">

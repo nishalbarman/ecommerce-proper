@@ -277,7 +277,7 @@ function ProductItem({
           {/* DELETE ICON CART */}
           {deleteCartIconVisible && (
             <div
-              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletecart hover:bg-gray-100 shadow-lg transition-all duration-200"
+              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletecart hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"
               onClick={handleCartProductRemove}>
               <AiOutlineDelete size={20} />
             </div>
@@ -286,7 +286,7 @@ function ProductItem({
           {/* DELETE ICON WISHLIST */}
           {deleteWishlistIconVisible && (
             <div
-              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletewishlist hover:bg-gray-100 shadow-lg transition-all duration-200"
+              className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletewishlist hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"
               onClick={handleRemoveFromWishlist}>
               <AiOutlineDelete size={20} />
             </div>

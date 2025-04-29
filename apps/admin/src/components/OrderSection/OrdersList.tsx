@@ -4,38 +4,45 @@ import {
   useMaterialReactTable,
   MRT_ColumnDef,
 } from "material-react-table";
-
-//Date Picker Imports - these should just be in your Context Provider
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-
-import { Box, MenuItem } from "@mui/material";
-
-// import { toast } from "react-toastify";
+import {
+  Box,
+  MenuItem,
+  Tab,
+  Tabs,
+  Paper,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-import { attachComma } from "../../helper/utils";
-
 import { useAppSelector } from "../../redux/index";
 import { OrderGroup } from "../../types";
 import cAxios from "../../axios/cutom-axios";
 import { FaEye } from "react-icons/fa";
 
+type PaymentStatus = "all" | "pending" | "completed" | "failed";
+type OrderStatusFilter = "all" | "processed" | "unprocessed" | "cancelled";
+
 const OrderList = () => {
   const navigate = useNavigate();
-
   const { jwtToken } = useAppSelector((state) => state.auth);
 
-  //data and fetching state
+  // State for tab selections
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("all");
+  const [orderStatusFilter, setOrderStatusFilter] =
+    useState<OrderStatusFilter>("all");
+
+  // Data and fetching state
   const [data, setData] = useState<OrderGroup[]>([]);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
-  console.log(data);
-
-  //table state
+  // Table state
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
@@ -52,6 +59,14 @@ const OrderList = () => {
 
     url.searchParams.set("page", `${pagination.pageIndex}`);
     url.searchParams.set("limit", `${pagination.pageSize}`);
+
+    // Add filters if not 'all'
+    if (paymentStatus !== "all") {
+      url.searchParams.set("paymentStatus", paymentStatus);
+    }
+    if (orderStatusFilter !== "all") {
+      url.searchParams.set("orderStatus", orderStatusFilter);
+    }
 
     try {
       const res: {
@@ -73,11 +88,14 @@ const OrderList = () => {
     setIsRefetching(false);
   };
 
-  //if you want to avoid useEffect, look at the React Query example instead
   useEffect(() => {
     fetchOrderData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.pageIndex, pagination.pageSize]);
+  }, [
+    pagination.pageIndex,
+    pagination.pageSize,
+    paymentStatus,
+    orderStatusFilter,
+  ]);
 
   const columns = useMemo<MRT_ColumnDef<OrderGroup>[]>(
     () => [
@@ -86,38 +104,67 @@ const OrderList = () => {
         header: "Payment Info",
         columns: [
           {
-            header: "Transaction ID", // this will be the order Gateway transaction id
+            header: "Transaction ID",
             accessorKey: "paymentTransactionId",
             enableClickToCopy: true,
             size: 200,
-            //custom conditional format and styling
             Cell: ({ renderedCellValue }) => (
               <Box component="span">
                 {renderedCellValue || "Not Applicable"}
               </Box>
             ),
           },
-          // {
-          //   header: "Total Price",
-          //   accessorKey: "totalPrice",
-          //   size: 200,
-          //   //custom conditional format and styling
-          //   Cell: ({ renderedCellValue }) => (
-          //     <Box component="span">
-          //       <strong>
-          //         {attachComma(
-          //           renderedCellValue === undefined ||
-          //             renderedCellValue === null
-          //             ? 0
-          //             : +renderedCellValue
-          //         )}
-          //       </strong>
-          //     </Box>
-          //   ),
-          // },
+          {
+            header: "Payment Status",
+            accessorKey: "paymentStatus",
+            size: 150,
+            Cell: ({ renderedCellValue }) => {
+              let color = "";
+              let text = "";
+
+              switch (renderedCellValue) {
+                case "Pending":
+                  color = "orange";
+                  text = "Pending";
+                  break;
+                case "Success":
+                  color = "green";
+                  text = "Completed";
+                  break;
+                case "Failed":
+                  color = "red";
+                  text = "Failed";
+                  break;
+                default:
+                  color = "gray";
+                  text = "N/A";
+              }
+
+              return (
+                <Chip
+                  label={text}
+                  sx={{
+                    color: "white",
+                    backgroundColor: color,
+                    fontWeight: "bold",
+                    minWidth: 100,
+                  }}
+                />
+              );
+            },
+          },
+          {
+            header: "Amount",
+            accessorKey: "totalPrice",
+            size: 120,
+            Cell: ({ renderedCellValue }) => (
+              <Box component="span" sx={{ fontWeight: "bold" }}>
+                ₹{renderedCellValue?.toLocaleString() || "0"}
+              </Box>
+            ),
+          },
         ],
       },
-
       {
         id: "order_info",
         header: "Order Info",
@@ -126,75 +173,83 @@ const OrderList = () => {
             header: "Order Group ID",
             accessorKey: "orderGroupID",
             size: 200,
-            //custom conditional format and styling
             Cell: ({ renderedCellValue }) => (
-              <Box component="span">{renderedCellValue}</Box>
+              <Box component="span" sx={{ fontFamily: "monospace" }}>
+                {renderedCellValue}
+              </Box>
             ),
           },
           {
-            header: "Order Quantity",
+            header: "Status",
+            accessorKey: "orderStatus",
+            size: 150,
+            Cell: ({ renderedCellValue }) => {
+              let color = "";
+              let text = (renderedCellValue || "N/A") as string;
+
+              // Color coding based on order status
+              if (["Delivered", "Completed", "PickUp Ready"].includes(text)) {
+                color = "green";
+              } else if (
+                ["On Hold", "Pending", "On Progress", "Accepted"].includes(text)
+              ) {
+                color = "orange";
+              } else if (["Cancelled", "Rejected"].includes(text)) {
+                color = "red";
+              } else {
+                color = "blue";
+              }
+
+              return (
+                <Chip
+                  label={text}
+                  sx={{
+                    color: "white",
+                    backgroundColor: color,
+                    fontWeight: "bold",
+                    minWidth: 120,
+                  }}
+                />
+              );
+            },
+          },
+          {
+            header: "Items",
             accessorKey: "totalDocumentCount",
-            size: 200,
-            //custom conditional format and styling
+            size: 100,
             Cell: ({ renderedCellValue }) => (
               <Box component="span">
                 <strong>{renderedCellValue}</strong>
               </Box>
             ),
           },
-
-          // {
-          //   // accessorFn: (row) => `${row.orderType}`,
-          //   accessorKey: "orderType", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
-          //   filterVariant: "autocomplete",
-          //   header: "Order Type",
-          //   size: 300,
-          //   Cell: ({ renderedCellValue, row }) => (
-          //     <Box
-          //       sx={{
-          //         display: "flex",
-          //         flexDirection: "column",
-          //         // alignItems: 'center',
-          //         gap: "5px",
-          //       }}>
-          //       <div>
-          //         <span>
-          //           <b>{renderedCellValue === "buy" ? "Bought" : "Rented"}</b>
-          //         </span>
-          //       </div>
-          //       {row.original.paymentTransactionId && (
-          //         <div
-          //           style={{
-          //             fontSize: "12px",
-          //           }}>
-          //           <span>Txn ID: {row.original.paymentTransactionId}</span>
-          //         </div>
-          //       )}
-          //     </Box>
-          //   ),
-          // },
+          {
+            header: "Type",
+            accessorKey: "orderType",
+            size: 100,
+            Cell: ({ renderedCellValue }) => (
+              <Box component="span" sx={{ textTransform: "capitalize" }}>
+                {renderedCellValue}
+              </Box>
+            ),
+          },
         ],
       },
-
       {
-        id: "Date", //id used to define `group` column
+        id: "Date",
         header: "Date",
         columns: [
           {
-            accessorKey: "createdAt", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
+            accessorKey: "createdAt",
             header: "Order Date",
-            size: 50,
+            size: 150,
             enableColumnFilter: false,
-            enableColumnFilterModes: false,
-            enableFilters: false,
             Cell: ({ renderedCellValue }: { renderedCellValue: any }) => (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                }}>
-                {new Date(renderedCellValue).toDateString()}
+              <Box>
+                {new Date(renderedCellValue).toLocaleDateString()}
+                <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                  {new Date(renderedCellValue).toLocaleTimeString()}
+                </Box>
               </Box>
             ),
           },
@@ -213,13 +268,13 @@ const OrderList = () => {
     enableColumnPinning: false,
     enableFacetedValues: true,
     enableRowActions: true,
-    enableRowSelection: true,
+    enableRowSelection: false,
     getRowId: (row) => row.orderGroupID,
     initialState: {
       showColumnFilters: true,
       showGlobalFilter: true,
       columnPinning: {
-        left: ["mrt-row-expand", "mrt-row-select"],
+        left: ["mrt-row-expand"],
         right: ["mrt-row-actions"],
       },
     },
@@ -232,10 +287,7 @@ const OrderList = () => {
           children: "Error loading data",
         }
       : undefined,
-    // onColumnFiltersChange: setColumnFilters,
-    // onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
-    // onSortingChange: setSorting,
     rowCount,
     state: {
       isLoading,
@@ -243,198 +295,87 @@ const OrderList = () => {
       showAlertBanner: isError,
       showProgressBars: isRefetching,
     },
-
-    // muiTableBodyRowProps: ({ row }) => {
-    //   return {
-    //     sx: {
-    //       backgroundColor:
-    //         row.original.orderType === "rent" ? "#ffd7d4" : "#f0fff0",
-    //     },
-    //   };
-    // },
-
-    // renderDetailPanel: ({ row }) => (
-    //   <CCol>
-    //     <CCard>
-    //       <CCardBody>
-    //         <CCarousel
-    //           style={{
-    //             width: '500px',
-    //             height: '400px',
-    //             marginBottom: '30px',
-    //           }}
-    //           controls
-    //           indicators
-    //           dark
-    //         >
-    //           {row.original.slideImages?.map((imageUrl, index) => (
-    //             <CCarouselItem
-    //               style={{
-    //                 width: '500px',
-    //                 height: '400px',
-    //               }}
-    //               key={index}
-    //             >
-    //               <img
-    //                 style={{
-    //                   width: '500px',
-    //                   height: '400px',
-    //                   objectFit: 'cover',
-    //                   objectPosition: 'center',
-    //                 }}
-    //                 src={imageUrl}
-    //                 alt="slide 1"
-    //               />
-    //             </CCarouselItem>
-    //           ))}
-    //         </CCarousel>
-
-    //         <div
-    //           style={{
-    //             marginBottom: '15px',
-    //           }}
-    //         >
-    //           <h4>
-    //             <b>Description</b>
-    //           </h4>
-    //         </div>
-    //         <div dangerouslySetInnerHTML={{ __html: row.original.description }}></div>
-    //         {row.original.isVariantAvailable && (
-    //           <>
-    //             <div
-    //               style={{
-    //                 marginBottom: '15px',
-    //               }}
-    //             >
-    //               <h4>
-    //                 <b>Variants</b>
-    //               </h4>
-    //             </div>
-
-    //             <div>
-    //               <CCard>
-    //                 <CCardBody>
-    //                   {row.original.productVariant.map((item) =>
-    //                     Object.entries(item).map(([key, value]) => {
-    //                       return (
-    //                         <p>
-    //                           {key}: {value}
-    //                         </p>
-    //                       )
-    //                     }),
-    //                   )}
-    //                 </CCardBody>
-    //               </CCard>
-    //             </div>
-    //           </>
-    //         )}
-    //       </CCardBody>
-    //     </CCard>
-    //   </CCol>
-    // ),
-
     renderRowActionMenuItems: ({ row, closeMenu }) => [
       <MenuItem
         key={0}
         onClick={() => {
-          // View profile logic...
           navigate(
             `/orders/view?groupId=${encodeURI(row.original.orderGroupID)}`
           );
-          // setViewOrder(row)
           closeMenu();
         }}
         sx={{ m: 0 }}>
-        <FaEye />
-        <span style={{ marginLeft: "9px" }}>View Order</span>
+        <FaEye style={{ marginRight: "8px" }} />
+        View Order Details
       </MenuItem>,
-      // <MenuItem
-      //   key={0}
-      //   onClick={() => {
-      //     // View profile logic...
-      //     // navigate(`/product/add?id=${row.original._id}`)
-      //     sessionStorage.setItem('productId', row.original._id)
-      //     setUpdateModalVisible(true)
-      //     closeMenu()
-      //   }}
-      //   sx={{ m: 0 }}
-      // >
-      //   <CIcon icon={cilPen} />
-      //   <span style={{ marginLeft: '9px' }}>Update</span>
-      // </MenuItem>,
-      // <MenuItem
-      //   key={1}
-      //   onClick={() => {
-      //     // Send email logic...
-      //     setDeleteProductId([row.original._id])
-      //     closeMenu()
-      //   }}
-      //   sx={{ m: 0 }}
-      // >
-      //   <CIcon icon={cilTrash} />
-      //   <span style={{ marginLeft: '9px' }}>Delete</span>
-      // </MenuItem>,
     ],
-
-    // renderTopToolbar: ({ table }) => {
-    //   const handleDeleted = () => {
-    //     setDeleteProductId(
-    //       table.getSelectedRowModel().flatRows.map((row) => row.original._id)
-    //     );
-    //   };
-
-    //   return (
-    //     <Box
-    //       sx={(theme) => ({
-    //         backgroundColor: lighten(theme.palette.background.default, 0.05),
-    //         display: "flex",
-    //         gap: "0.5rem",
-    //         p: "8px",
-    //         justifyContent: "space-between",
-    //       })}>
-    //       <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-    //         {/* import MRT sub-components */}
-    //         <MRT_GlobalFilterTextField table={table} />
-    //         <MRT_ToggleFiltersButton table={table} />
-    //       </Box>
-    //       <Box>
-    //         <Box sx={{ display: "flex", gap: "0.5rem" }}>
-    //           <Button
-    //             color="error"
-    //             disabled={
-    //               !(
-    //                 table.getIsSomePageRowsSelected() ||
-    //                 table.getIsAllRowsSelected()
-    //               )
-    //             }
-    //             onClick={handleDeleted}
-    //             variant="contained">
-    //             Delete
-    //           </Button>
-    //         </Box>
-    //       </Box>
-    //     </Box>
-    //   );
-    // },
   });
 
-  //   const [viewOrder, setViewOrder] = useState<Order | null>(null);
+  const handlePaymentStatusChange = (event: any, newValue: PaymentStatus) => {
+    setPaymentStatus(newValue);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
 
-  //   const [deleteProductId, setDeleteProductId] = useState<string[] | null>(null);
-  //   const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
+  const handleOrderStatusChange = (
+    event: React.SyntheticEvent,
+    newValue: OrderStatusFilter
+  ) => {
+    setOrderStatusFilter(newValue);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
       <div className="grid grid-cols-1 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Orders</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Orders Management
+          </h1>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              List of orders
-            </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">All Orders</h2>
           </div>
+
+          {/* Order Status Tabs */}
+          <Paper elevation={1} sx={{ mb: 3, p: 1 }}>
+            <Tabs
+              value={orderStatusFilter}
+              onChange={handleOrderStatusChange}
+              aria-label="order status tabs"
+              variant="scrollable"
+              scrollButtons="auto">
+              <Tab label="All Orders" value="all" />
+              <Tab label="Pending" value="Pending" />
+              <Tab label="Accepted" value="Accepted" />
+              <Tab label="On Progress" value="On Progress" />
+              <Tab label="On Hold" value="On Hold" />
+              <Tab label="On The Way" value="On The Way" />
+              <Tab label="Delivered" value="Delivered" />
+              <Tab label="Rejected" value="Rejected" />
+              <Tab label="Cancelled" value="Cancelled" />
+              <Tab label="PickUp Ready" value="PickUp Ready" />
+            </Tabs>
+          </Paper>
+
+          {/* Payment Status Tabs */}
+          <FormControl fullWidth sx={{ mb: 2 }} size="medium">
+            <InputLabel id="payment-status-label">Payment Status</InputLabel>
+            <Select
+              labelId="payment-status-label"
+              id="payment-status-select"
+              value={paymentStatus}
+              label="Payment Status"
+              onChange={(e) =>
+                handlePaymentStatusChange(e, e.target.value as PaymentStatus)
+              }>
+              <MenuItem value="all">All Payments</MenuItem>
+              <MenuItem value="Pending">Pending</MenuItem>
+              <MenuItem value="Success">Success</MenuItem>
+              <MenuItem value="Failed">Failed</MenuItem>
+            </Select>
+          </FormControl>
+
           <div>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <MaterialReactTable table={table} />
