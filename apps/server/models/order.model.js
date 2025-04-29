@@ -23,14 +23,15 @@ const orderSchema = new mongoose.Schema(
     quantity: { type: Number, default: null },
 
     address: {
-      address: {
-        prefix: { type: String, required: false },
-        locality: { type: String, required: false },
-        postalCode: { type: String, required: false },
-        country: { type: String, required: false },
-        streetName: { type: String, required: false },
-        city: { type: String, required: false },
-        state: { type: String, required: false },
+      physicalAddress: {
+        fullName: { type: String, required: true },
+        phone: { type: String, required: true },
+        landmark: { type: String, required: false },
+        postalCode: { type: String, required: true },
+        country: { type: String, required: true },
+        streetName: { type: String, required: true },
+        city: { type: String, required: true },
+        state: { type: String, required: true },
       },
       location: {
         type: [Number, Number], // Array of [longitude, latitude]

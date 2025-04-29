@@ -57,7 +57,7 @@ const data = {
 const Dashboard: React.FC<{ setNavbarToogle?: any }> = () => {
   const [value, setValue] = React.useState<Dayjs | null>(dayjs(Date.now()));
 
-  const auth = useAppSelector((state) => state.auth);
+  // const auth = useAppSelector((state) => state.auth);
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">

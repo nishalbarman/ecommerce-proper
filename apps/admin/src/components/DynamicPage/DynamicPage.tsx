@@ -50,7 +50,12 @@ const DynamicPageAdd = () => {
     try {
       setIsDynamicPagesLoading(true);
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/dynamic-pages?page=${page}&limit=${limit}`
+        `${process.env.VITE_APP_API_URL}/dynamic-pages?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       setDynamicPageList(response.data?.dynamicPages);
       setTotalPages(response.data?.totalPages);
@@ -91,7 +96,12 @@ const DynamicPageAdd = () => {
         // Update existing dynamic page
         const response = await cAxios.patch(
           `${process.env.VITE_APP_API_URL}/dynamic-pages/${updateDynamicPageId}`,
-          { dynamicPageData }
+          { dynamicPageData },
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         toast.success(response?.data?.message);
       } else {
@@ -126,7 +136,12 @@ const DynamicPageAdd = () => {
     try {
       setDeleteButtonLoading(true);
       const response = await cAxios.delete(
-        `${process.env.VITE_APP_API_URL}/dynamic-pages/${deleteDynamicPageId}`
+        `${process.env.VITE_APP_API_URL}/dynamic-pages/${deleteDynamicPageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       toast.success(response?.data?.message);
       setDeleteDynamicPageId(null);

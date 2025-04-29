@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // custom redux package
-import { clearLoginSession, setUserAuthData, useAppDispatch } from "../redux";
+import {
+  clearLoginSession,
+  setUserAuthData,
+  useAppDispatch,
+  useAppSelector,
+} from "../redux";
 import { isValidEmail } from "../validator";
 
 import axios from "axios";
@@ -17,6 +22,8 @@ const Logout = () => {
 
   const navigator = useNavigate();
 
+  const { jwtToken } = useAppSelector((state) => state.auth);
+
   const handleLogout = async () => {
     const toastId = toast.loading("Logging out...");
     try {
@@ -25,6 +32,9 @@ const Logout = () => {
         {},
         {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         }
       );
 

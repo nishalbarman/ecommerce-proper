@@ -94,6 +94,8 @@ const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
 };
 
 function ViewSingleOrder() {
+  const { jwtToken } = useAppSelector((state) => state.auth);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [groupOrderId, setGroupOrderId] = useState<string | null>();
 
@@ -112,7 +114,12 @@ function ViewSingleOrder() {
       if (!groupOrderId) return;
       setIsGroupOrderFetching(true);
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`
+        `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       setGroupOrderDetails(response.data);
     } catch (error: any) {
@@ -137,7 +144,12 @@ function ViewSingleOrder() {
       try {
         if (!groupOrderId) return;
         const response = await cAxios.get(
-          `${process.env.VITE_APP_API_URL}/payment/summary/${groupOrderId}`
+          `${process.env.VITE_APP_API_URL}/payment/summary/${groupOrderId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         setSummary(response.data);
       } catch (error: any) {
@@ -171,6 +183,11 @@ function ViewSingleOrder() {
         {
           order: groupOrderId,
           orderStatus: orderUpdatableStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         }
       );
 
@@ -512,7 +529,7 @@ function ViewSingleOrder() {
                           </div>
                           <div className="h-px bg-gray-300 my-4"></div>
                           <div>
-                            <strong>Contact info</strong>
+                            <strong>Ordered By</strong>
                             <div className="mt-2 flex items-center">
                               <i className="fas fa-user text-gray-500"></i>
                               <span className="ml-2">
@@ -540,34 +557,60 @@ function ViewSingleOrder() {
                                 <strong>Delivery Address</strong>
                                 <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-3 rounded mt-2">
                                   <p>
+                                    Full Name:{" "}
+                                    <span className="font-bold">
+                                      {`${groupOrderDetails?.address?.physicalAddress?.fullName}`}
+                                    </span>
+                                  </p>
+                                  <p>
+                                    Contact Number:{" "}
+                                    <span className="font-bold">
+                                      {`${groupOrderDetails?.address?.physicalAddress?.phone}`}
+                                    </span>
+                                  </p>
+                                  <p>
                                     Full Address:{" "}
                                     <span className="font-bold">
-                                      {`${groupOrderDetails?.address?.address.prefix}, ${groupOrderDetails?.address?.address.streetName}, ${groupOrderDetails?.address?.address.locality}, ${groupOrderDetails?.address?.address.postalCode}, ${groupOrderDetails?.address?.address.country}`}
+                                      {`${groupOrderDetails?.address?.physicalAddress?.streetName}, ${groupOrderDetails?.address?.physicalAddress?.landmark}, ${groupOrderDetails?.address?.physicalAddress?.city}, ${groupOrderDetails?.address?.physicalAddress?.postalCode}, ${groupOrderDetails?.address?.physicalAddress?.state},  ${groupOrderDetails?.address?.physicalAddress?.country}`}
                                     </span>
                                   </p>
                                   <p>
                                     Road:{" "}
                                     {
-                                      groupOrderDetails?.address?.address
-                                        .streetName
+                                      groupOrderDetails?.address
+                                        ?.physicalAddress?.streetName
+                                    }
+                                  </p>
+                                  <p>
+                                    Landmark:{" "}
+                                    {
+                                      groupOrderDetails?.address
+                                        ?.physicalAddress?.landmark? groupOrderDetails?.address
+                                        ?.physicalAddress?.landmark : "N/A"
                                     }
                                   </p>
                                   <p>
                                     Postal Code:{" "}
                                     {
-                                      groupOrderDetails?.address?.address
-                                        .postalCode
+                                      groupOrderDetails?.address
+                                        ?.physicalAddress?.postalCode
                                     }
                                   </p>
                                   <p>
                                     City:{" "}
-                                    {groupOrderDetails?.address?.address.city}
+                                    {
+                                      groupOrderDetails?.address
+                                        ?.physicalAddress?.city
+                                    }
                                   </p>
                                   <p>
                                     State:{" "}
-                                    {groupOrderDetails?.address?.address.state}
+                                    {
+                                      groupOrderDetails?.address
+                                        ?.physicalAddress?.state
+                                    }
                                   </p>
-                                  <div className="font-bold">
+                                  {/* <div className="font-bold">
                                     <span>
                                       Longitude :{" "}
                                       {groupOrderDetails.address?.location[0]}
@@ -577,7 +620,7 @@ function ViewSingleOrder() {
                                       Latitude :{" "}
                                       {groupOrderDetails.address?.location[1]}
                                     </span>
-                                  </div>
+                                  </div> */}
                                 </div>
                               </div>
                             </>

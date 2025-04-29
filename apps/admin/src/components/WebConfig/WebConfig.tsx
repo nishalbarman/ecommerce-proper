@@ -33,7 +33,12 @@ const WebConfigPage = () => {
     const fetchConfig = async () => {
       try {
         const response = await axios.get(
-          `${process.env.VITE_APP_API_URL}/api/web-config`
+          `${process.env.VITE_APP_API_URL}/api/web-config`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         if (response.data) {
           setConfig(response.data);

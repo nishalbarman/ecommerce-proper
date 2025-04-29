@@ -21,8 +21,11 @@ import "../../styles/view-product.css";
 
 import { Category, Product, ProductVariant } from "../../types"; // Assuming you have types defined for Product and ProductVariant
 import cAxios from "../../axios/cutom-axios";
+import { useAppSelector } from "@/redux";
 
 const ViewProduct = () => {
+  const { jwtToken } = useAppSelector((state) => state.auth);
+
   // const { productId } = useParams<{ productId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -58,7 +61,12 @@ const ViewProduct = () => {
       if (!productId) return;
       setIsLoading(true);
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/products/admin-view/${productId}`
+        `${process.env.VITE_APP_API_URL}/products/admin-view/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       setProduct(response.data.product);
       setProductVariants(response.data.product.productVariant || []);
@@ -108,6 +116,11 @@ const ViewProduct = () => {
         {
           variant: variantId,
           productType: product?.productType,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         }
       );
 

@@ -6,6 +6,7 @@ import { HeroProduct } from "../../types";
 import cAxios from "../../axios/cutom-axios";
 import no_image from "../../assets/no-image.svg";
 import CustomCKE from "../CustomCKE/CustomCKE";
+import { useAppSelector } from "@/redux";
 
 const HeroProductAdd = () => {
   const [heroProductData, setHeroProductData] = useState<HeroProduct>({
@@ -15,6 +16,8 @@ const HeroProductAdd = () => {
     imageUrl: "",
     productReference: "",
   });
+
+  const { jwtToken } = useAppSelector((state) => state.auth);
 
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
@@ -27,7 +30,12 @@ const HeroProductAdd = () => {
     const fetchHeroProduct = async () => {
       try {
         const response = await cAxios.get(
-          `${process.env.VITE_APP_API_URL}/hero-products`
+          `${process.env.VITE_APP_API_URL}/hero-products`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         if (response.data && response.data.length > 0) {
           setExistingHeroProduct(response.data[0]); // Set the first hero product
@@ -65,14 +73,24 @@ const HeroProductAdd = () => {
         // Update existing hero product
         const response = await cAxios.patch(
           `${process.env.VITE_APP_API_URL}/hero-products/${existingHeroProduct._id}`,
-          { heroProductData }
+          { heroProductData },
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         toast.success(response?.data?.message);
       } else {
         // Add new hero product
         const response = await cAxios.post(
           `${process.env.VITE_APP_API_URL}/hero-products`,
-          { heroProductData }
+          { heroProductData },
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         toast.success(response?.data?.message);
       }

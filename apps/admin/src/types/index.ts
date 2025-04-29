@@ -1,4 +1,5 @@
 export type Address = {
+  [key: string]: any;
   user?: string;
   city: string;
   country: string;
@@ -23,7 +24,7 @@ export type User = {
 };
 
 export type OrderAddress = {
-  address: Address;
+  physicalAddress: Address;
   location: [number, number];
 };
 

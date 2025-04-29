@@ -56,7 +56,11 @@ const OrderList = () => {
     try {
       const res: {
         data: { groupedOrders: OrderGroup[]; globalTotalDocumentCount: number };
-      } = await cAxios.get(url.href);
+      } = await cAxios.get(url.href, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
 
       setData(res.data?.groupedOrders || []);
       setRowCount(res.data?.globalTotalDocumentCount || 0);

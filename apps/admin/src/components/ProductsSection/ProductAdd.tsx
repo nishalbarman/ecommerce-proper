@@ -106,7 +106,12 @@ const ProductAdd: React.FC<ProductAddProps> = ({
           setIsUpdateProductFetching(true);
 
           const response = await cAxios.get(
-            `${process.env.VITE_APP_API_URL}/products/admin-view/${id}`
+            `${process.env.VITE_APP_API_URL}/products/admin-view/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${jwtToken}`,
+              },
+            }
           );
 
           const product: Product = response.data.product;

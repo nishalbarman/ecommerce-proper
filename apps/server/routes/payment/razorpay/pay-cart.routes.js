@@ -29,7 +29,7 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
     const userDetails = req.user;
 
     if (!productType || !address) {
-      return res.status(400).json({ message: "Invalid Request" });
+      return res.status(403).json({ message: "Bad Request" });
     }
 
     const appliedCouponID = req.query.coupon || null;
@@ -160,7 +160,7 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
       notes: {
         orderGroupID,
         user: userDetails._id.toString(),
-        address,
+        address: address.toString(),
         cartProductIds: cartIds.join(","),
         productIds: cartItemsForUser.map((item) => item.product._id).join(","),
         description: productNames,
@@ -191,19 +191,21 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
           quantity: item.quantity,
           orderType: "buy",
 
+          // address: {
+          //   address: {
+          //     // prefix: addressDocument?.prefix,
+          //     streetName: addressDocument.streetName,
+          //     locality: addressDocument.locality,
+          //     city: addressDocument.locality,
+          //     state: addressDocument.locality,
+          //     postalCode: addressDocument.postalCode,
+          //     country: addressDocument.country,
+          //   },
+          //   // location: [addressDocument.longitude, addressDocument.latitude],
+          // },
           address: {
-            address: {
-              // prefix: addressDocument?.prefix,
-              streetName: addressDocument.streetName,
-              locality: addressDocument.locality,
-              city: addressDocument.locality,
-              state: addressDocument.locality,
-              postalCode: addressDocument.postalCode,
-              country: addressDocument.country,
-            },
-            // location: [addressDocument.longitude, addressDocument.latitude],
+            physicalAddress: addressDocument,
           },
-
           // center: centerAddresses[0]._id,
           center: null,
 

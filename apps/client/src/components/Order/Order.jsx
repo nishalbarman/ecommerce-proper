@@ -5,8 +5,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import Loading from "@/app/cart/loading";
 import { useSelector } from "react-redux";
+import Loading from "../LoadingComponent/Loading";
 
 const OrderHistoryPage = () => {
   const router = useRouter();

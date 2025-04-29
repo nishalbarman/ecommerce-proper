@@ -155,7 +155,7 @@ router.post("/login", async (req, res) => {
         center: user?.center,
       },
       secret,
-      { expiresIn: 1 + "h" }
+      // { expiresIn: 1 + "h" }
     );
 
     const oneDay = 24 * 60 * 60 * 1000;

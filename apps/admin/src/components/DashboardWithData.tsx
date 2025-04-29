@@ -57,6 +57,8 @@ interface ChartDataItem {
 }
 
 const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
+  const jwtToken = useAppSelector((state) => state.auth.jwtToken);
+
   const [selectedYear, setSelectedYear] = useState<Dayjs | null>(dayjs());
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [revenueChart, setRevenueChart] = useState<ChartDataItem[]>([]);
@@ -79,12 +81,16 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
     tables: null,
   });
 
-  const auth = useAppSelector((state) => state.auth);
+  // const auth = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const statsRes = await cAxios.get("/dashboard/stats");
+        const statsRes = await cAxios.get("/dashboard/stats", {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        });
         setStats(statsRes.data);
         setError((prev) => ({ ...prev, stats: null }));
       } catch (err: any) {
@@ -110,9 +116,21 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
       try {
         const year = selectedYear.year();
         const [revenueRes, ordersRes, usersRes] = await Promise.all([
-          cAxios.get(`/dashboard/revenue-chart?year=${year}`),
-          cAxios.get(`/dashboard/orders-chart?year=${year}`),
-          cAxios.get(`/dashboard/users-chart?year=${year}`),
+          cAxios.get(`/dashboard/revenue-chart?year=${year}`, {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }),
+          cAxios.get(`/dashboard/orders-chart?year=${year}`, {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }),
+          cAxios.get(`/dashboard/users-chart?year=${year}`, {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }),
         ]);
 
         setRevenueChart(
@@ -147,8 +165,16 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
 
       try {
         const [transactionsRes, registrationsRes] = await Promise.all([
-          cAxios.get("/dashboard/recent-transactions?limit=5"),
-          cAxios.get("/dashboard/new-registrations?limit=5"),
+          cAxios.get("/dashboard/recent-transactions?limit=5", {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }),
+          cAxios.get("/dashboard/new-registrations?limit=5", {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }),
         ]);
 
         setRecentTransactions(transactionsRes.data);

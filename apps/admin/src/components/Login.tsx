@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // custom redux package
-import { setUserAuthData } from "../redux";
+import { setUserAuthData, useAppSelector } from "../redux";
 import { isValidEmail } from "../validator";
 
 import axios from "axios";
@@ -17,6 +17,7 @@ type LoginFormData = {
 
 const Login = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+  const jwtToken = useAppSelector((state) => state.auth.jwtToken);
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: { value: null, isTouched: null, isError: null },
@@ -49,6 +50,9 @@ const Login = () => {
         extractedData,
         {
           withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
         }
       );
 

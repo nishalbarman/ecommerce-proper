@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 
 import cAxios from "../../axios/cutom-axios";
 import { MdDeleteOutline } from "react-icons/md";
+import { useAppSelector } from "@/redux";
 
 type Contact = {
   [key: string]: any;
@@ -25,11 +26,18 @@ const ContactsList = () => {
 
   console.log(isContactsLoading);
 
+  const { jwtToken } = useAppSelector((state) => state.auth);
+
   const fetchContacts = async (page = 1, limit = 10) => {
     try {
       setIsContactsLoading(true);
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/contact?page=${page}&limit=${limit}`
+        `${process.env.VITE_APP_API_URL}/contact?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
 
       setContactList(response.data?.messages);
@@ -52,7 +60,12 @@ const ContactsList = () => {
     try {
       setDeleteButtonLoading(true);
       const response = await cAxios.delete(
-        `${process.env.VITE_APP_API_URL}/contact/${deleteContactId}`
+        `${process.env.VITE_APP_API_URL}/contact/${deleteContactId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       console.log(response);
       toast.success("Contact Message deleted");
@@ -69,7 +82,13 @@ const ContactsList = () => {
   const markAsRead = async (id: string) => {
     try {
       const response = await cAxios.patch(
-        `${process.env.VITE_APP_API_URL}/contact/${id}/read`
+        `${process.env.VITE_APP_API_URL}/contact/${id}/read`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       toast.success(response?.data?.message);
 
@@ -90,7 +109,12 @@ const ContactsList = () => {
   const fetchViewMessage = async (id: string) => {
     try {
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/contact/${id}`
+        `${process.env.VITE_APP_API_URL}/contact/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        }
       );
       setViewMessage(response.data.message);
     } catch (err) {

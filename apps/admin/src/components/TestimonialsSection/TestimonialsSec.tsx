@@ -85,14 +85,24 @@ const TestimonialsAdd = () => {
         // Update existing testimonial
         const response = await cAxios.patch(
           `${process.env.VITE_APP_API_URL}/testimonials/${updateTestimonialId}`,
-          { testimonialData }
+          { testimonialData },
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         toast.success(response?.data?.message);
       } else {
         // Add new testimonial
         const response = await cAxios.post(
           `${process.env.VITE_APP_API_URL}/testimonials`,
-          { testimonialData }
+          { testimonialData },
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
         );
         toast.success(response?.data?.message);
       }
