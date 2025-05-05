@@ -59,13 +59,19 @@ async function Footer() {
         {/* Exclusive */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
           <p className="font-andika text-white text-xl font-bold mb-6">
-            Exclusive
+            About Me
           </p>
           <div className="flex flex-col gap-4">
             {/* <p className=" font-andika text-white font-semibold mb-[10px]">
               Subscribe
             </p> */}
-            <p className="font-andika text-white text-sm">
+            <p className="text-white">
+              Hey there! I'm Jharna Kalita, a passionate video creator who loves
+              bringing ideas to life through engaging visuals. With a strong
+              dedication to social media, I believe in staying creative and
+              never giving up on my dreams.
+            </p>
+            {/* <p className="font-andika text-white text-sm">
               Get 10% of your first order
             </p>
             <div className="flex items-center justify-between gap-1 w-full h-[45px] border-white border rounded-lg pr-4">
@@ -79,7 +85,7 @@ async function Footer() {
                 height={20}
                 alt="right arrow"
               />
-            </div>
+            </div> */}
           </div>
         </div>
 
