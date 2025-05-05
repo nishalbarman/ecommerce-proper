@@ -117,7 +117,7 @@ export default function CategoryPage({ params }) {
           </span>
 
           <Link
-            href="/products"
+            href={`/products?category=${categoryId}`}
             className="pt-3 pb-3 pl-8 pr-8 text-sm rounded-lg bg-[#DB4444] text-white font-semibold cursor-poiner hover:scale-[1.05] max-[597px]:p-[8px_25px]">
             View All
           </Link>
