@@ -24,6 +24,7 @@ import AboutSkeleton from "@/components/AboutSection/AboutSkeleton";
 import AboutSection from "@/components/AboutSection/AboutSection";
 import MehendiInfo from "@/components/ArrowComponent/MehendiInfo";
 import TabBar from "@/components/TabBar/TabBar";
+import TopSlider from "@/components/SliderTop/TopSlider";
 
 const getSaleDetails = async () => {
   try {
@@ -44,8 +45,12 @@ export default async function Page() {
   return (
     <>
       {/* <BannerTop /> */}
-      <Suspense fallback={<HeroSkeleton />}>
+      {/* <Suspense fallback={<HeroSkeleton />}>
         <HeroProduct />
+      </Suspense> */}
+
+      <Suspense fallback={<HeroSkeleton />}>
+        <TopSlider />
       </Suspense>
       {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
@@ -73,7 +78,7 @@ export default async function Page() {
       </Suspense> */}
 
       <div className="w-full h-[1px]"></div>
-      <TabBar />
+
       {/* <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
       <div className="w-full h-[1px] bg-black opacity-[0.1]"></div> */}
     </>

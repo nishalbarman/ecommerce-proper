@@ -60,7 +60,7 @@ export default function ProductList() {
   const [availableCategories, setAvailableCategories] = useState([]);
 
   // Get current page from URL or default to 1
-  const page = parseInt(searchParams.get("page")) || 1;
+  const [page, setPage] = useState(parseInt(searchParams.get("page")) || 1);
   const limit = 12;
 
   // Update the URL building logic
@@ -169,7 +169,7 @@ export default function ProductList() {
     params.set("page", "1");
     params.set("query", localSearch);
     if (appliedSort !== "newest") params.set("sort", appliedSort);
-    params.set("filter", encodeURIComponent(JSON.stringify(appliedFilters)));
+    // params.set("filter", encodeURIComponent(JSON.stringify(appliedFilters)));
     router.push(`/products?${params.toString()}`);
   };
 

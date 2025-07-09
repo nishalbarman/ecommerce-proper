@@ -15,8 +15,9 @@ async function Footer() {
       `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`
     );
     webData = response.data;
+    console.log("fetch web config:", response.data);
   } catch (error) {
-    console.error("Failed to fetch web config:", error);
+    console.log("Failed to fetch web config:", error);
     // Fallback data
     webData = {
       brandName: "..........",
@@ -26,11 +27,13 @@ async function Footer() {
       facebookLink: "#",
       instagramLink: "#",
       websiteUrl: "..........",
+      about:
+        "Hi, I’m Nishal, a passionate full-stack developer specializing in the MERN stack (MongoDB, Express.js, React.js, and Node.js). I love building clean, responsive, and user-friendly web applications. While I’m confident in my coding skills, I’m still learning how to explain technical concepts in fluent English — but I’m improving every day!",
     };
   }
 
   return (
-    <div className="bg-primary relative">
+    <div className="bg-black relative">
       {/* Tree leaf image with pointer-events: none; */}
       <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
         <Image
@@ -55,7 +58,7 @@ async function Footer() {
         />
       </div> */}
 
-      <div className="flex flex-wrap justify-between gap-8 w-full bg-black p-6 sm:p-8 md:p-10 lg:px-[10%] bg-primary">
+      <div className="flex flex-wrap justify-between gap-8 w-full p-6 sm:p-8 md:p-10 lg:px-[10%]">
         {/* Exclusive */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
           <p className="font-andika text-white text-xl font-bold mb-6">
@@ -65,12 +68,7 @@ async function Footer() {
             {/* <p className=" font-andika text-white font-semibold mb-[10px]">
               Subscribe
             </p> */}
-            <p className="text-white">
-              Hey there! I'm Jharna Kalita, a passionate video creator who loves
-              bringing ideas to life through engaging visuals. With a strong
-              dedication to social media, I believe in staying creative and
-              never giving up on my dreams.
-            </p>
+            <p className="text-white">{webData?.about}</p>
             {/* <p className="font-andika text-white text-sm">
               Get 10% of your first order
             </p>

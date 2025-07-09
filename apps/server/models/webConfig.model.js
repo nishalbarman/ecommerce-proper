@@ -37,6 +37,11 @@ const WebConfigSchema = new mongoose.Schema({
     type: Number,
     default: 5,
   },
+  about: {
+    type: String,
+    required: true,
+    default: "",
+  },
   createdAt: {
     type: Date,
     default: Date.now,

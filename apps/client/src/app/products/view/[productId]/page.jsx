@@ -34,6 +34,8 @@ export default function ViewProduct({ params }) {
   const { useAddOneToCartMutation } = CartApi;
 
   const [isLoading, setIsLoading] = useState(true);
+  const [hasUserBoughtThisProduct, setHasUserBoughtThisProduct] =
+    useState(false);
   const [product, setProduct] = useState({});
 
   const [availableColors, setAvailableColors] = useState([]);
@@ -74,6 +76,8 @@ export default function ViewProduct({ params }) {
       console.log("Response Data of Product", responseData);
 
       const product = responseData.data.product;
+      const hasUserBoughtThisProduct =
+        responseData.data.hasUserBoughtThisProduct;
       const variants = product.productVariant || [];
       setProductVariants(variants);
 
@@ -96,6 +100,7 @@ export default function ViewProduct({ params }) {
       setAvailableSizes(availableSizes);
       setValidCombinations(validCombinations);
       setProduct(product);
+      setHasUserBoughtThisProduct(hasUserBoughtThisProduct);
 
       // Set default selected size and color
       let selectedSize = "";
@@ -636,7 +641,10 @@ export default function ViewProduct({ params }) {
           </div>
         </div>
       </div>
-      <ReviewSection product={product} />
+      <ReviewSection
+        product={product}
+        hasUserBoughtThisProduct={hasUserBoughtThisProduct}
+      />
     </>
   );
 }

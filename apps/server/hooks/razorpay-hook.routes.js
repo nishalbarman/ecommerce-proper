@@ -10,6 +10,7 @@ const PaymentTransModel = require("../models/transaction.model");
 const Address = require("../models/centerAddress.model");
 const ShiprocketUtils = require("../helpter/ShiprocketUtils");
 const { Product } = require("../models/product.model");
+const OrderGroup = require("../models/orderGroup.model");
 
 const webhookSecret = process.env.RAZOR_PAY_WEBHOOK_SECRET;
 
@@ -100,6 +101,11 @@ router.post("/", async (req, res) => {
             { $set: { paymentStatus: "Paid" } }
           );
 
+          await OrderGroup.updateOne(
+            { paymentTransactionID: paymentTxnId },
+            { $set: { paymentStatus: "Paid", orderStatus: "On Progress" } }
+          );
+
           // Delete cart items
           await Cart.deleteMany({
             _id: {
@@ -136,7 +142,7 @@ router.post("/", async (req, res) => {
           }
 
           await sendMail({
-            from: `"Jharna Mehendi" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
+            from: `"${process.env.BRAND_NAME}" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
             // to: centerDetails.email, // list of receivers
             to: process.env.OWNER_EMAIL, // list of receivers
             bcc: "nishalbarman@gmail.com", // can be the admin email address
@@ -144,7 +150,7 @@ router.post("/", async (req, res) => {
             html: `<html>
                           <body>
                             <div style="width: 100%; padding: 5px 0px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgb(0,0,0,0.3)">
-                              <h2>Hi Jharna,</h2>
+                              <h2>Hi,</h2>
                             </div>
                             <div style="padding: 40px; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;">
                               <center>

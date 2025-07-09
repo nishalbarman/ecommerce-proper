@@ -12,6 +12,7 @@ const Order = require("../../../models/order.model");
 const UserAddress = require("../../../models/userAddress.model");
 const PaymentTransModel = require("../../../models/transaction.model");
 const generateUniqueId = require("../../../helpter/generateUniqueId");
+const OrderGroupModel = require("../../../models/orderGroup.model");
 
 const RAZORPAY_KEY = process.env.RAZORPAY_KEY;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
@@ -250,6 +251,70 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
         paymentObject.amount / 100 - (!!shippingApplied ? shippingPrice : 0),
       totalPrice: paymentObject.amount / 100,
     });
+
+    // await OrderGroupModel.create({
+    //   orderGroupID,
+    //   // paymentTransactionID: paymentIntent.id,
+    //   paymentTransactionID: paymentTxnId,
+    //   user: userDetails._id,
+    //   order: orders.map((item) => item._id),
+
+    //   paymentStatus: "Pending",
+
+    //   originalPrice: paymentObject.amount / 100,
+    //   couponDiscountedPrice: { type: Number, default: 0 },
+    //   appliedCoupon: appliedCouponID,
+    //   discountedPrice:
+    //     paymentObject.amount / 100 - (!!shippingApplied ? shippingPrice : 0),
+    //   shippingPrice: !!shippingApplied ? shippingPrice : 0,
+
+    //   address: {
+    //     physicalAddress: addressDocument,
+    //     location: null,
+    //   },
+
+    //   orderType: { type: String, required: true, enums: ["buy", "rent"] },
+
+    //   // status related
+    //   orderStatus: {
+    //     type: String,
+    //     default: "On Hold",
+    //     enums: [
+    //       "On Hold",
+    //       "Pending",
+    //       "On Progress",
+    //       "Accepted",
+    //       "Rejected",
+    //       "Cancelled",
+    //       "On The Way",
+    //       "PickUp Ready",
+    //       "Delivered",
+    //     ],
+    //   },
+
+    //   paymentMode: {
+    //     type: String,
+    //     enums: ["Prepaid", "Cash On Delivery", "Cash On Pickup"],
+    //   },
+
+    //   paymentStatus: {
+    //     type: String,
+    //     default: "Pending",
+    //     enums: ["Success", "Failed", "Pending"],
+    //   },
+
+    //   shipmentType: {
+    //     type: String,
+    //     required: false,
+    //     enums: ["self_pickup", "delivery_partner"],
+    //     default: "self_pickup",
+    //   },
+
+    //   store: { type: mongoose.Types.ObjectId, required: false, default: null },
+
+    //   // tracking link for the order track
+    //   trackingLink: { type: String, default: "" },
+    // });
 
     return res.status(200).json({
       razorpayOrderId: razorpayOrder.id,

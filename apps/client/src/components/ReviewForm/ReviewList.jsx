@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import StarRating from "./StarRating";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import {
   RiUser3Line,
@@ -14,46 +13,28 @@ import {
 } from "react-icons/ri";
 import { FiLoader } from "react-icons/fi";
 import Image from "next/image";
+import { ReviewApi } from "@/redux";
 
 export default function ReviewList({ productId, productType = "buy" }) {
-  const { jwtToken } = useSelector((state) => state.auth);
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const jwtToken = useSelector((state) => state.auth.jwtToken);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const fetchReviews = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/list/${productId}?page=${page}`,
-        {
-          params: { productType },
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
-      );
+  const { useGetReviewsQuery } = ReviewApi;
 
-      if (page === 1) {
-        setReviews(response.data.feedbacks);
-      } else {
-        setReviews([...reviews, ...response.data.feedbacks]);
-      }
+  const {
+    data: reviewsData,
+    isLoading,
+    isFetching,
+    error,
+  } = useGetReviewsQuery({ productId, page, productType });
 
-      setTotalPages(response.data.totalPages);
-      setHasMore(page < response.data.totalPages);
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-      setError(err.response?.data?.message || "Failed to load reviews");
-    } finally {
-      setLoading(false);
-    }
-  };
+  console.log("reviewsData", reviewsData, isLoading, error);
+
+  const reviews = reviewsData?.feedbacks || [];
+  const totalPages = reviewsData?.totalPages || 1;
+  const hasMore = page < totalPages;
 
   const loadMore = () => {
     if (hasMore) {
@@ -80,11 +61,7 @@ export default function ReviewList({ productId, productType = "buy" }) {
     });
   };
 
-  useEffect(() => {
-    fetchReviews();
-  }, [page]);
-
-  if (loading && page === 1) {
+  if (isLoading && page === 1) {
     return (
       <div className="flex justify-center py-12">
         <FiLoader className="animate-spin text-indigo-600 text-3xl" />
@@ -95,7 +72,9 @@ export default function ReviewList({ productId, productType = "buy" }) {
   if (error) {
     return (
       <div className="container mx-auto text-center py-5 text-white bg-red-200 rounded-md border border-red-500 p-6">
-        <span className="text-red-600 font-bold">{error}</span>
+        <span className="text-red-600 font-bold">
+          {error.data?.message || "Failed to load reviews"}
+        </span>
       </div>
     );
   }

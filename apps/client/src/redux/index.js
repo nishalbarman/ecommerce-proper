@@ -19,6 +19,7 @@ export * as CenterAddressApi from "./apis/centerAddresApi";
 // export * as UserApi from "./apis/userApi";
 export * as WishlistApi from "./apis/wishlistApi";
 export * as ProductApi from "./apis/productApi";
+export * as ReviewApi from "./apis/reviewApi";
 
 // Export store normally
 export * from "./store";

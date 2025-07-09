@@ -316,10 +316,7 @@ const OrderList = () => {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
-  const handleOrderStatusChange = (
-    event: React.SyntheticEvent,
-    newValue: OrderStatusFilter
-  ) => {
+  const handleOrderStatusChange = (event: any, newValue: OrderStatusFilter) => {
     setOrderStatusFilter(newValue);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
@@ -338,25 +335,27 @@ const OrderList = () => {
           </div>
 
           {/* Order Status Tabs */}
-          <Paper elevation={1} sx={{ mb: 3, p: 1 }}>
-            <Tabs
+          <FormControl fullWidth sx={{ mb: 2 }} size="medium">
+            <InputLabel id="order-status-label">Order Status</InputLabel>
+            <Select
               value={orderStatusFilter}
-              onChange={handleOrderStatusChange}
-              aria-label="order status tabs"
-              variant="scrollable"
-              scrollButtons="auto">
-              <Tab label="All Orders" value="all" />
-              <Tab label="Pending" value="Pending" />
-              <Tab label="Accepted" value="Accepted" />
-              <Tab label="On Progress" value="On Progress" />
-              <Tab label="On Hold" value="On Hold" />
-              <Tab label="On The Way" value="On The Way" />
-              <Tab label="Delivered" value="Delivered" />
-              <Tab label="Rejected" value="Rejected" />
-              <Tab label="Cancelled" value="Cancelled" />
-              <Tab label="PickUp Ready" value="PickUp Ready" />
-            </Tabs>
-          </Paper>
+              onChange={(e) => {
+                handleOrderStatusChange(e, e.target.value as OrderStatusFilter);
+              }}
+              aria-label="order status select"
+              label="Payment Status">
+              <MenuItem value="all">All Orders</MenuItem>
+              <MenuItem value="Pending">Pending</MenuItem>
+              <MenuItem value="Accepted">Accepted</MenuItem>
+              <MenuItem value="On Progress">On Progress</MenuItem>
+              <MenuItem value="On Hold">On Hold</MenuItem>
+              <MenuItem value="On The Way">On The Way</MenuItem>
+              <MenuItem value="Delivered">Delivered</MenuItem>
+              <MenuItem value="Rejected">Rejected</MenuItem>
+              <MenuItem value="Cancelled">Cancelled</MenuItem>
+              <MenuItem value="PickUp Ready">PickUp Ready</MenuItem>
+            </Select>
+          </FormControl>
 
           {/* Payment Status Tabs */}
           <FormControl fullWidth sx={{ mb: 2 }} size="medium">

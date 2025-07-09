@@ -1,10 +1,8 @@
 import { BaseSyntheticEvent, useEffect, useState } from "react";
-
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { useAppSelector } from "../../redux/index";
 import { OrderGroup, PaymentSummary } from "../../types";
-
 import stopSign from "../../assets/stop-sign.png";
 import cAxios from "../../axios/cutom-axios";
 
@@ -137,8 +135,6 @@ function ViewSingleOrder() {
 
   const [summary, setSummary] = useState<PaymentSummary | undefined>();
 
-  console.log(summary);
-
   useEffect(() => {
     const fetchPaymentSummary = async () => {
       try {
@@ -223,7 +219,6 @@ function ViewSingleOrder() {
                 e.preventDefault();
                 setGroupOrderDetails(undefined);
                 setSearchParams({ groupId: e.target.groupId.value.trim() });
-                // setGroupOrderId(e.target.groupId.value.trim());
               }}>
               <label htmlFor="groupId" className="block font-bold mb-2">
                 Order Group ID
@@ -277,7 +272,6 @@ function ViewSingleOrder() {
                                   className="mr-4"
                                 />
                                 <strong className="text-red-500 font-bold text-lg transform text-center text-shadow">
-                                  {/* rotate-[-18deg]  */}
                                   Order Cancelled By User, Do not fullfill this
                                   order
                                 </strong>
@@ -344,287 +338,274 @@ function ViewSingleOrder() {
                       </div>
                     </div>
 
-                    <div>
-                      <div className="bg-white rounded-lg shadow-md border mb-6">
-                        <div className="bg-white p-4 pb-0 flex items-center gap-2">
-                          <img
-                            src="https://st5.depositphotos.com/4226061/62815/v/450/depositphotos_628157962-stock-illustration-invoice-icon-payment-bill-invoice.jpg"
-                            alt="Update Status"
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                          <strong>Update Status</strong>
-                        </div>
-                        <div className="p-4">
-                          {groupOrderDetails.orderType === "rent" && (
-                            // <div className="text-red-500 font-bold mb-4">
-                            //   * This is a rent order, so collect cash upon
-                            //   pickup.
-                            // </div>
-                            <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
-                              <div>
-                                This is a rent order, so collect cash upon
-                                pickup.
-                              </div>
-                            </div>
-                          )}
-
-                          {groupOrderDetails.orderType === "buy" && (
-                            <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
-                              <div>
-                                This is a buy order, so make sure that payment
-                                has been received before proceeding.
-                              </div>
-                            </div>
-                          )}
-                          <div className="mt-2">
-                            <strong>Update status of the order</strong>
-                            <div className="mt-2">
-                              <select
-                                onChange={(e) =>
-                                  setOrderUpdatableStatus(e.target.value)
-                                }
-                                className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">Select Status</option>
-                                {groupOrderDetails.orderType === "rent" && (
-                                  <option value={"On Progress"}>
-                                    On Progress
-                                  </option>
-                                )}
-                                <option value={"Accepted"}>Accept</option>
-                                <option value={"Rejected"}>Reject</option>
-                                <option value={"On The Way"}>On The Way</option>
-                                {groupOrderDetails.orderType === "buy" && (
-                                  <option value={"Delivered"}>Delivered</option>
-                                )}
-                                {groupOrderDetails.orderType === "rent" && (
-                                  <option value={"PickUp Ready"}>
-                                    PickUp Ready
-                                  </option>
-                                )}
-                              </select>
-
-                              {orderUpdatableStatus === "On The Way" && (
-                                <>
-                                  <div className="mt-4">
-                                    <label
-                                      htmlFor="trackingLink"
-                                      className="block font-bold mb-2">
-                                      Tracking Link
-                                    </label>
-                                    <input
-                                      id="trackingLink"
-                                      type="url"
-                                      placeholder="https://example.com/id-13"
-                                      value={groupTrackingLink}
-                                      onChange={(e) =>
-                                        setGroupTrackingLink(e.target.value)
-                                      }
-                                      className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                  </div>
-                                </>
-                              )}
-
-                              <button
-                                onClick={handleUpdateOrderStatus}
-                                className="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                UPDATE
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-white rounded-lg shadow-md mb-6 border">
-                        <div className="bg-white p-4 pb-0">
-                          <div className="flex justify-between items-center">
-                            <strong>Payment Summary</strong>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          {groupOrderDetails.orderType === "rent" && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
-                              <div>
-                                This is a rent order, so collect cash upon
-                                pickup.
-                              </div>
-                            </div>
-                          )}
-
-                          {groupOrderDetails.orderType === "buy" && (
-                            <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
-                              <div>
-                                This is a buy order, so make sure that payment
-                                has been received before proceeding.
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="h-px bg-gray-300 my-4"></div>
-
-                          {summary !== undefined && (
-                            <div className="mt-2">
-                              <div className="flex justify-between">
-                                <span>
-                                  Subtotal (
-                                  {groupOrderDetails.totalDocumentCount} items)
-                                </span>
-                                <span>₹{summary.subTotalPrice}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Delivery</span>
-                                <span>₹{summary.shippingPrice}</span>
-                              </div>
-                              <div className="flex justify-between font-bold">
-                                <span>Total</span>
-                                <span>₹{summary.totalPrice}</span>
-                              </div>
-
-                              {groupOrderDetails.orderType === "buy" && (
-                                <>
-                                  <div className="h-px bg-gray-300 my-4"></div>
-                                  <div className="flex justify-between font-bold">
-                                    <span>Payment Status</span>
-                                    <div className="flex flex-col justify-between">
-                                      {summary.paymentStatus === "Pending" && (
-                                        <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 py-1 rounded-md text-center font-bold">
-                                          Pending
-                                        </div>
-                                      )}
-                                      {summary.paymentStatus === "Paid" && (
-                                        <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-1 rounded-md text-center font-bold">
-                                          Paid
-                                        </div>
-                                      )}
-                                      {summary.paymentStatus === "Failed" && (
-                                        <div className="bg-purple-100 border border-purple-400 text-purple-700 px-3 py-1 rounded-md text-center font-bold">
-                                          Failed
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="bg-white rounded-lg shadow-md mb-6 border">
-                        <div className="bg-white p-4 pb-0">
-                          <div>
-                            <strong>Customer</strong>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <div className="xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] xl:overflow-y-auto space-y-6">
+                        <div className="bg-white rounded-lg shadow-md border">
+                          <div className="bg-white p-4 pb-0 flex items-center gap-2">
                             <img
                               src="https://st5.depositphotos.com/4226061/62815/v/450/depositphotos_628157962-stock-illustration-invoice-icon-payment-bill-invoice.jpg"
-                              alt="Customer"
-                              className="w-10 h-10 rounded-full border border-black object-cover"
+                              alt="Update Status"
+                              className="w-10 h-10 rounded-full object-cover"
                             />
-                            <span>
-                              {groupOrderDetails.totalDocumentCount} Order(s)
-                            </span>
+                            <strong>Update Status</strong>
                           </div>
-                          <div className="h-px bg-gray-300 my-4"></div>
-                          <div>
-                            <strong>Ordered By</strong>
-                            <div className="mt-2 flex items-center">
-                              <i className="fas fa-user text-gray-500"></i>
-                              <span className="ml-2">
-                                {groupOrderDetails?.user?.name}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <i className="fas fa-envelope text-gray-500"></i>
-                              <span className="ml-2">
-                                {groupOrderDetails?.user?.email}
-                              </span>
-                            </div>
-                            <div className="flex items-center">
-                              <i className="fas fa-phone text-gray-500"></i>
-                              <span className="ml-2">
-                                {groupOrderDetails?.user?.mobileNo}
-                              </span>
-                            </div>
-                          </div>
-
-                          {!!groupOrderDetails.address && (
-                            <>
-                              <div className="h-px bg-gray-300 my-4"></div>
-                              <div>
-                                <strong>Delivery Address</strong>
-                                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-3 rounded mt-2">
-                                  <p>
-                                    Full Name:{" "}
-                                    <span className="font-bold">
-                                      {`${groupOrderDetails?.address?.physicalAddress?.fullName}`}
-                                    </span>
-                                  </p>
-                                  <p>
-                                    Contact Number:{" "}
-                                    <span className="font-bold">
-                                      {`${groupOrderDetails?.address?.physicalAddress?.phone}`}
-                                    </span>
-                                  </p>
-                                  <p>
-                                    Full Address:{" "}
-                                    <span className="font-bold">
-                                      {`${groupOrderDetails?.address?.physicalAddress?.streetName}, ${groupOrderDetails?.address?.physicalAddress?.landmark}, ${groupOrderDetails?.address?.physicalAddress?.city}, ${groupOrderDetails?.address?.physicalAddress?.postalCode}, ${groupOrderDetails?.address?.physicalAddress?.state},  ${groupOrderDetails?.address?.physicalAddress?.country}`}
-                                    </span>
-                                  </p>
-                                  <p>
-                                    Road:{" "}
-                                    {
-                                      groupOrderDetails?.address
-                                        ?.physicalAddress?.streetName
-                                    }
-                                  </p>
-                                  <p>
-                                    Landmark:{" "}
-                                    {
-                                      groupOrderDetails?.address
-                                        ?.physicalAddress?.landmark? groupOrderDetails?.address
-                                        ?.physicalAddress?.landmark : "N/A"
-                                    }
-                                  </p>
-                                  <p>
-                                    Postal Code:{" "}
-                                    {
-                                      groupOrderDetails?.address
-                                        ?.physicalAddress?.postalCode
-                                    }
-                                  </p>
-                                  <p>
-                                    City:{" "}
-                                    {
-                                      groupOrderDetails?.address
-                                        ?.physicalAddress?.city
-                                    }
-                                  </p>
-                                  <p>
-                                    State:{" "}
-                                    {
-                                      groupOrderDetails?.address
-                                        ?.physicalAddress?.state
-                                    }
-                                  </p>
-                                  {/* <div className="font-bold">
-                                    <span>
-                                      Longitude :{" "}
-                                      {groupOrderDetails.address?.location[0]}
-                                    </span>
-                                    {", "}
-                                    <span>
-                                      Latitude :{" "}
-                                      {groupOrderDetails.address?.location[1]}
-                                    </span>
-                                  </div> */}
+                          <div className="p-4">
+                            {groupOrderDetails.orderType === "rent" && (
+                              <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
+                                <div>
+                                  This is a rent order, so collect cash upon
+                                  pickup.
                                 </div>
                               </div>
-                            </>
-                          )}
+                            )}
+
+                            {groupOrderDetails.orderType === "buy" && (
+                              <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
+                                <div>
+                                  This is a buy order, so make sure that payment
+                                  has been received before proceeding.
+                                </div>
+                              </div>
+                            )}
+                            <div className="mt-2">
+                              <strong>Update status of the order</strong>
+                              <div className="mt-2">
+                                <select
+                                  onChange={(e) =>
+                                    setOrderUpdatableStatus(e.target.value)
+                                  }
+                                  className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Select Status</option>
+                                  {groupOrderDetails.orderType === "rent" && (
+                                    <option value={"On Progress"}>
+                                      On Progress
+                                    </option>
+                                  )}
+                                  <option value={"Accepted"}>Accept</option>
+                                  <option value={"Rejected"}>Reject</option>
+                                  <option value={"On The Way"}>On The Way</option>
+                                  {groupOrderDetails.orderType === "buy" && (
+                                    <option value={"Delivered"}>Delivered</option>
+                                  )}
+                                  {groupOrderDetails.orderType === "rent" && (
+                                    <option value={"PickUp Ready"}>
+                                      PickUp Ready
+                                    </option>
+                                  )}
+                                </select>
+
+                                {orderUpdatableStatus === "On The Way" && (
+                                  <>
+                                    <div className="mt-4">
+                                      <label
+                                        htmlFor="trackingLink"
+                                        className="block font-bold mb-2">
+                                        Tracking Link
+                                      </label>
+                                      <input
+                                        id="trackingLink"
+                                        type="url"
+                                        placeholder="https://example.com/id-13"
+                                        value={groupTrackingLink}
+                                        onChange={(e) =>
+                                          setGroupTrackingLink(e.target.value)
+                                        }
+                                        className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      />
+                                    </div>
+                                  </>
+                                )}
+
+                                <button
+                                  onClick={handleUpdateOrderStatus}
+                                  className="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                  UPDATE
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg shadow-md border sticky top-6">
+                          <div className="bg-white p-4 pb-0">
+                            <div className="flex justify-between items-center">
+                              <strong>Payment Summary</strong>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            {groupOrderDetails.orderType === "rent" && (
+                              <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
+                                <div>
+                                  This is a rent order, so collect cash upon
+                                  pickup.
+                                </div>
+                              </div>
+                            )}
+
+                            {groupOrderDetails.orderType === "buy" && (
+                              <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
+                                <div>
+                                  This is a buy order, so make sure that payment
+                                  has been received before proceeding.
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="h-px bg-gray-300 my-4"></div>
+
+                            {summary !== undefined && (
+                              <div className="mt-2">
+                                <div className="flex justify-between">
+                                  <span>
+                                    Subtotal (
+                                    {groupOrderDetails.totalDocumentCount} items)
+                                  </span>
+                                  <span>₹{summary.subTotalPrice}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Delivery</span>
+                                  <span>₹{summary.shippingPrice}</span>
+                                </div>
+                                <div className="flex justify-between font-bold">
+                                  <span>Total</span>
+                                  <span>₹{summary.totalPrice}</span>
+                                </div>
+
+                                {groupOrderDetails.orderType === "buy" && (
+                                  <>
+                                    <div className="h-px bg-gray-300 my-4"></div>
+                                    <div className="flex justify-between font-bold">
+                                      <span>Payment Status</span>
+                                      <div className="flex flex-col justify-between">
+                                        {summary.paymentStatus === "Pending" && (
+                                          <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 py-1 rounded-md text-center font-bold">
+                                            Pending
+                                          </div>
+                                        )}
+                                        {summary.paymentStatus === "Paid" && (
+                                          <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-1 rounded-md text-center font-bold">
+                                            Paid
+                                          </div>
+                                        )}
+                                        {summary.paymentStatus === "Failed" && (
+                                          <div className="bg-purple-100 border border-purple-400 text-purple-700 px-3 py-1 rounded-md text-center font-bold">
+                                            Failed
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg shadow-md border">
+                          <div className="bg-white p-4 pb-0">
+                            <div>
+                              <strong>Customer</strong>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src="https://st5.depositphotos.com/4226061/62815/v/450/depositphotos_628157962-stock-illustration-invoice-icon-payment-bill-invoice.jpg"
+                                alt="Customer"
+                                className="w-10 h-10 rounded-full border border-black object-cover"
+                              />
+                              <span>
+                                {groupOrderDetails.totalDocumentCount} Order(s)
+                              </span>
+                            </div>
+                            <div className="h-px bg-gray-300 my-4"></div>
+                            <div>
+                              <strong>Ordered By</strong>
+                              <div className="mt-2 flex items-center">
+                                <i className="fas fa-user text-gray-500"></i>
+                                <span className="ml-2">
+                                  {groupOrderDetails?.user?.name}
+                                </span>
+                              </div>
+                              <div className="flex items-center">
+                                <i className="fas fa-envelope text-gray-500"></i>
+                                <span className="ml-2">
+                                  {groupOrderDetails?.user?.email}
+                                </span>
+                              </div>
+                              <div className="flex items-center">
+                                <i className="fas fa-phone text-gray-500"></i>
+                                <span className="ml-2">
+                                  {groupOrderDetails?.user?.mobileNo}
+                                </span>
+                              </div>
+                            </div>
+
+                            {!!groupOrderDetails.address && (
+                              <>
+                                <div className="h-px bg-gray-300 my-4"></div>
+                                <div>
+                                  <strong>Delivery Address</strong>
+                                  <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 p-3 rounded mt-2">
+                                    <p>
+                                      Full Name:{" "}
+                                      <span className="font-bold">
+                                        {`${groupOrderDetails?.address?.physicalAddress?.fullName}`}
+                                      </span>
+                                    </p>
+                                    <p>
+                                      Contact Number:{" "}
+                                      <span className="font-bold">
+                                        {`${groupOrderDetails?.address?.physicalAddress?.phone}`}
+                                      </span>
+                                    </p>
+                                    <p>
+                                      Full Address:{" "}
+                                      <span className="font-bold">
+                                        {`${groupOrderDetails?.address?.physicalAddress?.streetName}, ${groupOrderDetails?.address?.physicalAddress?.landmark}, ${groupOrderDetails?.address?.physicalAddress?.city}, ${groupOrderDetails?.address?.physicalAddress?.postalCode}, ${groupOrderDetails?.address?.physicalAddress?.state},  ${groupOrderDetails?.address?.physicalAddress?.country}`}
+                                      </span>
+                                    </p>
+                                    <p>
+                                      Road:{" "}
+                                      {
+                                        groupOrderDetails?.address
+                                          ?.physicalAddress?.streetName
+                                      }
+                                    </p>
+                                    <p>
+                                      Landmark:{" "}
+                                      {
+                                        groupOrderDetails?.address
+                                          ?.physicalAddress?.landmark? groupOrderDetails?.address
+                                          ?.physicalAddress?.landmark : "N/A"
+                                      }
+                                    </p>
+                                    <p>
+                                      Postal Code:{" "}
+                                      {
+                                        groupOrderDetails?.address
+                                          ?.physicalAddress?.postalCode
+                                      }
+                                    </p>
+                                    <p>
+                                      City:{" "}
+                                      {
+                                        groupOrderDetails?.address
+                                          ?.physicalAddress?.city
+                                      }
+                                    </p>
+                                    <p>
+                                      State:{" "}
+                                      {
+                                        groupOrderDetails?.address
+                                          ?.physicalAddress?.state
+                                      }
+                                    </p>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

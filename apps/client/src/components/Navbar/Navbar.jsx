@@ -34,17 +34,35 @@ async function Navbar({ title }) {
   console.log("Token from Navbar function", token);
 
   return (
-    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary">
+    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-white">
       <Link href={"/"} className="flex flex-center items-center w-fit">
-        <img
-          src="https://i.ibb.co/S7wS79F3/d24a3ddf1d51.png"
-          className="w-14 mr-3 max-sm:h-10 max-sm:w-10"
-        />
+        <svg
+          // width="200"
+          height="100"
+          viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg">
+          {/* Editable color */}
+          <g stroke="black" fill="none" strokeWidth={4}>
+            {/* Stems */}
+            <path d="M100 120 L90 70" />
+            <path d="M100 120 L110 60" />
+            <path d="M100 120 L100 50" />
+
+            {/* Flowers */}
+            <circle cx="90" cy="70" r="10" />
+            <circle cx="110" cy="60" r="10" />
+            <circle cx="100" cy="50" r="10" />
+
+            {/* Leaves */}
+            <path d="M85 80 Q80 70 85 60" />
+            <path d="M115 70 Q120 60 115 50" />
+
+            {/* Paper wrap */}
+            <path d="M80 120 L120 120 L100 160 Z" />
+          </g>
+        </svg>
         <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden">
-          <span
-            className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-white"
-            // href={"/"}
-            >
+          <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
             {title}
           </span>
         </span>

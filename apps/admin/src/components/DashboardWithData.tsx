@@ -203,7 +203,7 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
         {
           label,
           data: data.map((d) => d.value),
-          backgroundColor: `${color}4D`, // Adds transparency
+          backgroundColor: `${color}`, // Adds transparency
           borderColor: color,
           borderWidth: 2,
           tension: 0.4,
@@ -336,7 +336,7 @@ const DashboardWithData: React.FC<{ setNavbarToogle?: any }> = () => {
             data={prepareChartData(
               usersChart,
               "Users",
-              "rgb(86, 31, 195)"
+              "rgb(228, 96, 52)"
             )}
             options={options}
           />

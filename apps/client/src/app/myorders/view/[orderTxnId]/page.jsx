@@ -25,6 +25,7 @@ const OrderViewPage = ({ params }) => {
   const [orderData, setOrderData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [cancellingItemId, setCancellingItemId] = useState(null);
 
   const fetchOrder = async () => {
     try {
@@ -84,6 +85,36 @@ const OrderViewPage = ({ params }) => {
       toast.error(error.response?.data?.message || "Failed to cancel order");
     } finally {
       setIsCancelling(false);
+    }
+  };
+
+  const handleCancelOrderItem = async (itemId) => {
+    if (!window.confirm("Are you sure you want to cancel this item?")) return;
+
+    try {
+      setCancellingItemId(itemId);
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/cancel-item`,
+        {
+          orderItemId: itemId,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Order item cancelled successfully");
+      fetchOrder(); // Refresh order data
+    } catch (error) {
+      console.error("Error cancelling order item:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to cancel order item"
+      );
+    } finally {
+      setCancellingItemId(null);
     }
   };
 
@@ -261,6 +292,28 @@ const OrderViewPage = ({ params }) => {
                             </div>
                           )}
                         </>
+                      )}
+
+                      {[
+                        "On Hold",
+                        "Pending",
+                        "On Progress",
+                        "Accepted",
+                      ].includes(item.orderStatus) && (
+                        <div className="mt-4">
+                          <button
+                            onClick={() => handleCancelOrderItem(item._id)}
+                            disabled={cancellingItemId === item._id}
+                            className={`w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+                              cancellingItemId === item._id
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}>
+                            {cancellingItemId === item._id
+                              ? "Cancelling..."
+                              : "Cancel Item"}
+                          </button>
+                        </div>
                       )}
                     </div>
                   ))}

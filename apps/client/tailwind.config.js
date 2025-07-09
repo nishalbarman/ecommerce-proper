@@ -32,7 +32,7 @@ module.exports = {
       },
       colors: {
         // primary: "#86cf9a", // Earth Green
-        primary: "#055F47", // Earth Green
+        primary: "#FFF", // Earth Green
         skeleton: "#c4deb8", // Light Green
         secondary: "#8D6E63", // Warm Brown
         accent: "#FFD700", // Gold

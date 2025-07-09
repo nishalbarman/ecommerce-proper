@@ -232,19 +232,96 @@ router.post("/", checkRole(0, 1), async (req, res) => {
   }
 });
 
+router.patch("/", checkRole(0, 1), async (req, res) => {
+  try {
+    const { product, productType, description, starsGiven, imageIds } =
+      req.body;
+
+    const errors = [];
+
+    if (!productType) errors.push("Product type is required");
+    if (!product) errors.push("Product ID is required");
+    if (!description) errors.push("Description is required");
+    if (!starsGiven || starsGiven < 1 || starsGiven > 5) {
+      errors.push("Rating must be between 1 and 5 stars");
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation errors",
+        errors,
+      });
+    }
+
+    // Check if user already reviewed this product
+    const existingFeedback = await Feedback.findOne({
+      user: req.user._id,
+      product,
+      productType,
+    });
+
+    if (existingFeedback) {
+      // Store old rating before update
+      const oldStarsGiven = existingFeedback.starsGiven;
+      const ratingChanged = oldStarsGiven !== starsGiven;
+
+      // Update existing feedback
+      existingFeedback.description = description;
+      existingFeedback.starsGiven = starsGiven;
+
+      if (imageIds && imageIds.length > 0) {
+        // Link images to this feedback
+        await FeedbackImage.updateMany(
+          { _id: { $in: imageIds }, uploadedBy: req.user._id },
+          { feedback: existingFeedback._id }
+        );
+        existingFeedback.images = [...imageIds];
+      }
+
+      await existingFeedback.save();
+
+      // Only update product stats if rating changed
+      if (ratingChanged) {
+        const productDoc = await Product.findById(product);
+        const currentTotal = productDoc.stars * productDoc.totalFeedbacks;
+        const newTotal = currentTotal - oldStarsGiven + starsGiven;
+        productDoc.stars = (newTotal / productDoc.totalFeedbacks).toFixed(2);
+        await productDoc.save({ validateBeforeSave: false });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Feedback updated successfully",
+      });
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: "Feedback Update Failed",
+    });
+  } catch (error) {
+    console.error("Feedback submission error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to submit feedback",
+    });
+  }
+});
+
 // FETCH FEEDBACK FOR ONE PRODUCT GIVEN BY ONE USER
 router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
   try {
-    const fetchBy = req.params?.fetchBy;
     const fetchingId = req.params?.fetchingId;
     const productType = req.body?.productType;
+    const fetchBy = req.query?.fetchBy;
 
     if (!fetchingId || !productType) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     const filter = {
-      productType: productType,
+      // productType: productType,
       user: req.user._id,
     };
 
@@ -255,7 +332,9 @@ router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
       filter._id = fetchingId;
     }
 
-    const feedback = await Feedback.findOne(filter);
+    console.log("Filter This One", filter, fetchBy);
+
+    const feedback = await Feedback.findOne(filter).populate("images");
 
     return res.status(200).json({ feedback: feedback });
   } catch (error) {

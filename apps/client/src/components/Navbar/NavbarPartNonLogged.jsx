@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 import Image from "next/image";
@@ -13,14 +13,43 @@ import {
   FaTimes,
   FaStar,
   FaSignOutAlt,
+  FaRegUser,
+  FaUserCircle,
 } from "react-icons/fa";
 import { IoMdSearch } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 function NavbarPartNonLogged() {
   const token = useSelector((state) => state.auth.jwtToken);
   console.log("Token from NavbarPartNonLogged: ", token);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [localSearch, setLocalSearch] = useState(
+    searchParams.get("query") || ""
+  );
+  const [localSort, setLocalSort] = useState(
+    searchParams.get("sort") || "newest"
+  );
+  const [appliedSearch, setAppliedSearch] = useState(localSearch);
+  const [appliedSort, setAppliedSort] = useState(localSort);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    // setAppliedSearch(localSearch);
+    // Reset to first page when search changes
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    params.set("query", localSearch);
+    params.set("sort", appliedSort);
+    // params.set("filter", encodeURIComponent(JSON.stringify(appliedFilters)));
+    router.push(`/products?${params.toString()}`);
+  };
 
   return (
     <>
@@ -28,19 +57,25 @@ function NavbarPartNonLogged() {
         {!!token ? (
           <>
             {/* search bar with icon */}
-            <Link
-              href={"/products"}
-              className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
-              <input
-                className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] bg-transparent p-4"
-                type="text"
-                name="search-text"
-                placeholder="What are you looking for?"
-              />
-              <div className="h-[25px] w-[25px] mr-3 flex items-center">
-                <CiSearch size={27} />
+            {pathname === "/products" || (
+              <div
+                // href={"/products"}
+                className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-black border-1 ">
+                <input
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black border-1 rounded-[4px] bg-transparent p-4"
+                  type="text"
+                  name="search-text"
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  placeholder="What are you looking for?"
+                />
+                <div className="h-[25px] w-[25px] mr-3 flex items-center">
+                  {/* <button onSubmit={handleSearchSubmit}> */}
+                  <button onClick={handleSearchSubmit}>
+                    <CiSearch size={27} />
+                  </button>
+                </div>
               </div>
-            </Link>
+            )}
 
             <ClientWishlistIcon />
             <ClientCartIcon />
@@ -52,6 +87,11 @@ function NavbarPartNonLogged() {
                 alt="user logo"
                 width={35}
                 height={35}
+              />
+              <FaUserCircle
+                className="w-[35px] h-[35px] my-auto cursor-pointer transform translate-y-[0.14rem]"
+                color="#DA4445"
+                fill="#DA4445"
               />
               <div className="absolute top-6 pt-2 right-[-15px] z-[999] ease-linear duration-300 group-hover:flex hidden rounded-lg">
                 <div className="bg-black opacity-[0.8] rounded-lg">
@@ -137,7 +177,7 @@ function NavbarPartNonLogged() {
               {/* search bar with icon */}
               <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none rounded-[4px] p-4 bg-transparent"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none border-black border-[1px] rounded-[4px] p-4 bg-transparent"
                   type="text"
                   name="search-text"
                   placeholder="What are you looking for?"
@@ -158,13 +198,18 @@ function NavbarPartNonLogged() {
                   href={"/auth/login"}>
                   Login / Signup
                 </Link> */}
+                {/* <Image
+                className="cursor-pointer transform translate-y-[0.14rem]"
+                src="/assets/user.svg"
+                alt="user logo"
+                width={35}
+                height={35}
+              /> */}
                 <div className="h-fit w-fit relative group mb-[8px]">
-                  <Image
-                    className="cursor-pointer transform translate-y-[0.14rem]"
-                    src="/assets/user.svg"
-                    alt="user logo"
-                    width={35}
-                    height={35}
+                  <FaUserCircle
+                    className="w-[35px] h-[35px] my-auto cursor-pointer transform translate-y-[0.14rem]"
+                    color="#DA4445"
+                    fill="#DA4445"
                   />
                   <div className="absolute top-6 pt-2 right-[-15px] z-[999] ease-linear duration-300 group-hover:flex hidden rounded-lg">
                     <div className="bg-black opacity-[0.8] rounded-lg">

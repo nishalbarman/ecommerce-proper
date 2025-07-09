@@ -10,6 +10,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiShoppingBag } from "react-icons/fi";
 import Loading from "../cart/loading";
+import WishlistItem from "@/components/WishlistComps/WishlistItem/WishlistItem";
 
 export default function Page() {
   const { useDeleteWishlistMutation, useGetWishlistQuery } = WishlistApi;
@@ -76,7 +77,7 @@ export default function Page() {
                   {wishlistData?.map((item) => {
                     return (
                       <div className="min-md:w-[250px]">
-                        <ProductItem
+                        <WishlistItem
                           // {...item}
                           wishlistItemId={item._id}
                           productDetails={item.product}

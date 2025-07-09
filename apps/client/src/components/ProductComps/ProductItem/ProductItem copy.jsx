@@ -138,9 +138,9 @@ function ProductCard({
   };
 
   return (
-    <div className="w-full group/product_item ">
+    <div className="w-full group/product_item">
       {/* Image Section */}
-      <div className="relative md:max-h-[400px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)] w-full">
+      <div className="relative md:max-h-[300px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)]">
         {!!originalPrice && (
           <div className="z-[999] absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[#DB4444] flex items-center justify-center max-sm:p-1 p-1.5">
             <span className="text-white text-sm max-sm:text-[12px] font-medium">

@@ -7,9 +7,8 @@ import ReviewForm from "@/components/ReviewForm/ReviewForm";
 
 import { RiChatQuoteLine, RiStarFill } from "react-icons/ri";
 
-function ReviewSection({ product }) {
+function ReviewSection({ product, hasUserBoughtThisProduct }) {
   const [reviews, setReviews] = useState([]);
-  const [hasPurchased, setHasPurchased] = useState(false); // You'll need to determine this from your API
 
   const handleReviewSubmit = (newReview) => {
     setReviews([newReview, ...reviews]);
@@ -32,7 +31,7 @@ function ReviewSection({ product }) {
           </span>
         </div>
       </div>
-      {hasPurchased && (
+      {hasUserBoughtThisProduct && (
         <div>
           <ReviewForm
             productId={product._id}

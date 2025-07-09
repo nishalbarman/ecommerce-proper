@@ -429,6 +429,50 @@ router.patch("/cancel", checkRole(1, 0), async (req, res) => {
   }
 });
 
+//! CANCEL INDIVIDUAL ORDER ITEM ROUTE
+router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
+  try {
+    const userDetails = req.user;
+    const orderItemId = req.body?.orderItemId;
+
+    if (!orderItemId) {
+      return res.status(400).json({ message: "Order item ID is missing!" });
+    }
+
+    const orderFilter = { _id: orderItemId };
+
+    if (userDetails.role === 0) {
+      orderFilter.user = userDetails._id;
+      orderFilter.orderStatus = { $in: ["On Hold", "On Progress", "Accepted"] };
+    } else if (userDetails.role === 2) {
+      const center = userDetails?.center;
+      if (!center) {
+        return res
+          .status(400)
+          .json({ message: "No center available for given user ID" });
+      }
+      orderFilter.center = center;
+    }
+
+    const order = await Order.findOneAndUpdate(
+      orderFilter,
+      { $set: { orderStatus: "Cancelled" } },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.json({ message: "Cancellation Failed" });
+    }
+    return res.json({ message: "Order Item Cancelled" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error!",
+    });
+  }
+});
+
 //! ORDER CHART DATA -- CAN BE USED BY ADMIN AND CENTER
 router.get("/get-order-chart-data", checkRole(1), async (req, res) => {
   try {

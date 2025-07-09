@@ -28,7 +28,17 @@ const CustomNextArrow = ({ className, style, onClick }) => {
   );
 };
 
-const Carousel = ({ items = [] }) => {
+const Carousel = ({
+  items = [
+    {
+      imageUrl:
+        "https://img.freepik.com/free-vector/stylish-glowing-digital-red-lines-banner_1017-23964.jpg",
+      title: "Mehendi Design 1",
+      description: "Beautiful Mehendi Design 1",
+      altText: "Mehendi Design 1",
+    },
+  ],
+}) => {
   const sliderRef = useRef();
   const settings = {
     dots: true,

@@ -366,7 +366,7 @@ router.get("/", async (req, res) => {
     // Sorting logic
     let sortObject = { createdAt: "desc" };
 
-    if (QUERY) {
+    if (QUERY && !SORT) {
       delete sortObject.createdAt;
       sortObject.score = { $meta: "textScore" };
     }
@@ -421,8 +421,12 @@ router.post("/view/:productId", async (req, res) => {
   try {
     const params = req.params;
     const productType = req.body?.productType || "buy";
+    const token = req.headers["authorization"]?.split(" ")[1];
+    const user = getTokenDetails(token);
 
-    console.log("Parameters", params);
+    console.log("User Detailsssssssssss", user.userDetails._id);
+
+    // return user;
 
     // check whether we have the product id or not
     if (!params.productId) {
@@ -438,14 +442,14 @@ router.post("/view/:productId", async (req, res) => {
 
     console.log("has user bought", {
       product: params.productId,
-      user: undefined,
+      user: user?.userDetails?._id || undefined,
       orderType: productType,
       orderStatus: "Delivered",
     });
 
     const hasUserBoughtThisProduct = await Order.countDocuments({
       product: params.productId,
-      user: undefined,
+      user: user?.userDetails?._id || undefined,
       orderType: productType,
       orderStatus: "Delivered",
     });
