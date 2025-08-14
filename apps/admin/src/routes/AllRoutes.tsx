@@ -39,22 +39,14 @@ const AllRoutes: React.FC = () => {
           </PrivateRoute>
         }
       />
-      {/* <Route
-        path="/center/add"
+      <Route
+        path="/store/add"
         element={
           <PrivateRoute>
             <AddNewCenter />
           </PrivateRoute>
         }
       />
-      <Route
-        path="/center/list"
-        element={
-          <PrivateRoute>
-            <CenterList />
-          </PrivateRoute>
-        }
-      /> */}
 
       <Route
         path="/new-arrival"
@@ -102,6 +94,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <ViewSingleOrder />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/banner"
+        element={
+          <PrivateRoute>
+            <CategoryList />
           </PrivateRoute>
         }
       />

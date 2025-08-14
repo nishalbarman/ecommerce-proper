@@ -175,7 +175,7 @@ const OrderViewPage = ({ params }) => {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Link href="/myorders">
-            <span className="inline-flex items-center text-green-900 hover:text-green-800">
+            <span className="inline-flex items-center text-black hover:text-black">
               <FaArrowLeft className="mr-2" /> Back to Orders
             </span>
           </Link>
@@ -211,13 +211,38 @@ const OrderViewPage = ({ params }) => {
                     <div
                       key={index}
                       className="pb-4 border-b border-gray-200 last:border-0 last:pb-0">
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-500">
-                          Product
-                        </h3>
-                        <p className="mt-1 text-sm text-gray-900 font-bold">
-                          {item.title}
-                        </p>
+                      <div className="flex justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-500">
+                            Product
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-900 font-bold">
+                            {item.title}
+                          </p>
+                        </div>
+                        <div>
+                          {[
+                            "On Hold",
+                            "Pending",
+                            "On Progress",
+                            "Accepted",
+                          ].includes(item.orderStatus) && (
+                            <div className="mt-4">
+                              <button
+                                onClick={() => handleCancelOrderItem(item._id)}
+                                disabled={cancellingItemId === item._id}
+                                className={`w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#DB4444] hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+                                  cancellingItemId === item._id
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                                }`}>
+                                {cancellingItemId === item._id
+                                  ? "Cancelling..."
+                                  : "Cancel Item"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {item.previewImage && (
@@ -292,28 +317,6 @@ const OrderViewPage = ({ params }) => {
                             </div>
                           )}
                         </>
-                      )}
-
-                      {[
-                        "On Hold",
-                        "Pending",
-                        "On Progress",
-                        "Accepted",
-                      ].includes(item.orderStatus) && (
-                        <div className="mt-4">
-                          <button
-                            onClick={() => handleCancelOrderItem(item._id)}
-                            disabled={cancellingItemId === item._id}
-                            className={`w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
-                              cancellingItemId === item._id
-                                ? "opacity-50 cursor-not-allowed"
-                                : ""
-                            }`}>
-                            {cancellingItemId === item._id
-                              ? "Cancelling..."
-                              : "Cancel Item"}
-                          </button>
-                        </div>
                       )}
                     </div>
                   ))}
@@ -432,10 +435,10 @@ const OrderViewPage = ({ params }) => {
                   <button
                     onClick={handleCancelOrder}
                     disabled={isCancelling}
-                    className={`w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
+                    className={`w-full px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#DB4444] hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 ${
                       isCancelling ? "opacity-50 cursor-not-allowed" : ""
                     }`}>
-                    {isCancelling ? "Cancelling..." : "Cancel Order"}
+                    {isCancelling ? "Cancelling..." : "Cancel The Order"}
                   </button>
                 </div>
               )}

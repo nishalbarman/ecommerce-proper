@@ -12,6 +12,7 @@ interface WebConfig {
   instagramLink: string;
   websiteUrl: string;
   newsletterDiscount: number;
+  deliveryPrice: number;
   about: string;
 }
 
@@ -25,6 +26,7 @@ const WebConfigPage = () => {
     instagramLink: "",
     websiteUrl: "",
     newsletterDiscount: 5,
+    deliveryPrice: 0,
     about: "",
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -178,22 +180,75 @@ const WebConfigPage = () => {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="newsletterDiscount"
-                  className="block text-sm font-medium text-gray-700">
-                  Newsletter Discount (%)
-                </label>
-                <input
-                  type="number"
-                  id="newsletterDiscount"
-                  name="newsletterDiscount"
-                  min="0"
-                  max="100"
-                  value={config.newsletterDiscount}
-                  onChange={handleNumberChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="whatsAppLink"
+                    className="block text-sm font-medium text-gray-700">
+                    WhatsApp Link
+                  </label>
+                  <input
+                    type="url"
+                    id="whatsAppLink"
+                    name="whatsAppLink"
+                    value={config.whatsAppLink}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                    placeholder="https://wa.me/..."
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="facebookLink"
+                    className="block text-sm font-medium text-gray-700">
+                    Facebook Link
+                  </label>
+                  <input
+                    type="url"
+                    id="facebookLink"
+                    name="facebookLink"
+                    value={config.facebookLink}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                    placeholder="https://facebook.com/..."
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="instagramLink"
+                    className="block text-sm font-medium text-gray-700">
+                    Instagram Link
+                  </label>
+                  <input
+                    type="url"
+                    id="instagramLink"
+                    name="instagramLink"
+                    value={config.instagramLink}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                    placeholder="https://instagram.com/..."
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="newsletterDiscount"
+                    className="block text-sm font-medium text-gray-700">
+                    Newsletter Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    id="newsletterDiscount"
+                    name="newsletterDiscount"
+                    min="0"
+                    max="100"
+                    value={config.newsletterDiscount}
+                    onChange={handleNumberChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                  />
+                </div>
               </div>
             </div>
 
@@ -210,7 +265,7 @@ const WebConfigPage = () => {
                 <textarea
                   id="address"
                   name="address"
-                  rows={3}
+                  rows={5}
                   value={config.address}
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1"
@@ -220,62 +275,7 @@ const WebConfigPage = () => {
 
               <div>
                 <label
-                  htmlFor="whatsAppLink"
-                  className="block text-sm font-medium text-gray-700">
-                  WhatsApp Link
-                </label>
-                <input
-                  type="url"
-                  id="whatsAppLink"
-                  name="whatsAppLink"
-                  value={config.whatsAppLink}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                  placeholder="https://wa.me/..."
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="facebookLink"
-                  className="block text-sm font-medium text-gray-700">
-                  Facebook Link
-                </label>
-                <input
-                  type="url"
-                  id="facebookLink"
-                  name="facebookLink"
-                  value={config.facebookLink}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                  placeholder="https://facebook.com/..."
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="instagramLink"
-                  className="block text-sm font-medium text-gray-700">
-                  Instagram Link
-                </label>
-                <input
-                  type="url"
-                  id="instagramLink"
-                  name="instagramLink"
-                  value={config.instagramLink}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                  placeholder="https://instagram.com/..."
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">About</h3>
-
-              <div>
-                <label
-                  htmlFor="address"
+                  htmlFor="about"
                   className="block text-sm font-medium text-gray-700">
                   About *
                 </label>
@@ -287,6 +287,30 @@ const WebConfigPage = () => {
                   onChange={handleChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1"
                   required
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Brand Info */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Delivery Information</h3>
+
+              <div>
+                <label
+                  htmlFor="deliveryPrice"
+                  className="block text-sm font-medium text-gray-700">
+                  Delivery Price
+                </label>
+                <input
+                  type="number"
+                  id="deliveryPrice"
+                  name="deliveryPrice"
+                  min="0"
+                  value={config.deliveryPrice}
+                  onChange={handleNumberChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
                 />
               </div>
             </div>

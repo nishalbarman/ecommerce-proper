@@ -4,8 +4,8 @@
   "postman.settings.dotenv-detection-notification-visibility": false,
   "CodeGPT.apiKey": "Ollama",
   "dish-ai-commit.base.provider": "Ollama",
-  "aiCommitAssistant.apiProvider": "ollama",
-  "aiCommitAssistant.ollama.model": "stable-code:3b-code-q4_0",
-  "aiCommitAssistant.showDiagnostics": true,
-  "GitCommitPlugin.FillSubjectWithCurrent": true
+  "GitCommitPlugin.FillSubjectWithCurrent": true,
+  "gitmind.apiProvider": "ollama",
+  "gitmind.ollama.model": "stable-code:3b-code-q4_0",
+  "gitmind.showDiagnostics": true
 }

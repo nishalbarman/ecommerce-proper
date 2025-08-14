@@ -12,8 +12,8 @@ import TabBar from "@/components/TabBar/TabBar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Jharna Mehendi - Get your mehendi now.",
-  description: "Get variaties of mehendi for your special occusions.",
+  title: "GJN Booque Plot",
+  description: "",
   icons: {
     icon: "/favicon/favicon.png",
   },
@@ -22,7 +22,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} relative`}>
         <Toaster />
         <CookiesProvider>
           <ReduxStore>

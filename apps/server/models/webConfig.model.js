@@ -37,6 +37,10 @@ const WebConfigSchema = new mongoose.Schema({
     type: Number,
     default: 5,
   },
+  deliveryPrice: {
+    type: Number,
+    default: 45,
+  },
   about: {
     type: String,
     required: true,

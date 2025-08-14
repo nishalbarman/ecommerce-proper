@@ -67,7 +67,7 @@ const Testimonials = async () => {
             <h1 className="text-black text-4xl leading-[50px] font-bold">
               Our Customer Said{" "}
               <span className="text-black font-light">
-                About Our Mehendi Products
+                About Our Products
               </span>
             </h1>
           </div>

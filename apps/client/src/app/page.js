@@ -25,6 +25,7 @@ import AboutSection from "@/components/AboutSection/AboutSection";
 import MehendiInfo from "@/components/ArrowComponent/MehendiInfo";
 import TabBar from "@/components/TabBar/TabBar";
 import TopSlider from "@/components/SliderTop/TopSlider";
+import AuthModal from "@/modal/AuthModal";
 
 const getSaleDetails = async () => {
   try {
@@ -78,6 +79,7 @@ export default async function Page() {
       </Suspense> */}
 
       <div className="w-full h-[1px]"></div>
+      <AuthModal />
 
       {/* <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
       <div className="w-full h-[1px] bg-black opacity-[0.1]"></div> */}

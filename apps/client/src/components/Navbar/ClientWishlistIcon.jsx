@@ -60,7 +60,7 @@ function ClientWishlistIcon() {
             </span>
           </div>
         )}
-        <FaRegHeart color="white" fill={"white"} size={23} />
+        <FaRegHeart color="black" fill={"black"} size={23} />
       </div>
     </Link>
   );

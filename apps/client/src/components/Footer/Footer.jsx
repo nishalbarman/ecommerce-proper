@@ -94,21 +94,21 @@ async function Footer() {
           </p>
           {/* socials */}
           <div className="mb-5 text-white">
-            <div className="flex justify-center sm:justify-start items-center gap-2 border border-white rounded w-fit px-2">
+            <div className="flex justify-center sm:justify-start items-center gap-2 rounded w-fit">
               <a
-                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="h-10 w-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/10 transition-colors"
                 href={webData.whatsAppLink}
                 target="_blank">
                 <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
               </a>
               <a
-                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors bg-white/10"
                 href={`${webData.facebookLink}`}
                 target="_blank">
                 <PiFacebookLogoBold color={"white"} fill="white" size={23} />
               </a>
               <a
-                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
+                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors bg-white/10"
                 href={`${webData.instagramLink}`}
                 target="_blank">
                 <FaInstagram color={"white"} fill="white" size={22} />

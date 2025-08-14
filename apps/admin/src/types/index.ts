@@ -111,6 +111,15 @@ export type Category = {
   categoryKey?: string;
 };
 
+export type Banner = {
+  _id?: string;
+  bannerName: string;
+  bannerImageUrl: string | null;
+  bannerRedirectUrl: string | null;
+  bannerKey?: string;
+  [key: string]: any;
+};
+
 export type Feature = {
   _id?: string;
   featureName: string;

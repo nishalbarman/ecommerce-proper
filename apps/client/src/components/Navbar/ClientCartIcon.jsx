@@ -59,7 +59,7 @@ function ClientCartIcon() {
           </div>
         )}
         {/* <BsCart3 color="white" fill={"white"} size={26} /> */}
-        <PiShoppingCart color="white" fill={"white"} size={29} />
+        <PiShoppingCart color="black" fill={"black"} size={29} />
       </div>
     </Link>
   );

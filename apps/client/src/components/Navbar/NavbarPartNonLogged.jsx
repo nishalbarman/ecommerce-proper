@@ -81,13 +81,13 @@ function NavbarPartNonLogged() {
             <ClientCartIcon />
 
             <div className="h-fit w-fit relative group mb-[8px]">
-              <Image
+              {/* <Image
                 className="cursor-pointer transform translate-y-[0.14rem]"
                 src="/assets/user.svg"
                 alt="user logo"
                 width={35}
                 height={35}
-              />
+              /> */}
               <FaUserCircle
                 className="w-[35px] h-[35px] my-auto cursor-pointer transform translate-y-[0.14rem]"
                 color="#DA4445"

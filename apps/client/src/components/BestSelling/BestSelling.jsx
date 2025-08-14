@@ -19,11 +19,11 @@ async function BestSelling() {
 
   return (
     <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
-      <TitleWithBar title={"Our Mehendi Products"} />
+      <TitleWithBar title={"Our Products"} />
       <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6">
         <span className="text-2xl xl:text-3xl font-bold align-center max-[597px]:text-[20px] max-sm:-mt-2">
           {/* Best Selling Products */}
-          Collection of Mehendi Products
+          Collection of Products
         </span>
 
         <Link
