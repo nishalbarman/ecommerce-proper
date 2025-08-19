@@ -16,10 +16,13 @@ import {
   isValidPassword,
 } from "@/helpter/utils";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { clearLoginModalState } from "@/redux/slices/loginModalSlice";
 
 const AuthModal = ({ onClose }) => {
-  const isAuthModalEnabled = useSelector((state) => state.authModalSlice);
-  console.log("isAuthModalEnabled", isAuthModalEnabled);
+  const isModalVisible = useSelector(
+    (state) => state.authModalSlice.modalVisible
+  );
+  console.log("isModalVisible", isModalVisible);
 
   const [isLoginForm, setIsLoginForm] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -306,17 +309,23 @@ const AuthModal = ({ onClose }) => {
     );
   }
 
+  if (isModalVisible) return null;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl overflow-hidden max-w-md w-full animate-fade-in">
         <button
-          onClick={onClose}
+          onClick={()=>{
+            console.log("Clear login modal state-->",clearLoginModalState());
+            dispatch(clearLoginModalState());
+          }}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
+             color="white"
             stroke="currentColor">
             <path
               strokeLinecap="round"
