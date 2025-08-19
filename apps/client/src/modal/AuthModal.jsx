@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUserAuth } from "@/redux/slices/authSlice";
 import { setCookiesAfterLogin } from "@/lib/login/setLoginCookie";
 import authService from "@/services/authService";
@@ -18,6 +18,9 @@ import {
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const AuthModal = ({ onClose }) => {
+  const isAuthModalEnabled = useSelector((state) => state.authModalSlice);
+  console.log("isAuthModalEnabled", isAuthModalEnabled);
+
   const [isLoginForm, setIsLoginForm] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);

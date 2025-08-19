@@ -26,6 +26,7 @@ import MehendiInfo from "@/components/ArrowComponent/MehendiInfo";
 import TabBar from "@/components/TabBar/TabBar";
 import TopSlider from "@/components/SliderTop/TopSlider";
 import AuthModal from "@/modal/AuthModal";
+import { useSelector } from "react-redux";
 
 const getSaleDetails = async () => {
   try {
@@ -42,6 +43,8 @@ export default async function Page() {
   const data = await getSaleDetails();
   const isFlashSaleEnabled = data?.isFlashSaleEnabled || null;
   const saleEndTime = data?.saleEndTime || null;
+
+  
 
   return (
     <>

@@ -9,6 +9,7 @@ export * as MessageSlice from "./slices/messageSlice";
 export * as WishlistSlice from "./slices/wishlistSlice";
 export * as CartSlice from "./slices/cartSlice";
 export * as AppliedCouponSlice from "./slices/appliedCouponSlice";
+export * as loginModalSlice from "./slices/loginModalSlice";
 
 // Export all APIs with namespace
 export * as AddressApi from "./apis/addressApi";

@@ -38,12 +38,14 @@ import { checkoutInformationSlice } from "./slices/checkoutSlice.js";
 import { wishlistSlice } from "./slices/wishlistSlice.js";
 import { cartSlice } from "./slices/cartSlice.js";
 import { appliedCouponSlice } from "./slices/appliedCouponSlice.js";
+import { loginModalSlice } from "./slices/loginModalSlice.js";
 import { productApi } from "./apis/productApi.js";
 import { reviewApi } from "./apis/reviewApi.js";
 
 const rootReducer = combineReducers({
   // [userAPI.reducerPath]: userAPI.reducer,
   // [authApi.reducerPath]: authApi.reducer,
+  [loginModalSlice.name]: loginModalSlice.reducer,
   [authSlice.name]: authSlice.reducer,
   [addressSlice.name]: addressSlice.reducer,
   [addressApi.reducerPath]: addressApi.reducer,

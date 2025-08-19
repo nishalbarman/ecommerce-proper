@@ -67,7 +67,7 @@ const ProductSlider = ({ products }) => {
         // centeredSlides={true}
         className="w-full bg-transparent mb-4">
         {/* Slider Images */}
-        {products.map((productItem, index) => (
+        {products?.map((productItem, index) => (
           <SwiperSlide key={index}>
             <ProductItem
               productDetails={{ ...productItem }}

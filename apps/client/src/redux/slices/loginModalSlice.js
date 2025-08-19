@@ -6,7 +6,7 @@ const initialState = {
 };
 
 export const loginModalSlice = createSlice({
-  name: "loginModalSlice",
+  name: "authModalSlice",
   initialState,
   reducers: {
     setLoginModalState: (state, { payload }) => {
@@ -19,4 +19,4 @@ export const loginModalSlice = createSlice({
   },
 });
 
-export const { setAddressDataFromMap, clearAddressData } = loginModalSlice.actions;
+export const {setLoginModalState, clearLoginModalState} = loginModalSlice.actions;
