@@ -1,8 +1,5 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Cart from "../../components/Cart/Cart";
-import Footer from "../../components/Footer/Footer";
-
-import { fetchCart } from "@/lib/cart";
 
 export default async function page() {
   return (

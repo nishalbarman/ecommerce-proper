@@ -689,6 +689,48 @@ router.patch("/update/:productId", checkRole(1), async (req, res) => {
   }
 });
 
+router.post("/duplicate", checkRole(1), async (req, res) => {
+  try {
+    const productId = req.body.productId;
+    const productData = await Product.findOne({ _id: productId });
+    // delete product._id;
+    // const response = await Product.create(product);
+
+    // Create a new product document
+    const newProduct = new Product({
+      previewImage: productData.previewImage,
+      title: productData.title,
+      category: productData.category,
+      slideImages: productData.slideImages,
+      description: productData.description,
+      // productType: productData.productType,
+      productType: "buy", // hardcoded to buy cause this project is only for buy
+      shippingPrice: +productData.shippingPrice,
+      availableStocks: +productData.availableStocks,
+      rentingPrice: !!productData.variant
+        ? +productData.variant[0].rentingPrice
+        : +productData.rentingPrice,
+      discountedPrice: !!productData.variant
+        ? +productData.variant[0].discountedPrice
+        : +productData.discountedPrice,
+      originalPrice: !!productData.variant
+        ? +productData.variant[0].originalPrice
+        : +productData.originalPrice,
+      isVariantAvailable: !!productData.isVariantAvailable,
+    });
+    await newProduct.save();
+    console.log(newProduct);
+
+    return res.status(200).json({
+      message: `Duplicate product created`,
+    });
+    // return res.status(400).json({ message: "Failed to create" });
+  } catch (err) {
+    console.error(TAG, err);
+    return res.status(500).json({ message: err.message });
+  }
+});
+
 /// product instock check
 router.post("/variant/instock/:productId", async (req, res) => {
   try {

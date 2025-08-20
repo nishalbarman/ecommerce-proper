@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.15.0",
     "@store/redux": "*",
     "@tailwindcss/typography": "^0.5.16",
     "@vonage/server-sdk": "^3.12.2",

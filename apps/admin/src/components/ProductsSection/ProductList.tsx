@@ -22,10 +22,11 @@ import { ClipLoader } from "react-spinners";
 import ConfirmModal from "../ConfirmModal";
 import ProductUpdateModal from "./ProductUpdateModal";
 import { Product } from "../../types";
-import { FaRegEye } from "react-icons/fa";
+import { FaRegCopy, FaRegEye } from "react-icons/fa";
 import {
   useGetProductsQuery,
   useDeleteProductsMutation,
+  useDuplicateProductMutation,
 } from "../../redux/apis/productApi";
 import ViewImage from "../ViewImage/ViewImage";
 
@@ -42,6 +43,7 @@ const ListProduct = () => {
   );
 
   const [deleteProducts] = useDeleteProductsMutation();
+  const [duplicateProudctId] = useDuplicateProductMutation();
 
   const [deleteProductId, setDeleteProductId] = useState<string[] | null>(null);
   const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
@@ -59,6 +61,30 @@ const ListProduct = () => {
       toast.error(error.data?.message || "Failed to delete product(s)");
     } finally {
       setDeleteButtonLoading(false);
+    }
+  };
+
+  const handleProductDuplicate = async (productId: string) => {
+    let toastId = null;
+    try {
+      toastId = toast.loading("Creating duplicate product, Please wait...");
+      await duplicateProudctId({ productId: productId }).unwrap();
+      toast.update(toastId, {
+        render: "Duplicate product created",
+        type: "success",
+        isLoading: false,
+      });
+    } catch (error: any) {
+      console.error(error);
+      toast.update(toastId, {
+        render: "Failed to duplicate product(s)",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: null,
+      });
+    } finally {
+      // setDeleteButtonLoading(false);
     }
   };
 
@@ -170,6 +196,18 @@ const ListProduct = () => {
         sx={{ m: 0 }}>
         <LuPencilLine />
         <span style={{ marginLeft: "9px" }}>Update</span>
+      </MenuItem>,
+      <MenuItem
+        key={3}
+        onClick={() => {
+          handleProductDuplicate(row.original._id as string);
+          // sessionStorage.setItem("productId", row.original._id as string);
+          // setUpdateModalVisible(true);
+          closeMenu();
+        }}
+        sx={{ m: 0 }}>
+        <FaRegCopy />
+        <span style={{ marginLeft: "9px" }}>Duplicate</span>
       </MenuItem>,
       <MenuItem
         key={2}

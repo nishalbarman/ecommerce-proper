@@ -24,6 +24,7 @@ import CouponList from "../components/CouponSection/CouponList";
 import Logout from "../components/Logout";
 import WebConfigPage from "@/components/WebConfig/WebConfig";
 import DashboardWithData from "@/components/DashboardWithData";
+import BannerList from "@/components/BannerSection/BannerList";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -102,7 +103,7 @@ const AllRoutes: React.FC = () => {
         path="/banner"
         element={
           <PrivateRoute>
-            <CategoryList />
+            <BannerList />
           </PrivateRoute>
         }
       />

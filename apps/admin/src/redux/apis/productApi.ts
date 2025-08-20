@@ -58,6 +58,17 @@ export const productApi = createApi({
       transformErrorResponse: (res: any) => res.message,
     }),
 
+    // duplicate product form product id
+    duplicateProduct: builder.mutation({
+      query: ({ productId }) => ({
+        url: `products/duplicate`,
+        method: "POST",
+        body: { productId: productId },
+      }),
+      invalidatesTags: ["Product"], // Invalidate cache after creating a duplicate product
+      transformErrorResponse: (res: any) => res.message,
+    }),
+
     // Add a new product
     addProduct: builder.mutation({
       query: (newProduct) => ({
@@ -77,5 +88,6 @@ export const {
   useGetProductByIdQuery,
   useDeleteProductsMutation,
   useUpdateProductMutation,
+  useDuplicateProductMutation,
   useAddProductMutation,
 } = productApi;

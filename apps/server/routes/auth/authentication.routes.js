@@ -40,13 +40,16 @@ router.post("/admin-login", async (req, res) => {
 
     console.log(
       !!user
-        ? `We got one user with given email: ${user?.email} and Role: ${user.role?.roleName}`
+        ? `We got one user with given email: ${user?.email} and Role: ${user?.role?.roleName}`
         : "No user found for the given email"
     );
 
-    console.log(user.role);
-
-    if (!user || user.role?.roleKey !== "admin") {
+    if (
+      !(
+        user &&
+        (user.role?.roleKey === "admin" || user.role?.roleKey === "super-admin")
+      )
+    ) {
       return res.status(400).json({
         message: "The provided credentials are invalid.",
       });
@@ -154,7 +157,7 @@ router.post("/login", async (req, res) => {
         mobileNo: user.mobileNo,
         center: user?.center,
       },
-      secret,
+      secret
       // { expiresIn: 1 + "h" }
     );
 

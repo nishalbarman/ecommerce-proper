@@ -15,6 +15,7 @@ import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { AiOutlineEye } from "react-icons/ai";
 import { FaCartShopping, FaCheck } from "react-icons/fa6";
 import Link from "next/link";
+import { setLoginModalState } from "@/redux/slices/loginModalSlice";
 
 function ProductCard({
   productDetails = {},
@@ -106,6 +107,7 @@ function ProductCard({
   const handleAddCartButtonClicked = (e) => {
     e.stopPropagation();
     if (!token) {
+      dispatch(setLoginModalState({ modalVisible: true }));
       return toast.success("You need to be logged in first.");
     }
     handleAddToCart();
@@ -114,6 +116,7 @@ function ProductCard({
   const handleToggleWishlist = async (e) => {
     e.stopPropagation();
     if (!token) {
+      dispatch(setLoginModalState({ modalVisible: true }));
       return toast.success("You need to be logged in first.");
     }
 

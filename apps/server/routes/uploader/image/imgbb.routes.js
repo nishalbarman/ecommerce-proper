@@ -43,9 +43,10 @@ router.post("/upload", async (req, res) => {
         imageLink: uploadResponse.display_url,
         reference: uploadResponse.id,
         platform: "imgbb",
-        thumbnailUrl: uploadResponse.display_url,
+        thumbnailUrl: uploadResponse.thumb.url || uploadResponse.display_url,
+        deleteLink: uploadResponse.delete_url,
         // uploadedBy: req.jwt.user,
-        uploadedBy: "jharna",
+        uploadedBy: "Test",
       });
     }
 
@@ -54,9 +55,9 @@ router.post("/upload", async (req, res) => {
       return res.status(200).json({
         status: true,
         message: "Image uploaded",
-        data: {
-          ...mongoResponse,
-        },
+        // data: {
+        //   ...mongoResponse,
+        // },
       });
     }
 

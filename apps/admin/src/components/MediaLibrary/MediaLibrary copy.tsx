@@ -30,7 +30,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
 }) => {
   // const [listOfImages, setListOfImages] = useState<FileLibraryListItem[]>([]);
 
-  const { data: listOfImages } = useGetImagesQuery("this");
+  const { data: listOfImages } = useGetImagesQuery({ page, limit });
   const [addOneImage] = useAddOneImageMutation();
 
   const fileUploadCallback = useCallback(async (imageFile: File) => {
@@ -47,6 +47,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     }
   }, []);
 
+  console.log("listOfImages", listOfImages);
   return (
     <>
       <ReactMediaLibrary
@@ -54,7 +55,15 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
         fileLibraryList={listOfImages}
         modalTitle={title}
         fileUploadCallback={fileUploadCallback}
-        filesDeleteCallback={undefined}
+        filesDeleteCallback={(files) => {
+          files.forEach((file) => {
+            console.log(file);
+            if (file?.deleteLink) {
+              window.open(file?.deleteLink, "_blank");
+            }
+          });
+          setIsOpen((prev: boolean) => !prev);
+        }}
         filesSelectCallback={(files) => {
           fileSelectCallback(files);
           setIsOpen((prev: boolean) => !prev);

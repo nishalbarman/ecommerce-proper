@@ -113,10 +113,10 @@ export type Category = {
 
 export type Banner = {
   _id?: string;
-  bannerName: string;
-  bannerImageUrl: string | null;
-  bannerRedirectUrl: string | null;
-  bannerKey?: string;
+  title: string;
+  imageUrl: string | null;
+  redirectUrl: string | null;
+  key?: string;
   [key: string]: any;
 };
 

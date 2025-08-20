@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 
-import MediaLibrary from "../MediaLibrary/MediaLibrary";
+import MediaLibrary from "../NewMediaLibrary/MediaLibrary";
 import { FileLibraryListItem } from "react-media-library";
 
 type ImageManagementProps = {
@@ -25,6 +25,8 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
   // setIsOpen,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  const toggleAssetPicker = useCallback(() => setIsOpen((prev) => !prev), []);
 
   return (
     <>
@@ -59,4 +61,4 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
   );
 };
 
-export default ImageManagement;
+export default memo(ImageManagement);

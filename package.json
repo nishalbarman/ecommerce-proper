@@ -37,5 +37,6 @@
     "react-native-reanimated": "3.10.1",
     "@reduxjs/toolkit": "2.2.5"
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "version": "0.0.0"
 }

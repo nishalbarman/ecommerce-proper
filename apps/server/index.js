@@ -61,6 +61,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use("/user", require("./routes/users/user.routes"));
 app.use("/auth", require("./routes/auth/authentication.routes"));
 app.use("/auth/sendOtp", require("./routes/otpSend/mobile.routes"));
+app.use("/banners", require("./routes/banner/banner.routes"));
 app.use("/categories", require("./routes/categories/category.routes"));
 app.use("/features", require("./routes/features/feature.routes"));
 app.use("/products", require("./routes/products/products.routes"));

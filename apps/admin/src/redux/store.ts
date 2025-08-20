@@ -60,7 +60,12 @@ const rootReducer = combineReducers({
 const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
   key: "root",
   storage: AsyncStorage,
-  blacklist: [userApi.reducerPath, authApi.reducerPath, addressApi.reducerPath],
+  blacklist: [
+    userApi.reducerPath,
+    authApi.reducerPath,
+    addressApi.reducerPath,
+    // imageApi.reducerPath,
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

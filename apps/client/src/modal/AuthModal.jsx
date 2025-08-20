@@ -16,7 +16,11 @@ import {
   isValidPassword,
 } from "@/helpter/utils";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { clearLoginModalState } from "@/redux/slices/loginModalSlice";
+import {
+  clearLoginModalState,
+  setLoginModalState,
+} from "@/redux/slices/loginModalSlice";
+import SpaceshipLoading from "@/components/LoadingScreen/LoadingScreen";
 
 const AuthModal = ({ onClose }) => {
   const isModalVisible = useSelector(
@@ -186,7 +190,7 @@ const AuthModal = ({ onClose }) => {
 
         setCookiesAfterLogin({ token: response.user.jwtToken });
         const redirectPath = searchParams?.get("redirect") || "/";
-        router.push(redirectPath);
+        // router.push(redirectPath);
         dispatch(clearLoginModalState());
         onClose?.();
       }
@@ -207,50 +211,50 @@ const AuthModal = ({ onClose }) => {
     }
   };
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
+  // const handleSignup = async (e) => {
+  //   e.preventDefault();
 
-    if (!validateForm()) return;
+  //   if (!validateForm()) return;
 
-    setIsLoading(true);
-    const loadingToast = toast.loading("Creating account...");
+  //   setIsLoading(true);
+  //   const loadingToast = toast.loading("Creating account...");
 
-    try {
-      const response = await authService.register({
-        name: formData.name,
-        email: formData.email,
-        mobileNo: formData.mobileNo,
-        password: formData.password,
-        confirmpassword: formData.confirmPassword,
-      });
+  //   try {
+  //     const response = await authService.register({
+  //       name: formData.name,
+  //       email: formData.email,
+  //       mobileNo: formData.mobileNo,
+  //       password: formData.password,
+  //       confirmpassword: formData.confirmPassword,
+  //     });
 
-      toast.dismiss(loadingToast);
-      toast.success(response?.message || "Account created successfully");
-      setIsVerifyScreenVisible(true);
-    } catch (error) {
-      console.error("Signup error:", error);
-      toast.dismiss(loadingToast);
+  //     toast.dismiss(loadingToast);
+  //     toast.success(response?.message || "Account created successfully");
+  //     setIsVerifyScreenVisible(true);
+  //   } catch (error) {
+  //     console.error("Signup error:", error);
+  //     toast.dismiss(loadingToast);
 
-      let errorMessage = "Signup failed. Please try again.";
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
+  //     let errorMessage = "Signup failed. Please try again.";
+  //     if (error?.response?.data?.message) {
+  //       errorMessage = error.response.data.message;
+  //     } else if (error.message) {
+  //       errorMessage = error.message;
+  //     }
 
-      toast.error(errorMessage);
+  //     toast.error(errorMessage);
 
-      // Highlight specific field errors if available
-      if (error?.response?.data?.errors) {
-        setFormErrors((prev) => ({
-          ...prev,
-          ...error.response.data.errors,
-        }));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     // Highlight specific field errors if available
+  //     if (error?.response?.data?.errors) {
+  //       setFormErrors((prev) => ({
+  //         ...prev,
+  //         ...error.response.data.errors,
+  //       }));
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const isFormValid = () => {
     if (isLoginForm) {
@@ -276,48 +280,49 @@ const AuthModal = ({ onClose }) => {
     }
   };
 
-  if (isVerifyScreenVisible) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-8 max-w-md w-full text-center animate-fade-in">
-          <div className="mb-6 flex justify-center">
-            <Image
-              src="/assets/email.svg"
-              width={80}
-              height={80}
-              alt="Verification"
-              priority
-            />
-          </div>
-          <h3 className="text-2xl font-bold mb-4">
-            Account Created Successfully!
-          </h3>
-          <p className="mb-6 text-gray-600">
-            You can now login to your account using your mobile number and
-            password.
-          </p>
-          <button
-            onClick={() => {
-              setIsVerifyScreenVisible(false);
-              setIsLoginForm(true);
-            }}
-            className="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-medium transition">
-            Continue to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // if (isVerifyScreenVisible) {
+  //   return (
+  //     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  //       <div className="bg-white rounded-lg p-8 max-w-md w-full text-center animate-fade-in">
+  //         <div className="mb-6 flex justify-center">
+  //           <Image
+  //             src="/assets/email.svg"
+  //             width={80}
+  //             height={80}
+  //             alt="Verification"
+  //             priority
+  //           />
+  //         </div>
+  //         <h3 className="text-2xl font-bold mb-4">
+  //           Account Created Successfully!
+  //         </h3>
+  //         <p className="mb-6 text-gray-600">
+  //           You can now login to your account using your mobile number and
+  //           password.
+  //         </p>
+  //         <button
+  //           onClick={() => {
+  //             setIsVerifyScreenVisible(false);
+  //             setIsLoginForm(true);
+  //           }}
+  //           className="w-full bg-primary hover:bg-primary-dark text-white py-3 rounded-lg font-medium transition">
+  //           Continue to Login
+  //         </button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (isModalVisible) return null;
+  if (!isModalVisible) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl overflow-hidden max-w-md w-full animate-fade-in">
         <button
-          onClick={()=>{
-            console.log("Clear login modal state-->",clearLoginModalState());
-            dispatch(clearLoginModalState());
+          onClick={() => {
+            dispatch(
+              setLoginModalState({ modalVisible: false, redirectTo: null })
+            );
           }}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
           <svg
@@ -325,7 +330,7 @@ const AuthModal = ({ onClose }) => {
             className="h-6 w-6"
             fill="none"
             viewBox="0 0 24 24"
-             color="white"
+            color="white"
             stroke="currentColor">
             <path
               strokeLinecap="round"
@@ -335,9 +340,6 @@ const AuthModal = ({ onClose }) => {
             />
           </svg>
         </button>
-
-        {/* Header with toggle */}
-        <div className="flex border-b h-[55px]"></div>
 
         <div className="p-6">
           <h2 className="text-2xl font-bold mb-2">
@@ -475,7 +477,7 @@ const AuthModal = ({ onClose }) => {
               </div>
             )}
 
-            {isLoginForm && (
+            {/* {isLoginForm && (
               <div className="flex justify-between items-center mb-6">
                 <label className="flex items-center">
                   <input
@@ -493,7 +495,7 @@ const AuthModal = ({ onClose }) => {
                   Forgot password?
                 </Link>
               </div>
-            )}
+            )} */}
 
             <button
               type="submit"

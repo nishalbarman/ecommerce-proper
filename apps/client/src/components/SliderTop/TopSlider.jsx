@@ -2,23 +2,79 @@ import React from "react";
 import Carousel from "../Carousel/Carousel";
 import axios from "axios";
 import { getBackendUrl } from "../../helpter/utils";
-
-// import CategoryLink from "../CategoryLink/CategoryLink";
+import CategoryLink from "../SliderTopLinks/CategoryLink";
 
 const getBanners = async () => {
   try {
-    const backendUrl = getBackendUrl();
+    // const backendUrl = getBackendUrl();
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/banner`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/banners`
     );
-    return response.data.data;
+    console.log("Array Data:", response.data);
+    return response.data.banners;
+    // const items = [
+    //   {
+    //     imageUrl:
+    //       "https://user-gen-media-assets.s3.amazonaws.com/gpt4o_images/765095ed-122d-4d06-a685-ce08ee3ba31e.png",
+    //     title: "Mehendi Design 1",
+    //     description: "Beautiful Mehendi Design 1",
+    //     altText: "Mehendi Design 1",
+    //   },
+    //   {
+    //     imageUrl:
+    //       "https://sdmntprwestus3.oaiusercontent.com/files/00000000-2644-61fd-b4fd-1992a4e02a10/raw?se=2025-08-20T09%3A58%3A46Z&sp=r&sv=2024-08-04&sr=b&scid=dabe6875-dd5f-51a4-a8b6-3b5e29e83cda&skoid=c953efd6-2ae8-41b4-a6d6-34b1475ac07c&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-19T22%3A11%3A24Z&ske=2025-08-20T22%3A11%3A24Z&sks=b&skv=2024-08-04&sig=ZTc6%2BHZ7GaR4uFVTGdtGBHBTgH3CVsJJwjtQjRazxP0%3D",
+    //     title: "Mehendi Design 1",
+    //     description: "Beautiful Mehendi Design 1",
+    //     altText: "Mehendi Design 1",
+    //   },
+    // ];
+
+    // if (
+    //   items &&
+    //   (items[0]?.bgColor === undefined || items[0]?.bgColor === null)
+    // ) {
+    //   const calculateAverageColor = async () => {
+    //     try {
+    //       const itemsWithBGColorPromises = items.map(async (item) => {
+    //         const response = await axios.post(
+    //           `${process.env.NEXT_PUBLIC_SERVER_URL}/image-bg-color`,
+    //           {
+    //             imageUrl: `${item.imageUrl}`,
+    //           }
+    //         );
+
+    //         const { averageColor } = await response.data;
+
+    //         return { ...item, bgColor: `rgba(${averageColor}, 0.8)` };
+    //       });
+
+    //       const itemsWithColors = await Promise.all(itemsWithBGColorPromises);
+
+    //       return itemsWithColors;
+    //     } catch (error) {
+    //       console.error("Error fetching average color:", error);
+    //       return [];
+    //     }
+    //     // dispatch(updateBanner(itemsWithColors));
+    //   };
+
+    //   return calculateAverageColor();
+    // }
+    // return [];
   } catch (error) {
+    console.log("Error fetching banners:", error);
+    // Handle error appropriately, e.g., return an empty array or a default value
     return [];
   }
 };
 
 async function TopSlider() {
   const bannerList = await getBanners();
+  console.log("banner list", bannerList);
+
+  // const [bannerItems, setBannerItems] = useState(items);
+
+  // const navigator = useRouter();
 
   const categoryLinks = [
     {
@@ -114,33 +170,7 @@ async function TopSlider() {
 
       <div
         className={`pl-[2%] pr-[2%] lg:p-0 h-fit rounded-md border-0 outline-0 border-none outline-none focus:border-none focus:outline-none peer-focus-visible:border-none peer-focus-visible:outline-none mt-[3%] lg:mt-0 w-[100%] xl:w-[100%] container mx-auto`}>
-        <Carousel
-          items={
-            [
-              {
-                imageUrl:
-                  "https://img.freepik.com/free-vector/stylish-glowing-digital-red-lines-banner_1017-23964.jpg",
-                title: "Mehendi Design 1",
-                description: "Beautiful Mehendi Design 1",
-                altText: "Mehendi Design 1",
-              },
-              {
-                imageUrl:
-                  "https://www.shutterstock.com/image-photo/sunrise-back-lit-ocean-wave-260nw-2167455831.jpg",
-                title: "Mehendi Design 1",
-                description: "Beautiful Mehendi Design 1",
-                altText: "Mehendi Design 1",
-              },
-              {
-                imageUrl:
-                  "https://plus.unsplash.com/premium_photo-1701590725747-ac131d4dcffd?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8d2Vic2l0ZSUyMGJhbm5lcnxlbnwwfHwwfHx8MA%3D%3D",
-                title: "Mehendi Design 1",
-                description: "Beautiful Mehendi Design 1",
-                altText: "Mehendi Design 1",
-              },
-            ] || []
-          }
-        />
+        <Carousel items={bannerList || []} />
       </div>
     </div>
   );

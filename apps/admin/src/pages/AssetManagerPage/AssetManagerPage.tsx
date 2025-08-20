@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import MediaLibrary from "../../components/MediaLibrary/MediaLibrary";
+import MediaLibrary from "../../components/NewMediaLibrary/MediaLibrary";
 
 const ImageManagement: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);

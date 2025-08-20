@@ -26,7 +26,7 @@ const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axiosInstance.post("/auth/register", userData);
+      const response = await axiosInstance.post("/auth/signup", userData);
       const { token, user } = response.data;
 
       // Store token in Redux (will be persisted automatically)

@@ -6,7 +6,7 @@ import AssetPicker from "../AssetPicker/AssetPicker";
 
 import { useAppSelector } from "../../redux/index";
 
-import { Banner, Category } from "../../types";
+import { Banner } from "../../types";
 
 import cAxios from "../../axios/cutom-axios";
 
@@ -16,61 +16,64 @@ import ViewImage from "../ViewImage/ViewImage";
 import { MdDeleteOutline } from "react-icons/md";
 
 const BannerList = () => {
-  const [categoryData, setBannerData] = useState<Banner>({
-    bannerName: "",
-    bannerImageUrl: "",
-    bannerRedirectUrl: "",
+  const [bannerData, setBannerData] = useState<Banner>({
+    title: "",
+    imageUrl: "",
+    redirectUrl: "",
+    description: "",
   });
 
   //   const categoryImageRef = useRef(null);
 
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
+  console.log(bannerData);
+
   useEffect(() => {
     let isEverythingOk =
-      !!categoryData?.bannerName &&
-      categoryData.bannerName.length >= 3 &&
-      categoryData.bannerImageUrl !== null &&
-      categoryData.bannerImageUrl !== "" &&
-      categoryData.bannerRedirectUrl !== null &&
-      categoryData.bannerRedirectUrl !== "";
+      !!bannerData?.title &&
+      bannerData.title.length >= 3 &&
+      bannerData.imageUrl !== null &&
+      bannerData.imageUrl !== "" &&
+      bannerData.description !== null &&
+      bannerData.description !== "";
     setIsSubmitDisabled(!isEverythingOk);
-  }, [categoryData]);
+  }, [bannerData]);
 
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
   const { jwtToken } = useAppSelector((state) => state.auth);
 
-  const [bannerList, setCategoryList] = useState<Banner[]>([]);
+  const [bannerList, setBannerList] = useState<Banner[]>([]);
 
   const [paginationPage, setPaginationPage] = useState(1);
   const [paginationLimit, _] = useState(10); // Number of items per page
   const [totalPages, setTotalPages] = useState(1); // Total number of pages
 
-  const [isCategoriesLoading, setIsCategoriesLoading] = useState(true);
+  const [isBannersLoading, setIsBannersLoading] = useState(true);
 
-  const getCategories = async (page = 1, limit = 10) => {
+  const getBanners = async (page = 1, limit = 10) => {
     try {
-      setIsCategoriesLoading(true);
+      setIsBannersLoading(true);
       const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/categories?page=${page}&limit=${limit}`,
+        `${process.env.VITE_APP_API_URL}/banners?page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
         }
       );
-      setCategoryList(response.data?.categories);
+      setBannerList(response.data?.banners);
       setTotalPages(response.data?.totalPages);
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message);
     } finally {
-      setIsCategoriesLoading(false);
+      setIsBannersLoading(false);
     }
   };
 
   useEffect(() => {
-    getCategories(paginationPage, paginationLimit);
+    getBanners(paginationPage, paginationLimit);
   }, [paginationPage, paginationLimit]);
 
   const [deleteCategoryId, setDeleteCategoryId] = useState<string | null>(null);
@@ -80,7 +83,7 @@ const BannerList = () => {
     try {
       setDeleteButtonLoading(true);
       const response = await cAxios.delete(
-        `${process.env.VITE_APP_API_URL}/categories/${deleteCategoryId}`,
+        `${process.env.VITE_APP_API_URL}/banners/${deleteCategoryId}`,
         {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
@@ -88,9 +91,9 @@ const BannerList = () => {
         }
       );
       console.log(response);
-      toast.success("Category deleted");
+      toast.success("Banner deleted");
       setDeleteCategoryId(null);
-      getCategories();
+      getBanners();
     } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.message || error.message);
@@ -104,9 +107,9 @@ const BannerList = () => {
       setIsFormSubmitting(true);
 
       const response = await cAxios.post(
-        `${process.env.VITE_APP_API_URL}/categories`,
+        `${process.env.VITE_APP_API_URL}/banners`,
         {
-          categoryData,
+          categoryData: bannerData,
         },
         {
           headers: {
@@ -117,11 +120,12 @@ const BannerList = () => {
 
       toast.success(response?.data?.message);
       setBannerData({
-        bannerName: "",
-        bannerRedirectUrl: "",
-        bannerImageUrl: "",
+        title: "",
+        redirectUrl: "",
+        imageUrl: "",
+        description: "",
       });
-      getCategories();
+      getBanners();
     } catch (error: any) {
       console.error(error);
       toast.error(
@@ -143,9 +147,9 @@ const BannerList = () => {
       setIsFormSubmitting(true);
 
       const response = await cAxios.patch(
-        `${process.env.VITE_APP_API_URL}/categories/update/${updateBannerId}`,
+        `${process.env.VITE_APP_API_URL}/banners/update/${updateBannerId}`,
         {
-          categoryData,
+          categoryData: bannerData,
         },
         {
           headers: {
@@ -155,13 +159,14 @@ const BannerList = () => {
       );
       toast.success(response?.data?.message);
       setBannerData({
-        bannerName: "",
-        bannerRedirectUrl: "",
-        bannerImageUrl: "",
+        title: "",
+        redirectUrl: "",
+        imageUrl: "",
+        description: "",
       });
 
       setUpdateBannerId(undefined);
-      getCategories();
+      getBanners();
     } catch (error: any) {
       console.error(error);
       toast.error(
@@ -188,28 +193,28 @@ const BannerList = () => {
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Category</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Banner</h1>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         <div>
           <div className="bg-white shadow-md rounded-md p-4">
             <h2 className="text-lg font-semibold mb-2">
-              {!updateBannerId ? "Add Category" : "Update Category"}
+              {!updateBannerId ? "Add Banner" : "Update Banner"}
             </h2>
             {!updateBannerId ? (
               <p className="text-gray-500 text-md">
-                List one new category to database
+                List one new banner to database
               </p>
             ) : (
               <>
                 <p className="text-gray-700 text-lg">
-                  Update information: <strong>{categoryData.bannerName}</strong>
+                  Update information: <strong>{bannerData.title}</strong>
                 </p>
                 <ul className="list-disc list-inside mt-1">
                   <li className="text-gray-500 text-md">
                     <code>
-                      &lt;You can update the category name or category image
-                      both or anyone of them. name&gt;
+                      &lt;You can update the banner name or banner image both or
+                      anyone of them. name&gt;
                     </code>
                     <code>
                       &lt;Click on the submit button after filling the required
@@ -221,86 +226,148 @@ const BannerList = () => {
             )}
 
             <form onSubmit={handleBannerSubmit} className="mt-4">
-              <div className="mb-4">
-                <label
-                  htmlFor="bannerName"
-                  className="block font-semibold mb-2">
-                  Category Name
-                </label>
-                <input
-                  type="text"
-                  id="bannerName"
-                  placeholder={!!updateBannerId ? "Updated name" : "Category"}
-                  value={categoryData.bannerName}
-                  onChange={(e) => {
-                    setBannerData((prev) => {
-                      return { ...prev, bannerName: e.target.value };
-                    });
-                  }}
-                  minLength={3}
-                  required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {!updateBannerId && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Note: Please provide a valid category name with minimum
-                    length of 3 characters.
-                  </p>
-                )}
+              <div className="flex flex-row gap-3">
+                <div className="mb-4 w-full">
+                  <label htmlFor="title" className="block font-semibold mb-2">
+                    Banner Name
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    placeholder={!!updateBannerId ? "Updated name" : "Banner"}
+                    value={bannerData.title}
+                    onChange={(e) => {
+                      setBannerData((prev) => {
+                        return { ...prev, title: e.target.value };
+                      });
+                    }}
+                    minLength={3}
+                    required
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {!updateBannerId && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Note: Please provide a valid banner name with minimum
+                      length of 3 characters.
+                    </p>
+                  )}
+                </div>
+                <div className="mb-4 w-full">
+                  <label
+                    htmlFor="redirectUrl"
+                    className="block font-semibold mb-2">
+                    Banner RedirectUrl
+                  </label>
+                  <input
+                    type="text"
+                    id="redirectUrl"
+                    placeholder={
+                      !!updateBannerId ? "Updated redirectUrl" : "redirectUrl"
+                    }
+                    value={bannerData.redirectUrl}
+                    onChange={(e) => {
+                      setBannerData((prev) => {
+                        return { ...prev, redirectUrl: e.target.value };
+                      });
+                    }}
+                    minLength={3}
+                    required={false}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {/* {!updateBannerId && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Note: Please provide a valid banner name with minimum
+                      length of 3 characters.
+                    </p>
+                  )} */}
+                </div>
               </div>
 
-              <div className="mb-4 w-full md:w-1/2 xl:w-1/4">
-                <label
-                  htmlFor="previewImage"
-                  className="block font-semibold mb-2 w-full">
-                  Category Image
-                </label>
-                <div className="flex max-md:flex-col gap-4 h-40">
-                  {!categoryData.bannerImageUrl ? (
-                    <AssetPicker
-                      classX="h-40"
-                      htmlFor="previewImage"
-                      fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>
-                      ) => {
-                        setBannerData((prev) => {
-                          return {
-                            ...prev,
-                            bannerImageUrl: imageItems[0].imageLink,
-                          };
-                        });
-                      }}
-                      multiSelect={false}
-                    />
-                  ) : (
-                    <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
-                      <img
-                        className="w-full h-full w-[200px] aspect-square object-contain"
-                        src={categoryData.bannerImageUrl as string}
-                      />
-                      <button
-                        onClick={() => {
+              <div className="flex flex-row gap-3">
+                <div className="mb-4 w-full md:w-2/3 xl:w-2/4">
+                  <label
+                    htmlFor="previewImage"
+                    className="block font-semibold mb-2 w-full">
+                    Banner Images
+                  </label>
+                  <div className="flex max-md:flex-col gap-4 h-[282.5px]">
+                    {!bannerData.imageUrl ? (
+                      <AssetPicker
+                        classX="h-[282.5px]"
+                        htmlFor="previewImage"
+                        fileSelectCallback={(
+                          imageItems: Array<FileLibraryListItem>
+                        ) => {
                           setBannerData((prev) => {
                             return {
                               ...prev,
-                              bannerImageUrl: null,
+                              imageUrl: imageItems[0].imageLink,
                             };
                           });
                         }}
-                        type="button"
-                        className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
-                        {/* Remove */}
-                        <MdDeleteOutline size={20} />
-                      </button>
-                    </div>
+                        multiSelect={false}
+                      />
+                    ) : (
+                      <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded  h-[282.5px]">
+                        <img
+                          className="w-full h-full w-[200px] aspect-square object-contain"
+                          src={bannerData.imageUrl as string}
+                        />
+                        <button
+                          onClick={() => {
+                            setBannerData((prev) => {
+                              return {
+                                ...prev,
+                                imageUrl: null,
+                              };
+                            });
+                          }}
+                          type="button"
+                          className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                          {/* Remove */}
+                          <MdDeleteOutline size={20} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {!updateBannerId && (
+                    <p className="text-red-500 text-sm mt-4">
+                      Note: Only image files are allowed (.jpg, .jpeg, .png,
+                      .gif)
+                    </p>
                   )}
                 </div>
 
-                {!updateBannerId && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Note: Only image files are allowed (.jpg, .jpeg, .png, .gif)
-                  </p>
-                )}
+                <div className="mb-4 w-full md:w-2/3 xl:w-2/4">
+                  <label htmlFor="title" className="block font-semibold mb-3">
+                    Banner Description
+                  </label>
+                  <textarea
+                    id="description"
+                    placeholder={
+                      !!updateBannerId
+                        ? "Updated Description"
+                        : "Banner Description"
+                    }
+                    value={bannerData.description}
+                    onChange={(e) => {
+                      setBannerData((prev) => {
+                        return { ...prev, description: e.target.value };
+                      });
+                    }}
+                    minLength={3}
+                    required
+                    rows={11}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {!updateBannerId && (
+                    <p className="text-red-500 text-sm mt-1">
+                      Note: Please provide a valid banner description with
+                      minimum length of 3 characters.
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex space-x-2">
@@ -314,16 +381,16 @@ const BannerList = () => {
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
                   }`}>
-                  {!!updateBannerId ? "Update Category" : "Submit"}
+                  {!!updateBannerId ? "Update Banner" : "Submit"}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => {
                     setBannerData({
-                      bannerName: "",
-                      bannerImageUrl: "",
-                      bannerRedirectUrl: "",
+                      title: "",
+                      imageUrl: "",
+                      redirectUrl: "",
                     });
                     setUpdateBannerId(undefined);
                   }}
@@ -344,8 +411,8 @@ const BannerList = () => {
 
         <div>
           <div className="bg-white shadow-md rounded-md p-4">
-            <h2 className="text-lg font-semibold mb-4">Categories</h2>
-            {isCategoriesLoading ? (
+            <h2 className="text-lg font-semibold mb-4">banners</h2>
+            {isBannersLoading ? (
               <div className="flex justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
@@ -383,20 +450,20 @@ const BannerList = () => {
                         <td
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
-                            if (item?.bannerImageUrl)
-                              setBannerViewImage(item.bannerImageUrl);
+                            if (item?.imageUrl)
+                              setBannerViewImage(item.imageUrl);
                           }}>
                           <img
-                            src={item.bannerImageUrl as string}
-                            alt={item.bannerName}
-                            className="w-12 h-12 rounded-full"
+                            src={item.imageUrl as string}
+                            alt={item.title}
+                            className="min-w-10 min-h-10 h-10 w-10 rounded-full object-cover"
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {item.bannerName}
+                          {item.title}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.categoryKey}
+                          {item.key}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div>Created: {item.createdAt}</div>
@@ -410,8 +477,10 @@ const BannerList = () => {
                                 setBannerData((prev) => {
                                   return {
                                     ...prev,
-                                    bannerName: item.bannerName,
-                                    bannerImageUrl: item.bannerImageUrl,
+                                    title: item.title,
+                                    imageUrl: item.imageUrl,
+                                    redirectUrl: item.redirectUrl,
+                                    description: item.description || "",
                                   };
                                 });
                               }}
@@ -471,7 +540,7 @@ const BannerList = () => {
               Are you sure about that?
             </h3>
             <p className="text-gray-700">
-              Deleting this category will remove this category from database
+              Deleting this banner will remove this banner from database
             </p>
             <div className="mt-6 flex justify-end space-x-2">
               <button

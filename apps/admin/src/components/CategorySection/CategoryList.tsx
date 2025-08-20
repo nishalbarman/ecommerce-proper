@@ -1,4 +1,10 @@
-import { BaseSyntheticEvent, useEffect, useState } from "react";
+import {
+  BaseSyntheticEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { toast } from "react-toastify";
 import { FileLibraryListItem } from "react-media-library";
 
@@ -178,6 +184,19 @@ const CategoryList = () => {
     }
   };
 
+  const handleOnFileSelected = useCallback(
+    (imageItems: Array<FileLibraryListItem>) => {
+      alert(JSON.stringify(imageItems));
+      setCategoryData((prev) => {
+        return {
+          ...prev,
+          categoryImageUrl: imageItems[0].imageLink,
+        };
+      });
+    },
+    []
+  );
+
   const [categoryViewImage, setCategoryViewImage] = useState<string>("");
 
   return (
@@ -239,8 +258,8 @@ const CategoryList = () => {
                 />
                 {!updateCategoryId && (
                   <p className="text-red-500 text-sm mt-1">
-                    Note: Please provide a valid category name with minimum length of
-                    3 characters.
+                    Note: Please provide a valid category name with minimum
+                    length of 3 characters.
                   </p>
                 )}
               </div>
@@ -256,16 +275,7 @@ const CategoryList = () => {
                     <AssetPicker
                       classX="h-40"
                       htmlFor="previewImage"
-                      fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>
-                      ) => {
-                        setCategoryData((prev) => {
-                          return {
-                            ...prev,
-                            categoryImageUrl: imageItems[0].imageLink,
-                          };
-                        });
-                      }}
+                      fileSelectCallback={handleOnFileSelected}
                       multiSelect={false}
                     />
                   ) : (
@@ -505,4 +515,4 @@ const CategoryList = () => {
   );
 };
 
-export default CategoryList;
+export default memo(CategoryList);

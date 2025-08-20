@@ -12,7 +12,9 @@ const bannerSchema = new mongoose.Schema(
     title: { type: String, required: true },
     altText: { type: String, required: true },
     description: { type: String, required: true },
-    redirect: { type: String, required: true },
+    redirectUrl: { type: String, required: false, default: null },
+    bgColor: { type: String, required: true },
+    key: { type: String, required: true, unique: true },
   },
   {
     timestamps: true,
@@ -33,18 +35,18 @@ const Banner =
 /****************************************** */
 // ----------------------------------------->
 
-Banner.schema.path("imageUrl").validate({
-  validator: function (value) {
-    return value && isValidUrl(value);
-  },
-  message: "Invalid Url",
-});
+// Banner.schema.path("imageUrl").validate({
+//   validator: function (value) {
+//     return value && isValidUrl(value);
+//   },
+//   message: "Invalid Url",
+// });
 
-Banner.schema.path("redirect").validate({
-  validator: function (value) {
-    return value && value.includes("/");
-  },
-  message: "Invalid Link",
-});
+// Banner.schema.path("redirectUrl").validate({
+//   validator: function (value) {
+//     return value && value.includes("/");
+//   },
+//   message: "Invalid Link",
+// });
 
 module.exports = Banner;
