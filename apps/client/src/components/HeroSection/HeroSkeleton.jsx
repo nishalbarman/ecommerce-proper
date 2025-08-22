@@ -33,30 +33,30 @@ const HeroSkeleton = () => {
           {/* Text Section Skeleton */}
           <div className="lg:w-1/2 text-center lg:text-left">
             {/* Subheading Skeleton */}
-            <div className="h-6 w-48 bg-green-100 rounded mb-4 mx-auto lg:mx-0"></div>
-            <div className="h-6 w-48 bg-green-100 rounded mb-4 mx-auto lg:mx-0"></div>
+            <div className="h-6 w-48 bg-gray-200 rounded mb-4 mx-auto lg:mx-0"></div>
+            <div className="h-6 w-48 bg-gray-200 rounded mb-4 mx-auto lg:mx-0"></div>
 
             {/* Heading Skeleton */}
-            <div className="h-12 w-full bg-green-100 rounded mb-6 mx-auto lg:mx-0"></div>
+            <div className="h-12 w-full bg-gray-200 rounded mb-6 mx-auto lg:mx-0"></div>
 
             {/* Paragraph Skeleton */}
             <div className="space-y-2 mb-8">
-              <div className="h-4 bg-green-100 rounded w-full"></div>
-              <div className="h-4 bg-green-100 rounded w-5/6"></div>
-              <div className="h-4 bg-green-100 rounded w-4/6"></div>
-              <div className="h-4 bg-green-100 rounded w-3/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/6"></div>
             </div>
 
             {/* Buttons Skeleton */}
             <div className="space-x-4">
-              <div className="inline-block h-12 w-32 bg-green-100 rounded"></div>
-              <div className="inline-block h-12 w-32 bg-green-100 rounded"></div>
+              <div className="inline-block h-12 w-32 bg-gray-200 rounded"></div>
+              <div className="inline-block h-12 w-32 bg-gray-200 rounded"></div>
             </div>
           </div>
 
           {/* Image Section Skeleton */}
           <div className="lg:w-1/2 justify-center hidden md:flex mt-10 ml-5 lg:mt-0">
-            <div className="h-120 w-96 bg-green-100 rounded-xl"></div>
+            <div className="h-120 w-96 bg-gray-200 rounded-xl"></div>
           </div>
         </div>
       </div>

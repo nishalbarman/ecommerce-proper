@@ -1,83 +1,83 @@
-import { useCallback } from "react";
-import {
-  FileLibraryListItem,
-  FileLibrarySelectedItems,
-  ReactMediaLibrary,
-} from "react-media-library";
+// import { useCallback } from "react";
+// import {
+//   FileLibraryListItem,
+//   FileLibrarySelectedItems,
+//   ReactMediaLibrary,
+// } from "react-media-library";
 
-import convertImageToBase64 from "../../helper/convertImageToBase64";
-import {
-  useAddOneImageMutation,
-  useGetImagesQuery,
-} from "../../redux/apis/imageApi";
+// import convertImageToBase64 from "../../helper/convertImageToBase64";
+// import {
+//   useAddOneImageMutation,
+//   useGetImagesQuery,
+// } from "../../redux/apis/imageApi";
 
-import "./image-asset-style.css";
+// import "./image-asset-style.css";
 
-type MediaLibraryProps = {
-  title: string;
-  fileSelectCallback: ([key]: Array<FileLibraryListItem>) => void;
-  multiSelect: boolean;
-  isOpen: boolean;
-  setIsOpen: (key: any) => void;
-};
+// type MediaLibraryProps = {
+//   title: string;
+//   fileSelectCallback: ([key]: Array<FileLibraryListItem>) => void;
+//   multiSelect: boolean;
+//   isOpen: boolean;
+//   setIsOpen: (key: any) => void;
+// };
 
-const MediaLibrary: React.FC<MediaLibraryProps> = ({
-  title = "Asset Manager",
-  fileSelectCallback,
-  multiSelect = false,
-  isOpen = false,
-  setIsOpen,
-}) => {
-  // const [listOfImages, setListOfImages] = useState<FileLibraryListItem[]>([]);
+// const MediaLibrary: React.FC<MediaLibraryProps> = ({
+//   title = "Asset Manager",
+//   fileSelectCallback,
+//   multiSelect = false,
+//   isOpen = false,
+//   setIsOpen,
+// }) => {
+//   // const [listOfImages, setListOfImages] = useState<FileLibraryListItem[]>([]);
 
-  const { data: listOfImages } = useGetImagesQuery({ page, limit });
-  const [addOneImage] = useAddOneImageMutation();
+//   const { data: listOfImages } = useGetImagesQuery({ page, limit });
+//   const [addOneImage] = useAddOneImageMutation();
 
-  const fileUploadCallback = useCallback(async (imageFile: File) => {
-    const base64Image = await convertImageToBase64(imageFile);
-    if (!base64Image) return false;
+//   const fileUploadCallback = useCallback(async (imageFile: File) => {
+//     const base64Image = await convertImageToBase64(imageFile);
+//     if (!base64Image) return false;
 
-    try {
-      const response = await addOneImage({ imageData: base64Image }).unwrap();
-      if (response.status) return true;
-      return false;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  }, []);
+//     try {
+//       const response = await addOneImage({ imageData: base64Image }).unwrap();
+//       if (response.status) return true;
+//       return false;
+//     } catch (error) {
+//       console.error(error);
+//       return false;
+//     }
+//   }, []);
 
-  console.log("listOfImages", listOfImages);
-  return (
-    <>
-      <ReactMediaLibrary
-        defaultSelectedItemIds={[listOfImages && listOfImages[0]?._id]}
-        fileLibraryList={listOfImages}
-        modalTitle={title}
-        fileUploadCallback={fileUploadCallback}
-        filesDeleteCallback={(files) => {
-          files.forEach((file) => {
-            console.log(file);
-            if (file?.deleteLink) {
-              window.open(file?.deleteLink, "_blank");
-            }
-          });
-          setIsOpen((prev: boolean) => !prev);
-        }}
-        filesSelectCallback={(files) => {
-          fileSelectCallback(files);
-          setIsOpen((prev: boolean) => !prev);
-        }}
-        // finishUploadCallback={function noRefCheck() {}}
-        isOpen={isOpen}
-        multiSelect={multiSelect}
-        onClose={() => {
-          setIsOpen((prev: boolean) => !prev);
-        }}
-        selectedItemsComponent={() => <FileLibrarySelectedItems />}
-      />
-    </>
-  );
-};
+//   console.log("listOfImages", listOfImages);
+//   return (
+//     <>
+//       <ReactMediaLibrary
+//         defaultSelectedItemIds={[listOfImages && listOfImages[0]?._id]}
+//         fileLibraryList={listOfImages}
+//         modalTitle={title}
+//         fileUploadCallback={fileUploadCallback}
+//         filesDeleteCallback={(files) => {
+//           files.forEach((file) => {
+//             console.log(file);
+//             if (file?.deleteLink) {
+//               window.open(file?.deleteLink, "_blank");
+//             }
+//           });
+//           setIsOpen((prev: boolean) => !prev);
+//         }}
+//         filesSelectCallback={(files) => {
+//           fileSelectCallback(files);
+//           setIsOpen((prev: boolean) => !prev);
+//         }}
+//         // finishUploadCallback={function noRefCheck() {}}
+//         isOpen={isOpen}
+//         multiSelect={multiSelect}
+//         onClose={() => {
+//           setIsOpen((prev: boolean) => !prev);
+//         }}
+//         selectedItemsComponent={() => <FileLibrarySelectedItems />}
+//       />
+//     </>
+//   );
+// };
 
-export default MediaLibrary;
+// export default MediaLibrary;
