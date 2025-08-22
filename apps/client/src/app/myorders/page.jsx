@@ -20,7 +20,6 @@ export default async function page() {
           <Order />
         </div>
       </main>
-      <Footer />
     </>
   );
 }

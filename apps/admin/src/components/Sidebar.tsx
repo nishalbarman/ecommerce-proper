@@ -277,36 +277,12 @@ const Sidebar: React.FC<SidebarProps> = ({ navbarToogle, setNavbarToogle }) => {
         </div>
         {/* Admin profile */}
         <div className="flex items-center justify-start px-3 h-20 border-b border-gray-700">
-          {/* <img */}
-          {/* src={"https://i.ibb.co/Q3FPrQQm/64c844d378e5.png"} */}
-          {/* className="h-14" */}
-          {/* alt="Admin Avatar" */}
-          {/* /> */}
-          <svg
-            // width="200"
-            height="80"
-            viewBox="0 0 200 200"
-            xmlns="http://www.w3.org/2000/svg">
-            {/* Editable color */}
-            <g stroke="white" fill="none" strokeWidth={4}>
-              {/* Stems */}
-              <path d="M100 120 L90 70" />
-              <path d="M100 120 L110 60" />
-              <path d="M100 120 L100 50" />
+          <img
+            src="https://gjn.vercel.app/assets/favicon/favicon.png"
+            className="h-14"
+            alt="Admin Avatar"
+          />
 
-              {/* Flowers */}
-              <circle cx="90" cy="70" r="10" />
-              <circle cx="110" cy="60" r="10" />
-              <circle cx="100" cy="50" r="10" />
-
-              {/* Leaves */}
-              <path d="M85 80 Q80 70 85 60" />
-              <path d="M115 70 Q120 60 115 50" />
-
-              {/* Paper wrap */}
-              <path d="M80 120 L120 120 L100 160 Z" />
-            </g>
-          </svg>
           <h1 className="text-2xl font-semibold text-white">Admin</h1>
         </div>
         {/* Navigation */}

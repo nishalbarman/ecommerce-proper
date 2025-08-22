@@ -54,7 +54,7 @@ const ProductSlider = ({ products }) => {
             slidesPerView: 1,
             spaceBetween: 0,
           },
-          400: {
+          288: {
             slidesPerView: 2,
             spaceBetween: 10,
           },
