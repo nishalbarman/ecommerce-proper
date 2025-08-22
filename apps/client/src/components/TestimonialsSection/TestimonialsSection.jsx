@@ -39,7 +39,7 @@ const Testimonials = async () => {
   }
 
   return (
-    <div className="bg-primary py-20 relative">
+    <div className="bg-primary py-20 max-sm:py-5 relative">
       <div className="h-full w-full absolute top-0 left-0">
         <Image
           className="select-none drag-none"
@@ -62,7 +62,7 @@ const Testimonials = async () => {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 max-sm:mb-7">
           <div className="mx-auto text-center w-2/4 max-md:w-3/4 max-sm:zoom-0_1">
             <h1 className="text-black text-4xl leading-[50px] font-bold">
               Our Customer Said{" "}

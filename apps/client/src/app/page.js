@@ -62,13 +62,15 @@ export default async function Page() {
         <Categories />
       </Suspense>
 
-      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-3"></div>
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
 
       <Suspense fallback={<ProductSliderSkel />}>
         <BestSelling />
       </Suspense>
 
-      <div className="w-full h-[1px] mt-20 max-sm:mt-10 mb-10"></div>
+      <div className="hidden max-sm:block w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
+
+      <div className="w-full h-[1px] mt-20 max-sm:mt-5"></div>
       <Suspense fallback={<TestimonialsSkeleton />}>
         <Testimonials />
       </Suspense>

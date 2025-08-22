@@ -29,10 +29,9 @@ app.use(
       "http://localhost:5000",
       "http://localhost:3000",
       "https://cartshopping.in",
-      "https://jharna-mehendi.cartshopping.in",
-      "https://jharna-mehendi.vercel.app",
-      "https://jharna-mehendi-admin.web.app",
-      "https://jharna-mehendi-admin.vercel.app",
+      "https://bouquet.cartshopping.in",
+      "https://gjn.vercel.app",
+      "https://gjnbooque-admin.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
@@ -85,6 +84,12 @@ app.use(
   "/uploader/image/imgbb",
   require("./routes/uploader/image/imgbb.routes")
 );
+
+app.use(
+  "/uploader/image/imgkit",
+  require("./routes/uploader/image/imgkit.routes")
+);
+
 app.use(
   "/uploader/image/list",
   require("./routes/uploader/image/getImage.routes")

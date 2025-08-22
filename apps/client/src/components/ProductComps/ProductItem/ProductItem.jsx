@@ -140,6 +140,15 @@ function ProductCard({
     }
   };
 
+  const [innerWidth, setInnerWidth] = useState(0);
+
+  useEffect(() => {
+    setInnerWidth(window.innerWidth);
+    const handleResize = () => setInnerWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
+
   return (
     <div className="w-full group/product_item ">
       {/* Image Section */}
@@ -196,26 +205,34 @@ function ProductCard({
       </div>
 
       {/* Product Info Section */}
-      <div className="w-full flex flex-col gap-2 py-4 bg-white">
+      <div className="w-full flex flex-col gap-2 max-sm:gap-1 py-4 bg-white">
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
-              <FaCheck size={20} color="white" fill="white" />
+              <FaCheck
+                size={innerWidth < 490 ? 17 : 20}
+                color="white"
+                fill="white"
+              />
             ) : (
-              <FaCartShopping size={20} color="white" fill="white" />
+              <FaCartShopping
+                size={innerWidth < 490 ? 17 : 20}
+                color="white"
+                fill="white"
+              />
             )}
           </button>
         </div>
 
-        <div className="w-full max-md:shadow rounded py-2 px-2">
-          <Link href={`/products/view/${productId}`} className="block group">
+        <Link href={`/products/view/${productId}`} className="block group">
+          <div className="w-full rounded py-2 px-2">
             <h5 className="text-lg font-semibold line-clamp-1 transition-colors duration-200">
               {title}
             </h5>
-            <div className="flex flex-col gap-1 mt-2">
+            <div className="flex flex-col gap-1 mt-2 max-sm:mt-1">
               <div className="flex items-center gap-3">
                 <span className="text-black text-xl md:text-lg font-bold">
                   &#8377;{discountedPrice}
@@ -235,8 +252,8 @@ function ProductCard({
                 </div>
               )}
             </div>
-          </Link>
-        </div>
+          </div>
+        </Link>
 
         {/* Rating */}
         {!isRatingVisible && (

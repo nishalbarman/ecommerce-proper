@@ -5,9 +5,9 @@ import { FaQuoteLeft } from "react-icons/fa";
 
 function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
   return (
-    <div className="group relative p-4 w-full h-full cursor-pointer transition-all duration-500 hover:scale-[1.02]">
+    <div className="group relative p-4 w-full h-full cursor-pointer transition-all duration-500 ">
       {/* Background gradient that appears on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-purple-100/30 to-pink-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-100/30 via-purple-100/30 to-pink-100/30 opacity-0 opacity-100 transition-opacity duration-500 rounded-2xl -z-10" />
       
       {/* Main card container */}
       <div className="bg-white p-8 rounded-2xl h-full shadow-md hover:shadow-xl transition-all duration-500 border border-gray-100 overflow-hidden">
@@ -27,7 +27,7 @@ function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
           </div>
 
           {/* Client info */}
-          <div className="flex items-center mt-8 group-hover:translate-x-1 transition-transform duration-500">
+          <div className="flex items-center mt-8 max-sm:mt-3 transition-transform duration-500">
             {clientAvatar && (
               <div className="relative overflow-hidden rounded-full border-4 border-white group-hover:border-blue-100 transition-all duration-500 shadow-lg mr-4">
                 <Image
@@ -35,7 +35,7 @@ function TestimonialCard({ clientName, clientAvatar, clientSpeech, imageUrl }) {
                   src={clientAvatar}
                   width={64}
                   height={64}
-                  className="w-16 h-16 object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="w-16 h-16 object-cover transition-transform duration-500"
                 />
               </div>
             )}

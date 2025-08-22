@@ -21,12 +21,20 @@ const CategorySlider = ({ categories }) => {
             slidesPerView: 1,
             spaceBetween: 0,
           },
-          877: {
+          400: {
+            slidesPerView: 2,
+            spaceBetween: 10,
+          },
+          580: {
             slidesPerView: 3,
-            spaceBetween: 3,
+            spaceBetween: 10,
+          },
+          900: {
+            slidesPerView: 4,
+            spaceBetween: 10,
           },
           1024: {
-            slidesPerView: 4,
+            slidesPerView: 5,
             spaceBetween: 10,
           },
         }}

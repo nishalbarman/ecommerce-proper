@@ -61,14 +61,14 @@ async function Footer() {
       <div className="flex flex-wrap justify-between gap-8 w-full p-6 sm:p-8 md:p-10 lg:px-[10%]">
         {/* Exclusive */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
-          <p className="font-andika text-white text-xl font-bold mb-6">
+          <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
             About Me
           </p>
           <div className="flex flex-col gap-4">
             {/* <p className=" font-andika text-white font-semibold mb-[10px]">
               Subscribe
             </p> */}
-            <p className="text-white">{webData?.about}</p>
+            <p className="text-white max-sm:text-sm">{webData?.about}</p>
             {/* <p className="font-andika text-white text-sm">
               Get 10% of your first order
             </p>
@@ -89,11 +89,11 @@ async function Footer() {
 
         {/* Supports */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
-          <p className="font-andika text-white text-xl font-bold mb-6">
+          <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
             Support
           </p>
           {/* socials */}
-          <div className="mb-5 text-white">
+          <div className="mb-5 max-sm:mb-4 text-white">
             <div className="flex justify-center sm:justify-start items-center gap-2 rounded w-fit">
               <a
                 className="h-10 w-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/10 transition-colors"
@@ -117,12 +117,12 @@ async function Footer() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="text-white">{webData.address}</p>
+            <p className="text-white max-sm:text-sm">{webData.address}</p>
             {/* <p className="text-white">
               Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
               Assam, 781***
             </p> */}
-            <p className="text-white">
+            <p className="text-white max-sm:text-sm">
               <a
                 href={`mailto:${webData.BrandEmail}`}
                 className="hover:underline">
@@ -133,56 +133,138 @@ async function Footer() {
         </div>
 
         {/* My accounts */}
-        <div className="w-full sm:w-[45%] lg:w-[20%]">
-          <p className="font-andika text-white text-xl font-bold mb-6">
+        <div className="max-sm:hidden block w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
             Account
           </p>
-          <div className="font-andika flex flex-col gap-4">
-            <Link href="/my-account" className="text-white underline">
+          <div className="font-andika flex flex-col gap-4 max-sm:gap-2">
+            <Link
+              href="/my-account"
+              className="text-white underline max-sm:text-sm">
               My Account
             </Link>
-            <Link href="/auth/login" className="text-white underline">
+            <Link
+              href="/auth/login"
+              className="text-white underline max-sm:text-sm">
               Login / Register
             </Link>
-            <Link href="/cart" className="text-white underline">
+            <Link href="/cart" className="text-white underline max-sm:text-sm">
               Cart
             </Link>
-            <Link href="/wishlist" className="text-white underline">
+            <Link
+              href="/wishlist"
+              className="text-white underline max-sm:text-sm">
               Wishlist
             </Link>
           </div>
         </div>
 
         {/* quick links */}
-        <div className="w-full sm:w-[45%] lg:w-[20%]">
-          <p className="font-andika text-white text-xl font-bold mb-6">
+        <div className="max-sm:hidden block w-full sm:w-[45%] lg:w-[20%]">
+          <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
             Quick Link
           </p>
-          <div className="font-andika flex flex-col gap-4">
+          <div className="font-andika flex flex-col gap-4 max-sm:gap-2">
             <Link
               href={"/dynamic/refund-policy"}
-              className="text-white underline">
+              className="text-white underline max-sm:text-sm">
               Refund Policy
             </Link>
             <Link
               href={"/dynamic/privacy-policy"}
-              className="text-white underline">
+              className="text-white underline max-sm:text-sm">
               Privacy Policy
             </Link>
             <Link
               href={"/dynamic/terms-and-conditions"}
-              className="text-white underline">
+              className="text-white underline max-sm:text-sm">
               Terms Of Use
             </Link>
-            <Link href={"/dynamic/faq"} className="text-white underline">
+            <Link
+              href={"/dynamic/faq"}
+              className="text-white underline max-sm:text-sm">
               Faq
             </Link>
-            <Link href={"/dynamic/about"} className="text-white underline">
+            <Link
+              href={"/dynamic/about"}
+              className="text-white underline max-sm:text-sm">
               About Me
             </Link>
-            <Link href={"/contact"} className="text-white underline">
+            <Link
+              href={"/contact"}
+              className="text-white underline max-sm:text-sm">
               Contact
             </Link>
+          </div>
+        </div>
+
+        <div className="hidden max-sm:flex flex-row justify-between max-sm:gap-8 max-[358px]:flex-col w-full">
+          {/* My accounts */}
+          <div className="w-full sm:w-[45%] lg:w-[20%]">
+            <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
+              Account
+            </p>
+            <div className="font-andika flex flex-col gap-4 max-sm:gap-2">
+              <Link
+                href="/my-account"
+                className="text-white underline max-sm:text-sm">
+                My Account
+              </Link>
+              <Link
+                href="/auth/login"
+                className="text-white underline max-sm:text-sm">
+                Login / Register
+              </Link>
+              <Link
+                href="/cart"
+                className="text-white underline max-sm:text-sm">
+                Cart
+              </Link>
+              <Link
+                href="/wishlist"
+                className="text-white underline max-sm:text-sm">
+                Wishlist
+              </Link>
+            </div>
+          </div>
+
+          {/* quick links */}
+          <div className="w-full sm:w-[45%] lg:w-[20%]">
+            <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
+              Quick Link
+            </p>
+            <div className="font-andika flex flex-col gap-4 max-sm:gap-2">
+              <Link
+                href={"/dynamic/refund-policy"}
+                className="text-white underline max-sm:text-sm">
+                Refund Policy
+              </Link>
+              <Link
+                href={"/dynamic/privacy-policy"}
+                className="text-white underline max-sm:text-sm">
+                Privacy Policy
+              </Link>
+              <Link
+                href={"/dynamic/terms-and-conditions"}
+                className="text-white underline max-sm:text-sm">
+                Terms Of Use
+              </Link>
+              <Link
+                href={"/dynamic/faq"}
+                className="text-white underline max-sm:text-sm">
+                Faq
+              </Link>
+              <Link
+                href={"/dynamic/about"}
+                className="text-white underline max-sm:text-sm">
+                About Me
+              </Link>
+              <Link
+                href={"/contact"}
+                className="text-white underline max-sm:text-sm">
+                Contact
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -190,9 +272,9 @@ async function Footer() {
       <div className="bg-[rgba(223,223,223,0.1)] h-[1px] w-full"></div>
 
       <div className="bg-white py-6">
-        <div className="container px-4 sm:px-6 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="container px-4 sm:px-6 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 max-sm:gap-2">
           <div className="flex items-center">
-            <span className="text-xl max-sm:font-inconsolata font-marker ">
+            <span className="text-xl max-sm:font-inconsolata max-sm:hidden">
               {webData.brandName || "..."}
             </span>
           </div>
@@ -202,14 +284,14 @@ async function Footer() {
               {webData.websiteUrl || "..."}
             </Link>
           </p>
-          <div className="text-black max-sm:font-inconsolata font-marker ">
+          <div className="text-black font-marker">
             🧑‍💻 Made By{" "}
             <a
               title="Nishal Barman"
               href="https://nisha-char.web.app/"
               target="_blank"
               className="underline hover:no-underline">
-              NishaChar
+              Nishachar
             </a>
           </div>
         </div>

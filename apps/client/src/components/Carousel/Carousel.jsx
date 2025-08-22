@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
-import styles from "./Carousel.module.css";
 
 const CustomArrow = ({ direction, onClick }) => {
   return (
@@ -56,7 +55,7 @@ const Carousel = ({ items = [] }) => {
               style={{
                 backgroundColor: item.bgColor,
               }}
-              className={`relative w-full h-64 md:h-[450px] lg:h-[510px] bg-[${item.bgColor}]`}>
+              className={`relative w-full h-64 md:h-[450px] lg:h-[540px] bg-[${item.bgColor}]`}>
               <Image
                 src={item.imageUrl}
                 alt={item.altText || item.title}
