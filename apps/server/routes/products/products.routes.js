@@ -440,19 +440,21 @@ router.post("/view/:productId", async (req, res) => {
       { path: "productVariant" },
     ]);
 
-    console.log("has user bought", {
-      product: params.productId,
-      user: user?.userDetails?._id || undefined,
-      orderType: productType,
-      orderStatus: "Delivered",
-    });
-
-    const hasUserBoughtThisProduct = await Order.countDocuments({
-      product: params.productId,
-      user: user?.userDetails?._id || undefined,
-      orderType: productType,
-      orderStatus: "Delivered",
-    });
+    const hasUserBoughtThisProduct = false;
+    if (user && user.userDetails && user.userDetails._id) {
+      hasUserBoughtThisProduct = await Order.countDocuments({
+        product: params.productId,
+        user: user?.userDetails?._id,
+        orderType: productType,
+        orderStatus: "Delivered",
+      });
+      console.log("has user bought", {
+        product: params.productId,
+        user: user?.userDetails?._id || undefined,
+        orderType: productType,
+        orderStatus: "Delivered",
+      });
+    }
 
     if (!product) {
       return res.status(404).json({ message: "No such product found." });
