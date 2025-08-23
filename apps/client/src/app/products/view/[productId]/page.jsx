@@ -304,7 +304,7 @@ export default function ViewProduct({ params }) {
       queryParams.set("rentDays", rentDays.toString());
     }
 
-    navigate(`/checkout?${queryParams.toString()}`);
+    navigate.push(`/checkout?${queryParams.toString()}`);
   };
 
   if (isLoading) {
@@ -412,7 +412,7 @@ export default function ViewProduct({ params }) {
               </div>
 
               {/* Pricing */}
-              <div className="mb-6 bg-green-50 p-6 rounded-lg">
+              <div className="mb-6 bg-gray-50 p-6 rounded-lg">
                 <h2 className="text-sm font-semibold mb-2">Pricing</h2>
                 <div className="flex items-center gap-4">
                   <span className="text-3xl font-bold text-green-900">
@@ -622,7 +622,7 @@ export default function ViewProduct({ params }) {
                   className={`flex-1 py-3 px-6 rounded-lg font-medium ${
                     !inStock
                       ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-green-600 text-white hover:bg-primary-dark"
+                      : "bg-[#DA4445] text-white hover:bg-primary-dark"
                   }`}>
                   Buy Now
                 </button>

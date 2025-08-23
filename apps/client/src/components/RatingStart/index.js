@@ -1,30 +1,23 @@
 "use client";
 
-import Image from "next/image";
 import React from "react";
+import { FaStar } from "react-icons/fa";
 
-function RateStar({ stars = 0 }) {
+function RateStar({ stars = 0, size = 16 }) {
   return (
     <div className="flex">
-      {Array.from({ length: 5 }).map((_, index) =>
-        index + 1 <= stars ? (
-          <Image
-            key={index}
-            src={"/assets/star-filled.svg"}
-            width={20}
-            height={20}
-            alt="star icon"
-          />
-        ) : (
-          <Image
-            key={index}
-            src={"/assets/star.svg"}
-            width={20}
-            height={20}
-            alt="star icon"
-          />
-        )
-      )}
+      {[...Array(5)].map((_, i) => (
+        <FaStar
+          key={i}
+          className={`${i < stars ? "text-yellow-400" : "text-gray-300"}`}
+          style={{
+            width: size,
+            height: size,
+          }}
+          color={`${i < stars ? "#DA4445" : "gray"}`}
+          fill={`${i < stars ? "#DA4445" : "gray"}`}
+        />
+      ))}
     </div>
   );
 }

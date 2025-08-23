@@ -12,7 +12,13 @@ import {
   FaLock,
   FaEdit,
   FaSave,
+  FaShieldAlt,
+  FaArrowRight,
 } from "react-icons/fa";
+
+const brand = {
+  primary: "#DA4445", // matches your header/user icon accent
+};
 
 const MyAccountPage = () => {
   const router = useRouter();
@@ -55,7 +61,7 @@ const MyAccountPage = () => {
       console.error("Error fetching user data:", error);
       toast.error(error.response?.data?.message || "Failed to load user data");
       if (error.response?.status === 401) {
-        router.push("/login");
+        router.push("/auth/login");
       }
     } finally {
       setIsLoading(false);
@@ -94,10 +100,8 @@ const MyAccountPage = () => {
         !/[A-Z]/.test(formData.password) ||
         !/[a-z]/.test(formData.password)
       ) {
-        newErrors.password =
-          "Password must contain both uppercase and lowercase letters";
+        newErrors.password = "Use both uppercase and lowercase letters";
       }
-
       if (formData.password !== formData.confirmPassword) {
         newErrors.confirmPassword = "Passwords do not match";
       }
@@ -109,20 +113,18 @@ const MyAccountPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      // Reset form when canceling edit
+    const editing = !isEditing;
+    setIsEditing(editing);
+    if (!editing && userData) {
+      // Reset when cancel
       setFormData({
-        name: userData.name,
-        email: userData.email,
-        mobileNo: userData.mobileNo,
+        name: userData.name || "",
+        email: userData.email || "",
+        mobileNo: userData.mobileNo || "",
         password: "",
         confirmPassword: "",
       });
@@ -141,28 +143,22 @@ const MyAccountPage = () => {
         email: formData.email,
         mobileNo: formData.mobileNo,
       };
-
-      if (formData.password) {
-        payload.password = formData.password;
-      }
+      if (formData.password) payload.password = formData.password;
 
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/user/update`,
         payload,
         {
           withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
       toast.success("Profile updated successfully");
       setIsEditing(false);
-      fetchUserData(); // Refresh user data
+      await fetchUserData();
 
-      // Update token if it's returned
-      if (response.data.jwtToken) {
+      if (response.data?.jwtToken) {
         localStorage.setItem("token", response.data.jwtToken);
       }
     } catch (error) {
@@ -175,19 +171,30 @@ const MyAccountPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-[90vh] flex items-center justify-center bg-gray-50">
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-[3px] border-gray-200 border-t-[3px]"
+          style={{ borderTopColor: brand.primary }}
+        />
       </div>
     );
   }
 
   if (!userData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">User not found</h1>
-          <Link href="/login">
-            <span className="text-blue-600 hover:underline">Please login</span>
+      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center bg-white rounded-xl shadow-sm border p-6 max-w-md w-full">
+          <h1 className="text-xl font-semibold mb-2 text-gray-900">
+            User not found
+          </h1>
+          <p className="text-gray-500 mb-4">
+            Please login to access your account
+          </p>
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white"
+            style={{ background: brand.primary }}>
+            Go to Login <FaArrowRight className="opacity-90" />
           </Link>
         </div>
       </div>
@@ -195,255 +202,335 @@ const MyAccountPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto">
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
-            <h1 className="text-2xl font-semibold text-gray-900">My Account</h1>
-            <p className="mt-1 text-sm text-gray-500">
+    <div className="bg-gray-50">
+      {/* Page header block */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span
+                className="inline-block h-3 w-1.5 rounded-full"
+                style={{ background: brand.primary }}
+              />
+              <span
+                className="text-sm font-semibold"
+                style={{ color: brand.primary }}>
+                Account
+              </span>
+            </div>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-gray-900">
+              My Account
+            </h1>
+            <p className="text-gray-500 mt-1">
               Manage your profile information
             </p>
           </div>
+          <div className="hidden sm:flex">
+            {!isEditing ? (
+              <button
+                onClick={handleEditToggle}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                <FaEdit className="text-gray-500" /> Edit
+              </button>
+            ) : (
+              <button
+                onClick={handleEditToggle}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
 
-          <div className="px-6 py-5">
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                {/* Name Field */}
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 flex items-center">
-                    <FaUser className="mr-2" /> Full Name
-                  </label>
-                  {isEditing ? (
-                    <>
+      {/* Main card */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+          {/* Top strip like your cards */}
+          <div className="px-5 sm:px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center gap-2 text-gray-700">
+              <FaUser className="text-gray-500" />
+              <span className="font-semibold">Profile Details</span>
+              <span className="ml-auto sm:hidden">
+                {!isEditing ? (
+                  <button
+                    onClick={handleEditToggle}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700">
+                    <FaEdit className="text-gray-500" /> Edit
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleEditToggle}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700">
+                    Cancel
+                  </button>
+                )}
+              </span>
+            </div>
+          </div>
+
+          <div className="px-5 sm:px-6 py-5">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {/* Name */}
+              <div className="col-span-1">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                {isEditing ? (
+                  <>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.name ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      <FaUser className="text-gray-400" />
                       <input
-                        type="text"
                         id="name"
                         name="name"
+                        type="text"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className={`mt-1 block w-full border ${errors.name ? "border-red-300" : "border-gray-300"} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        className="w-full outline-none bg-transparent text-gray-900 placeholder:text-gray-400"
+                        placeholder="Enter full name"
                       />
-                      {errors.name && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.name}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-900">
-                      {userData.name}
-                    </p>
-                  )}
-                </div>
+                    </div>
+                    {errors.name && (
+                      <p className="mt-1 text-xs text-red-600">{errors.name}</p>
+                    )}
+                  </>
+                ) : (
+                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                    {userData?.name || "—"}
+                  </div>
+                )}
+              </div>
 
-                {/* Email Field */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 flex items-center">
-                    <FaEnvelope className="mr-2" /> Email Address
-                  </label>
-                  {isEditing ? (
-                    <>
+              {/* Email */}
+              <div className="col-span-1">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                {isEditing ? (
+                  <>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.email ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      <FaEnvelope className="text-gray-400" />
                       <input
-                        type="email"
                         id="email"
                         name="email"
+                        type="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className={`mt-1 block w-full border ${errors.email ? "border-red-300" : "border-gray-300"} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        className="w-full outline-none bg-transparent text-gray-900"
+                        placeholder="name@example.com"
                       />
-                      {errors.email && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.email}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-900">
-                      {userData.email}
-                    </p>
-                  )}
-                </div>
+                    </div>
+                    {errors.email && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.email}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                    {userData?.email || "—"}
+                  </div>
+                )}
+              </div>
 
-                {/* Mobile Number Field */}
-                <div>
-                  <label
-                    htmlFor="mobileNo"
-                    className="block text-sm font-medium text-gray-700 flex items-center">
-                    <FaPhone className="mr-2" /> Mobile Number
-                  </label>
-                  {isEditing ? (
-                    <>
+              {/* Mobile */}
+              <div className="col-span-1">
+                <label
+                  htmlFor="mobileNo"
+                  className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number
+                </label>
+                {isEditing ? (
+                  <>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.mobileNo ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      <FaPhone className="text-gray-400" />
                       <input
-                        type="tel"
                         id="mobileNo"
                         name="mobileNo"
+                        type="tel"
                         value={formData.mobileNo}
                         onChange={handleInputChange}
-                        className={`mt-1 block w-full border ${errors.mobileNo ? "border-red-300" : "border-gray-300"} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        className="w-full outline-none bg-transparent text-gray-900"
+                        placeholder="98XXXXXXXX"
                       />
-                      {errors.mobileNo && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.mobileNo}
-                        </p>
-                      )}
-                    </>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-900">
-                      {userData.mobileNo}
-                    </p>
-                  )}
-                </div>
+                    </div>
+                    {errors.mobileNo && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.mobileNo}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                    {userData?.mobileNo || "—"}
+                  </div>
+                )}
+              </div>
 
-                {/* Password Fields (only shown when editing) */}
-                {isEditing && (
-                  <>
-                    <div>
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-medium text-gray-700 flex items-center">
-                        <FaLock className="mr-2" /> New Password
-                      </label>
+              {/* Passwords only when editing */}
+              {isEditing && (
+                <>
+                  <div className="col-span-1">
+                    <label
+                      htmlFor="password"
+                      className="block text-sm font-medium text-gray-700 mb-1">
+                      New Password
+                    </label>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.password ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      <FaLock className="text-gray-400" />
                       <input
-                        type="password"
                         id="password"
                         name="password"
+                        type="password"
                         value={formData.password}
                         onChange={handleInputChange}
                         placeholder="Leave blank to keep current password"
-                        className={`mt-1 block w-full border ${errors.password ? "border-red-300" : "border-gray-300"} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        className="w-full outline-none bg-transparent text-gray-900"
                       />
-                      {errors.password && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.password}
-                        </p>
-                      )}
                     </div>
+                    {errors.password && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.password}
+                      </p>
+                    )}
+                  </div>
 
-                    <div>
-                      <label
-                        htmlFor="confirmPassword"
-                        className="block text-sm font-medium text-gray-700">
-                        Confirm Password
-                      </label>
+                  <div className="col-span-1">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm Password
+                    </label>
+                    <div
+                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.confirmPassword ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      <FaLock className="text-gray-400" />
                       <input
-                        type="password"
                         id="confirmPassword"
                         name="confirmPassword"
+                        type="password"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className={`mt-1 block w-full border ${errors.confirmPassword ? "border-red-300" : "border-gray-300"} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+                        className="w-full outline-none bg-transparent text-gray-900"
                       />
-                      {errors.confirmPassword && (
-                        <p className="mt-1 text-sm text-red-600">
-                          {errors.confirmPassword}
-                        </p>
-                      )}
                     </div>
-                  </>
-                )}
+                    {errors.confirmPassword && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
 
-                {/* Action Buttons */}
-                <div className="flex justify-end space-x-3">
+              {/* Actions */}
+              <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleEditToggle}
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                  {!isEditing ? (
+                    <>
+                      <FaEdit className="text-gray-500" /> Edit Profile
+                    </>
+                  ) : (
+                    "Cancel"
+                  )}
+                </button>
+
+                {isEditing && (
                   <button
-                    type="button"
-                    onClick={handleEditToggle}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    {isEditing ? (
-                      <>
-                        <FaEdit className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
-                        Cancel
-                      </>
+                    type="submit"
+                    disabled={isUpdating}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white shadow-sm disabled:opacity-70"
+                    style={{ background: brand.primary }}>
+                    {isUpdating ? (
+                      "Saving..."
                     ) : (
                       <>
-                        <FaEdit className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
-                        Edit Profile
+                        <FaSave color="white" fill="white" /> Save Changes
                       </>
                     )}
                   </button>
-
-                  {isEditing && (
-                    <button
-                      type="submit"
-                      disabled={isUpdating}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50">
-                      {isUpdating ? (
-                        "Saving..."
-                      ) : (
-                        <>
-                          <FaSave
-                            fill="white"
-                            color="white"
-                            className="-ml-1 mr-2 h-5 w-5"
-                          />
-                          Save Changes
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
+                )}
               </div>
             </form>
           </div>
         </div>
 
-        {/* Additional Account Sections */}
+        {/* Secondary sections */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Orders Summary */}
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">
-                Recent Orders
-              </h2>
+          {/* Recent Orders */}
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 border-b bg-gray-50">
+              <div className="flex items-center gap-2">
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ background: brand.primary }}
+                />
+                <h2 className="text-base font-semibold text-gray-900">
+                  Recent Orders
+                </h2>
+              </div>
             </div>
-            <div className="px-6 py-5">
+            <div className="px-5 sm:px-6 py-5">
               <p className="text-sm text-gray-500 mb-4">
                 View your recent orders and track their status
               </p>
-              <Link href="/myorders">
-                <span className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                  View All Orders
-                </span>
+              <Link
+                href="/myorders"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm bg-[#DA4445] hover:bg-red-500">
+                View All Orders <FaArrowRight color="white" fill="white" />
               </Link>
             </div>
           </div>
 
           {/* Account Security */}
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">
-                Account Security
-              </h2>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 border-b bg-gray-50">
+              <div className="flex items-center gap-2">
+                <FaShieldAlt className="text-gray-500" />
+                <h2 className="text-base font-semibold text-gray-900">
+                  Account Security
+                </h2>
+              </div>
             </div>
-            <div className="px-6 py-5">
-              <div className="flex items-center justify-between mb-4">
+            <div className="px-5 sm:px-6 py-5 space-y-4">
+              <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">
                     Email Verification
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {userData.isEmailVerfied ? "Verified" : "Not Verified"}
+                    {userData?.isEmailVerfied ? "Verified" : "Not Verified"}
                   </p>
                 </div>
-                {!userData.isEmailVerfied && (
+                {!userData?.isEmailVerfied && (
                   <button className="text-sm font-medium text-blue-600 hover:text-blue-500">
                     Verify Now
                   </button>
                 )}
               </div>
+
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-medium text-gray-900">
                     Mobile Verification
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {userData.isMobileNoVerified ? "Verified" : "Not Verified"}
+                    {userData?.isMobileNoVerified ? "Verified" : "Not Verified"}
                   </p>
                 </div>
-                {!userData.isMobileNoVerified && (
+                {!userData?.isMobileNoVerified && (
                   <button className="text-sm font-medium text-blue-600 hover:text-blue-500">
                     Verify Now
                   </button>
@@ -451,6 +538,25 @@ const MyAccountPage = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Helpful links row to mirror footer/quick links style */}
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            href="/wishlist"
+            className="px-3 py-1.5 rounded-full border text-sm text-gray-700 bg-white hover:bg-gray-50">
+            Wishlist
+          </Link>
+          <Link
+            href="/cart"
+            className="px-3 py-1.5 rounded-full border text-sm text-gray-700 bg-white hover:bg-gray-50">
+            Cart
+          </Link>
+          <Link
+            href="/support"
+            className="px-3 py-1.5 rounded-full border text-sm text-gray-700 bg-white hover:bg-gray-50">
+            Support
+          </Link>
         </div>
       </div>
     </div>

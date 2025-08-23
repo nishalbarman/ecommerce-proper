@@ -37,7 +37,7 @@ async function Navbar({ title }) {
     <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-white">
       <div className="flex flex-row">
         <Link href={"/"} className="flex flex-center items-center w-fit">
-          <img src="/assets/favicon/favicon.png" className="h-[55px] " />
+          <img src="/assets/favicon/favicon.png" className="h-[55px] max-sm:h-[40px]" />
           <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden ml-4">
             <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
               Flowers

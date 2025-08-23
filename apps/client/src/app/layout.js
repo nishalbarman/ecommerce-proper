@@ -14,9 +14,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "GJN Booque Plot",
   description: "",
-  icons: {
-    icon: "/favicon/favicon.png",
-  },
+  // icons: {
+  // icon: "/favicon/favicon.ico",
+  // },
 };
 
 export default function RootLayout({ children }) {

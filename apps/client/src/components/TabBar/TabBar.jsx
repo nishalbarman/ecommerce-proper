@@ -64,13 +64,13 @@ const TabBar = () => {
     {
       icon: <FaUser size={20} fill="black" color="black" />,
       label: "Account",
-      path: "/myaccount",
+      path: "/profile",
     },
   ];
 
   return (
     <div
-      className={`max-md:fixed bottom-0 left-0 right-0 w-full border-[rgb(0,0,0,0.1)] border-b-[1px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary z-[999] shadow transition-transform duration-300 ${
+      className={`fixed md:hidden bottom-0 left-0 right-0 w-full border-[rgb(0,0,0,0.1)] border-b-[1px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary z-[999] shadow transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}>
       <div className="flex justify-around items-center h-16">

@@ -147,7 +147,7 @@ function ProductCard({
     const handleResize = () => setInnerWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  });
+  }, []);
 
   return (
     <div className="w-full group/product_item ">

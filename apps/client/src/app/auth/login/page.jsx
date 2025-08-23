@@ -80,7 +80,12 @@ export default function Page() {
 
         setCookiesAfterLogin({ token: response.user.jwtToken });
         const redirectPath = searchParams?.get("redirect") || null;
-        navigator.push(`/${redirectPath || "/"}`);
+        console.log("Redirecting to:", redirectPath);
+        if (redirectPath) {
+          navigator.push(`/${redirectPath}`);
+        } else {
+          navigator.push(`/`);
+        }
       }
     } catch (error) {
       console.log(error);

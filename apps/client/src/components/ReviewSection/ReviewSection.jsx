@@ -15,7 +15,7 @@ function ReviewSection({ product, hasUserBoughtThisProduct }) {
   };
 
   return (
-    <section className="mt-2 container mx-auto">
+    <section className="mt-2 container mx-auto p-4">
       {/* Review Header */}
       <div className="flex max-sm:flex-col gap-3 items-center justify-between mb-8">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -40,7 +40,7 @@ function ReviewSection({ product, hasUserBoughtThisProduct }) {
         </div>
       )}
 
-      <div className="md:col-span-2 mb-10 mt-5 px-2">
+      <div className="md:col-span-2 mb-10 mt-5">
         {/* <div className="bg-white p-6 rounded-lg shadow-md w-full"> */}
         {/* <h3 className="text-lg font-semibold mb-4">Customer Re  views</h3> */}
         <ReviewList productId={product._id} />

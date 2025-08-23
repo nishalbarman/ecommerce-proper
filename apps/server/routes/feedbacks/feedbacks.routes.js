@@ -164,7 +164,12 @@ router.post("/", checkRole(0, 1), async (req, res) => {
       productType,
     });
 
+    console.log("Existing feedback ", existingFeedback);
+
     if (existingFeedback) {
+      const oldStarsGiven = existingFeedback.starsGiven;
+      const ratingChanged = oldStarsGiven !== starsGiven;
+
       // Update existing feedback
       existingFeedback.description = description;
       existingFeedback.starsGiven = starsGiven;
@@ -179,6 +184,34 @@ router.post("/", checkRole(0, 1), async (req, res) => {
       }
 
       await existingFeedback.save();
+
+      if (ratingChanged) {
+        await Product.updateOne({ _id: product }, [
+          {
+            $set: {
+              totalRatings: {
+                $add: ["$totalRatings", starsGiven - oldStarsGiven],
+              },
+            },
+          },
+          {
+            $set: {
+              stars: {
+                $cond: [
+                  { $gt: ["$totalFeedbacks", 0] },
+                  {
+                    $round: [
+                      { $divide: ["$totalRatings", "$totalFeedbacks"] },
+                      2,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        ]);
+      }
 
       return res.status(200).json({
         success: true,
@@ -208,15 +241,37 @@ router.post("/", checkRole(0, 1), async (req, res) => {
     }
 
     // Update product rating (your existing logic)
-    const productDoc = await Product.findById(product);
-    const totalRatings = productDoc.stars * productDoc.totalFeedbacks;
-    const newTotalRatings = totalRatings + starsGiven;
-    const newTotalFeedbacks = productDoc.totalFeedbacks + 1;
-    const newAverage = (newTotalRatings / newTotalFeedbacks).toFixed(2);
+    // const productDoc = await Product.findById(product);
+    // const totalRatings = productDoc.stars * productDoc.totalFeedbacks;
+    // const newTotalRatings = totalRatings + starsGiven;
+    // const newTotalFeedbacks = productDoc.totalFeedbacks + 1;
+    // const newAverage = (newTotalRatings / newTotalFeedbacks).toFixed(2);
 
-    productDoc.stars = newAverage;
-    productDoc.totalFeedbacks = newTotalFeedbacks;
-    await productDoc.save({ validateBeforeSave: false });
+    // productDoc.stars = newAverage;
+    // productDoc.totalFeedbacks = newTotalFeedbacks;
+    // await productDoc.save({ validateBeforeSave: false });
+
+    await Product.updateOne({ _id: product }, [
+      {
+        $set: {
+          totalRatings: { $add: ["$totalRatings", starsGiven] },
+          totalFeedbacks: { $add: ["$totalFeedbacks", 1] },
+        },
+      },
+      {
+        $set: {
+          stars: {
+            $cond: [
+              { $gt: ["$totalFeedbacks", 0] },
+              {
+                $round: [{ $divide: ["$totalRatings", "$totalFeedbacks"] }, 2],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    ]);
 
     return res.status(201).json({
       success: true,
@@ -232,18 +287,29 @@ router.post("/", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.patch("/", checkRole(0, 1), async (req, res) => {
+router.patch("/:reviewFetchBy", checkRole(0, 1), async (req, res) => {
   try {
-    const { product, productType, description, starsGiven, imageIds } =
-      req.body;
+    const feedbackFetchBy = req.params?.reviewFetchBy; // can be feedback id or product id
+    const {
+      product,
+      productType,
+      description,
+      starsGiven,
+      imageIds,
+      feedbackId,
+    } = req.body;
 
     const errors = [];
 
-    if (!productType) errors.push("Product type is required");
-    if (!product) errors.push("Product ID is required");
+    // if (!productType) errors.push("Product type is required");
+    if (feedbackFetchBy === "product" && !product)
+      errors.push("Product ID is required");
     if (!description) errors.push("Description is required");
     if (!starsGiven || starsGiven < 1 || starsGiven > 5) {
       errors.push("Rating must be between 1 and 5 stars");
+    }
+    if (!feedbackId) {
+      errors.push("Feedback ID is required for review update");
     }
 
     if (errors.length > 0) {
@@ -254,12 +320,27 @@ router.patch("/", checkRole(0, 1), async (req, res) => {
       });
     }
 
-    // Check if user already reviewed this product
-    const existingFeedback = await Feedback.findOne({
+    const filter = {
       user: req.user._id,
-      product,
-      productType,
-    });
+      productType: productType || "buy",
+    };
+
+    console.log("Product, product", product);
+
+    if (product) {
+      filter.product = product;
+    }
+
+    if (feedbackFetchBy === "review") {
+      filter._id = feedbackId;
+    }
+
+    console.log("Filter for feedback update", filter);
+
+    // Check if user already reviewed this product
+    const existingFeedback = await Feedback.findOne(filter);
+
+    console.log("Existing feedback found for update", existingFeedback);
 
     if (existingFeedback) {
       // Store old rating before update
@@ -283,11 +364,37 @@ router.patch("/", checkRole(0, 1), async (req, res) => {
 
       // Only update product stats if rating changed
       if (ratingChanged) {
-        const productDoc = await Product.findById(product);
-        const currentTotal = productDoc.stars * productDoc.totalFeedbacks;
-        const newTotal = currentTotal - oldStarsGiven + starsGiven;
-        productDoc.stars = (newTotal / productDoc.totalFeedbacks).toFixed(2);
-        await productDoc.save({ validateBeforeSave: false });
+        await Product.updateOne({ _id: existingFeedback.product }, [
+          {
+            $set: {
+              totalRatings: {
+                $add: ["$totalRatings", starsGiven - oldStarsGiven],
+              },
+            },
+          },
+          {
+            $set: {
+              stars: {
+                $cond: [
+                  { $gt: ["$totalFeedbacks", 0] },
+                  {
+                    $round: [
+                      { $divide: ["$totalRatings", "$totalFeedbacks"] },
+                      2,
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        ]);
+
+        // const productDoc = await Product.findById(existingFeedback.product);
+        // const currentTotal = productDoc.stars * productDoc.totalFeedbacks;
+        // const newTotal = currentTotal - oldStarsGiven + starsGiven;
+        // productDoc.stars = (newTotal / productDoc.totalFeedbacks).toFixed(2);
+        // await productDoc.save({ validateBeforeSave: false });
       }
 
       return res.status(200).json({
@@ -313,7 +420,7 @@ router.patch("/", checkRole(0, 1), async (req, res) => {
 router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
   try {
     const fetchingId = req.params?.fetchingId;
-    const productType = req.body?.productType;
+    const productType = req.body?.productType || "buy";
     const fetchBy = req.query?.fetchBy;
 
     if (!fetchingId || !productType) {
@@ -336,7 +443,83 @@ router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
 
     const feedback = await Feedback.findOne(filter).populate("images");
 
-    return res.status(200).json({ feedback: feedback });
+    return res.status(200).json({ data: feedback });
+  } catch (error) {
+    console.error(TAG, error);
+    return res.status(500).json({ message: error.message });
+  }
+});
+
+// FEEDBACK: delete one feedback with feedback id
+router.delete("/delete/:feedbackId", checkRole(0, 1), async (req, res) => {
+  try {
+    const params = req.params;
+    console.log(TAG, params);
+
+    // check whether we have the product id or not
+    if (!params.feedbackId) {
+      return res.status(400).json({ message: "Feedback ID missing!" });
+    }
+
+    const feedbackDoc = await Feedback.findOne({
+      _id: params.feedbackId,
+      user: req.user._id,
+    });
+    console.log(TAG, feedbackDoc);
+
+    if (!feedbackDoc) {
+      return res.status(404).json({ message: "No such feedback found." });
+    }
+    const oldStarsGiven = feedbackDoc?.starsGiven || 0;
+
+    const deleteFeedback = await Feedback.deleteOne({
+      _id: params.feedbackId,
+      user: req.user._id,
+    });
+
+    if (!deleteFeedback) {
+      return res.status(400).json({ message: "Delete feedback failed." });
+    }
+
+    console.log(TAG, feedbackDoc);
+
+    await Product.updateOne({ _id: feedbackDoc.product }, [
+      {
+        $set: {
+          totalRatings: { $subtract: ["$totalRatings", oldStarsGiven] },
+          totalFeedbacks: {
+            $cond: [
+              { $gt: ["$totalFeedbacks", 0] },
+              { $subtract: ["$totalFeedbacks", 1] },
+              0,
+            ],
+          },
+        },
+      },
+      {
+        $set: {
+          // Optionally clamp totalRatings to >= 0
+          totalRatings: {
+            $cond: [{ $lt: ["$totalRatings", 0] }, 0, "$totalRatings"],
+          },
+        },
+      },
+      {
+        $set: {
+          stars: {
+            $cond: [
+              { $gt: ["$totalFeedbacks", 0] },
+              {
+                $round: [{ $divide: ["$totalRatings", "$totalFeedbacks"] }, 2],
+              },
+              0,
+            ],
+          },
+        },
+      },
+    ]);
+
+    return res.status(200).json({ message: "Feedback deleted successfully" });
   } catch (error) {
     console.error(TAG, error);
     return res.status(500).json({ message: error.message });
@@ -400,7 +583,7 @@ router.post("/upload-image", checkRole(0, 1), async (req, res) => {
     }
 
     // If no response, return failure
-    return res.status(200).json({
+    return res.status(400).json({
       status: false,
       message: "Feedback Image Upload Failed",
     });

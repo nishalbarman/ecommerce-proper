@@ -113,6 +113,15 @@ function WishlistItem({
     }
   };
 
+  const [innerWidth, setInnerWidth] = useState(0);
+
+  useEffect(() => {
+    setInnerWidth(window.innerWidth);
+    const handleResize = () => setInnerWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div className="w-full group/product_item">
       {/* Image Section */}
@@ -167,12 +176,20 @@ function WishlistItem({
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
             onClick={handleAddToCart}>
             {onCart ? (
-              <FaCheck size={20} color="white" fill="white" />
+              <FaCheck
+                size={innerWidth < 490 ? 17 : 20}
+                color="white"
+                fill="white"
+              />
             ) : (
-              <FaCartShopping size={20} color="white" fill="white" />
+              <FaCartShopping
+                size={innerWidth < 490 ? 17 : 20}
+                color="white"
+                fill="white"
+              />
             )}
           </button>
         </div>

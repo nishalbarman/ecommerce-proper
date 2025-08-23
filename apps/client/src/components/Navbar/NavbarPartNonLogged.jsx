@@ -80,7 +80,7 @@ function NavbarPartNonLogged() {
             <ClientWishlistIcon />
             <ClientCartIcon />
 
-            <div className="h-fit w-fit relative group mb-[8px]">
+            <div className="h-fit w-fit relative group mb-[8px] max-sm:hidden">
               {/* <Image
                 className="cursor-pointer transform translate-y-[0.14rem]"
                 src="/assets/user.svg"
@@ -96,6 +96,21 @@ function NavbarPartNonLogged() {
               <div className="absolute top-6 pt-2 right-[-15px] z-[999] ease-linear duration-300 group-hover:flex hidden rounded-lg">
                 <div className="bg-black opacity-[0.8] rounded-lg">
                   <div className="flex h-fit flex-col gap-1 p-[18px_12px_18px_12px] text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur">
+                    <div className="flex items-center gap-4 w-[100%] cursor-pointer">
+                      <Link
+                        className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
+                        href={"/profile"}>
+                        <div className="h-fit w-fit">
+                          <FaUser
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
+                        </div>
+                        My Profile
+                      </Link>
+                    </div>
                     <div className="flex items-center gap-4 w-[100%] cursor-pointer">
                       <Link
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
