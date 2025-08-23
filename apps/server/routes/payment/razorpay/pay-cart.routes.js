@@ -13,6 +13,7 @@ const UserAddress = require("../../../models/userAddress.model");
 const PaymentTransModel = require("../../../models/transaction.model");
 const generateUniqueId = require("../../../helpter/generateUniqueId");
 const OrderGroupModel = require("../../../models/orderGroup.model");
+const WebConfig = require("../../../models/webConfig.model");
 
 const RAZORPAY_KEY = process.env.RAZORPAY_KEY;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
@@ -34,6 +35,7 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
     }
 
     const appliedCouponID = req.query.coupon || null;
+    console.log("Applied coupon id is: : ", appliedCouponID);
 
     const cartItemsForUser = await Cart.find({
       user: userDetails._id,
@@ -109,23 +111,20 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
       { amount: 0, productinfo: [] }
     );
 
-    if (!!appliedCouponID) {
-      const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
+    const totalDiscountedPriceWithoutAnyCouponAndShipping =
+      paymentObject.amount;
+    let couponDiscountedPrice = 0;
 
-      if (!!appliedCoupon) {
-        const discountedPrice = appliedCoupon?.isPercentage
-          ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
-          : paymentObject.amount > appliedCoupon.minPurchasePrice
-            ? appliedCoupon.off
-            : 0;
+    const deliveryChargeDetails = await WebConfig.findOne()
+      .sort({ createdAt: -1 })
+      .select("deliveryPrice freeDeliveryPrice");
 
-        paymentObject.amount -= discountedPrice;
-      }
-    }
+    const freeDeliveryAboveMinimumPurchase =
+      deliveryChargeDetails?.freeDeliveryPrice > 0; // TODO: Need to get it from server.
+    const freeDeliveryMinimumAmount = deliveryChargeDetails?.freeDeliveryPrice;
+    let shippingApplied = !freeDeliveryAboveMinimumPurchase;
 
-    const freeDeliveryAboveMinimumPurchase = false; // TODO: Need to get it from server.
-    const freeDeliveryMinimumAmount = 500;
-    let shippingApplied = false;
+    // console.log("What is the shipping price: ", shippingPrice);
 
     if (
       !(
@@ -133,8 +132,32 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
         paymentObject.amount >= freeDeliveryMinimumAmount
       )
     ) {
-      paymentObject.amount += shippingPrice;
+      paymentObject.amount += deliveryChargeDetails.deliveryPrice;
       shippingApplied = true;
+    }
+
+    if (!!appliedCouponID) {
+      const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
+
+      console.log(
+        "What are the prices after coupon: ",
+        appliedCoupon,
+        paymentObject.amount,
+        appliedCoupon.minPurchasePrice,
+        paymentObject.amount > appliedCoupon.minPurchasePrice
+      );
+      if (!!appliedCoupon) {
+        const discountedPrice = appliedCoupon?.isPercentage
+          ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
+          : paymentObject.amount > appliedCoupon.minPurchasePrice
+            ? appliedCoupon.off
+            : 0;
+
+        couponDiscountedPrice = discountedPrice;
+        paymentObject.amount -= discountedPrice;
+
+        console.log("What are the prices after coupon: ", discountedPrice);
+      }
     }
 
     paymentObject.amount *= 100; // gateway takes amount as paisa (1 rupee = 100 paisa)
@@ -166,6 +189,10 @@ router.post("/:productType", checkRole(0, 1), async (req, res) => {
         productIds: cartItemsForUser.map((item) => item.product._id).join(","),
         description: productNames,
         paymentTxnId: paymentTxnId,
+        totalDiscountedPriceWithoutAnyCouponAndShipping:
+          totalDiscountedPriceWithoutAnyCouponAndShipping,
+        shippingPrice: shippingApplied ? shippingPrice : 0,
+        couponDiscountedPrice: couponDiscountedPrice,
       },
     });
 

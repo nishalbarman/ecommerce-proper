@@ -41,6 +41,10 @@ const WebConfigSchema = new mongoose.Schema({
     type: Number,
     default: 45,
   },
+  freeDeliveryAbove: {
+    type: Number,
+    default: 0,
+  },
   about: {
     type: String,
     required: true,

@@ -13,6 +13,7 @@ interface WebConfig {
   websiteUrl: string;
   newsletterDiscount: number;
   deliveryPrice: number;
+  freeDeliveryAbove: number;
   about: string;
 }
 
@@ -27,6 +28,7 @@ const WebConfigPage = () => {
     websiteUrl: "",
     newsletterDiscount: 5,
     deliveryPrice: 0,
+    freeDeliveryAbove: 0,
     about: "",
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -309,6 +311,22 @@ const WebConfigPage = () => {
                   name="deliveryPrice"
                   min="0"
                   value={config.deliveryPrice}
+                  onChange={handleNumberChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="deliveryPrice"
+                  className="block text-sm font-medium text-gray-700">
+                  Free Delivery Price
+                </label>
+                <input
+                  type="number"
+                  id="freeDeliveryPrice"
+                  name="freeDeliveryPrice"
+                  min="0"
+                  value={config.freeDeliveryAbove}
                   onChange={handleNumberChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
                 />
