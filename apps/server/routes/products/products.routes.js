@@ -422,9 +422,12 @@ router.post("/view/:productId", async (req, res) => {
     const params = req.params;
     const productType = req.body?.productType || "buy";
     const token = req.headers["authorization"]?.split(" ")[1];
-    const user = getTokenDetails(token);
+    let user = null;
+    if (token) {
+      user = getTokenDetails(token);
+    }
 
-    console.log("User Detailsssssssssss", user.userDetails._id);
+    console.log("User Detailsssssssssss", user?.userDetails?._id);
 
     // return user;
 

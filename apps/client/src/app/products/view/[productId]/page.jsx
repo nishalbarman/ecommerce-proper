@@ -4,7 +4,7 @@ import { notFound, useParams } from "next/navigation";
 
 import ReviewSection from "@/components/ReviewSection/ReviewSection";
 import { useActionState, useEffect, useState, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs } from "swiper/modules";
 import "swiper/css";
@@ -22,12 +22,15 @@ import { CartApi } from "@/redux";
 import axiosInstance from "@/services/axiosInstance";
 import Loading from "@/app/cart/loading";
 import axios from "axios";
+import { setLoginModalState } from "@/redux/slices/loginModalSlice";
 
 export default function ViewProduct({ params }) {
   // const cookie = await cookies();
   const navigate = useRouter();
 
   const { productId } = useParams();
+
+  console.log("Am I geting the productId", productId);
 
   const token = useSelector((state) => state.auth.jwtToken);
 
@@ -263,7 +266,16 @@ export default function ViewProduct({ params }) {
 
   const [addToCart] = useAddOneToCartMutation();
 
+  const dispatch = useDispatch();
+
   const handleAddToCart = async () => {
+    if (!token) {
+      console.log(token);
+      toast.success("You need to be logged in first.");
+      dispatch(setLoginModalState({ modalVisible: true }));
+      return;
+    }
+
     try {
       setIsAddToCartLoading(true);
       const cartObject = {
@@ -292,6 +304,13 @@ export default function ViewProduct({ params }) {
   };
 
   const handleBuyNow = () => {
+    if (!token) {
+      console.log(token);
+      toast.success("You need to be logged in first.");
+      dispatch(setLoginModalState({ modalVisible: true }));
+      return;
+    }
+
     const queryParams = new URLSearchParams();
     queryParams.set("productId", product._id);
     queryParams.set("quantity", quantity.toString());

@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
 import Image from "next/image";
 import TabBar from "@/components/TabBar/TabBar";
+import AuthModal from "@/modal/AuthModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }) {
             <main className="min-h-screen z-[999]">{children}</main>
             <TabBar />
             <Footer />
+            <AuthModal />
           </ReduxStore>
         </CookiesProvider>
       </body>
