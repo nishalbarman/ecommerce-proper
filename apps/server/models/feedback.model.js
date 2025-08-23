@@ -28,7 +28,7 @@ const feedbackSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: "users",
       required: [true, "User reference is required"],
     },
     productType: {

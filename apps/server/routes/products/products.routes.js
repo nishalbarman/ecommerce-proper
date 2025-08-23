@@ -443,7 +443,7 @@ router.post("/view/:productId", async (req, res) => {
       { path: "productVariant" },
     ]);
 
-    const hasUserBoughtThisProduct = false;
+    let hasUserBoughtThisProduct = false;
     if (user && user.userDetails && user.userDetails._id) {
       hasUserBoughtThisProduct = await Order.countDocuments({
         product: params.productId,
