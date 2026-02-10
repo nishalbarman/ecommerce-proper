@@ -56,7 +56,7 @@ export default async function Page() {
 
       {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
-      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
+      
 
       <Suspense fallback={<ProductSliderSkel />}>
         <Categories />

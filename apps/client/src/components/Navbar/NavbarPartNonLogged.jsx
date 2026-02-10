@@ -31,10 +31,10 @@ function NavbarPartNonLogged() {
   const pathname = usePathname();
 
   const [localSearch, setLocalSearch] = useState(
-    searchParams.get("query") || ""
+    searchParams.get("query") || "",
   );
   const [localSort, setLocalSort] = useState(
-    searchParams.get("sort") || "newest"
+    searchParams.get("sort") || "newest",
   );
   const [appliedSearch, setAppliedSearch] = useState(localSearch);
   const [appliedSort, setAppliedSort] = useState(localSort);
@@ -198,12 +198,9 @@ function NavbarPartNonLogged() {
                   placeholder="What are you looking for?"
                 />
                 <div className="h-[25px] w-[25px] mr-3 flex items-center">
-                  <Image
-                    src="/assets/search.svg"
-                    alt="search logo"
-                    width={27}
-                    height={27}
-                  />
+                  <div className="h-[25px] w-[25px] mr-3 flex items-center">
+                    <CiSearch size={27} />
+                  </div>
                 </div>
               </div>
 

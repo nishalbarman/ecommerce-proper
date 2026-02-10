@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { FaStar, FaEdit, FaTrash, FaArrowRight } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const brand = { primary: "#DA4445" };
 
@@ -16,6 +17,8 @@ export default function MyFeedbackPage() {
   const [totalPages, setTotalPages] = useState(1);
   const limit = 10;
 
+  const { jwtToken: token } = useSelector((state) => state.auth);
+
   const fetchFeedbacks = async (p = 1) => {
     try {
       setLoading(true);
@@ -25,12 +28,15 @@ export default function MyFeedbackPage() {
         `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/all?${qs.toString()}`,
         {
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       if (res.status === 401) {
-        router.push("/login");
+        router.push("/auth/login?redirect=myreviews");
         return;
       }
 
@@ -53,6 +59,13 @@ export default function MyFeedbackPage() {
     fetchFeedbacks(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!token) {
+      console.log("Token from myreviews: ", token);
+      router.push("/auth/login");
+    }
+  }, [token]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this feedback?")) return;

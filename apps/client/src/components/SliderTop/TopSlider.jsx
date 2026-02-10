@@ -8,7 +8,7 @@ const getBanners = async () => {
   try {
     // const backendUrl = getBackendUrl();
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/banners`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/banners`,
     );
     console.log("Array Data:", response.data);
     return response.data.banners;
@@ -160,19 +160,25 @@ async function TopSlider() {
     },
   ];
 
+  if (!bannerList?.length) return null;
+
   return (
-    <div className="flex justify-between gap-[6%] mt-[4px] lg:mt-10">
-      {/* <div className="hidden flex-col items-center justify-center xl:flex gap-[30px] justify-start items-center w-[400px]">
+    <>
+      <div className="flex justify-between gap-[6%] mt-[4px] lg:mt-10">
+        {/* <div className="hidden flex-col items-center justify-center xl:flex gap-[30px] justify-start items-center w-[400px]">
         {categoryLinks.map((item) => (
           <CategoryLink {...item} />
         ))}
       </div> */}
 
-      <div
-        className={`lg:p-0 h-fit rounded-md border-0 outline-0 border-none outline-none focus:border-none focus:outline-none peer-focus-visible:border-none peer-focus-visible:outline-none mt-[3%] lg:mt-0 w-[100%] xl:w-[100%] container mx-auto`}>
-        <Carousel items={bannerList || []} />
+        <div
+          className={`lg:p-0 h-fit rounded-md border-0 outline-0 border-none outline-none focus:border-none focus:outline-none peer-focus-visible:border-none peer-focus-visible:outline-none mt-[3%] lg:mt-0 w-[100%] xl:w-[100%] container mx-auto`}>
+          <Carousel items={bannerList || []} />
+        </div>
       </div>
-    </div>
+
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
+    </>
   );
 }
 

@@ -13,7 +13,7 @@ import AuthModal from "@/modal/AuthModal";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "GJN Booque Plot",
+  title: "Petal Perfection Bouquet Plot",
   description: "",
   // icons: {
   // icon: "/favicon/favicon.ico",
@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
         <Toaster />
         <CookiesProvider>
           <ReduxStore>
-            <Navbar title={"GJN"} logo={""} />
+            <Navbar title={"Petal Perfection"} logo={""} />
             <main className="min-h-screen z-[999]">{children}</main>
             <TabBar />
             <Footer />
