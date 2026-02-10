@@ -1,4 +1,4 @@
-# Jharna Mehendi
+# Nishal Barman
 
 Welcome to the Jharna Mehendi codebase. This repository contains multiple applications and packages designed to work together to deliver a full-stack solution. The projects include an admin dashboard, a client-facing web application, server-side components, and several utility packages.
 
