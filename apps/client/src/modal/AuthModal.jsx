@@ -132,8 +132,11 @@ const AuthModal = ({ onClose }) => {
     const errors = {};
 
     if (isLoginForm) {
-      const mobileError = validateField("mobileNo", formData.mobileNo);
-      if (mobileError) errors.mobileNo = mobileError;
+      // const mobileError = validateField("mobileNo", formData.mobileNo);
+      // if (mobileError) errors.mobileNo = mobileError;
+
+      const emailError = validateField("email", formData.email);
+      if (emailError) errors.mobileNo = emailError;
 
       const passwordError = validateField("password", formData.password);
       if (passwordError) errors.password = passwordError;
@@ -171,7 +174,7 @@ const AuthModal = ({ onClose }) => {
 
     try {
       const response = await authService.login({
-        mobileNo: formData.mobileNo,
+        email: formData.email,
         password: formData.password,
       });
 
@@ -259,9 +262,9 @@ const AuthModal = ({ onClose }) => {
   const isFormValid = () => {
     if (isLoginForm) {
       return (
-        formData.mobileNo &&
+        formData.email &&
         formData.password &&
-        !formErrors.mobileNo &&
+        !formErrors.email &&
         !formErrors.password
       );
     } else {
@@ -405,18 +408,18 @@ const AuthModal = ({ onClose }) => {
             <div className="mb-4">
               <input
                 type="tel"
-                name="mobileNo"
-                value={formData.mobileNo}
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                placeholder="Mobile Number"
+                placeholder="Email Address"
                 className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
-                  formErrors.mobileNo ? "border-red-500" : "border-gray-300"
+                  formErrors.email ? "border-red-500" : "border-gray-300"
                 }`}
               />
-              {formErrors.mobileNo && (
+              {formErrors.email && (
                 <p className="mt-1 text-sm text-red-500">
-                  {formErrors.mobileNo}
+                  {formErrors.email}
                 </p>
               )}
             </div>
@@ -508,10 +511,10 @@ const AuthModal = ({ onClose }) => {
             <button
               type="submit"
               disabled={!isFormValid() || isLoading}
-              className={`border border-black w-full py-3 rounded-lg font-medium text-black transition ${
+              className={`border border-none w-full py-3 rounded-lg font-medium text-black transition ${
                 isLoading
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-primary hover:bg-primary-dark"
+                  : "bg-[rgb(219,69,69)] hover:bg-red-400 cursor-pointer"
               } ${!isFormValid() ? "opacity-70 cursor-not-allowed" : ""}`}>
               {isLoading ? (
                 <span className="flex items-center justify-center">
@@ -532,13 +535,15 @@ const AuthModal = ({ onClose }) => {
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  {isLoginForm ? "Logging in..." : "Creating account..."}
+                  <span className="text-white">{isLoginForm ? "Logging in..." : "Creating account..."}</span>
                 </span>
-              ) : isLoginForm ? (
+              ) : <span className="text-white">
+                {isLoginForm ? (
                 "Login"
               ) : (
                 "Create Account"
               )}
+              </span>}
             </button>
           </form>
 
