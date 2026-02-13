@@ -207,17 +207,17 @@ router.post("/signup", async (req, res) => {
     const error = [];
     const { email, name, mobileNo, password, otp } = req.body;
 
-    // if (!isValidEmail(email)) {
-    //   error.push("Invalid email");
-    // }
+    if (!isValidEmail(email)) {
+      error.push("Invalid email");
+    }
 
     // if (!hasOneSpaceBetweenNames(name)) {
     //   error.push("Full name required");
     // }
 
-    if (!isValidIndianMobileNumber(mobileNo)) {
-      error.push("Invalid phone number");
-    }
+    // if (!isValidIndianMobileNumber(mobileNo)) {
+    //   error.push("Invalid phone number");
+    // }
 
     if (!validatePass.validate(password)) {
       error.push(
@@ -268,7 +268,7 @@ router.post("/signup", async (req, res) => {
       mobileNo,
       password: hashedPass,
       mobileNoVerifyToken: verifyToken,
-      role: "67ba036ea088fcf4f8e539c1", // default id for user role
+      role: "698f03e9100596fe285eecbf", // default id for user role
     });
 
     const jwtToken = jwt.sign(

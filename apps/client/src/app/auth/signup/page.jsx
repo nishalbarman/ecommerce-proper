@@ -281,10 +281,10 @@ export default function Page() {
                         formData.confirmpassword.value ||
                       // !formData.name.isTouched ||
                       // formData.name.isError ||
-                      // !formData.email.isTouched ||
-                      // formData.email.isError ||
-                      !formData.mobileNo.isTouched ||
-                      formData.mobileNo.isError ||
+                      !formData.email.isTouched ||
+                      formData.email.isError ||
+                      // !formData.mobileNo.isTouched ||
+                      // formData.mobileNo.isError ||
                       formData.password.isError ||
                       !formData.password.isTouched
                     }
@@ -295,10 +295,10 @@ export default function Page() {
                       !formData.confirmpassword.isTouched ||
                       // !formData.name.isTouched ||
                       // formData.name.isError ||
-                      // !formData.email.isTouched ||
-                      // formData.email.isError ||
-                      !formData.mobileNo.isTouched ||
-                      formData.mobileNo.isError ||
+                      !formData.email.isTouched ||
+                      formData.email.isError ||
+                      // !formData.mobileNo.isTouched ||
+                      // formData.mobileNo.isError ||
                       formData.password.isError ||
                       !formData.password.isTouched
                         ? "not-allowed"
