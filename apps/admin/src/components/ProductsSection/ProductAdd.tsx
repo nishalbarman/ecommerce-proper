@@ -545,9 +545,9 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                   </strong>
                 </p>
                 <ul>
-                  <li>
+                  {/* <li>
                     <code>Rent Price is the default rent price</code>
-                  </li>
+                  </li> */}
                   <li>
                     <code>
                       Buy price is the discounted buying price of the product
@@ -571,7 +571,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
+                {/* <div>
                   <label
                     htmlFor="productRentPrice"
                     className="block text-sm font-medium text-gray-700">
@@ -596,7 +596,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     type="number"
                     required={!updateProductId}
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <label
@@ -658,7 +658,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                   />
                 </div>
 
-                <div>
+                {/* <div>
                   <label
                     htmlFor="productShippingPrice"
                     className="block text-sm font-medium text-gray-700">
@@ -686,7 +686,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     type="number"
                     required={!updateProductId}
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <label
@@ -1056,7 +1056,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                               </div>
 
                               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
+                                {/* <div>
                                   <label
                                     htmlFor={`variantRentablePrice-${index + 1}`}
                                     className="block text-sm font-medium text-gray-700">
@@ -1103,7 +1103,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                     id={`variantRentablePrice-${index + 1}`}
                                     required={!updateProductId}
                                   />
-                                </div>
+                                </div> */}
 
                                 <div>
                                   <label
@@ -1204,7 +1204,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                   />
                                 </div>
 
-                                <div>
+                                {/* <div>
                                   <label
                                     htmlFor={`variantDeliveryCharges-${
                                       index + 1
@@ -1253,7 +1253,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                     id={`variantDeliveryCharges-${index + 1}`}
                                     required={!updateProductId}
                                   />
-                                </div>
+                                </div> */}
                               </div>
                             </div>
 
