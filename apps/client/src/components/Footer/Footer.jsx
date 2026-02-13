@@ -139,7 +139,7 @@ async function Footer() {
           </p>
           <div className="font-andika flex flex-col gap-4 max-sm:gap-2">
             <Link
-              href="/my-account"
+              href="/myaccount"
               className="text-white underline max-sm:text-sm">
               My Account
             </Link>

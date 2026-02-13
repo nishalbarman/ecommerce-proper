@@ -141,7 +141,7 @@ const checkProductHasError = ({
       if (
         !!variant?.discountedPrice &&
         !!variant?.originalPrice &&
-        variant?.originalPrice < variant?.discountedPrice
+        +variant?.originalPrice < +variant?.discountedPrice
       ) {
         localError.push(
           "Discounted price should be lesser than original price"
