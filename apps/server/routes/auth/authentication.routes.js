@@ -112,19 +112,22 @@ router.post("/admin-login", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const error = [];
-    const { mobileNo, password } = req.body;
+    const { email, mobileNo, password } = req.body;
 
-    console.log(mobileNo, password);
+    console.log(email, mobileNo, password);
 
-    if (!isValidIndianMobileNumber(mobileNo)) {
-      error.push("Invalid mobile No");
+    // if (!isValidIndianMobileNumber(mobileNo)) {
+    //   error.push("Invalid mobile No");
+    // }
+    if (!isValidEmail(email)) {
+      error.push("Invalid email address");
     }
 
     if (error.length > 0) {
       return res.status(400).json({ status: false, message: error.join(", ") });
     }
 
-    const user = await User.findOne({ mobileNo }).populate("role");
+    const user = await User.findOne({ email }).populate("role");
 
     if (!user) {
       return res.status(400).json({
@@ -204,13 +207,13 @@ router.post("/signup", async (req, res) => {
     const error = [];
     const { email, name, mobileNo, password, otp } = req.body;
 
-    if (!isValidEmail(email)) {
-      error.push("Invalid email");
-    }
+    // if (!isValidEmail(email)) {
+    //   error.push("Invalid email");
+    // }
 
-    if (!hasOneSpaceBetweenNames(name)) {
-      error.push("Full name required");
-    }
+    // if (!hasOneSpaceBetweenNames(name)) {
+    //   error.push("Full name required");
+    // }
 
     if (!isValidIndianMobileNumber(mobileNo)) {
       error.push("Invalid phone number");

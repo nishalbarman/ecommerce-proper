@@ -83,8 +83,8 @@ export default function ReviewList({ productId, productType = "buy" }) {
     return (
       <div className="text-center py-12 px-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border border-gray-200 shadow-sm">
         <div className="max-w-md mx-auto">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 bg-transparent border flex items-center justify-center">
-            <RiUser3Line className="text-indigo-600 text-2xl" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 border border-[rgb(219,69,69)] flex items-center justify-center">
+            <RiUser3Line className="text-[rgb(219,69,69)] text-2xl"/>
           </div>
           <h3 className="text-xl font-semibold text-gray-800 mb-2">
             No reviews yet

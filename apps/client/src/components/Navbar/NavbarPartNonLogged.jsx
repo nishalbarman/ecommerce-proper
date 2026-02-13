@@ -62,7 +62,7 @@ function NavbarPartNonLogged() {
                 // href={"/products"}
                 className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-black border-1 ">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black border-1 rounded-[4px] bg-transparent p-4"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none"
                   type="text"
                   name="search-text"
                   onChange={(e) => setLocalSearch(e.target.value)}

@@ -5,7 +5,7 @@ import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiFacebookLogoBold } from "react-icons/pi";
 
 import tree_leaf from "../../../public/bg.png";
-import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+// import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 import axios from "axios";
 
 async function Footer() {
@@ -58,7 +58,7 @@ async function Footer() {
         />
       </div> */}
 
-      <div className="flex flex-wrap justify-between gap-8 w-full p-6 sm:p-8 md:p-10 lg:px-[10%]">
+      <div className="flex flex-wrap justify-between gap-8 w-full p-6 sm:p-8 md:p-10 lg:px-[10%] w-full">
         {/* Exclusive */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
           <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">

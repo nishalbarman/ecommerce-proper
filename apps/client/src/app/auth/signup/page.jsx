@@ -13,6 +13,10 @@ import {
 } from "@/helpter/utils";
 import authService from "@/services/authService";
 import { useDispatch } from "react-redux";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
+import { setCookiesAfterLogin } from "@/lib/login/setLoginCookie";
+import { setUserAuth } from "@/redux/slices/authSlice";
 
 const validateInputs = (name, value) => {
   switch (name) {
@@ -72,6 +76,27 @@ export default function Page() {
         confirmpassword: formData.confirmpassword.value,
       });
 
+      if (response?.user) {
+        // Dispatch the action to update Redux state (will be persisted automatically)
+        dispatch(
+          setUserAuth({
+            name: response.user.name,
+            email: response.user.email,
+            mobileNo: response.user.mobileNo,
+            jwtToken: response.user.jwtToken,
+          }),
+        );
+
+        setCookiesAfterLogin({ token: response.user.jwtToken });
+        const redirectPath = searchParams?.get("redirect") || null;
+        console.log("Redirecting to:", redirectPath);
+        if (redirectPath) {
+          navigator.push(`/${redirectPath}`);
+        } else {
+          navigator.push(`/`);
+        }
+      }
+
       toast.dismiss(loadingToast);
       toast.success(response?.message || "Unknown error occured");
       // toast.success(
@@ -100,7 +125,8 @@ export default function Page() {
                 <>
                   <div className="flex flex-col items-center justify-center col-start-1 md:col-start-2 gap-[20px] w-full">
                     <div className="flex flex-col items-center justify-center w-fill h-fill gap-5">
-                      <Image src={"/assets/email.svg"} width={60} height={60} />
+                      {/* <MdEmail size="20"/> */}
+                      <p className="text-4xl">😘</p>
                       <h3 className="text-3xl font-semibold font-andika text-center">
                         Account created successfully
                       </h3>
@@ -156,7 +182,7 @@ export default function Page() {
                 <form
                   onSubmit={handleLogin}
                   className="flex flex-col gap-[40px] mt-[20px] w-[100%]">
-                  <input
+                  {/* <input
                     onKeyUp={handleOnChange}
                     id="name"
                     className="h-[32px] w-[100%] text-black text-lg font-andika placeholder:text-[#989998] outline-none border-[#818081] rounded-none border-b-[1px] focus:border-b-[black] transition duration-150 p-[0px_5px] pl-0"
@@ -169,7 +195,7 @@ export default function Page() {
                       Full name should be of two words containing only one
                       space.
                     </span>
-                  )}
+                  )} */}
                   <input
                     onKeyUp={handleOnChange}
                     id="email"
@@ -183,7 +209,7 @@ export default function Page() {
                       Enter a valid email address
                     </span>
                   )}
-                  <input
+                  {/* <input
                     onKeyUp={handleOnChange}
                     id="mobileNo"
                     className="h-[32px] w-[100%] text-black text-lg font-andika placeholder:text-[#989998] outline-none border-[#818081] rounded-none border-b-[1px] focus:border-b-[black] transition duration-150 p-[0px_5px] pl-0"
@@ -195,7 +221,7 @@ export default function Page() {
                     <span className="mt-[-25px] text-[red] text-sm">
                       Enter a valid 10 digit mobile number
                     </span>
-                  )}
+                  )} */}
                   <div className="flex items-center justify-between h-[32px] w-[100%] text-black text-lg font-andika placeholder:text-[#989998] outline-none border-[#818081] border-b-[1px] focus:border-b-[black] transition duration-150 p-[0px_5px] pl-0 focus-within:border-[black]">
                     <input
                       onKeyUp={handleOnChange}
@@ -205,15 +231,21 @@ export default function Page() {
                       placeholder="Password"
                       name="password"
                     />
-                    <Image
+                    <button
+                      type="button"
                       className="cursor-pointer"
                       onClick={() => {
                         setIsPasswordVisible((prev) => !prev);
                       }}
-                      src={"/assets/eye.svg"}
+                      alt="Eye"
                       width={25}
-                      height={25}
-                    />
+                      height={25}>
+                      {!isPasswordVisible ? (
+                        <FaEyeSlash size={20} />
+                      ) : (
+                        <FaEye size={20} />
+                      )}
+                    </button>
                   </div>
                   {formData.password.isError && (
                     <span className="mt-[-25px] text-[red] text-sm">
@@ -247,10 +279,10 @@ export default function Page() {
                       !formData.confirmpassword.isTouched ||
                       formData.password.value !==
                         formData.confirmpassword.value ||
-                      !formData.name.isTouched ||
-                      formData.name.isError ||
-                      !formData.email.isTouched ||
-                      formData.email.isError ||
+                      // !formData.name.isTouched ||
+                      // formData.name.isError ||
+                      // !formData.email.isTouched ||
+                      // formData.email.isError ||
                       !formData.mobileNo.isTouched ||
                       formData.mobileNo.isError ||
                       formData.password.isError ||
@@ -261,10 +293,10 @@ export default function Page() {
                       formData.password.value !==
                         formData.confirmpassword.value ||
                       !formData.confirmpassword.isTouched ||
-                      !formData.name.isTouched ||
-                      formData.name.isError ||
-                      !formData.email.isTouched ||
-                      formData.email.isError ||
+                      // !formData.name.isTouched ||
+                      // formData.name.isError ||
+                      // !formData.email.isTouched ||
+                      // formData.email.isError ||
                       !formData.mobileNo.isTouched ||
                       formData.mobileNo.isError ||
                       formData.password.isError ||

@@ -1,19 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&family=Itim&display=swap");
+@import "tailwindcss";
 
 @plugin "@tailwindcss/typography";
+
+/* @import url("https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&family=Permanent+Marker&family=Itim&display=swap"); */
 
 * {
   /* font-family: "Itim", cursive; */
   font-family: "Andika", sans-serif;
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
   transition: all 0.2s ease;
-  color: black;
 }
 
 html,
@@ -22,7 +17,6 @@ body {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }
 
@@ -41,6 +35,10 @@ a {
   clip-path: polygon(100% 0, 0% 100%, 100% 100%);
 }
 
+.swiper-navigation-icon {
+  display: none;
+}
+
 @theme {
   --color-primary: oklch(79.23% 0.1051 152.11);
   --color-skeleton: oklch(87.13% 0.0583 135.76);
@@ -57,32 +55,31 @@ a {
   --font-inconsolata: Inconsolata, monospace;
 
   --animate-zoomInOut: zoomInOut 5s infinite;
-  @keyframes zoomInOut {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
 }
 
-@layer utilities {
-  .zoom-8 {
-    zoom: 0.8;
-  }
+@utility zoom-8 {
+  zoom: 0.8;
+}
 
-  .zoom-0 {
-    zoom: normal;
-  }
+@utility zoom-0 {
+  zoom: normal;
+}
 
-  .zoom-0_1 {
-    zoom: 0.8;
-  }
+@utility zoom-0_1 {
+  zoom: 08;
+}
 
-  .drag-none {
-    -webkit-user-drag: none;
+@utility drag-none {
+  -webkit-user-drag: none;
+}
+
+@keyframes zoomInOut {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
   }
 }
 

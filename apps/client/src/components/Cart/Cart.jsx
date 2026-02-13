@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import useRazorpay from "react-razorpay";
+import { useRazorpay } from "react-razorpay";
 
 import {
   RiRefund2Fill,
@@ -21,6 +21,7 @@ import { BsTruck } from "react-icons/bs";
 
 import CartItem from "./CartItem";
 import { WishlistApi, CartApi, AppliedCouponSlice } from "@/redux";
+import { useRemoveAllCartMutation } from "@/redux/apis/cartApi";
 
 function Cart() {
   const { useGetCartQuery } = CartApi;
@@ -34,7 +35,9 @@ function Cart() {
     productType: "buy",
   });
 
-  const [Razorpay] = useRazorpay();
+  const [removeALlCart] = useRemoveAllCartMutation();
+
+  const { error, isLoading, Razorpay } = useRazorpay();
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
@@ -42,10 +45,10 @@ function Cart() {
   const [paymentGatewayList] = useState([]);
 
   const appliedCouponReduxStore = useSelector(
-    (state) => state.appliedCouponSlice
+    (state) => state.appliedCouponSlice,
   );
   const [appliedCoupon, setAppliedCoupon] = useState(
-    appliedCouponReduxStore._id ? appliedCouponReduxStore : null
+    appliedCouponReduxStore._id ? appliedCouponReduxStore : null,
   );
 
   const [subtotalPrice, setSubtotalPrice] = useState(0);
@@ -79,7 +82,7 @@ function Cart() {
       }
 
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
       );
 
       if (!response.data.status) {
@@ -119,13 +122,21 @@ function Cart() {
     setSubtotalPrice((prev) => prev + couponDiscountPrice);
   };
 
+  const handleRemoveAllCart = () => {
+    try {
+      removeALlCart();
+    } catch (error) {
+      console.error("Failed to remove all items from cart", error);
+    }
+  };
+
   const handleRazorPayCheckout = useCallback(async () => {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""}`,
         {},
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       const options = {
@@ -252,7 +263,7 @@ function Cart() {
                 My Cart{" "}
                 <span className="text-gray-500">({userCartItems.length})</span>
               </h1>
-              <button className="text-sm text-red-500 hover:text-red-600 font-medium">
+              <button onClick={handleRemoveAllCart} className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
                 Remove All
               </button>
             </div>
@@ -415,7 +426,7 @@ function Cart() {
       {/* Coupon Modal */}
       <div
         ref={couponModalRef}
-        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-md w-full p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-900">Apply Coupon</h3>

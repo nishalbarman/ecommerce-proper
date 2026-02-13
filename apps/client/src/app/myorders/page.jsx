@@ -1,8 +1,8 @@
 import React from "react";
-import Navbar from "../../components/Navbar/Navbar";
-import Footer from "../../components/Footer/Footer";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+// import Navbar from "../../components/Navbar/Navbar";
+// import Footer from "../../components/Footer/Footer";
+// import { cookies } from "next/headers";
+// import { redirect } from "next/navigation";
 import Order from "../../components/Order/Order";
 
 export default async function page() {

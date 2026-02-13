@@ -42,7 +42,7 @@ const Login = () => {
         (newFormData, keyName) => {
           return { ...newFormData, [keyName]: formData[keyName].value };
         },
-        { email: "", password: "" }
+        { email: "", password: "" },
       ); // postable form data
 
       const response = await axios.post(
@@ -53,7 +53,7 @@ const Login = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
 
       console.log("What is login response?", response.data);
@@ -85,7 +85,7 @@ const Login = () => {
       !formData.email.isTouched ||
         formData.email.isError ||
         !formData.password.isTouched ||
-        formData.password.isError
+        formData.password.isError,
     );
   }, [formData]);
 

@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
+import { isValidIndianMobileNumber, isValidPassword } from "@/helpter/utils";
+
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,19 +15,8 @@ import { useDispatch } from "react-redux";
 import { setUserAuth } from "@/redux/slices/authSlice";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-import {
-  hasOneSpaceBetweenNames,
-  isValidEmail,
-  isValidIndianMobileNumber,
-  isValidPassword,
-} from "@/helpter/utils";
-
 const validateInputs = (name, value) => {
   switch (name) {
-    case "name":
-      return hasOneSpaceBetweenNames(value);
-    case "email":
-      return isValidEmail(value);
     case "mobileNo":
       return isValidIndianMobileNumber(value);
     case "password":
@@ -38,7 +29,7 @@ export default function Page() {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    email: { value: "", isTouched: false, isError: null },
+    mobileNo: { value: "", isTouched: false, isError: null },
     password: { value: "", isTouched: false, isError: null },
   });
 
@@ -70,7 +61,7 @@ export default function Page() {
 
     try {
       const response = await authService.login({
-        email: formData.email.value,
+        mobileNo: formData.mobileNo.value,
         password: formData.password.value,
       });
 
@@ -83,7 +74,7 @@ export default function Page() {
           setUserAuth({
             name: response.user.name,
             email: response.user.email,
-            email: response.user.email,
+            mobileNo: response.user.mobileNo,
             jwtToken: response.user.jwtToken,
           }),
         );
@@ -124,15 +115,15 @@ export default function Page() {
               className="flex flex-col gap-[40px] mt-[20px]">
               <input
                 onKeyUp={handleOnChange}
-                id="email"
+                id="mobileNo"
                 className="h-[32px] text-black text-lg font-andika placeholder:text-[#989998] outline-none border-[#818081] border-b-[1px] rounded-none focus:border-b-[black] transition duration-150 p-[0px_5px] pl-0"
-                type="email"
-                placeholder="Email"
-                name="email"
+                type="number"
+                placeholder="Mobile No"
+                name="mobileNo"
               />
-              {formData.email.isError && (
+              {formData.mobileNo.isError && (
                 <span className="mt-[-25px] text-[red] text-sm">
-                  Enter a valid email address
+                  Enter a valid mobile no
                 </span>
               )}
 
@@ -147,7 +138,7 @@ export default function Page() {
                 />
 
                 <button
-                  type="button"
+                type="button" 
                   className="cursor-pointer"
                   onClick={() => {
                     setIsPasswordVisible((prev) => !prev);
@@ -155,11 +146,7 @@ export default function Page() {
                   alt="Eye"
                   width={25}
                   height={25}>
-                  {!isPasswordVisible ? (
-                    <FaEyeSlash size={20} />
-                  ) : (
-                    <FaEye size={20} />
-                  )}
+                  {!isPasswordVisible ? <FaEyeSlash size={20}/> : <FaEye size={20} />}
                 </button>
               </div>
 
@@ -174,12 +161,12 @@ export default function Page() {
                 type="submit"
                 disabled={
                   isLoading ||
-                  !formData.email.isTouched ||
-                  formData.email.isError ||
+                  !formData.mobileNo.isTouched ||
+                  formData.mobileNo.isError ||
                   formData.password.isError ||
                   !formData.password.isTouched
                 }
-                className={`cursor-${isLoading || !formData.email.isTouched || formData.email.isError || formData.password.isError || !formData.password.isTouched ? "not-allowed" : "pointer"} h-[56px] font-andika bg-[#DA4544] disabled:bg-[gray] text-white text-lg p-[0px_15px] rounded-[5px]`}>
+                className={`cursor-${isLoading || !formData.mobileNo.isTouched || formData.mobileNo.isError || formData.password.isError || !formData.password.isTouched ? "not-allowed" : "pointer"} h-[56px] font-andika bg-[#DA4544] disabled:bg-[gray] text-white text-lg p-[0px_15px] rounded-[5px]`}>
                 Log In
               </button>
 
@@ -199,14 +186,9 @@ export default function Page() {
                   Forgot password?{" "}
                   <Link
                     className="text-md font-andika font-semibold underline"
-                    href={"/contact"}>
-                    Contact Us
-                  </Link>
-                  {/* <Link
-                    className="text-md font-andika font-semibold underline"
                     href={"/auth/login"}>
                     Reset
-                  </Link> */}
+                  </Link>
                 </span>
               </div>
             </form>

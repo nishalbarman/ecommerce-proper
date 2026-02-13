@@ -30,14 +30,14 @@ app.use(
       "http://localhost:3000",
       "https://cartshopping.in",
       "https://bouquet.cartshopping.in",
-      "https://gjn.vercel.app",
-      "https://gjnbooque-admin.vercel.app",
+      "https://trishna.vercel.app",
+      "https://petal--perfection.vercel.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     exposedHeaders: ["Set-Cookie"],
     // maxAge: 86400, // 24 hours
-  })
+  }),
 );
 
 // In your Express server (development only)
@@ -82,17 +82,17 @@ app.use("/dashboard", require("./routes/dashboard/dashboard.routes"));
 
 app.use(
   "/uploader/image/imgbb",
-  require("./routes/uploader/image/imgbb.routes")
+  require("./routes/uploader/image/imgbb.routes"),
 );
 
 app.use(
   "/uploader/image/imgkit",
-  require("./routes/uploader/image/imgkit.routes")
+  require("./routes/uploader/image/imgkit.routes"),
 );
 
 app.use(
   "/uploader/image/list",
-  require("./routes/uploader/image/getImage.routes")
+  require("./routes/uploader/image/getImage.routes"),
 );
 
 app.use("/colors", require("./routes/colors/color.routes"));
@@ -111,14 +111,14 @@ app.use("/pay/paytm/cart", require("./routes/payment/paytm/pay-cart.routes"));
 /!*---- razorpay */;
 app.use(
   "/pay/razorpay/cart",
-  require("./routes/payment/razorpay/pay-cart.routes")
+  require("./routes/payment/razorpay/pay-cart.routes"),
 );
 
 /!* ---- stripe */;
 app.use("/stripe/cart", require("./routes/payment/stripe/pay-cart.routes"));
 app.use(
   "/stripe/single/purchase",
-  require("./routes/payment/stripe/pay-single.routes")
+  require("./routes/payment/stripe/pay-single.routes"),
 );
 
 // payment summary
@@ -132,7 +132,7 @@ app.use("/firebase", require("./routes/firebase/firebase.routes"));
 
 app.use(
   "/image-bg-color",
-  require("./routes/image-bg-color/imageColor.routes")
+  require("./routes/image-bg-color/imageColor.routes"),
 );
 
 app.get("/", (_, res) => {

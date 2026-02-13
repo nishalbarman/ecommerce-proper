@@ -555,7 +555,7 @@ export default function ViewProduct({ params }) {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    className="w-10 h-10 flex items-center justify-center border rounded-full">
+                    className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
                     -
                   </button>
                   <span className="text-lg font-medium">{quantity}</span>
@@ -563,7 +563,7 @@ export default function ViewProduct({ params }) {
                     onClick={() =>
                       setQuantity((prev) => Math.min(50, prev + 1))
                     }
-                    className="w-10 h-10 flex items-center justify-center border rounded-full">
+                    className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
                     +
                   </button>
                 </div>
@@ -618,7 +618,7 @@ export default function ViewProduct({ params }) {
                     <button
                       type="submit"
                       disabled={!inStock || isAddToCartLoading}
-                      className={`flex-1 py-3 px-6 rounded-lg font-medium ${
+                      className={`flex-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
                         !inStock || isAddToCartLoading
                           ? "bg-gray-300 cursor-not-allowed"
                           : "bg-black text-white hover:bg-gray-800"
@@ -629,7 +629,7 @@ export default function ViewProduct({ params }) {
                     <button
                       type="button"
                       onClick={() => navigate.push("/cart")}
-                      className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800">
+                      className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer">
                       Go to Cart
                     </button>
                   )}
@@ -638,7 +638,7 @@ export default function ViewProduct({ params }) {
                 <button
                   onClick={handleBuyNow}
                   disabled={!inStock}
-                  className={`flex-1 py-3 px-6 rounded-lg font-medium ${
+                  className={`flex-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
                     !inStock
                       ? "bg-gray-300 cursor-not-allowed"
                       : "bg-[#DA4445] text-white hover:bg-primary-dark"

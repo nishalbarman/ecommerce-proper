@@ -321,7 +321,7 @@ const AuthModal = ({ onClose }) => {
         e.stopPropagation();
         dispatch(setLoginModalState({ modalVisible: false, redirectTo: null }));
       }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      className="fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div onClick={(e)=>{
         e.stopPropagation();
       }} className="bg-white rounded-xl shadow-xl overflow-hidden max-w-md w-full animate-fade-in">
@@ -551,8 +551,9 @@ const AuthModal = ({ onClose }) => {
                 type="button"
                 onClick={() => {
                   navigation.push("/auth/signup");
+                  dispatch(clearLoginModalState());
                 }}
-                className="text-black  italic font-medium hover:underline focus:outline-none">
+                className="text-black  italic font-medium hover:underline focus:outline-none cursor-pointer">
                 {isLoginForm ? "Sign up" : "Login"}
               </button>
             </p>

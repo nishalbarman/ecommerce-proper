@@ -50,13 +50,13 @@ export default async function Page() {
       {/* <Suspense fallback={<HeroSkeleton />}>
         <HeroProduct />
       </Suspense> */}
+
       <Suspense fallback={<HeroSkeleton />}>
         <TopSlider />
       </Suspense>
 
       {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
-      
 
       <Suspense fallback={<ProductSliderSkel />}>
         <Categories />

@@ -8,8 +8,8 @@ const {
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    name: { type: String, required: false, default: "" },
+    email: { type: String, required: false, default: "", unique: false },
     mobileNo: { type: String, required: true },
     password: { type: String, required: true },
     isEmailVerfied: { type: Boolean, default: false },
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User = mongoose.models.users || mongoose.model("users", userSchema);
@@ -44,23 +44,23 @@ const User = mongoose.models.users || mongoose.model("users", userSchema);
 /****************************************** */
 // ----------------------------------------->
 
-User.schema.path("name").validate({
-  validator: (value) => value && hasOneSpaceBetweenNames(value),
-  message: "Full name required with space in between first and lastname",
-});
+// User.schema.path("name").validate({
+//   validator: (value) => value && hasOneSpaceBetweenNames(value),
+//   message: "Full name required with space in between first and lastname",
+// });
 
-User.schema.path("email").validate({
-  validator: (value) => value && isValidEmail(value),
-  message: "Provided email address is not valid",
-});
+// User.schema.path("email").validate({
+//   validator: (value) => value && isValidEmail(value),
+//   message: "Provided email address is not valid",
+// });
 
-User.schema.path("email").validate({
-  validator: async (value) => {
-    const count = await User.findOne({ email: value }).countDocuments();
-    return count === 0;
-  },
-  message: "An account with the given email address is already available",
-});
+// User.schema.path("email").validate({
+//   validator: async (value) => {
+//     const count = await User.findOne({ email: value }).countDocuments();
+//     return count === 0;
+//   },
+//   message: "An account with the given email address is already available",
+// });
 
 User.schema.path("mobileNo").validate({
   validator: (value) => value && isValidIndianMobileNumber(value),

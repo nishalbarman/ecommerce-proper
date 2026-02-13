@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function middleware(request) {
+export async function proxy(request) {
   const nextCookies = await cookies();
   const reqUrl = new URL(request.url);
 

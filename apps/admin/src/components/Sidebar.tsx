@@ -79,7 +79,8 @@ function applyOrder(base: NavSection[], order: PersistedState | null) {
       .map((id) => map.get(id))
       .filter(Boolean) as NavSection[];
     // add new sections
-    for (const s of base) if (!order.sectionsOrder.includes(s.id)) sections.push(s);
+    for (const s of base)
+      if (!order.sectionsOrder.includes(s.id)) sections.push(s);
   } else {
     sections = base;
   }
@@ -110,7 +111,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
   const location = useLocation();
 
   const [width, setWidth] = useState<number>(() =>
-    typeof window !== "undefined" ? window.innerWidth : 1024
+    typeof window !== "undefined" ? window.innerWidth : 1024,
   );
   const isMobile = width <= 1023;
   useEffect(() => {
@@ -127,94 +128,202 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
         id: "orders",
         title: "ORDERS",
         items: [
-          { id: "orders-list", title: "Orders", icon: <FaBox />, path: "/orders/list" },
-          { id: "orders-track", title: "Track Order", icon: <FaFileAlt />, path: "/orders/view" },
+          {
+            id: "orders-list",
+            title: "Orders",
+            icon: <FaBox />,
+            path: "/orders/list",
+          },
+          {
+            id: "orders-track",
+            title: "Track Order",
+            icon: <FaFileAlt />,
+            path: "/orders/view",
+          },
         ],
       },
       {
         id: "message",
         title: "MESSAGE",
-        items: [{ id: "contacts", title: "Messages", icon: <FaMessage />, path: "/contacts" }],
+        items: [
+          {
+            id: "contacts",
+            title: "Messages",
+            icon: <FaMessage />,
+            path: "/contacts",
+          },
+        ],
       },
       {
         id: "products",
         title: "PRODUCTS",
         items: [
-          { id: "product-add", title: "Add Product", icon: <FaBox />, path: "/product/add" },
-          { id: "product-list", title: "Product List", icon: <FaFileAlt />, path: "/product/list" },
-          { id: "product-view", title: "View Product", icon: <FaFileAlt />, path: "/product/view" },
+          {
+            id: "product-add",
+            title: "Add Product",
+            icon: <FaBox />,
+            path: "/product/add",
+          },
+          {
+            id: "product-list",
+            title: "Product List",
+            icon: <FaFileAlt />,
+            path: "/product/list",
+          },
+          {
+            id: "product-view",
+            title: "View Product",
+            icon: <FaFileAlt />,
+            path: "/product/view",
+          },
         ],
       },
       {
         id: "banner",
         title: "BANNER",
-        items: [{ id: "banner-view", title: "View Banner", icon: <FaTags />, path: "/banner" }],
+        items: [
+          {
+            id: "banner-view",
+            title: "View Banner",
+            icon: <FaTags />,
+            path: "/banner",
+          },
+        ],
       },
       {
         id: "categories",
         title: "CATEGORIES",
-        items: [{ id: "categories-view", title: "View Categories", icon: <FaTags />, path: "/categories" }],
+        items: [
+          {
+            id: "categories-view",
+            title: "View Categories",
+            icon: <FaTags />,
+            path: "/categories",
+          },
+        ],
       },
       {
         id: "coupons",
         title: "COUPONS",
-        items: [{ id: "coupons-view", title: "View Coupons", icon: <FaTags />, path: "/coupons" }],
+        items: [
+          {
+            id: "coupons-view",
+            title: "View Coupons",
+            icon: <FaTags />,
+            path: "/coupons",
+          },
+        ],
       },
       {
         id: "features",
         title: "FEATURES",
-        items: [{ id: "features-view", title: "Features", icon: <FaStar />, path: "/features" }],
+        items: [
+          {
+            id: "features-view",
+            title: "Features",
+            icon: <FaStar />,
+            path: "/features",
+          },
+        ],
       },
       {
         id: "testimonials",
         title: "TESTIMONIALS",
-        items: [{ id: "testimonials-view", title: "Testimonials", icon: <FaImage />, path: "/testimonials" }],
+        items: [
+          {
+            id: "testimonials-view",
+            title: "Testimonials",
+            icon: <FaImage />,
+            path: "/testimonials",
+          },
+        ],
       },
       {
         id: "users",
         title: "USERS",
-        items: [{ id: "users-list", title: "List Users", icon: <FaUsers />, path: "/users" }],
+        items: [
+          {
+            id: "users-list",
+            title: "List Users",
+            icon: <FaUsers />,
+            path: "/users",
+          },
+        ],
       },
       {
         id: "singles",
         title: "SINGLES",
-        items: [{ id: "hero-product", title: "Hero Product", icon: <FaImage />, path: "/hero-product" }],
+        items: [
+          {
+            id: "hero-product",
+            title: "Hero Product",
+            icon: <FaImage />,
+            path: "/hero-product",
+          },
+        ],
       },
       {
         id: "dynamic",
         title: "DYNAMIC PAGES",
-        items: [{ id: "dynamic-pages", title: "Dynamic Pages", icon: <FaCubes />, path: "/dynamic-pages" }],
+        items: [
+          {
+            id: "dynamic-pages",
+            title: "Dynamic Pages",
+            icon: <FaCubes />,
+            path: "/dynamic-pages",
+          },
+        ],
       },
       {
         id: "assets",
         title: "ASSETS",
-        items: [{ id: "asset-manager", title: "Manage Assets", icon: <FaImage />, path: "/asset-manager" }],
+        items: [
+          {
+            id: "asset-manager",
+            title: "Manage Assets",
+            icon: <FaImage />,
+            path: "/asset-manager",
+          },
+        ],
       },
       {
         id: "settings",
         title: "SETTINGS",
         items: [
           { id: "roles", title: "Roles", icon: <FaCogs />, path: "/roles" },
-          { id: "web-config", title: "Web Config", icon: <IoSettingsSharp />, path: "/web-config" },
-          { id: "logout", title: "Logout", icon: <FaExchangeAlt />, path: "/logout" },
+          {
+            id: "web-config",
+            title: "Web Config",
+            icon: <IoSettingsSharp />,
+            path: "/web-config",
+          },
+          {
+            id: "logout",
+            title: "Logout",
+            icon: <FaExchangeAlt />,
+            path: "/logout",
+          },
         ],
       },
     ],
-    []
+    [],
   );
 
   const persisted = loadOrder(userId);
   const [sections, setSections] = useState<NavSection[]>(
-    applyOrder(baseMenu, persisted)
+    applyOrder(baseMenu, persisted),
   );
 
   // Expanded toggles
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   useEffect(() => {
-    const allOpen = sections.reduce((acc, s) => {
-      acc[s.title] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
+    const allOpen = sections.reduce(
+      (acc, s) => {
+        acc[s.title] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
     setExpanded(allOpen);
   }, [sections]);
 
@@ -227,12 +336,15 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
     saveOrder(
       {
         sectionsOrder: newSections.map((s) => s.id),
-        itemsOrder: newSections.reduce((acc, s) => {
-          acc[s.id] = s.items.map((i) => i.id);
-          return acc;
-        }, {} as Record<string, string[]>),
+        itemsOrder: newSections.reduce(
+          (acc, s) => {
+            acc[s.id] = s.items.map((i) => i.id);
+            return acc;
+          },
+          {} as Record<string, string[]>,
+        ),
       },
-      userId
+      userId,
     );
   }
 
@@ -248,10 +360,16 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
     e.dataTransfer.dropEffect = "move";
   }
 
-  function dropOnSection(e: React.DragEvent, targetSectionId: string, position?: "before"|"after") {
+  function dropOnSection(
+    e: React.DragEvent,
+    targetSectionId: string,
+    position?: "before" | "after",
+  ) {
     e.preventDefault();
     try {
-      const data = JSON.parse(e.dataTransfer.getData("application/json")) as DragPayload;
+      const data = JSON.parse(
+        e.dataTransfer.getData("application/json"),
+      ) as DragPayload;
       const current = [...sections];
 
       if (data.type === "section") {
@@ -296,11 +414,13 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
     e: React.DragEvent,
     sectionId: string,
     targetItemId: string,
-    position?: "before" | "after"
+    position?: "before" | "after",
   ) {
     e.preventDefault();
     try {
-      const data = JSON.parse(e.dataTransfer.getData("application/json")) as DragPayload;
+      const data = JSON.parse(
+        e.dataTransfer.getData("application/json"),
+      ) as DragPayload;
       const current = [...sections];
 
       if (data.type === "item") {
@@ -354,8 +474,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         aria-label="Sidebar"
-        aria-hidden={!isOpen}
-      >
+        aria-hidden={!isOpen}>
         {/* Header */}
         <div className="sticky top-0 z-10 bg-gray-900/95 backdrop-blur border-b border-gray-800 h-16 px-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -366,7 +485,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
             /> */}
             <div>
               <h1 className="text-base font-semibold text-white leading-tight">
-                Admin
+                NishaChar
               </h1>
               <p className="text-xs text-gray-400">Control Panel</p>
             </div>
@@ -375,8 +494,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
             <button
               className="p-2 rounded-md border border-gray-700 hover:bg-gray-800"
               onClick={() => setNavbarToogle(true)}
-              aria-label="Close Sidebar"
-            >
+              aria-label="Close Sidebar">
               <IoMdClose size={18} />
             </button>
           )}
@@ -389,8 +507,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
               localStorage.removeItem(STORAGE_KEY(userId));
               setSections(baseMenu);
             }}
-            className="mx-1 my-2 px-3 py-1.5 rounded bg-gray-800 text-gray-200 hover:bg-gray-700 text-xs"
-          >
+            className="mx-1 my-2 px-3 py-1.5 rounded bg-gray-800 text-gray-200 hover:bg-gray-700 text-xs">
             Reset Sidebar
           </button>
         </div>
@@ -405,11 +522,16 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
                 ? "bg-gray-800 border-l-4"
                 : "hover:bg-gray-800/60"
             }`}
-            style={location.pathname === "/" ? { borderLeftColor: BRAND.primary } : {}}
-            aria-current={location.pathname === "/" ? "page" : undefined}
-          >
+            style={
+              location.pathname === "/"
+                ? { borderLeftColor: BRAND.primary }
+                : {}
+            }
+            aria-current={location.pathname === "/" ? "page" : undefined}>
             <FaTachometerAlt className="text-gray-300 group-hover:text-white" />
-            <span className="text-sm text-gray-200 group-hover:text-white">Dashboard</span>
+            <span className="text-sm text-gray-200 group-hover:text-white">
+              Dashboard
+            </span>
           </Link>
 
           {/* Sections */}
@@ -421,21 +543,25 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
                 {/* Section drag area: header is draggable */}
                 <div
                   draggable
-                  onDragStart={(e) => onDragStart(e, { type: "section", sectionId: section.id })}
+                  onDragStart={(e) =>
+                    onDragStart(e, { type: "section", sectionId: section.id })
+                  }
                   onDragOver={onDragOver}
                   onDrop={(e) => dropOnSection(e, section.id, "before")}
                   className="rounded-md"
-                  title="Drag to reorder section"
-                >
+                  title="Drag to reorder section">
                   <button
                     type="button"
                     className="w-full flex items-center justify-between px-3 py-2 text-[11px] tracking-wide text-gray-400 hover:text-gray-200 uppercase"
                     onClick={() => toggle(section.title)}
                     aria-expanded={isExpanded}
-                    aria-controls={`section-${section.title}`}
-                  >
+                    aria-controls={`section-${section.title}`}>
                     <span>{section.title}</span>
-                    {isExpanded ? <FaChevronDown className="text-xs" /> : <FaChevronRight className="text-xs" />}
+                    {isExpanded ? (
+                      <FaChevronDown className="text-xs" />
+                    ) : (
+                      <FaChevronRight className="text-xs" />
+                    )}
                   </button>
                 </div>
 
@@ -455,8 +581,7 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
+                      className="overflow-hidden">
                       {section.items.map((item, iIdx) => {
                         const active = location.pathname === item.path;
                         return (
@@ -471,29 +596,33 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
                               })
                             }
                             onDragOver={onDragOver}
-                            onDrop={(e) => dropOnItem(e, section.id, item.id, "before")}
-                            title="Drag to reorder"
-                          >
+                            onDrop={(e) =>
+                              dropOnItem(e, section.id, item.id, "before")
+                            }
+                            title="Drag to reorder">
                             <Link
                               to={item.path}
                               className={`group flex items-center gap-3 py-2 px-4 rounded-lg transition-colors ${
-                                active ? "bg-gray-800 border-l-4" : "hover:bg-gray-800/60"
+                                active
+                                  ? "bg-gray-800 border-l-4"
+                                  : "hover:bg-gray-800/60"
                               }`}
-                              style={active ? { borderLeftColor: BRAND.primary } : {}}
-                              aria-current={active ? "page" : undefined}
-                            >
+                              style={
+                                active ? { borderLeftColor: BRAND.primary } : {}
+                              }
+                              aria-current={active ? "page" : undefined}>
                               <span
                                 className={`text-gray-400 group-hover:text-white ${
                                   active ? "text-white" : ""
-                                }`}
-                              >
+                                }`}>
                                 {item.icon}
                               </span>
                               <span
                                 className={`text-sm ${
-                                  active ? "text-white" : "text-gray-300 group-hover:text-white"
-                                }`}
-                              >
+                                  active
+                                    ? "text-white"
+                                    : "text-gray-300 group-hover:text-white"
+                                }`}>
                                 {item.title}
                               </span>
                             </Link>
@@ -501,7 +630,9 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
                             {/* Drop after this item */}
                             <div
                               onDragOver={onDragOver}
-                              onDrop={(e) => dropOnItem(e, section.id, item.id, "after")}
+                              onDrop={(e) =>
+                                dropOnItem(e, section.id, item.id, "after")
+                              }
                               className="h-1"
                             />
                           </div>

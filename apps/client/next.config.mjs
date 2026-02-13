@@ -55,6 +55,7 @@ const obfuscator = withNextJsObfuscator({
 });
 
 const nextConfig = obfuscator({
+  turbopack: {},
   transpilePackages: [
     "@store/redux",
     "@custom-hooks/custom-clicks",
@@ -62,7 +63,16 @@ const nextConfig = obfuscator({
     "firebase-utils",
   ],
   images: {
-    domains: ["storage.googleapis.com", "i.ibb.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.ibb.co",
+      },
+    ],
   },
   async headers() {
     return [
@@ -85,7 +95,10 @@ const nextConfig = obfuscator({
       },
     ];
   },
-  //   productionBrowserSourceMaps: false,
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
+  productionBrowserSourceMaps: false,
 });
 
 export default nextConfig;
