@@ -6,7 +6,7 @@ const checkRole = require("../../middlewares");
 const TAG = "roles.routes.js:--";
 
 // Get all roles
-router.get("/", checkRole(1), async (req, res) => {
+router.get("/", checkRole(1, 2), async (req, res) => {
   try {
     const searchQuery = req.query;
 
@@ -39,7 +39,7 @@ router.get("/", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE: Create a new role
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const roleData = req.body?.roleData;
 
@@ -68,7 +68,7 @@ router.post("/", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE: Update a role
-router.patch("/update/:roleId", checkRole(1), async (req, res) => {
+router.patch("/update/:roleId", checkRole(1, 2), async (req, res) => {
   try {
     const roleId = req.params?.roleId;
     const roleData = req.body?.roleData;
@@ -101,7 +101,7 @@ router.patch("/update/:roleId", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE: Delete a role
-router.delete("/:roleId", checkRole(1), async (req, res) => {
+router.delete("/:roleId", checkRole(1, 2), async (req, res) => {
   try {
     const roleId = req.params?.roleId;
 
@@ -121,7 +121,7 @@ router.delete("/:roleId", checkRole(1), async (req, res) => {
 });
 
 // Get a single role by ID
-router.get("/view/:roleId", checkRole(1), async (req, res) => {
+router.get("/view/:roleId", checkRole(1, 2), async (req, res) => {
   try {
     const roleId = req.params?.roleId;
 

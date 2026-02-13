@@ -5,7 +5,7 @@ const getTokenDetails = require("../../helpter/getTokenDetails");
 const { Product } = require("../../models/product.model");
 const checkRole = require("../../middlewares");
 
-router.get("/", checkRole(1, 0), async (req, res) => {
+router.get("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -57,7 +57,7 @@ router.get("/", checkRole(1, 0), async (req, res) => {
 });
 
 /* ADD TO CART */
-router.post("/", checkRole(1, 0), async (req, res) => {
+router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -144,7 +144,7 @@ router.post("/", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.patch("/:productType", checkRole(1, 0), async (req, res) => {
+router.patch("/:productType", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
     if (!userDetails) {
@@ -207,7 +207,7 @@ router.patch("/:productType", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.patch("/update-qty/:productType", checkRole(1, 0), async (req, res) => {
+router.patch("/update-qty/:productType", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
     if (!userDetails) {
@@ -252,7 +252,7 @@ router.patch("/update-qty/:productType", checkRole(1, 0), async (req, res) => {
 
 router.patch(
   "/update-variant/:cartItemId",
-  checkRole(1, 0),
+  checkRole(0, 1, 2),
   async (req, res) => {
     try {
       const userDetails = req.user;
@@ -319,7 +319,7 @@ router.patch(
   }
 );
 
-router.delete("/one/:cartItemId", checkRole(1, 0), async (req, res) => {
+router.delete("/one/:cartItemId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -356,7 +356,7 @@ router.delete("/one/:cartItemId", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.post("/incart/:productId", checkRole(1, 0), async (req, res) => {
+router.post("/incart/:productId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -397,7 +397,7 @@ router.post("/incart/:productId", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.delete("/make-cart-empty", checkRole(1, 0), async (req, res) => {
+router.delete("/make-cart-empty", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 

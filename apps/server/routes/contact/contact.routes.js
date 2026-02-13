@@ -5,7 +5,7 @@ const checkRole = require("../../middlewares");
 
 const router = Router();
 
-router.get("/", checkRole(1), async (req, res) => {
+router.get("/", checkRole(1, 2), async (req, res) => {
   try {
     const page = req.query?.page || 1;
     const limit = req.query?.limit || 20;
@@ -39,7 +39,7 @@ router.get("/", checkRole(1), async (req, res) => {
   }
 });
 
-router.get("/:id", checkRole(1), async (req, res) => {
+router.get("/:id", checkRole(1, 2), async (req, res) => {
   try {
     const message = await Message.findById(req.params.id);
     return res.status(200).json({
@@ -74,7 +74,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.patch("/:id/read", checkRole(1), async (req, res) => {
+router.patch("/:id/read", checkRole(1, 2), async (req, res) => {
   try {
     if (req.body._id) {
       delete req.body._id;
@@ -102,7 +102,7 @@ router.patch("/:id/read", checkRole(1), async (req, res) => {
   }
 });
 
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", checkRole(1, 2), async (req, res) => {
   try {
     await Message.deleteOne({ _id: req.params.id });
     return res.send({ message: "Message deleted!" });

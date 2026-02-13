@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 });
 
 // Create or update web config (admin only)
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const configData = req.body;
 

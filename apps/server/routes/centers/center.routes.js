@@ -13,7 +13,7 @@ const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
 
 router.get(
   "/list",
-  checkRole(1) /* required admin role */,
+  checkRole(1, 2) /* required admin role */,
   async (req, res) => {
     try {
       const searchParams = req.query;
@@ -143,7 +143,7 @@ router.get("/addresses/:userAddressID", checkRole(0), async (req, res) => {
   }
 });
 
-router.post("/add", checkRole(1), async (req, res) => {
+router.post("/add", checkRole(1, 2), async (req, res) => {
   try {
     const centerData = req.body?.centerData;
 
@@ -279,7 +279,7 @@ router.post("/add", checkRole(1), async (req, res) => {
 
 router.post(
   "/delete",
-  checkRole(1) /* required admin role */,
+  checkRole(1, 2) /* required admin role */,
   async (req, res) => {
     try {
       const centerIds = req.body?.centerIds;
@@ -301,7 +301,7 @@ router.post(
 
 router.patch(
   "/update/status",
-  checkRole(1) /* required admin role */,
+  checkRole(1, 2) /* required admin role */,
   async (req, res) => {
     try {
       const centerIds = req.body?.centerIds;

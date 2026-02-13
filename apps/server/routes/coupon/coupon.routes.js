@@ -30,7 +30,7 @@ router.get("/list", async (req, res) => {
 });
 
 // Create new coupon
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const { code, off, minPurchasePrice, isPercentage, description } = req.body;
 
@@ -67,7 +67,7 @@ router.post("/", checkRole(1), async (req, res) => {
 });
 
 // Update coupon
-router.put("/:id", checkRole(1), async (req, res) => {
+router.put("/:id", checkRole(1, 2), async (req, res) => {
   try {
     const { code, off, minPurchasePrice, isPercentage, description } = req.body;
     const couponId = req.params.id;
@@ -110,7 +110,7 @@ router.put("/:id", checkRole(1), async (req, res) => {
 });
 
 // Delete coupon
-router.delete("/:id", checkRole(1), async (req, res) => {
+router.delete("/:id", checkRole(1, 2), async (req, res) => {
   try {
     const couponId = req.params.id;
 

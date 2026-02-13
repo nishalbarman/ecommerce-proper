@@ -5,7 +5,7 @@ const { FirebaseUtils } = require("firebase-utils");
 
 // Store firebase messaging token to firestore
 
-router.post("/save-messaging-token", checkRole(0), async (req, res) => {
+router.post("/save-messaging-token", checkRole(0, 1, 2), async (req, res) => {
   try {
     const firebaseMessagingToken = req.body?.firebaseMessagingToken;
     const userId = req.user?._id;

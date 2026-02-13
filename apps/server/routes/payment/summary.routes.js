@@ -6,7 +6,7 @@ const checkRole = require("../../middlewares");
 
 const PaymentTransModel = require("../../models/transaction.model");
 
-router.get("/:orderGroupId", checkRole(1), async (req, res) => {
+router.get("/:orderGroupId", checkRole(1, 2), async (req, res) => {
   try {
     const orderGroupId = req.params?.orderGroupId;
 

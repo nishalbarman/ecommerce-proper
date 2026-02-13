@@ -119,7 +119,7 @@ router.patch("/update", async (req, res) => {
   }
 });
 
-router.get("/get-user-chart-data", checkRole(1), async (req, res) => {
+router.get("/get-user-chart-data", checkRole(0, 1, 2), async (req, res) => {
   try {
     const year = parseInt(req.query?.year);
     const month = parseInt(req.query?.month);

@@ -61,7 +61,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/:productType", checkRole(0), async (req, res) => {
+router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
   try {
     const productType = req.params?.productType;
 

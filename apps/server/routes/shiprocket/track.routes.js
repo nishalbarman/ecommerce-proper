@@ -5,7 +5,7 @@ const checkRole = require("../../middlewares");
 const router = express.Router();
 
 //! ORDER TRACKING DATA -- used by normal user
-router.get("/:orderId", checkRole(1, 0), async (req, res) => {
+router.get("/:orderId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const orderId = req.params.orderId;
     const shiprocketChannelId = process.env.SHIPROCKET_CHANNELID;

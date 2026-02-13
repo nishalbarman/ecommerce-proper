@@ -473,7 +473,7 @@ router.post("/view/:productId", async (req, res) => {
   }
 });
 
-router.get("/admin-view/:productId", checkRole(1), async (req, res) => {
+router.get("/admin-view/:productId", checkRole(1, 2), async (req, res) => {
   try {
     const productId = req.params?.productId;
 
@@ -503,7 +503,7 @@ router.get("/admin-view/:productId", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Product create route
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const productData = req.body?.productData;
 
@@ -610,7 +610,7 @@ router.post("/", checkRole(1), async (req, res) => {
   }
 });
 
-router.patch("/update/:productId", checkRole(1), async (req, res) => {
+router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
   try {
     const productId = req.params?.productId;
     const productData = req.body?.productData;
@@ -694,7 +694,7 @@ router.patch("/update/:productId", checkRole(1), async (req, res) => {
   }
 });
 
-router.post("/duplicate", checkRole(1), async (req, res) => {
+router.post("/duplicate", checkRole(1, 2), async (req, res) => {
   try {
     const productId = req.body.productId;
     const productData = await Product.findOne({ _id: productId });
@@ -789,7 +789,7 @@ router.post("/variant/instock/:productId", async (req, res) => {
 });
 
 // ADMIN ROUTE : Product delete route -- maybe delete method does not allow request body
-router.post("/delete", checkRole(1), async (req, res) => {
+router.post("/delete", checkRole(1, 2), async (req, res) => {
   try {
     const deletableProductIds = req.body?.deletableProductIds;
 

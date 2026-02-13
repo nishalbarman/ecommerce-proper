@@ -4,7 +4,7 @@ const Color = require("../../models/color.model");
 
 const checkRole = require("../../middlewares")
 
-router.get("/", checkRole(0, 1), async (req, res) => {
+router.get("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const colors = await Color.find();
 

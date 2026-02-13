@@ -20,7 +20,7 @@ const STRIPE_PUBLISHABLE_KEY = process.env.STRIPE_PUBLISHABLE_KEY;
 
 const stripe = require("stripe")(STRIPE_SECRET_KEY);
 
-router.post("/:productType", checkRole(0, 1), async (req, res) => {
+router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
   try {
     const productType = req.params?.productType;
 

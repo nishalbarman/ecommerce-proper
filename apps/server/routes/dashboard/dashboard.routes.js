@@ -8,7 +8,7 @@ const checkRole = require("../../middlewares");
 const mongoose = require("mongoose");
 
 // Dashboard statistics
-router.get("/stats", checkRole(1), async (req, res) => {
+router.get("/stats", checkRole(1, 2), async (req, res) => {
   try {
     // Calculate date ranges
     const currentDate = new Date();
@@ -138,7 +138,7 @@ function calculatePercentageChange(oldValue, newValue) {
 // Add to dashboard.routes.js
 
 // Revenue chart data (monthly)
-router.get("/revenue-chart", checkRole(1), async (req, res) => {
+router.get("/revenue-chart", checkRole(1, 2), async (req, res) => {
   try {
     const { year } = req.query;
 
@@ -206,7 +206,7 @@ router.get("/revenue-chart", checkRole(1), async (req, res) => {
 });
 
 // Orders chart data (monthly)
-router.get("/orders-chart", checkRole(1), async (req, res) => {
+router.get("/orders-chart", checkRole(1, 2), async (req, res) => {
   try {
     const { year } = req.query;
 
@@ -273,7 +273,7 @@ router.get("/orders-chart", checkRole(1), async (req, res) => {
 });
 
 // Users chart data (monthly)
-router.get("/users-chart", checkRole(1), async (req, res) => {
+router.get("/users-chart", checkRole(1, 2), async (req, res) => {
   try {
     const { year } = req.query;
 
@@ -342,7 +342,7 @@ router.get("/users-chart", checkRole(1), async (req, res) => {
 // Add to dashboard.routes.js
 
 // Recent transactions
-router.get("/recent-transactions", checkRole(1), async (req, res) => {
+router.get("/recent-transactions", checkRole(1, 2), async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
 
@@ -362,7 +362,7 @@ router.get("/recent-transactions", checkRole(1), async (req, res) => {
 });
 
 // New registrations
-router.get("/new-registrations", checkRole(1), async (req, res) => {
+router.get("/new-registrations", checkRole(1, 2), async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
 

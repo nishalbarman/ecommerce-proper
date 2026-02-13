@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
 });
 
 // ADMIN ROUTE : Feature create route
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const featureData = req.body?.featureData;
 
@@ -71,7 +71,7 @@ router.post("/", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Feature update route
-router.patch("/update/:featureId", checkRole(1), async (req, res) => {
+router.patch("/update/:featureId", checkRole(1, 2), async (req, res) => {
   try {
     const featureId = req.params?.featureId;
 
@@ -106,7 +106,7 @@ router.patch("/update/:featureId", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Feature delete route
-router.delete("/:featureId", checkRole(1), async (req, res) => {
+router.delete("/:featureId", checkRole(1, 2), async (req, res) => {
   try {
     const featureId = req.params?.featureId;
 

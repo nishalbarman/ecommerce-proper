@@ -27,7 +27,7 @@ const router = express.Router();
 /****************************************** */
 // ----------------------------------------->
 
-router.patch("/update", checkRole(0), async (req, res) => {
+router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
   try {
     const error = [];
 
@@ -113,7 +113,7 @@ router.patch("/update", checkRole(0), async (req, res) => {
   }
 });
 
-router.get("/get-user-chart-data", checkRole(1), async (req, res) => {
+router.get("/get-user-chart-data", checkRole(1, 2), async (req, res) => {
   try {
     const year = parseInt(req.query?.year);
     const month = parseInt(req.query?.month);
@@ -208,7 +208,7 @@ router.get("/get-user-chart-data", checkRole(1), async (req, res) => {
 // ----------------------------------------->
 
 // Get all users with pagination (Admin-only)
-router.get("/", checkRole(1), async (req, res) => {
+router.get("/", checkRole(1, 2), async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1; // Default to page 1
     const limit = parseInt(req.query.limit) || 10; // Default to 10 users per page
@@ -285,7 +285,7 @@ router.get("/", checkRole(1), async (req, res) => {
 });
 
 // Get a single user by ID (Admin-only)
-router.get("/admin/view/:id", checkRole(1), async (req, res) => {
+router.get("/admin/view/:id", checkRole(1, 2), async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -305,7 +305,7 @@ router.get("/admin/view/:id", checkRole(1), async (req, res) => {
 });
 
 // Add a new user (Admin-only)
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const { name, email, mobileNo, password, role } = req.body;
 
@@ -373,7 +373,7 @@ router.post("/", checkRole(1), async (req, res) => {
 });
 
 // Update a user by ID (Admin-only)
-router.patch("/update/:id", checkRole(1), async (req, res) => {
+router.patch("/update/:id", checkRole(1, 2), async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -472,7 +472,7 @@ router.patch("/update/:id", checkRole(1), async (req, res) => {
 });
 
 // Delete a user by ID (Admin-only)
-router.delete("/:id", checkRole(1), async (req, res) => {
+router.delete("/:id", checkRole(1, 2), async (req, res) => {
   try {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -492,7 +492,7 @@ router.delete("/:id", checkRole(1), async (req, res) => {
 });
 
 // Add this to your user routes file (user.routes.js)
-router.get("/me", checkRole(0, 1), async (req, res) => {
+router.get("/me", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userId = req.user._id;
 

@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const checkRole = require("../../middlewares");
 
-router.get("/", checkRole(0, 1), async (req, res) => {
+router.get("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -34,7 +34,7 @@ router.get("/", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.post("/", checkRole(0, 1), async (req, res) => {
+router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -75,7 +75,7 @@ router.post("/", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.get("/get-default-address", checkRole(0, 1), async (req, res) => {
+router.get("/get-default-address", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -94,7 +94,7 @@ router.get("/get-default-address", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.post("/update-default-address", checkRole(0, 1), async (req, res) => {
+router.post("/update-default-address", checkRole(0, 1, 2), async (req, res) => {
   try {
     const reqBody = req.body;
     const userDetails = req.user;
@@ -135,7 +135,7 @@ router.post("/update-default-address", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.patch("/:address_item_id", checkRole(0, 1), async (req, res) => {
+router.patch("/:address_item_id", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
@@ -183,7 +183,7 @@ router.patch("/:address_item_id", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.delete("/:address_item_id", checkRole(0, 1), async (req, res) => {
+router.delete("/:address_item_id", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 

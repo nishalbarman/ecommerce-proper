@@ -6,7 +6,7 @@ const checkRole = require("../../../middlewares");
 // Route to initiate payment
 router.post(
   "/:productType/:paymentGateway",
-  checkRole(0, 1),
+  checkRole(0, 1, 2),
   async (req, res) => {
     try {
       const { productType, paymentGateway } = req.params;
@@ -49,7 +49,7 @@ router.post(
 );
 
 // Route to verify payment
-router.post("/verify/:paymentGateway", checkRole(0, 1), async (req, res) => {
+router.post("/verify/:paymentGateway", checkRole(0, 1, 2), async (req, res) => {
   try {
     const { paymentGateway } = req.params;
     const paymentData = req.body;

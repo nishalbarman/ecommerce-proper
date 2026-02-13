@@ -43,7 +43,7 @@ router.get("/", async (req, res) => {
 });
 
 // ADMIN ROUTE : Category create route
-router.post("/", checkRole(1), async (req, res) => {
+router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const categoryData = req.body?.categoryData;
 
@@ -85,7 +85,7 @@ router.post("/", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Category update route
-router.patch("/update/:categoryId", checkRole(1), async (req, res) => {
+router.patch("/update/:categoryId", checkRole(1, 2), async (req, res) => {
   try {
     const categoryId = req.params?.categoryId;
 
@@ -120,7 +120,7 @@ router.patch("/update/:categoryId", checkRole(1), async (req, res) => {
 });
 
 // ADMIN ROUTE : Category delete route
-router.delete("/:categoryId", checkRole(1), async (req, res) => {
+router.delete("/:categoryId", checkRole(1, 2), async (req, res) => {
   try {
     // const token = req?.jwt?.token || null;
     // if (!token) {

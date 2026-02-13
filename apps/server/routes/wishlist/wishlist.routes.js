@@ -5,7 +5,7 @@ const getTokenDetails = require("../../helpter/getTokenDetails");
 const checkRole = require("../../middlewares");
 
 /* GET ALL WISHLIST -- User Route */
-router.get("/", checkRole(1, 0), async (req, res) => {
+router.get("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const productType = req.headers["producttype"] || "buy";
 
@@ -43,7 +43,7 @@ router.get("/", checkRole(1, 0), async (req, res) => {
 });
 
 /* ADD TO WISHLIST -- User Route */
-router.post("/", checkRole(1, 0), async (req, res) => {
+router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
     if (!userDetails) {
@@ -112,7 +112,7 @@ router.post("/", checkRole(1, 0), async (req, res) => {
   }
 });
 
-router.delete("/:wishlistId", checkRole(0, 1), async (req, res) => {
+router.delete("/:wishlistId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const wishlistId = req.params?.wishlistId;
 

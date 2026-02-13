@@ -24,7 +24,7 @@ const uploadLimiter = rateLimit({
 const TAG = "feedbacks.routes.js:--";
 
 // get all feedbacks, helpfull to track by admin.. this route lists all available feedbacks for all products
-router.get("/", checkRole(1), async (req, res) => {
+router.get("/", checkRole(1, 2), async (req, res) => {
   try {
     const searchParams = req.query;
     let dbSearchQuery = {};
@@ -50,7 +50,7 @@ router.get("/", checkRole(1), async (req, res) => {
   }
 });
 
-router.get("/all", checkRole(1, 0), async (req, res) => {
+router.get("/all", checkRole(0, 1, 2), async (req, res) => {
   try {
     let dbSearchQuery = { user: req.user._id };
 

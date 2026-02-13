@@ -250,7 +250,7 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 });
 
 //! Order details for normal user, orders can be viewed with the transaction id
-router.get("/view/:paymentTransactionId", checkRole(0, 1), async (req, res) => {
+router.get("/view/:paymentTransactionId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const paymentTransactionId = req.params?.paymentTransactionId;
 
@@ -269,7 +269,7 @@ router.get("/view/:paymentTransactionId", checkRole(0, 1), async (req, res) => {
 });
 
 //! ORDER LISTING ROUTE FOR NORMAL USERS
-router.get("/l/:productType", checkRole(0, 1), async (req, res) => {
+router.get("/l/:productType", checkRole(0, 1, 2), async (req, res) => {
   try {
     const searchQuery = req.query;
 
