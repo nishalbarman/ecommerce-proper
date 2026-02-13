@@ -9,8 +9,8 @@ const {
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: false, default: "" },
-    email: { type: String, required: false, default: "", unique: false },
-    mobileNo: { type: String, required: true },
+    email: { type: String, required: true, default: "", unique: true },
+    mobileNo: { type: String, required: false },
     password: { type: String, required: true },
     isEmailVerfied: { type: Boolean, default: false },
     emailVerifyToken: { type: String, default: "" },
@@ -62,9 +62,9 @@ const User = mongoose.models.users || mongoose.model("users", userSchema);
 //   message: "An account with the given email address is already available",
 // });
 
-User.schema.path("mobileNo").validate({
-  validator: (value) => value && isValidIndianMobileNumber(value),
-  message: "Provided mobile no is not valid",
-});
+// User.schema.path("mobileNo").validate({
+//   validator: (value) => value && isValidIndianMobileNumber(value),
+//   message: "Provided mobile no is not valid",
+// });
 
 module.exports = User;
