@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: mongoose.Types.ObjectId,
       ref: "roles",
-      default: "67ba036ea088fcf4f8e539c1",
+      default: "698f03e9100596fe285eecbf",
     }, // 0 means normal user, 1 means admin, 2 means seller
 
     // address: [{ type: mongoose.Types.ObjectId, ref: "addresses" }],
