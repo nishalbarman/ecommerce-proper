@@ -94,7 +94,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
   useEffect(() => {
     if (defaultSelectedItemIds.length > 0) {
       const defaultSelected = displayData.filter((item) =>
-        defaultSelectedItemIds.includes(item._id)
+        defaultSelectedItemIds.includes(item._id),
       );
       setSelectedItems(defaultSelected);
     }
@@ -139,7 +139,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
           (item.fileName &&
             item.fileName.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (item.title &&
-            item.title.toLowerCase().includes(searchTerm.toLowerCase()))
+            item.title.toLowerCase().includes(searchTerm.toLowerCase())),
       );
     }
 
@@ -180,7 +180,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         }
       });
     },
-    [multiSelect]
+    [multiSelect],
   );
 
   // Handle file upload
@@ -202,7 +202,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         // Validate file size
         if (file.size > maxFileSize * 1024 * 1024) {
           alert(
-            `File ${file.name} is too large. Maximum size is ${maxFileSize}MB`
+            `File ${file.name} is too large. Maximum size is ${maxFileSize}MB`,
           );
           continue;
         }
@@ -235,7 +235,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         }
       }
     },
-    [fileUploadCallback, allowedTypes, maxFileSize, finishUploadCallback]
+    [fileUploadCallback, allowedTypes, maxFileSize, finishUploadCallback],
   );
 
   // Drag and drop handlers
@@ -250,7 +250,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         handleFileUpload(files);
       }
     },
-    [handleFileUpload]
+    [handleFileUpload],
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -319,6 +319,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         {/* Tabs */}
         <div className="flex border-b border-gray-200 bg-gray-50">
           <button
+            type="button"
             className={`px-4 md:px-6 py-3 font-medium text-sm md:text-base border-b-2 transition-all duration-200 ${
               activeTab === "library"
                 ? "text-blue-600 border-blue-600 bg-white"
@@ -329,6 +330,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
           </button>
           {fileUploadCallback && (
             <button
+              type="button"
               className={`px-4 md:px-6 py-3 font-medium text-sm md:text-base border-b-2 transition-all duration-200 ${
                 activeTab === "upload"
                   ? "text-blue-600 border-blue-600 bg-white"
@@ -375,7 +377,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                       {finalDisplayData.map((item) => {
                         const isSelected = selectedItems.some(
-                          (selected) => selected._id === item._id
+                          (selected) => selected._id === item._id,
                         );
 
                         return (
@@ -502,7 +504,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
                               {pageNum}
                             </button>
                           );
-                        }
+                        },
                       )}
                     </div>
 
@@ -511,7 +513,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
                       onClick={() => {
                         if (!(currentPage >= totalPages)) {
                           handlePageChange(
-                            Math.min(totalPages, currentPage + 1)
+                            Math.min(totalPages, currentPage + 1),
                           );
                         }
                       }}

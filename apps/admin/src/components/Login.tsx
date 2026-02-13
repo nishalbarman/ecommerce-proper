@@ -10,6 +10,7 @@ import { isValidEmail } from "../validator";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 type LoginFormData = {
   [key: string]: { value: any; isTouched: any; isError: any };
@@ -25,6 +26,8 @@ const Login = () => {
   });
 
   console.log(formData);
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const [isSubmitDisabled, setIsSubmitDisabled] = useState(true);
 
@@ -119,23 +122,31 @@ const Login = () => {
               }}
               autoComplete="email"
             />
-            <input
-              type="password"
-              placeholder="Password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
-              onKeyUp={(e: BaseSyntheticEvent) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  password: {
-                    ...prev["password"],
-                    value: e.target.value,
-                    isTouched: true,
-                    isError: !e.target.value || e.target.value.length < 5,
-                  },
-                }));
-              }}
-              autoComplete="current-password"
-            />
+            <div className="flex justify-center items-center border border-gray-300 rounded-md focus-within:outline-none focus-within:ring-2 focus-within:ring-purple-600 group">
+              <input
+                type={isPasswordVisible ? "text" : "password"}
+                placeholder="Password"
+                className="w-full px-4 py-2 outline-none border-none rounded-md"
+                onKeyUp={(e: BaseSyntheticEvent) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    password: {
+                      ...prev["password"],
+                      value: e.target.value,
+                      isTouched: true,
+                      isError: !e.target.value || e.target.value.length < 5,
+                    },
+                  }));
+                }}
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                className="flex justify-center px-3 cursor-pointer">
+                {isPasswordVisible? <FaEye size={17}/> : <FaEyeSlash size={17}/>}
+              </button>
+            </div>
           </div>
           {/* <div className="flex items-center justify-between">
             <label className="flex items-center">
