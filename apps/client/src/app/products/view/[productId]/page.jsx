@@ -451,7 +451,7 @@ export default function ViewProduct({ params }) {
                     </span>
                   )}
                 </div>
-                <p className="text-gray-600 mt-2">
+                <p className="text-gray-600 mt-2 text-xs">
                   + Shipping Charges
                   {/* : ₹
                   {filteredVariant
