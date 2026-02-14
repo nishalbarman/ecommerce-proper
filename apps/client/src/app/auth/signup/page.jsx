@@ -110,7 +110,7 @@ export default function Page() {
       console.log(error);
       setIsLoading(false);
       toast.dismiss(loadingToast);
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.message ||error?.response?.data?.message);
     }
   };
 

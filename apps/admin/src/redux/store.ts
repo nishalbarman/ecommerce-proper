@@ -64,6 +64,7 @@ const persistConfig: PersistConfig<ReturnType<typeof rootReducer>> = {
     userApi.reducerPath,
     authApi.reducerPath,
     addressApi.reducerPath,
+    productApi.reducerPath,
     // imageApi.reducerPath,
   ],
 };

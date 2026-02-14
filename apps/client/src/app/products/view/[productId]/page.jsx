@@ -23,6 +23,8 @@ import axiosInstance from "@/services/axiosInstance";
 import Loading from "@/app/cart/loading";
 import axios from "axios";
 import { setLoginModalState } from "@/redux/slices/loginModalSlice";
+import { IoCartOutline } from "react-icons/io5";
+import { CiShoppingCart } from "react-icons/ci";
 
 export default function ViewProduct({ params }) {
   // const cookie = await cookies();
@@ -450,10 +452,11 @@ export default function ViewProduct({ params }) {
                   )}
                 </div>
                 <p className="text-gray-600 mt-2">
-                  Shipping: ₹
+                  + Shipping Charges
+                  {/* : ₹
                   {filteredVariant
                     ? filteredVariant.shippingPrice
-                    : product.shippingPrice}
+                    : product.shippingPrice} */}
                 </p>
               </div>
 
@@ -481,9 +484,9 @@ export default function ViewProduct({ params }) {
                                   disabled={
                                     !isCombinationValid(size, selectedColor)
                                   }
-                                  className={`px-4 py-2 border rounded-lg ${
+                                  className={`px-4 py-2 border rounded-lg cursor-pointer ${
                                     selectedSize === size
-                                      ? "bg-primary bg-gray-200 text-white"
+                                      ? "text-white bg-[rgb(219,69,69)]"
                                       : "bg-white text-black hover:bg-gray-100"
                                   } ${
                                     !isCombinationValid(size, selectedColor)
@@ -507,9 +510,9 @@ export default function ViewProduct({ params }) {
                                   key={index}
                                   type="button"
                                   onClick={() => setSelectedColor(color)}
-                                  className={`px-4 py-2 border rounded-lg ${
+                                  className={`px-4 py-2 border rounded-lg cursor-pointer ${
                                     selectedColor === color
-                                      ? "bg-primary bg-gray-200 text-white"
+                                      ? "text-white bg-[rgb(219,69,69)]"
                                       : "bg-white text-black hover:bg-gray-100"
                                   }`}>
                                   {color}
@@ -618,12 +621,13 @@ export default function ViewProduct({ params }) {
                     <button
                       type="submit"
                       disabled={!inStock || isAddToCartLoading}
-                      className={`flex-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
+                      className={`flex items-center justify-center gap-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
                         !inStock || isAddToCartLoading
                           ? "bg-gray-300 cursor-not-allowed"
                           : "bg-black text-white hover:bg-gray-800"
                       }`}>
-                      {isAddToCartLoading ? "Adding..." : "Add to Cart"}
+                      {/* <CiShoppingCart size={24} /> */}
+                      <span>{isAddToCartLoading ? "Adding..." : "Add to Cart"}</span>
                     </button>
                   ) : (
                     <button

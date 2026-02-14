@@ -41,7 +41,7 @@ router.post("/admin-login", async (req, res) => {
     console.log(
       !!user
         ? `We got one user with given email: ${user?.email} and Role: ${user?.role?.roleName}`
-        : "No user found for the given email"
+        : "No user found for the given email",
     );
 
     if (
@@ -58,7 +58,7 @@ router.post("/admin-login", async (req, res) => {
     const isPassValid = bcrypt.compareSync(password, user.password);
 
     console.log(
-      `Is the provided password valid after comparing with bcrypt: for password: ${password} ---> ${isPassValid}`
+      `Is the provided password valid after comparing with bcrypt: for password: ${password} ---> ${isPassValid}`,
     );
 
     if (!isPassValid) {
@@ -77,7 +77,7 @@ router.post("/admin-login", async (req, res) => {
         email: user.email,
         mobileNo: user.mobileNo,
       },
-      secret
+      secret,
     );
 
     return res
@@ -160,7 +160,7 @@ router.post("/login", async (req, res) => {
         mobileNo: user.mobileNo,
         center: user?.center,
       },
-      secret
+      secret,
       // { expiresIn: 1 + "h" }
     );
 
@@ -191,7 +191,7 @@ router.post("/login", async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({
@@ -221,12 +221,8 @@ router.post("/signup", async (req, res) => {
 
     if (!validatePass.validate(password)) {
       error.push(
-        "Password should be of minimum 8 digits containing uppercase and lowercase characters"
+        "Password should be of minimum 8 digits containing uppercase and lowercase characters",
       );
-    }
-
-    if (error.length > 0) {
-      return res.status(400).json({ status: false, message: error.join(", ") });
     }
 
     // const otpFromDatabase = await Otp.findOne({ mobileNo, email, name }).sort({
@@ -252,6 +248,15 @@ router.post("/signup", async (req, res) => {
     // ) {
     //   error.push("OTP is invalid");
     // }
+
+    // if (error.length > 0) {
+    //   return res.status(400).json({ status: false, message: error.join(", ") });
+    // }
+
+    const isUserExists = await User.findOne({ email: email });
+    if (isUserExists) {
+      error.push("User already exists with the provided email");
+    }
 
     if (error.length > 0) {
       return res.status(400).json({ status: false, message: error.join(", ") });
@@ -282,7 +287,7 @@ router.post("/signup", async (req, res) => {
         mobileNo: userObject.mobileNo,
         center: userObject?.center,
       },
-      secret
+      secret,
     );
 
     console.log("User Created");
@@ -301,7 +306,7 @@ router.post("/signup", async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({
