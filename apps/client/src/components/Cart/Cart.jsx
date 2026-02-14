@@ -28,7 +28,14 @@ function Cart() {
   const { useGetWishlistQuery } = WishlistApi;
   const { updateAppliedCoupon } = AppliedCouponSlice;
 
-  const { data: { cart: userCartItems } = {} } = useGetCartQuery({
+  const {
+    data: {
+      cart: userCartItems,
+      shippingPrice,
+      requiredMinimumAmountForFreeDelivery,
+      isFreeDeliveryMinAmntAvailable,
+    } = {},
+  } = useGetCartQuery({
     productType: "buy",
   });
   const { data: userWishlistItems } = useGetWishlistQuery({
@@ -263,19 +270,21 @@ function Cart() {
                 My Cart{" "}
                 <span className="text-gray-500">({userCartItems.length})</span>
               </h1>
-              <button onClick={handleRemoveAllCart} className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
+              <button
+                onClick={handleRemoveAllCart}
+                className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
                 Remove All
               </button>
             </div>
 
             {/* Free Shipping Banner */}
-            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-center">
+            {isFreeDeliveryMinAmntAvailable && <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-center">
               <BsTruck className="text-blue-500 mr-3 flex-shrink-0" size={20} />
               <p className="text-blue-800">
                 Get <span className="font-semibold">FREE delivery</span> on
-                orders over ₹499
+                orders over ₹{requiredMinimumAmountForFreeDelivery}
               </p>
-            </div>
+            </div>}
 
             {/* Cart Items List */}
             <div className="space-y-4">
@@ -324,7 +333,7 @@ function Cart() {
                       onClick={() =>
                         couponModalRef.current?.classList.remove("hidden")
                       }
-                      className="flex items-center justify-between w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 transition-colors">
+                      className="flex items-center justify-between w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 transition-colors cursor-pointer">
                       <div className="flex items-center">
                         <RiCouponLine className="text-red-500 mr-2" />
                         <span className="font-medium">Apply Coupon</span>
@@ -337,7 +346,7 @@ function Cart() {
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Subtotal</span>
+                    <span className="text-gray-600">MRP </span>
                     <span className="font-medium">₹{totalPrice}</span>
                   </div>
                   {totalDiscountPrice > 0 && (
@@ -356,12 +365,20 @@ function Cart() {
                       </span>
                     </div>
                   )}
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">After Discount</span>
+                    <span className="font-bold">₹{subtotalPrice}</span>
+                  </div>
+
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
-                    <span className="font-medium">
-                      {totalShippingPrice > 0
-                        ? `₹${totalShippingPrice}`
-                        : "FREE"}
+                    <span className="font-bold">
+                      {isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? "FREE"
+                          : `₹${shippingPrice}`
+                        : `₹${shippingPrice}`}
                     </span>
                   </div>
                 </div>
@@ -373,7 +390,15 @@ function Cart() {
                       Total
                     </span>
                     <span className="text-xl font-bold text-gray-900">
-                      ₹{subtotalPrice}
+                      {isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? `₹${subtotalPrice}`
+                          : `₹${subtotalPrice + shippingPrice}`
+                        : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? `₹${subtotalPrice}`
+                          : `(${subtotalPrice} + ${shippingPrice})`
+                        : `(${subtotalPrice} + ${shippingPrice})`}</span>
                     </span>
                   </div>
                 </div>
@@ -382,7 +407,7 @@ function Cart() {
                 <button
                   onClick={() => router.push("/checkout")}
                   disabled={isPaymentLoading}
-                  className={`w-full py-4 px-6 rounded-lg font-bold text-white transition-colors ${isPaymentLoading ? "bg-red-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}>
+                  className={`w-full py-4 px-6 rounded-lg font-bold text-white transition-colors ${isPaymentLoading ? "bg-red-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600 cursor-pointer"}`}>
                   {isPaymentLoading ? (
                     <span className="flex items-center justify-center">
                       Processing...
@@ -444,7 +469,7 @@ function Cart() {
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 placeholder="Enter coupon code"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline"
               />
               {couponError && (
                 <p className="mt-2 text-sm text-red-600">{couponError}</p>

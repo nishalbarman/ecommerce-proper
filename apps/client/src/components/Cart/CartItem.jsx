@@ -151,7 +151,7 @@ function CartItem({ item }) {
               </Link>
               <button
                 onClick={handleRemoveFromCart}
-                className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
               >
                 <IoIosClose size={24} />
               </button>
@@ -193,7 +193,7 @@ function CartItem({ item }) {
               {product?.isVariantAvailable && (
                 <button
                   onClick={() => variantModalRef.current?.classList.remove("hidden")}
-                  className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm cursor-pointer h-full"
                 >
                   Change option
                   <FiChevronDown size={16} />
@@ -221,7 +221,7 @@ function CartItem({ item }) {
 
               <button
                 onClick={handleAddToWishlist}
-                className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors"
+                className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer"
               >
                 <FiHeart
                   size={16}
@@ -245,7 +245,7 @@ function CartItem({ item }) {
       <div
         ref={variantModalRef}
         onClick={() => variantModalRef.current?.classList.add("hidden")}
-        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm bg-opacity-50 z-50 flex items-center justify-center p-4"
       >
         <div
           onClick={(e) => e.stopPropagation()}
@@ -268,7 +268,7 @@ function CartItem({ item }) {
                     onClick={() => handleVariantChange(variant._id)}
                     className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                       selectedVariant?._id === variant._id
-                        ? "border-blue-500 bg-blue-50"
+                        ? "border-red-500 bg-red-50"
                         : "border-gray-200 hover:bg-gray-50"
                     }`}
                   >
@@ -282,7 +282,7 @@ function CartItem({ item }) {
                         </p>
                       </div>
                       {selectedVariant?._id === variant._id && (
-                        <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center">
+                        <div className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
                           <svg
                             className="w-3 h-3 text-white"
                             fill="none"

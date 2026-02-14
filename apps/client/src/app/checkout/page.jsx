@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { CartApi, AddressApi, WishlistApi, CartSlice } from "@/redux";
 
 import AddressForm from "@/components/AddressForm/AddressForm";
-import useRazorpay from "react-razorpay";
+import { useRazorpay } from "react-razorpay";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
@@ -33,7 +33,14 @@ export default function CheckoutPage() {
   const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
   const { useGetWishlistQuery } = WishlistApi;
 
-  const { data: { cart: userCartItems } = {} } = useGetCartQuery({
+  const {
+    data: {
+      cart: userCartItems,
+      shippingPrice,
+      requiredMinimumAmountForFreeDelivery,
+      isFreeDeliveryMinAmntAvailable,
+    } = {},
+  } = useGetCartQuery({
     productType: "buy",
   });
   const { data: userWishlistItems } = useGetWishlistQuery({
@@ -57,7 +64,7 @@ export default function CheckoutPage() {
     handlePayment();
   };
 
-  const [Razorpay] = useRazorpay();
+  const { Razorpay } = useRazorpay();
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [gatewayOption, setGatewayOption] = useState(null);
@@ -76,6 +83,8 @@ export default function CheckoutPage() {
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
+
+  console.log(userCartItems);
 
   const dispatch = useDispatch();
   const navigation = useRouter();
@@ -128,7 +137,7 @@ export default function CheckoutPage() {
           `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
           {
             headers: {},
-          }
+          },
         ); // generate hash with coupon
 
         const pay = response.data.paymentDetails;
@@ -185,7 +194,7 @@ export default function CheckoutPage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       ); // generate razor pay order id and also apply coupon if applicable
 
       const config = {
@@ -276,7 +285,7 @@ export default function CheckoutPage() {
       console.log(
         "Item shipping price cart item",
         item.product.shippingPrice,
-        shippingPrice
+        shippingPrice,
       );
 
       if (item.variant) {
@@ -318,7 +327,7 @@ export default function CheckoutPage() {
 
       setCouponDiscountPrice(couponDiscountPrice);
       setSubtotalPrice(
-        subtotalPrice - (couponDiscountPrice || 0) + shippingPrice
+        subtotalPrice - (couponDiscountPrice || 0) + shippingPrice,
       );
     } else {
       setSubtotalPrice(subtotalPrice + shippingPrice);
@@ -472,21 +481,44 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="font-medium">₹{totalPrice}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Delivery</span>
-                  <span className="text-green-600 font-medium">
-                    {totalShippingPrice > 0 ? `₹${totalShippingPrice}` : "FREE"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Discount</span>
-                  <span className="text-green-600 font-medium">
-                    -₹{totalDiscountPrice}
-                  </span>
+                {/* Price Breakdown */}
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">MRP </span>
+                    <span className="font-medium">₹{totalPrice}</span>
+                  </div>
+                  {totalDiscountPrice > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Discount</span>
+                      <span className="text-green-600 font-medium">
+                        - ₹{totalDiscountPrice}
+                      </span>
+                    </div>
+                  )}
+                  {couponDiscountPrice > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Coupon Discount</span>
+                      <span className="text-green-600 font-medium">
+                        - ₹{couponDiscountPrice}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">After Discount</span>
+                    <span className="font-bold">₹{subtotalPrice}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-bold">
+                      {isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? "FREE"
+                          : `₹${shippingPrice}`
+                        : `₹${shippingPrice}`}
+                    </span>
+                  </div>
                 </div>
 
                 {appliedCoupon?.code && (
@@ -498,11 +530,22 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <div className="flex justify-between">
-                    <span className="font-bold text-gray-900">Total</span>
-                    <span className="font-bold text-gray-900">
-                      ₹{subtotalPrice}
+                {/* Total */}
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-lg font-bold text-gray-900">
+                      Total
+                    </span>
+                    <span className="text-xl font-bold text-gray-900">
+                      {isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? `₹${subtotalPrice}`
+                          : `₹${subtotalPrice + shippingPrice}`
+                        : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
+                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                          ? `₹${subtotalPrice}`
+                          : `(${subtotalPrice} + ${shippingPrice})`
+                        : `(${subtotalPrice} + ${shippingPrice})`}</span>
                     </span>
                   </div>
                 </div>
@@ -514,7 +557,7 @@ export default function CheckoutPage() {
                 className={`mt-6 w-full py-4 px-6 rounded-xl font-bold text-white transition-colors text-white ${
                   !selectedAddress
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600"
+                    : "bg-red-500 hover:bg-red-600 cursor-pointer"
                 }`}>
                 {isPaymentLoading ? (
                   <div className="flex items-center justify-center gap-2">

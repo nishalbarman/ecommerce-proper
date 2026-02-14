@@ -74,7 +74,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
           const Quantity = cartItem.quantity;
           totalPrice = Price * Quantity;
 
-          shippingPrice += cartItem.variant.shippingPrice;
+          // shippingPrice += cartItem.variant.shippingPrice;
         }
         // else if type is buy and product does not have variants (diffent color different size etc etc)
         else if (productType === "buy" && !cartItem.variant) {
@@ -82,7 +82,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
           const Quantity = cartItem.quantity;
           totalPrice = Price * Quantity;
 
-          shippingPrice += cartItem.product.shippingPrice;
+          // shippingPrice += cartItem.product.shippingPrice;
         }
         // else if type is rent and product does not have variants (diffent color different size etc etc)
         else if (productType === "rent" && !!cartItem.variant) {
@@ -91,7 +91,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
           const RentDays = cartItem.rentDays;
           totalPrice = Price * Quantity * RentDays;
 
-          shippingPrice += cartItem.variant.shippingPrice;
+          // shippingPrice += cartItem.variant.shippingPrice;
         }
         // else if type is rent and product does not have variants (diffent color different size etc etc)
         else if (productType === "rent" && !cartItem.variant) {
@@ -100,7 +100,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
           const RentDays = cartItem.rentDays;
           totalPrice = Price * Quantity * RentDays;
 
-          shippingPrice += cartItem.variant.shippingPrice;
+          // shippingPrice += cartItem.variant.shippingPrice;
         }
 
         return {
@@ -108,19 +108,22 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
           productinfo: [...pay.productinfo, Title],
         };
       },
-      { amount: 0, productinfo: [] }
+      { amount: 0, productinfo: [] },
     );
 
     const totalDiscountedPriceWithoutAnyCouponAndShipping =
       paymentObject.amount;
     let couponDiscountedPrice = 0;
 
-    const deliveryChargeDetails = await WebConfig.findOne()
+    let deliveryChargeDetails = await WebConfig.findOne()
       .sort({ createdAt: -1 })
       .select("deliveryPrice freeDeliveryPrice");
+    if (!deliveryChargeDetails) {
+      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryPrice: 0 };
+    }
 
     const freeDeliveryAboveMinimumPurchase =
-      deliveryChargeDetails?.freeDeliveryPrice > 0; // TODO: Need to get it from server.
+      deliveryChargeDetails?.freeDeliveryPrice > 0;
     const freeDeliveryMinimumAmount = deliveryChargeDetails?.freeDeliveryPrice;
     let shippingApplied = !freeDeliveryAboveMinimumPurchase;
 
@@ -144,7 +147,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
         appliedCoupon,
         paymentObject.amount,
         appliedCoupon.minPurchasePrice,
-        paymentObject.amount > appliedCoupon.minPurchasePrice
+        paymentObject.amount > appliedCoupon.minPurchasePrice,
       );
       if (!!appliedCoupon) {
         const discountedPrice = appliedCoupon?.isPercentage

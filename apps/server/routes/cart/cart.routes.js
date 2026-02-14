@@ -3,6 +3,8 @@ const router = express.Router();
 const Cart = require("../../models/cart.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const { Product } = require("../../models/product.model");
+const WebConfig = require("../../models/webConfig.model");
+
 const checkRole = require("../../middlewares");
 
 router.get("/", checkRole(0, 1, 2), async (req, res) => {
@@ -43,10 +45,25 @@ router.get("/", checkRole(0, 1, 2), async (req, res) => {
       ])
       .select("-user");
 
+    let deliveryChargeDetails = await WebConfig.findOne()
+      .sort({ createdAt: -1 })
+      .select("deliveryPrice freeDeliveryPrice");
+    if (!deliveryChargeDetails) {
+      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryPrice: 0 };
+    }
+
+    const isFreeDeliveryMinAmntAvailable =
+      deliveryChargeDetails?.freeDeliveryPrice > 0;
+    const requiredMinimumAmountForFreeDelivery =
+      deliveryChargeDetails?.freeDeliveryPrice;
+
     return res.json({
       totalCount: totalCount,
       totalPages: totalPages,
       cart: cartDetails,
+      shippingPrice: deliveryChargeDetails?.deliveryPrice,
+      requiredMinimumAmountForFreeDelivery,
+      isFreeDeliveryMinAmntAvailable: isFreeDeliveryMinAmntAvailable,
     });
   } catch (error) {
     console.log(error);
@@ -207,48 +224,52 @@ router.patch("/:productType", checkRole(0, 1, 2), async (req, res) => {
   }
 });
 
-router.patch("/update-qty/:productType", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
-    if (!userDetails) {
-      return res.status(400).json({ message: "User Details Not Found" });
-    }
+router.patch(
+  "/update-qty/:productType",
+  checkRole(0, 1, 2),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
+      if (!userDetails) {
+        return res.status(400).json({ message: "User Details Not Found" });
+      }
 
-    const productType = req.params?.productType || "buy";
+      const productType = req.params?.productType || "buy";
 
-    if (!productType) {
-      return res.status(400).json({ message: "Product Type is Missing" });
-    }
+      if (!productType) {
+        return res.status(400).json({ message: "Product Type is Missing" });
+      }
 
-    const cartItemId = req.query?.cartId;
-    const cartItemQuantity = req.body?.quantity;
+      const cartItemId = req.query?.cartId;
+      const cartItemQuantity = req.body?.quantity;
 
-    const cartProduct = await Cart.findOne({
-      _id: cartItemId,
-      user: userDetails._id,
-      productType,
-    });
-
-    if (!cartProduct) {
-      return res.status(400).json({
-        message: "No items in cart",
+      const cartProduct = await Cart.findOne({
+        _id: cartItemId,
+        user: userDetails._id,
+        productType,
       });
+
+      if (!cartProduct) {
+        return res.status(400).json({
+          message: "No items in cart",
+        });
+      }
+
+      if (!!cartItemQuantity) {
+        cartProduct.quantity = cartItemQuantity;
+      }
+
+      await cartProduct.save({ validateBeforeSave: false });
+
+      return res.json({
+        message: "Cart Updated",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: error.message });
     }
-
-    if (!!cartItemQuantity) {
-      cartProduct.quantity = cartItemQuantity;
-    }
-
-    await cartProduct.save({ validateBeforeSave: false });
-
-    return res.json({
-      message: "Cart Updated",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+  },
+);
 
 router.patch(
   "/update-variant/:cartItemId",
@@ -277,7 +298,7 @@ router.patch(
 
       if (product.isVariantAvailable) {
         const variantExists = product.productVariant.some((v) =>
-          v._id.equals(variantId)
+          v._id.equals(variantId),
         );
         if (!variantExists) {
           return res
@@ -293,7 +314,7 @@ router.patch(
           user: userDetails._id,
         },
         { variant: variantId },
-        { new: true }
+        { new: true },
       ).populate([
         {
           path: "product",
@@ -316,7 +337,7 @@ router.patch(
       console.log(error);
       return res.status(500).json({ message: "Internal server error" });
     }
-  }
+  },
 );
 
 router.delete("/one/:cartItemId", checkRole(0, 1, 2), async (req, res) => {
