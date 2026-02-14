@@ -71,7 +71,7 @@ const checkProductHasError = ({
     isNaN(Number(originalPrice))
   ) {
     error.push(
-      "Original price, Discounted price and Renting price should be numbers"
+      "Original price, Discounted price and Renting price should be numbers",
     );
   }
 
@@ -81,7 +81,7 @@ const checkProductHasError = ({
     +originalPrice < +discountedPrice
   ) {
     error.push(
-      "Discounted price should be lesser than Original price if given"
+      "Discounted price should be lesser than Original price if given",
     );
   }
 
@@ -106,7 +106,7 @@ const checkProductHasError = ({
           "Variant +" +
             (index + 1) +
             ": " +
-            "Does not contain all the required keys"
+            "Does not contain all the required keys",
         );
       }
 
@@ -118,13 +118,13 @@ const checkProductHasError = ({
 
       if (!imageTest.test(variant?.previewImage)) {
         localError.push(
-          "Variant +" + (index + 1) + ": " + "Preview Image is not valid"
+          "Variant +" + (index + 1) + ": " + "Preview Image is not valid",
         );
       }
 
       if (!variant?.discountedPrice && !variant?.originalPrice) {
         localError.push(
-          "Original price and Discounted price needs to be given"
+          "Original price and Discounted price needs to be given",
         );
       }
 
@@ -134,7 +134,7 @@ const checkProductHasError = ({
         isNaN(Number(originalPrice))
       ) {
         error.push(
-          "Original price, Discounted price and Renting price should be numbers"
+          "Original price, Discounted price and Renting price should be numbers",
         );
       }
 
@@ -144,7 +144,7 @@ const checkProductHasError = ({
         +variant?.originalPrice < +variant?.discountedPrice
       ) {
         localError.push(
-          "Discounted price should be lesser than original price"
+          "Discounted price should be lesser than original price",
         );
       }
 
@@ -180,7 +180,7 @@ const checkProductHasError = ({
 
       if (localError.length > 0) {
         error.push(
-          `Variant: ${index + 1}, has errors. Message: ${localError.join(",\n")}`
+          `Variant: ${index + 1}, has errors. Message: ${localError.join(",\n")}`,
         );
       }
     });
@@ -230,7 +230,7 @@ const checkUpdatedProductHasError = ({
     isNaN(Number(originalPrice))
   ) {
     error.push(
-      "Original price, Discounted price and Renting price should be numbers"
+      "Original price, Discounted price and Renting price should be numbers",
     );
   }
 
@@ -274,7 +274,7 @@ const checkUpdatedProductHasError = ({
 
       if (!variant?.discountedPrice && !variant?.originalPrice) {
         localError.push(
-          "Original price and Discounted price needs to be given"
+          "Original price and Discounted price needs to be given",
         );
       }
 
@@ -284,7 +284,7 @@ const checkUpdatedProductHasError = ({
         variant?.originalPrice <= variant?.discountedPrice
       ) {
         localError.push(
-          "Discounted price should be lesser than Original price"
+          "Discounted price should be lesser than Original price",
         );
       }
 
@@ -305,19 +305,19 @@ const checkUpdatedProductHasError = ({
 
       if (!variant?.color) {
         localError.push(
-          "Variant +" + (index + 1) + ": " + "Color is not vallid"
+          "Variant +" + (index + 1) + ": " + "Color is not vallid",
         );
       }
 
       if (!variant?.size) {
         localError.push(
-          "Variant +" + (index + 1) + ": " + "Size is not vallid"
+          "Variant +" + (index + 1) + ": " + "Size is not vallid",
         );
       }
 
       if (localError.length > 0) {
         error.push(
-          `Variant: ${index + 1}, has errors. Message: ${localError.join(", ")}`
+          `Variant: ${index + 1}, has errors. Message: ${localError.join(", ")}`,
         );
       }
     });
@@ -590,7 +590,7 @@ router.post("/", checkRole(1, 2), async (req, res) => {
           };
 
           return ProductVariant.create(variantData);
-        }
+        },
       );
       const variants = await Promise.all(variantPromises);
       newProduct.productVariant = variants.map((variant) => variant._id);
@@ -680,7 +680,7 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
           }
 
           return ProductVariant.findByIdAndUpdate(value._id, variantData);
-        }
+        },
       );
       await Promise.all(variantPromises);
     }
@@ -788,6 +788,38 @@ router.post("/variant/instock/:productId", async (req, res) => {
   }
 });
 
+router.post("/view-variant/:productVariantId", async (req, res) => {
+  try {
+    const productVariantId = req.params?.productVariantId;
+    const productType = req.body?.productType || "buy";
+
+    console.log(req.body);
+
+    if (!productVariantId) {
+      return res.status(400).json({
+        status: false,
+        message: "Bad request",
+      });
+    }
+
+    const Variant = await ProductVariant.findOne({
+      _id: productVariantId,
+    }).populate({ path: "product" });
+
+    console.log("Variant Data", Variant);
+
+    return res.json({
+      variant: Variant,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      status: false,
+      message: "Internal server error!",
+    });
+  }
+});
+
 // ADMIN ROUTE : Product delete route -- maybe delete method does not allow request body
 router.post("/delete", checkRole(1, 2), async (req, res) => {
   try {
@@ -801,7 +833,7 @@ router.post("/delete", checkRole(1, 2), async (req, res) => {
       const product = await Product.findById(productId);
       console.log(product);
       await ProductVariant.deleteMany(
-        product?.productVariantmap?.map((variant) => variant._id)
+        product?.productVariantmap?.map((variant) => variant._id),
       );
       await Cart.deleteMany({ product: product._id });
       await Wishlist.deleteMany({ product: product._id });

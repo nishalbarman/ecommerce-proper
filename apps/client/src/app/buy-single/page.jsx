@@ -1,7 +1,7 @@
 // app/checkout/page.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -20,8 +20,15 @@ import {
 } from "react-icons/ri";
 import { HiFire } from "react-icons/hi2";
 import { IoIosArrowForward } from "react-icons/io";
-import { FiCheckCircle, FiShoppingBag } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiChevronDown,
+  FiHeart,
+  FiShoppingBag,
+} from "react-icons/fi";
 import { BsTruck } from "react-icons/bs";
+import CartItem from "@/components/Cart/CartItem";
+import Link from "next/link";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -30,26 +37,16 @@ export default function CheckoutPage() {
 
   const { updateCart } = CartSlice;
   const { useGetAddressQuery } = AddressApi;
-  const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
-  const { useGetWishlistQuery } = WishlistApi;
+  // const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
+  // const { useGetWishlistQuery } = WishlistApi;
 
-  const {
-    data: {
-      cart: userCartItems,
-      shippingPrice,
-      requiredMinimumAmountForFreeDelivery,
-      isFreeDeliveryMinAmntAvailable,
-    } = {},
-  } = useGetCartQuery({
-    productType: "buy",
-  });
-  const { data: userWishlistItems } = useGetWishlistQuery({
-    productType: "buy",
-  });
+  const [productData, setProductData] = useState(null);
 
   const { data: addresses, isLoading, refetch } = useGetAddressQuery();
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
+
+  const searchParams = useSearchParams();
 
   console.log(selectedAddress);
 
@@ -80,17 +77,73 @@ export default function CheckoutPage() {
   const [totalShippingPrice, setTotalShippingPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0); // original price without the discounts
   const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
+  const [shippingPricing, setShippingPricing] = useState({});
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
-
-  console.log(userCartItems);
 
   const dispatch = useDispatch();
   const navigation = useRouter();
 
   const transactionLoadingRef = useRef();
   const transactionStatusRef = useRef();
+
+  const getProductInfo = async () => {
+    try {
+      const productId = searchParams.get("productId");
+      const productVariantId = searchParams.get("productVariantId");
+      const quantity = searchParams.get("quantity");
+
+      let response = null;
+      if (productVariantId) {
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view-variant/${productVariantId}`,
+          {
+            headers: {
+              "Contect-Type": "application/json",
+            },
+            method: "POST",
+          },
+        );
+        const data = await response.json();
+        setProductData(data?.variant);
+      } else {
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        const data = await response.json();
+        setProductData(data?.product);
+      }
+
+      console.log("Product Data", data);
+      setProductData(data?.product);
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.message || "Failed to load, contact admin");
+    }
+  };
+
+  console.log(productData);
+
+  const getShippingPricing = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/shipping-config/shipping-pricing/buy`,
+      );
+      const shippingPricing = response.data;
+      setShippingPricing(shippingPricing);
+      console.log("Shipping Pricing:", shippingPricing);
+    } catch (error) {
+      console.error(error);
+      toast.error(error?.message || "Failed to load, contact admin");
+    }
+  };
 
   // payu checkout
   const initiatePayment = (pay) => {
@@ -180,15 +233,18 @@ export default function CheckoutPage() {
     }
   }, [appliedCoupon, gatewayOption]);
 
-  const [removeAllCartItems] = useRemoveAllCartMutation();
-
   // razor pay checkouts
   const handleRazorPayContinue = useCallback(async () => {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
-        { address: selectedAddress },
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        {
+          address: selectedAddress,
+          productId: searchParams.get("productId"),
+          productVariantId: searchParams.get("productVariantId"),
+          quantity: searchParams.get("quantity"),
+        },
         {
           withCredentials: true,
           headers: {
@@ -213,7 +269,6 @@ export default function CheckoutPage() {
           transactionStatusRef.current?.classList.remove("hidden");
           setIsPaymentLoading(false);
           //   window.scrollTo(0);
-          await removeAllCartItems().unwrap();
           router.push("/myorders");
         },
         prefill: {
@@ -270,49 +325,93 @@ export default function CheckoutPage() {
     }
   };
 
+  const couponModalRef = useRef();
+  const couponSuccessModalRef = useRef();
+  const paymentLoadingModalRef = useRef();
+  const paymentStatusModalRef = useRef();
+
+  const handleCouponSubmit = async (e) => {
+    e.preventDefault();
+    setCouponSubmitLoading(true);
+    setCouponError("");
+
+    try {
+      if (!couponCode) {
+        return setCouponError("Please enter a coupon code");
+      }
+
+      if (appliedCoupon?.code?.toLowerCase() === couponCode.toLowerCase()) {
+        return setCouponError("Coupon already applied");
+      }
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
+      );
+
+      if (!response.data.status) {
+        return setCouponError(response.data.message || "Invalid coupon");
+      }
+
+      const coupon = response.data.coupon;
+      const discount = (
+        coupon.isPercentage
+          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+          : subtotalPrice > coupon.minPurchasePrice
+            ? coupon.off
+            : 0
+      ).toFixed(2);
+
+      setCouponDiscountPrice(discount);
+      setAppliedCoupon(discount > 0 ? coupon : null);
+      dispatch(updateAppliedCoupon(coupon));
+      setSubtotalPrice((prev) => prev - discount);
+
+      couponModalRef.current?.classList.add("hidden");
+      couponSuccessModalRef.current?.classList.remove("hidden");
+
+      setTimeout(() => {
+        couponSuccessModalRef.current?.classList.add("hidden");
+      }, 1500);
+    } catch (error) {
+      setCouponError(error.response?.data?.message || "Failed to apply coupon");
+    } finally {
+      setCouponSubmitLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponDiscountPrice(0);
+    setSubtotalPrice((prev) => prev + couponDiscountPrice);
+  };
+
+  useEffect(() => {
+    getProductInfo();
+    getShippingPricing();
+  }, []);
+
   useEffect(() => {
     let totalPrice = 0;
     let subtotalPrice = 0;
     let totalDiscountPrice = 0;
-
     let shippingPrice = 0;
 
-    userCartItems?.forEach((item) => {
-      if (!item.product && !item.variant) return;
+    if (!productData || !shippingPricing) return;
 
-      if (shippingPrice === 0) shippingPrice += item.product.shippingPrice || 0;
-
-      console.log(
-        "Item shipping price cart item",
-        item.product.shippingPrice,
-        shippingPrice,
-      );
-
-      if (item.variant) {
-        totalPrice +=
-          (item.variant.originalPrice || item.variant.discountedPrice) *
-          (item.quantity || 1);
-        subtotalPrice += item.variant.discountedPrice * (item.quantity || 1);
-        totalDiscountPrice += !!item.variant.originalPrice
-          ? (item.quantity || 1) *
-            (item.variant.originalPrice - item.variant.discountedPrice)
-          : 0;
-      } else if (item.product) {
-        totalPrice +=
-          (item.product.originalPrice || item.product.discountedPrice) *
-          (item.quantity || 1);
-        subtotalPrice += item.product.discountedPrice * (item.quantity || 1);
-        totalDiscountPrice += !!item.product.originalPrice
-          ? (item.quantity || 1) *
-            (item.product.originalPrice - item.product.discountedPrice)
-          : 0;
-      }
-    });
-    console.log("Total Price", totalPrice + shippingPrice);
+    totalPrice +=
+      (productData.originalPrice || productData.discountedPrice) *
+      (searchParams.quantity || 1);
+    subtotalPrice += productData.discountedPrice * (searchParams.quantity || 1);
+    totalDiscountPrice += !!productData.originalPrice
+      ? (searchParams.quantity || 1) *
+        (productData.originalPrice - productData.discountedPrice)
+      : 0;
 
     setTotalPrice(totalPrice);
     setTotalDiscountPrice(totalDiscountPrice);
-    setTotalShippingPrice(shippingPrice);
+    setTotalShippingPrice(shippingPricing.deliveryPrice);
+
+    // shippingPrice = shippingPricing.deliveryPrice;
 
     if (!!appliedCoupon && appliedCoupon._id) {
       const couponDiscountPrice = appliedCoupon.isPercentage
@@ -326,13 +425,11 @@ export default function CheckoutPage() {
       setCouponDiscountPrice(couponDiscountPrice);
 
       setCouponDiscountPrice(couponDiscountPrice);
-      setSubtotalPrice(
-        subtotalPrice - (couponDiscountPrice || 0) + shippingPrice,
-      );
+      setSubtotalPrice(subtotalPrice - (couponDiscountPrice || 0));
     } else {
-      setSubtotalPrice(subtotalPrice + shippingPrice);
+      setSubtotalPrice(subtotalPrice);
     }
-  }, [userCartItems, appliedCoupon]);
+  }, [productData, appliedCoupon, shippingPricing]);
 
   // const getPaymentGateways = async () => {
   //   try {
@@ -357,18 +454,93 @@ export default function CheckoutPage() {
   //   getPaymentGateways();
   // }, []);
 
+  console.log(productData);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Delivery Details Section */}
           <div className="lg:w-2/3">
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="space-y-4">
+              {/* Cart Items List */}
+              <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
+                <div className="flex flex-col md:flex-row p-4 gap-4">
+                  {/* Product Image */}
+                  <div className="w-full md:w-32 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
+                    {/* <Link href={`/products/view/${product?._id}`}> */}
+                    <img
+                      className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300"
+                      src={productData?.previewImage}
+                      alt={productData?.title || productData?.product?.title}
+                    />
+                    {/* </Link> */}
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex justify-between items-start">
+                      <p
+                        href={`/products/view/${productData?._id || productData?.product?._id}`}
+                        className="text-lg font-medium text-gray-800 transition-colors">
+                        {productData?.title || productData?.product?.title}
+                      </p>
+                    </div>
+
+                    {/* Price Section */}
+                    <div className="mt-2">
+                      <span className="text-xl font-bold text-gray-900">
+                        ₹{productData?.discountedPrice}
+                      </span>
+                      {!!productData?.originalPrice && (
+                        <>
+                          <span className="text-gray-500 ml-2 line-through">
+                            ₹{productData?.originalPrice}
+                          </span>
+                          <span className="text-green-600 ml-2 text-sm">
+                            Save ₹
+                            {productData?.originalPrice -
+                              productData?.discountedPrice}
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Variant Info */}
+                    {productData?.product && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                          <span className="text-gray-600">Size:</span>
+                          <span className="font-medium ml-1">
+                            {productData?.size}
+                          </span>
+                        </div>
+                        <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                          <span className="text-gray-600">Color:</span>
+                          <span className="font-medium ml-1">
+                            {productData?.color}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sale Badge */}
+                {/* {!!product?.originalPrice && (
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+            SALE
+          </div>
+        )} */}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900">
                   Delivery Details
                 </h2>
-                <span className="text-sm text-gray-500">Step 1 of 2</span>
+                {/* <span className="text-sm text-gray-500">Step 1 of 2</span> */}
               </div>
 
               {isLoading ? (
@@ -378,7 +550,7 @@ export default function CheckoutPage() {
                 </div>
               ) : addresses?.length > 0 ? (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-800">
+                  <h3 className="text-md font-medium text-gray-800">
                     Select Delivery Address
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -475,12 +647,53 @@ export default function CheckoutPage() {
 
           {/* Order Summary Section */}
           <div className="lg:w-1/3">
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-4">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Order Summary
-              </h2>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-4">
+              <div className="p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-6">
+                  Order Summary
+                </h2>
 
-              <div className="space-y-4">
+                {/* Coupon Section */}
+                <div className="mb-6">
+                  {appliedCoupon ? (
+                    <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center">
+                          <FiCheckCircle className="text-green-500 mr-2" />
+                          <div>
+                            <p className="font-medium text-green-800">
+                              Coupon Applied:{" "}
+                              <span className="font-bold uppercase">
+                                {appliedCoupon.code}
+                              </span>
+                            </p>
+                            <p className="text-sm text-green-700">
+                              {appliedCoupon.description}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleRemoveCoupon}
+                          className="text-gray-400 hover:text-gray-600">
+                          <RiCloseLine size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        couponModalRef.current?.classList.remove("hidden")
+                      }
+                      className="flex items-center justify-between w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 transition-colors cursor-pointer">
+                      <div className="flex items-center">
+                        <RiCouponLine className="text-red-500 mr-2" />
+                        <span className="font-medium">Apply Coupon</span>
+                      </div>
+                      <IoIosArrowForward className="text-gray-400" />
+                    </button>
+                  )}
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
@@ -512,10 +725,13 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-bold">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                      {shippingPricing.isFreeDeliveryAvailable
+                        ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
+                          subtotalPrice
                           ? "FREE"
-                          : shippingPrice > 0 ? `₹${shippingPrice}` : "FREE"
+                          : shippingPricing.shippingPrice > 0
+                            ? `₹${shippingPricing.shippingPrice}`
+                            : "FREE"
                         : "FREE"}
                     </span>
                   </div>
@@ -537,19 +753,23 @@ export default function CheckoutPage() {
                       Total
                     </span>
                     <span className="text-xl font-bold text-gray-900">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
+                      {shippingPricing.isFreeDeliveryAvailable
+                        ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
+                          subtotalPrice
                           ? `₹${subtotalPrice}`
-                          : `₹${subtotalPrice + shippingPrice}`
-                        : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `(${subtotalPrice} + ${shippingPrice > 0 ? shippingPrice : "FREE"})`
-                        : `(${subtotalPrice} + FREE)`}</span>
+                          : `₹${subtotalPrice + shippingPricing.shippingPrice}`
+                        : `₹${subtotalPrice + shippingPricing.shippingPrice}`}{" "}
+                      <span className="text-xs text-gray-500">
+                        {shippingPricing.isFreeDeliveryAvailable
+                          ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
+                            subtotalPrice
+                            ? `₹${subtotalPrice}`
+                            : `(${subtotalPrice} + ${shippingPricing.shippingPrice > 0 ? shippingPricing.shippingPrice : "FREE"})`
+                          : `(${subtotalPrice} + FREE)`}
+                      </span>
                     </span>
                   </div>
                 </div>
-              </div>
 
               <button
                 onClick={handleContinueToPayment}
@@ -609,6 +829,9 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               </div>
+
+              </div>
+
             </div>
           </div>
         </div>

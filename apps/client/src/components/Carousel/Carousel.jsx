@@ -43,53 +43,63 @@ const Carousel = ({ items = [] }) => {
       {items?.map((item, index) => (
         <div
           key={index}
-          style={{
-            backgroundColor: item.bgColor,
-          }}
           onClick={() => item.redirectUrl && router.push(item.redirectUrl)}
-          className={`cursor-pointer px-2 bg-[${item.bgColor}]`}>
-          <div
-            className={`relative rounded-2xl overflow-hidden shadow-lg group bg-[${item.bgColor}]`}>
-            {/* Image with smooth zoom effect */}
-            <div
-              style={{
-                backgroundColor: item.bgColor,
-              }}
-              className={`relative w-full h-64 md:h-[450px] lg:h-[540px] bg-[${item.bgColor}]`}>
+          className="cursor-pointer px-2 sm:px-3 md:px-4">
+          <div className="rounded-xl sm:rounded-2xl overflow-hidden shadow-md group">
+            {/* Image Section */}
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px]">
               <Image
                 src={item.imageUrl}
                 alt={item.altText || item.title}
                 fill
-                className="object-contain group-hover:scale-105 transition-transform duration-500"
+                className="object-contain transition-transform duration-500 group-hover:scale-105"
                 priority
               />
-            </div>
 
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+              {/* Desktop Overlay ONLY */}
+              <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-            {/* Text Content */}
-            <div className="absolute bottom-5 text-center md:text-left w-fit max-sm:w-full md:right-5 max-sm:px-5">
-              <div className="bg-white/80 backdrop-blur-md rounded-xl p-4 shadow-md">
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900">
-                  {item.title}
-                </h3>
-                {item.description && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    {item.description}
+              <div className="hidden md:flex absolute inset-0 items-end justify-end p-5">
+                <div className="bg-white/90 backdrop-blur-md rounded-xl p-4 shadow-md max-w-xs">
+                  <h3 className="text-lg lg:text-xl font-bold text-gray-900">
+                    {item.title}
+                  </h3>
+
+                  {item.description && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {item.description}
+                    </p>
+                  )}
+
+                  <p className="text-red-600 text-sm mt-2 font-semibold">
+                    Shop now →
                   </p>
-                )}
-                <p className="text-blue-600 text-sm mt-2 font-semibold">
-                  Shop now →
-                </p>
-              </div>
+                </div>
+              </div> 
+
+              {/* Badge (all screens) */}
+              {/* <div className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4">
+                <div className="bg-white/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow">
+                  <span className="text-[10px] sm:text-xs font-semibold text-blue-600">
+                    Popular
+                  </span>
+                </div>
+              </div> */}
             </div>
 
-            {/* Floating Badge */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-md">
-              <span className="text-xs font-semibold text-blue-600">
-                Popular
-              </span>
+            {/* Mobile & Tablet Text BELOW */}
+            <div className="md:hidden bg-white p-3 sm:p-4">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900">
+                {item.title}
+              </h3>
+
+              {item.description && (
+                <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+              )}
+
+              <p className="text-[rgb(219,69,69)] text-sm mt-2 font-semibold">
+                Shop now →
+              </p>
             </div>
           </div>
         </div>

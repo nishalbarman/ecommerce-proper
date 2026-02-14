@@ -54,8 +54,8 @@ function ClientWishlistIcon() {
       <div className="h-fit w-fit relative cursor-pointer">
         {!!userWishlistItems?.length && (
           <div
-            className={`box-content absolute z-[1] flex items-center justify-center aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 bg-[#DB4444] min-w-4 min-h-4 w-4 h-4 max-sm:min-w-2 max-sm:min-h-2 max-sm:w-2 max-sm:h-2 flex items-center max-sm:bg-transparent`}>
-            <span className="text-[10px] max-sm:text-[8px] text-white max-sm:text-black font-semibold">
+            className={`animate-pulse box-content absolute z-[1] flex items-center justify-center  aspect-square right-[-5px] rounded-full p-1 absolute bottom-5 min-w-3 min-h-3 max-sm:min-w-3 max-sm:min-h-3 max-sm:w-3 max-sm:h-3 max-sm:bg-[#DB4444] bg-red-500`}>
+            <span className="hidden text-[10px] max-sm:text-[8px] text-white max-sm:text-black font-semibold">
               {userWishlistItems?.length || 0}
             </span>
           </div>

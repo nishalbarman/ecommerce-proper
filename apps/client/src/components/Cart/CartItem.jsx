@@ -63,10 +63,10 @@ function CartItem({ item }) {
     e.stopPropagation();
     if (!token) return toast.success("You need to be logged in first.");
     
-    if (wishlistMappedItems?.hasOwnProperty(product._id)) {
+    if (wishlistMappedItems?.hasOwnProperty(product?._id)) {
       deleteOneCartItem({ id: cartProductId });
     } else {
-      addNewWishlist({ id: product._id });
+      addNewWishlist({ id: product?._id });
       deleteOneCartItem({ id: cartProductId });
     }
   };
@@ -92,11 +92,11 @@ function CartItem({ item }) {
     try {
       setLoadingVariants(true);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${product._id}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${product?._id}`,
         { method: "POST" }
       );
       const data = await response.json();
-      setAvailableVariants(data.product.productVariant || []);
+      setAvailableVariants(data.product?.productVariant || []);
     } catch (error) {
       console.error("Error fetching variants:", error);
       toast.error("Failed to load variants");
@@ -110,7 +110,7 @@ function CartItem({ item }) {
       const response = await updateVariant({
         cartItemId: item._id,
         variantId: newVariantId,
-        productId: product._id,
+        productId: product?._id,
       }).unwrap();
 
       if (response.cartItem) {
@@ -131,11 +131,11 @@ function CartItem({ item }) {
         <div className="flex flex-col md:flex-row p-4 gap-4">
           {/* Product Image */}
           <div className="w-full md:w-32 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
-            <Link href={`/products/view/${product._id}`}>
+            <Link href={`/products/view/${product?._id}`}>
               <img
                 className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300"
-                src={product.previewImage}
-                alt={product.title}
+                src={product?.previewImage}
+                alt={product?.title}
               />
             </Link>
           </div>
@@ -144,10 +144,10 @@ function CartItem({ item }) {
           <div className="flex-1 flex flex-col">
             <div className="flex justify-between items-start">
               <Link
-                href={`/products/view/${product._id}`}
+                href={`/products/view/${product?._id}`}
                 className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors"
               >
-                {product.title}
+                {product?.title}
               </Link>
               <button
                 onClick={handleRemoveFromCart}
@@ -160,15 +160,15 @@ function CartItem({ item }) {
             {/* Price Section */}
             <div className="mt-2">
               <span className="text-xl font-bold text-gray-900">
-                ₹{product.discountedPrice}
+                ₹{product?.discountedPrice}
               </span>
-              {!!product.originalPrice && (
+              {!!product?.originalPrice && (
                 <>
                   <span className="text-gray-500 ml-2 line-through">
-                    ₹{product.originalPrice}
+                    ₹{product?.originalPrice}
                   </span>
                   <span className="text-green-600 ml-2 text-sm">
-                    Save ₹{product.originalPrice - product.discountedPrice}
+                    Save ₹{product?.originalPrice - product?.discountedPrice}
                   </span>
                 </>
               )}
@@ -203,7 +203,7 @@ function CartItem({ item }) {
               <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                 <button
                   onClick={() => handleQuantityChange(Math.max(1, productQuantity - 1))}
-                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
                   disabled={productQuantity <= 1}
                 >
                   -
@@ -213,7 +213,7 @@ function CartItem({ item }) {
                 </span>
                 <button
                   onClick={() => handleQuantityChange(productQuantity + 1)}
-                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
                 >
                   +
                 </button>
@@ -225,7 +225,7 @@ function CartItem({ item }) {
               >
                 <FiHeart
                   size={16}
-                  className={wishlistMappedItems?.hasOwnProperty(product._id) ? "fill-pink-500 text-pink-500" : ""}
+                  className={wishlistMappedItems?.hasOwnProperty(product?._id) ? "fill-pink-500 text-pink-500" : ""}
                 />
                 Move to wishlist
               </button>
@@ -234,7 +234,7 @@ function CartItem({ item }) {
         </div>
 
         {/* Sale Badge */}
-        {/* {!!product.originalPrice && (
+        {/* {!!product?.originalPrice && (
           <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
             SALE
           </div>

@@ -116,6 +116,10 @@ app.use(
   "/pay/razorpay/cart",
   require("./routes/payment/razorpay/pay-cart.routes"),
 );
+app.use(
+  "/pay/razorpay/single",
+  require("./routes/payment/razorpay/buy-single.routes"),
+);
 
 /!* ---- stripe */;
 app.use("/stripe/cart", require("./routes/payment/stripe/pay-cart.routes"));
@@ -126,6 +130,7 @@ app.use(
 
 // payment summary
 app.use("/payment/summary", require("./routes/payment/summary.routes"));
+app.use("/shipping-config", require("./routes/shipping-config/shipping-config.routes"));
 
 //shiprocket
 app.use("/shiprocket/track", require("./routes/shiprocket/track.routes"));

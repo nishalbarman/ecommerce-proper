@@ -316,16 +316,16 @@ export default function ViewProduct({ params }) {
     const queryParams = new URLSearchParams();
     queryParams.set("productId", product._id);
     queryParams.set("quantity", quantity.toString());
-    queryParams.set("productType", product.type);
+    queryParams.set("productType", product.type || "buy");
 
     if (filteredVariant?._id) {
-      queryParams.set("variantId", filteredVariant._id);
+      queryParams.set("productVariantId", filteredVariant._id);
     }
-    if (product.type === "rent") {
-      queryParams.set("rentDays", rentDays.toString());
-    }
+    // if (product.type === "rent") {
+    //   queryParams.set("rentDays", rentDays.toString());
+    // }
 
-    navigate.push(`/checkout?${queryParams.toString()}`);
+    navigate.push(`/buy-single?${queryParams.toString()}`);
   };
 
   if (isLoading) {

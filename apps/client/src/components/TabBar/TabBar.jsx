@@ -42,27 +42,27 @@ const TabBar = () => {
 
   const tabs = [
     {
-      icon: <FaHome size={20} fill="black" color="black" />,
+      icon: <FaHome size={20} fill="white" color="white" />,
       label: "Home",
       path: "/",
     },
     // {
-    //   icon: <FaSearch size={20} fill="black" color="black" />,
+    //   icon: <FaSearch size={20} fill="white" color="white" />,
     //   label: "Search",
     //   path: "/search",
     // },
     {
-      icon: <FaHeart size={20} fill="black" color="black" />,
+      icon: <FaHeart size={20} fill="white" color="white" />,
       label: "Wishlist",
       path: "/wishlist",
     },
     {
-      icon: <FaShoppingCart size={20} fill="black" color="black" />,
+      icon: <FaShoppingCart size={20} fill="white" color="white" />,
       label: "Cart",
       path: "/cart",
     },
     {
-      icon: <FaUser size={20} fill="black" color="black" />,
+      icon: <FaUser size={20} fill="white" color="white" />,
       label: "Account",
       path: "/profile",
     },
@@ -70,7 +70,7 @@ const TabBar = () => {
 
   return (
     <div
-      className={`fixed md:hidden bottom-0 left-0 right-0 w-full border-[rgb(0,0,0,0.1)] border-b-[1px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-primary z-[999] shadow transition-transform duration-300 ${
+      className={`fixed md:hidden bottom-0 left-0 right-0 w-full border-[rgb(0,0,0,0.1)] border-b-[1px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] border-1 bg-[rgb(219,69,69)] rounded-t-xl z-[999] shadow transition-transform duration-300 ${
         isVisible ? "translate-y-0" : "translate-y-full"
       }`}>
       <div className="flex justify-around items-center h-16">
@@ -82,7 +82,7 @@ const TabBar = () => {
               pathname === tab.path ? "text-primary" : "text-gray-500"
             }`}>
             {tab.icon}
-            <span className="text-xs mt-1 text-black">{tab.label}</span>
+            <span className="text-xs mt-1 text-white stroke-black  ">{tab.label}</span>
           </Link>
         ))}
       </div>

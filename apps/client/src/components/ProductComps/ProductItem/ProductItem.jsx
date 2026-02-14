@@ -12,7 +12,9 @@ import { WishlistApi, CartApi, CartSlice, WishlistSlice } from "@/redux";
 import { useSelector } from "react-redux";
 
 import { BsHeart, BsHeartFill } from "react-icons/bs";
+import { IoMdHeart, IoMdHeartEmpty  } from "react-icons/io";
 import { AiOutlineEye } from "react-icons/ai";
+import { PiEyes } from "react-icons/pi";
 import { FaCartShopping, FaCheck } from "react-icons/fa6";
 import Link from "next/link";
 import { setLoginModalState } from "@/redux/slices/loginModalSlice";
@@ -182,9 +184,9 @@ function ProductCard({
             }`}
             onClick={handleToggleWishlist}>
             {onWishlist ? (
-              <BsHeartFill size={19} color="red" fill="red" />
+              <IoMdHeart size={21} color="red" fill="red" />
             ) : (
-              <BsHeart size={19} />
+              <IoMdHeartEmpty size={21} />
             )}
           </div>
 
@@ -192,7 +194,8 @@ function ProductCard({
           <div
             className="hidden md:flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-viewproduct hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"
             onClick={handleVisitProduct}>
-            <AiOutlineEye size={23} />
+            {/* <AiOutlineEye size={21} /> */}
+            <PiEyes size={20} />
           </div>
         </div>
 

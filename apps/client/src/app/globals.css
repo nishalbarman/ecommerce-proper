@@ -55,6 +55,11 @@ a {
   --font-inconsolata: Inconsolata, monospace;
 
   --animate-zoomInOut: zoomInOut 5s infinite;
+  --swiper-theme-color: oklch(79.23% 0.1051 152.11);
+}
+
+.swiper-pagination-bullet-active {
+  background: rgb(219,69,69) !important;
 }
 
 @utility zoom-8 {
@@ -66,7 +71,11 @@ a {
 }
 
 @utility zoom-0_1 {
-  zoom: 08;
+  zoom: 0.8;
+}
+
+@utility zoom-out-1 {
+  zoom: 0.1;
 }
 
 @utility drag-none {
@@ -80,6 +89,13 @@ a {
   }
   50% {
     transform: scale(1.05);
+  }
+}
+
+@media only screen and (max-width: 640px) {
+  .swiper-button-prev, .swiper-button-next {
+    height: 40px !important;
+    width: 40px !important;
   }
 }
 
