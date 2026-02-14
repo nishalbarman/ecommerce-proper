@@ -515,8 +515,8 @@ export default function CheckoutPage() {
                       {isFreeDeliveryMinAmntAvailable
                         ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
                           ? "FREE"
-                          : `₹${shippingPrice}`
-                        : `₹${shippingPrice}`}
+                          : shippingPrice > 0 ? `₹${shippingPrice}` : "FREE"
+                        : "FREE"}
                     </span>
                   </div>
                 </div>
@@ -544,8 +544,8 @@ export default function CheckoutPage() {
                         : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
                         ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
                           ? `₹${subtotalPrice}`
-                          : `(${subtotalPrice} + ${shippingPrice})`
-                        : `(${subtotalPrice} + ${shippingPrice})`}</span>
+                          : `(${subtotalPrice} + ${shippingPrice > 0 ? shippingPrice : "FREE"})`
+                        : `(${subtotalPrice} + FREE)`}</span>
                     </span>
                   </div>
                 </div>

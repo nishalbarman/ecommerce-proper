@@ -117,14 +117,16 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     let deliveryChargeDetails = await WebConfig.findOne()
       .sort({ createdAt: -1 })
-      .select("deliveryPrice freeDeliveryPrice");
+      .select("deliveryPrice freeDeliveryAbove");
     if (!deliveryChargeDetails) {
-      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryPrice: 0 };
+      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryAbove: 0 };
     }
 
+    console.log(deliveryChargeDetails)
+
     const freeDeliveryAboveMinimumPurchase =
-      deliveryChargeDetails?.freeDeliveryPrice > 0;
-    const freeDeliveryMinimumAmount = deliveryChargeDetails?.freeDeliveryPrice;
+      deliveryChargeDetails?.freeDeliveryAbove > 0;
+    const freeDeliveryMinimumAmount = deliveryChargeDetails?.freeDeliveryAbove;
     let shippingApplied = !freeDeliveryAboveMinimumPurchase;
 
     // console.log("What is the shipping price: ", shippingPrice);

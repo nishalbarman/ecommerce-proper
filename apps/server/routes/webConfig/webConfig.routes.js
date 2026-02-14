@@ -22,6 +22,8 @@ router.post("/", checkRole(1, 2), async (req, res) => {
   try {
     const configData = req.body;
 
+    console.log(configData);
+
     // Validate required fields
     if (
       !configData.brandName ||

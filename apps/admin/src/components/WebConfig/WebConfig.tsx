@@ -26,7 +26,7 @@ const WebConfigPage = () => {
     facebookLink: "",
     instagramLink: "",
     websiteUrl: "",
-    newsletterDiscount: 5,
+    newsletterDiscount: 0,
     deliveryPrice: 0,
     freeDeliveryAbove: 0,
     about: "",
@@ -323,8 +323,8 @@ const WebConfigPage = () => {
                 </label>
                 <input
                   type="number"
-                  id="freeDeliveryPrice"
-                  name="freeDeliveryPrice"
+                  id="freeDeliveryAbove"
+                  name="freeDeliveryAbove"
                   min="0"
                   value={config.freeDeliveryAbove}
                   onChange={handleNumberChange}

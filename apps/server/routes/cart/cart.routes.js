@@ -47,15 +47,17 @@ router.get("/", checkRole(0, 1, 2), async (req, res) => {
 
     let deliveryChargeDetails = await WebConfig.findOne()
       .sort({ createdAt: -1 })
-      .select("deliveryPrice freeDeliveryPrice");
+      .select("deliveryPrice freeDeliveryAbove");
     if (!deliveryChargeDetails) {
-      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryPrice: 0 };
+      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryAbove: 0 };
     }
 
     const isFreeDeliveryMinAmntAvailable =
-      deliveryChargeDetails?.freeDeliveryPrice > 0;
+      deliveryChargeDetails?.freeDeliveryAbove > 0;
     const requiredMinimumAmountForFreeDelivery =
-      deliveryChargeDetails?.freeDeliveryPrice;
+      deliveryChargeDetails?.freeDeliveryAbove;
+
+      console.log(deliveryChargeDetails)
 
     return res.json({
       totalCount: totalCount,
