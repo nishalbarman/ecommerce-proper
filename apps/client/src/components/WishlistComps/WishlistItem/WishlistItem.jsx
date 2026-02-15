@@ -172,11 +172,11 @@ function WishlistItem({
       </div>
 
       {/* Product Info Section */}
-      <div className="w-full flex flex-col gap-2 py-4 bg-white">
+      <div className="w-full flex flex-col gap-2 py-4 max-sm:py-3 bg-white">
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
             onClick={handleAddToCart}>
             {onCart ? (
               <FaCheck
@@ -194,14 +194,14 @@ function WishlistItem({
           </button>
         </div>
 
-        <div className="w-full max-md:shadow rounded py-2 px-2">
+        <div className="w-full max-md:shadow rounded py-2 max-sm:pt-1 px-2">
           <Link href={`/products/view/${productId}`} className="block group">
-            <h3 className="text-xl font-semibold line-clamp-2 transition-colors duration-200">
+            <h3 className="text-lg max-md:text-lg max-sm:text-base font-semibold line-clamp-2 transition-colors duration-200">
               {title}
             </h3>
-            <div className="flex flex-col gap-1 mt-2">
+            <div className="flex flex-col gap-1 mt-2 max-sm:mt-1">
               <div className="flex items-center gap-3">
-                <span className="text-black text-xl md:text-lg font-bold">
+                <span className="text-black text-lg max-md:text-lg max-sm:text-base  font-bold">
                   &#8377;{discountedPrice}
                 </span>
                 {!!originalPrice && (

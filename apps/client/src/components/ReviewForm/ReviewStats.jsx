@@ -11,7 +11,7 @@ export default function ReviewStats({ averageRating, totalReviews }) {
   });
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mt-4">
+    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mt-4 max-md:hidden">
       <h3 className="text-sm font-semibold mb-4">Customer Reviews</h3>
 
       <div className="flex max-sm:flex-col flex-row items-center md:items-start gap-8 mt-2">

@@ -8,7 +8,7 @@ import axios from "axios";
 const LoadingAnimation = () => {
   return (
     <div className="flex flex-col justify-center items-center h-[calc(100vh-100px)] bg-transparent w-full overflow-hidden">
-      <div className="self-center w-[800px]">
+      <div className="self-center w-[700px]">
         <DotLottieReact
           src="/assets/lottie/hand_loading_red.lottie"
           loop={true}

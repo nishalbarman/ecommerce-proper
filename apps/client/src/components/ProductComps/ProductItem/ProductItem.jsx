@@ -12,7 +12,7 @@ import { WishlistApi, CartApi, CartSlice, WishlistSlice } from "@/redux";
 import { useSelector } from "react-redux";
 
 import { BsHeart, BsHeartFill } from "react-icons/bs";
-import { IoMdHeart, IoMdHeartEmpty  } from "react-icons/io";
+import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 import { AiOutlineEye } from "react-icons/ai";
 import { PiEyes } from "react-icons/pi";
 import { FaCartShopping, FaCheck } from "react-icons/fa6";
@@ -60,7 +60,7 @@ function ProductCard({
   const token = cookiesStore?.get("token");
 
   const { wishlists: wishlistIdMapped } = useSelector(
-    (state) => state.wishlistSlice
+    (state) => state.wishlistSlice,
   );
   const { cart: cartIdMapped } = useSelector((state) => state.cartSlice);
 
@@ -77,7 +77,7 @@ function ProductCard({
   }, [wishlistIdMapped, cartIdMapped]);
 
   const discount = useRef(
-    Math.floor(((originalPrice - discountedPrice) / originalPrice) * 100)
+    Math.floor(((originalPrice - discountedPrice) / originalPrice) * 100),
   );
 
   const handleVisitProduct = (e) => {
@@ -137,7 +137,7 @@ function ProductCard({
       setOnWishlist(!onWishlist);
     } catch (error) {
       toast.error(
-        error?.data?.message || error?.message || "Wishlist operation failed"
+        error?.data?.message || error?.message || "Wishlist operation failed",
       );
     }
   };
@@ -179,7 +179,7 @@ function ProductCard({
         <div className="absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit">
           {/* Toogle Wishlist Button */}
           <div
-            className={`flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${
+            className={`max-sm:w-auto max-sm:h-auto max-sm:p-1 flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${
               onWishlist ? "hover:bg-red-100" : "hover:bg-gray-100"
             }`}
             onClick={handleToggleWishlist}>

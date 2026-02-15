@@ -334,7 +334,7 @@ export default function ViewProduct({ params }) {
 
   return (
     <>
-      <div className="container mx-auto mt-16">
+      <div className="container mx-auto mt-13 max-md:mt-2">
         <div className="w-full p-4 text-black min-h-[100vh] bg-white rounded-md">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Left Side: Product Images (Sticky on Desktop) */}
@@ -465,7 +465,7 @@ export default function ViewProduct({ params }) {
                 {product &&
                   product.isVariantAvailable &&
                   productVariants?.length > 0 && (
-                    <div className="border shadow p-4">
+                    <div className="border shadow p-4 rounded-md border-primary">
                       <input type="hidden" name="productId" value={productId} />
                       <div className="mb-6">
                         <h2 className="text-sm font-semibold mb-2">

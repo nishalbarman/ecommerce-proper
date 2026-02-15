@@ -31,7 +31,7 @@ export default async function Category() {
     <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
       <TitleWithBar title={"Browse By Category"} />
       <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6  max-sm:-mt-2">
-        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap">
+        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap max-sm:text-base">
           See Our Categories
         </span>
       </div>

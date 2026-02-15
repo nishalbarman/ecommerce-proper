@@ -89,18 +89,18 @@ export default function CategoryPage({ params }) {
         {/* Category Header */}
         <div className="flex flex-row justify-between px-6 py-5 border-b border-gray-200">
           <div className="flex flex-col justify-center">
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-2xl max-sm:text-base max-md:text-lg font-semibold text-gray-900">
               {category.categoryName}
             </h1>
             <p className="mt-1 text-sm text-gray-500">Category Collection</p>
           </div>
 
           <div className="rounded-full w-[100px] h-[100px] shadow-lg flex items-center justify-center">
-            {category.categoryImageUrl && (
+            {category?.categoryImageUrl && (
               <img
                 src={category.categoryImageUrl}
                 alt={category.categoryName}
-                className="w-[200px] object-cotntain"
+                className="w-[200px] object-contain rounded-full w-[100px] h-[100px]"
               />
             )}
           </div>

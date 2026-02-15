@@ -38,7 +38,7 @@ export default function Page() {
   return (
     <>
       <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
-        <div className="h-fill w-fill m-[40px_0]">
+        <div className="h-fill w-fill m-[40px_0] max-md:my-1">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <>
               {/* empty wishlist display */}
@@ -62,18 +62,23 @@ export default function Page() {
               )}
 
               {wishlistData?.length > 0 && (
-                <div className="flex justify-between items-center">
-                  <p className="text-xl font-andika">
-                    Wishlist ({wishlistData?.length})
-                  </p>
-                  <button className="rounded-[4px] border-[1px] border-[black] h-[45px] p-[0px_20px]">
-                    Move All to Bag
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Wishlist{" "}
+                    <span className="text-gray-500">
+                      ({wishlistData?.length})
+                    </span>
+                  </h1>
+                  <button
+                    // onClick={handleMoveAllToCart}
+                    className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
+                    Move to Cart
                   </button>
                 </div>
               )}
 
               {wishlistData?.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl-grid-cols-6 gap-5 items-center m-[40px_0] w-[100%] z-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl-grid-cols-5 gap-5 items-center m-[40px_0] w-[100%] z-1">
                   {wishlistData?.map((item) => {
                     return (
                       <div className="min-md:w-[250px]">

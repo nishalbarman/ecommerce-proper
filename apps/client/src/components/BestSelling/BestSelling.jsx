@@ -21,7 +21,7 @@ async function BestSelling() {
     <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
       <TitleWithBar title={"Our Products"} />
       <div className="w-full flex justify-between items-center mb-10 max-[597px]:mb-6">
-        <span className="text-2xl xl:text-3xl font-bold align-center max-[597px]:text-[20px] max-sm:-mt-2">
+        <span className="text-2xl xl:text-3xl font-bold align-center max-[597px]:text-[20px] max-sm:-mt-2 max-sm:text-base">
           {/* Best Selling Products */}
           Collection of Products
         </span>

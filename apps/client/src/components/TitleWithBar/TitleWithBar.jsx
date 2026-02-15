@@ -13,7 +13,7 @@ function TitleWithBar({ title }) {
         alt="red bar"
       /> */}
       <div className="max-md:w-2 max-md:h-5 w-3 h-6 rounded-sm bg-[#DA4544]"></div>
-      <span className="text-[18px] max-sm:text-sm text-[#DB4444] font-semibold ">
+      <span className="text-[18px] max-sm:text-sm text-[#DB4444] font-semibold max-sm:text-xs">
         {title}
       </span>
     </div>
