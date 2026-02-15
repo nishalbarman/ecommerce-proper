@@ -40,7 +40,7 @@ a {
 }
 
 @theme {
-  --color-primary: oklch(79.23% 0.1051 152.11);
+  --color-primary: oklch(0.6048 0.1869 24.67);
   --color-skeleton: oklch(87.13% 0.0583 135.76);
   --color-secondary: oklch(0% 0.0074 39.87);
   --color-accent: oklch(89.14% 0.172 109.35);

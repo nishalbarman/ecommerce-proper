@@ -55,9 +55,9 @@ const HeroSkeleton = () => {
           </div>
 
           {/* Image Section Skeleton */}
-          <div className="lg:w-1/2 justify-center hidden md:flex mt-10 ml-5 lg:mt-0">
+          {/* <div className="lg:w-1/2 justify-center hidden md:flex mt-10 ml-5 lg:mt-0">
             <div className="h-120 w-96 bg-gray-200 rounded-xl"></div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

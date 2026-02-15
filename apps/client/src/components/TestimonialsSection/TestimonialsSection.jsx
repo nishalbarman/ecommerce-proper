@@ -34,7 +34,7 @@ const Testimonials = async () => {
   console.log("Testimonials", testimonials);
 
   // If data is not available, show the skeleton loader
-  if (!testimonials) {
+  if (!testimonials || !testimonials.length) {
     return null;
   }
 

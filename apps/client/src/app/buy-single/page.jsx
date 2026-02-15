@@ -1,7 +1,7 @@
 // app/checkout/page.tsx
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -29,6 +29,11 @@ import {
 import { BsTruck } from "react-icons/bs";
 import CartItem from "@/components/Cart/CartItem";
 import Link from "next/link";
+import {
+  clearCouponData,
+  updateAppliedCoupon,
+} from "@/redux/slices/appliedCouponSlice";
+import { set } from "mongoose";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -50,6 +55,18 @@ export default function CheckoutPage() {
 
   console.log(selectedAddress);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
+  const [paymentGatewayList] = useState([]);
+
+  const appliedCouponReduxStore = useSelector(
+    (state) => state.appliedCouponSlice,
+  );
+  // const [appliedCoupon, setAppliedCoupon] = useState(
+  //   appliedCouponReduxStore._id ? appliedCouponReduxStore : null,
+  // );
+
   const handleContinueToPayment = () => {
     console.log("Is address selected then what is the value", selectedAddress);
 
@@ -70,17 +87,14 @@ export default function CheckoutPage() {
 
   const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
 
-  console.log("applied coupon from checkrout page", appliedCoupon);
+  console.log("Applied Coupon From State", appliedCoupon);
 
-  const [subtotalPrice, setSubtotalPrice] = useState(0); // purchase price
-  const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
-  const [totalShippingPrice, setTotalShippingPrice] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0); // original price without the discounts
-  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
   const [shippingPricing, setShippingPricing] = useState({});
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
+
+  const pathname = usePathname();
 
   const dispatch = useDispatch();
   const navigation = useRouter();
@@ -120,9 +134,6 @@ export default function CheckoutPage() {
         const data = await response.json();
         setProductData(data?.product);
       }
-
-      console.log("Product Data", data);
-      setProductData(data?.product);
     } catch (error) {
       console.error(error);
       toast.error(error?.message || "Failed to load, contact admin");
@@ -244,6 +255,7 @@ export default function CheckoutPage() {
           productId: searchParams.get("productId"),
           productVariantId: searchParams.get("productVariantId"),
           quantity: searchParams.get("quantity"),
+          coupon: appliedCoupon._id,
         },
         {
           withCredentials: true,
@@ -267,8 +279,9 @@ export default function CheckoutPage() {
           setOrderStatus(true);
           setOrderStatusText("Order successful");
           transactionStatusRef.current?.classList.remove("hidden");
-          setIsPaymentLoading(false);
+          // setIsPaymentLoading(false);
           //   window.scrollTo(0);
+          toast.success("Payment successful, redirecting to orders page...");
           router.push("/myorders");
         },
         prefill: {
@@ -311,8 +324,11 @@ export default function CheckoutPage() {
       razorPay.open();
     } catch (error) {
       console.error(error.message);
+      setIsPaymentLoading(false);
+    } finally {
+      setIsPaymentLoading(false);
     }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
+  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress, searchParams]);
 
   const handlePayment = () => {
     switch (gatewayOption) {
@@ -347,24 +363,57 @@ export default function CheckoutPage() {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
       );
+      const couponData = response?.data;
 
-      if (!response.data.status) {
-        return setCouponError(response.data.message || "Invalid coupon");
+      console.log("Coupon Data", couponData);
+
+      if (!couponData) {
+        return setCouponError(couponData?.message || "Invalid coupon");
       }
 
-      const coupon = response.data.coupon;
-      const discount = (
-        coupon.isPercentage
-          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
-          : subtotalPrice > coupon.minPurchasePrice
-            ? coupon.off
-            : 0
-      ).toFixed(2);
+      let subtotalPrice = purchasablePrice;
 
-      setCouponDiscountPrice(discount);
-      setAppliedCoupon(discount > 0 ? coupon : null);
-      dispatch(updateAppliedCoupon(coupon));
-      setSubtotalPrice((prev) => prev - discount);
+      console.log("Subtotal Price", subtotalPrice);
+
+      const isFreeDeliveryAvailable =
+        requiredMinimumAmountForFreeDelivery > 0 &&
+        subtotalPrice >= requiredMinimumAmountForFreeDelivery;
+
+      if (!isFreeDeliveryAvailable) {
+        subtotalPrice += shippingPrice;
+      }
+
+      const coupon = couponData.coupon;
+      console.log("Applied Coupon Here", coupon);
+
+      let discount = null;
+      const error = [];
+      if (coupon?.minPurchasePrice > 0) {
+        if (subtotalPrice < coupon?.minPurchasePrice) {
+          setCouponError(
+            "Minimum purchase price not met,\n Minimum purchase price is " +
+              coupon?.minPurchasePrice,
+          );
+          return;
+        }
+        discount = coupon.isPercentage
+          ? subtotalPrice >= coupon.minPurchasePrice
+            ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+            : 0
+          : subtotalPrice >= coupon.minPurchasePrice
+            ? coupon.off
+            : 0;
+      } else {
+        discount = coupon.isPercentage
+          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+          : coupon.off || 0;
+      }
+
+      setCouponDiscountPrice(discount.toFixed(2));
+      // setAppliedCoupon(discount > 0 ? coupon : null);
+      dispatch(updateAppliedCoupon(discount > 0 ? coupon : null));
+      // dispatch(updateAppliedCoupon(coupon));
+      // setSubtotalPrice((prev) => prev - discount);
 
       couponModalRef.current?.classList.add("hidden");
       couponSuccessModalRef.current?.classList.remove("hidden");
@@ -373,6 +422,7 @@ export default function CheckoutPage() {
         couponSuccessModalRef.current?.classList.add("hidden");
       }, 1500);
     } catch (error) {
+      console.error("Coupon Error", error);
       setCouponError(error.response?.data?.message || "Failed to apply coupon");
     } finally {
       setCouponSubmitLoading(false);
@@ -380,9 +430,18 @@ export default function CheckoutPage() {
   };
 
   const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
+    // setAppliedCoupon(null);
     setCouponDiscountPrice(0);
-    setSubtotalPrice((prev) => prev + couponDiscountPrice);
+    dispatch(clearCouponData());
+    // setSubtotalPrice((prev) => prev + couponDiscountPrice);
+  };
+
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity > 50) return;
+    setProductQuantity(newQuantity);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("quantity", newQuantity);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -390,46 +449,114 @@ export default function CheckoutPage() {
     getShippingPricing();
   }, []);
 
-  useEffect(() => {
-    let totalPrice = 0;
-    let subtotalPrice = 0;
-    let totalDiscountPrice = 0;
-    let shippingPrice = 0;
+  const [productQuantity, setProductQuantity] = useState(
+    +searchParams.get("quantity") || 1,
+  );
+  const [MRP, setMRP] = useState(0);
+  const [purchasablePrice, setPurchasablePrice] = useState(0);
+  const [
+    totalDiscountPrice_OrignalPriceMinusPurchasablePrice,
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice,
+  ] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
 
+  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
+
+  const [shippingPrice, setShippingPrice] = useState(0);
+  const [isShippingApplied, setIsShippingApplied] = useState(true);
+
+  const [
+    requiredMinimumAmountForFreeDelivery,
+    setRequiredMinimumAmountForFreeDelivery,
+  ] = useState(0);
+
+  useEffect(() => {
+    if (shippingPricing) {
+      setRequiredMinimumAmountForFreeDelivery(
+        shippingPricing.requiredMinimumAmountForFreeDelivery,
+      );
+      setShippingPrice(shippingPricing.shippingPrice);
+    }
+  }, [shippingPricing]);
+
+  useEffect(() => {
     if (!productData || !shippingPricing) return;
 
-    totalPrice +=
+    const MRP =
       (productData.originalPrice || productData.discountedPrice) *
-      (searchParams.quantity || 1);
-    subtotalPrice += productData.discountedPrice * (searchParams.quantity || 1);
-    totalDiscountPrice += !!productData.originalPrice
-      ? (searchParams.quantity || 1) *
+      (productQuantity || 1);
+
+    const purchasablePrice =
+      productData.discountedPrice * (productQuantity || 1);
+
+    const totalDiscount_OriginalMinusPurchasable = !!productData.originalPrice
+      ? (productQuantity || 1) *
         (productData.originalPrice - productData.discountedPrice)
       : 0;
 
-    setTotalPrice(totalPrice);
-    setTotalDiscountPrice(totalDiscountPrice);
-    setTotalShippingPrice(shippingPricing.deliveryPrice);
+    setMRP(MRP);
+    setPurchasablePrice(purchasablePrice);
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice(
+      totalDiscount_OriginalMinusPurchasable,
+    );
 
-    // shippingPrice = shippingPricing.deliveryPrice;
+    const isFreeDeliveryAvailable =
+      requiredMinimumAmountForFreeDelivery > 0 &&
+      purchasablePrice >= requiredMinimumAmountForFreeDelivery;
 
-    if (!!appliedCoupon && appliedCoupon._id) {
-      const couponDiscountPrice = appliedCoupon.isPercentage
-        ? (subtotalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
-        : subtotalPrice > appliedCoupon.minPurchasePrice
-          ? appliedCoupon.off
-          : 0;
+    let finalPrice = purchasablePrice;
+    setIsShippingApplied(false);
+    setFinalPrice(purchasablePrice);
 
-      console.log("What is coupon discount price", couponDiscountPrice);
-
-      setCouponDiscountPrice(couponDiscountPrice);
-
-      setCouponDiscountPrice(couponDiscountPrice);
-      setSubtotalPrice(subtotalPrice - (couponDiscountPrice || 0));
-    } else {
-      setSubtotalPrice(subtotalPrice);
+    if (!isFreeDeliveryAvailable) {
+      setIsShippingApplied(true);
+      setFinalPrice(purchasablePrice + shippingPrice);
+      finalPrice += shippingPrice;
     }
-  }, [productData, appliedCoupon, shippingPricing]);
+
+    if (!!appliedCoupon && appliedCoupon?._id) {
+      let couponDiscountPrice = 0;
+
+      if (appliedCoupon?.minPurchasePrice > 0) {
+        if (finalPrice < appliedCoupon?.minPurchasePrice) {
+          setCouponError(
+            "Minimum purchase price not met,\n Minimum purchase price is " +
+              appliedCoupon?.minPurchasePrice,
+          );
+          return;
+        }
+
+        couponDiscountPrice = appliedCoupon.isPercentage
+          ? finalPrice >= appliedCoupon.minPurchasePrice
+            ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+            : 0
+          : finalPrice >= appliedCoupon.minPurchasePrice
+            ? appliedCoupon.off
+            : 0;
+      } else {
+        couponDiscountPrice = appliedCoupon.isPercentage
+          ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+          : appliedCoupon.off || 0;
+      }
+
+      // const couponDiscountPrice = appliedCoupon.isPercentage
+      //   ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+      //   : finalPrice > appliedCoupon.minPurchasePrice
+      //     ? appliedCoupon.off
+      //     : 0;
+
+      setCouponDiscountPrice(couponDiscountPrice.toFixed(2));
+
+      setFinalPrice(finalPrice - (couponDiscountPrice.toFixed(2) || 0));
+    }
+  }, [
+    productData,
+    appliedCoupon,
+    shippingPricing,
+    productQuantity,
+    shippingPrice,
+    requiredMinimumAmountForFreeDelivery,
+  ]);
 
   // const getPaymentGateways = async () => {
   //   try {
@@ -459,6 +586,9 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Order Summary</h1>
+        </div>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Delivery Details Section */}
           <div className="lg:w-2/3">
@@ -523,6 +653,28 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                     )}
+
+                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden mt-4 w-fit">
+                      <button
+                        onClick={() =>
+                          handleQuantityChange(Math.max(1, productQuantity - 1))
+                        }
+                        className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                        disabled={productQuantity <= 1}>
+                        -
+                      </button>
+                      <span className="px-4 py-2 text-center min-w-[40px]">
+                        {productQuantity}
+                      </span>
+                      <button
+                        onClick={() =>
+                          handleQuantityChange(+productQuantity + 1)
+                        }
+                        disabled={productQuantity >= 50}
+                        className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed">
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -655,7 +807,7 @@ export default function CheckoutPage() {
 
                 {/* Coupon Section */}
                 <div className="mb-6">
-                  {appliedCoupon ? (
+                  {appliedCoupon?.code ? (
                     <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-4">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center">
@@ -674,7 +826,7 @@ export default function CheckoutPage() {
                         </div>
                         <button
                           onClick={handleRemoveCoupon}
-                          className="text-gray-400 hover:text-gray-600">
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer">
                           <RiCloseLine size={18} />
                         </button>
                       </div>
@@ -698,16 +850,30 @@ export default function CheckoutPage() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">MRP </span>
-                    <span className="font-medium">₹{totalPrice}</span>
+                    <span className="font-medium">₹{MRP}</span>
                   </div>
-                  {totalDiscountPrice > 0 && (
+                  {totalDiscountPrice_OrignalPriceMinusPurchasablePrice > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Discount</span>
                       <span className="text-green-600 font-medium">
-                        - ₹{totalDiscountPrice}
+                        - ₹
+                        {totalDiscountPrice_OrignalPriceMinusPurchasablePrice}
                       </span>
                     </div>
                   )}
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">After Discount</span>
+                    <span className="font-bold">₹{purchasablePrice}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shipping</span>
+                    <span className="font-bold">
+                      {isShippingApplied > 0 ? `₹${shippingPrice}` : "FREE"}
+                    </span>
+                  </div>
+
                   {couponDiscountPrice > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Coupon Discount</span>
@@ -716,35 +882,16 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                   )}
-
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">After Discount</span>
-                    <span className="font-bold">₹{subtotalPrice}</span>
-                  </div>
-
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Shipping</span>
-                    <span className="font-bold">
-                      {shippingPricing.isFreeDeliveryAvailable
-                        ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
-                          subtotalPrice
-                          ? "FREE"
-                          : shippingPricing.shippingPrice > 0
-                            ? `₹${shippingPricing.shippingPrice}`
-                            : "FREE"
-                        : "FREE"}
-                    </span>
-                  </div>
                 </div>
 
-                {appliedCoupon?.code && (
+                {/* {appliedCoupon?.code && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Coupon Applied</span>
                     <span className="text-green-600 font-medium">
                       {appliedCoupon.code}
                     </span>
                   </div>
-                )}
+                )} */}
 
                 {/* Total */}
                 <div className="border-t border-gray-200 pt-4">
@@ -753,87 +900,186 @@ export default function CheckoutPage() {
                       Total
                     </span>
                     <span className="text-xl font-bold text-gray-900">
-                      {shippingPricing.isFreeDeliveryAvailable
-                        ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
-                          subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `₹${subtotalPrice + shippingPricing.shippingPrice}`
-                        : `₹${subtotalPrice + shippingPricing.shippingPrice}`}{" "}
+                      {`₹${finalPrice}`}{" "}
                       <span className="text-xs text-gray-500">
-                        {shippingPricing.isFreeDeliveryAvailable
-                          ? shippingPricing.requiredMinimumAmountForFreeDelivery <=
-                            subtotalPrice
-                            ? `₹${subtotalPrice}`
-                            : `(${subtotalPrice} + ${shippingPricing.shippingPrice > 0 ? shippingPricing.shippingPrice : "FREE"})`
-                          : `(${subtotalPrice} + FREE)`}
+                        {isShippingApplied > 0
+                          ? appliedCoupon?.code
+                            ? `(${purchasablePrice} + ${shippingPrice}) - ${couponDiscountPrice}`
+                            : `(${purchasablePrice} + ${shippingPrice})`
+                          : "FREE"}
                       </span>
                     </span>
                   </div>
                 </div>
 
-              <button
-                onClick={handleContinueToPayment}
-                disabled={!selectedAddress || isPaymentLoading}
-                className={`mt-6 w-full py-4 px-6 rounded-xl font-bold text-white transition-colors text-white ${
-                  !selectedAddress
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-red-500 hover:bg-red-600 cursor-pointer"
-                }`}>
-                {isPaymentLoading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span className="text-white">Processing...</span>
+                <button
+                  onClick={handleContinueToPayment}
+                  disabled={!selectedAddress || isPaymentLoading}
+                  className={`mt-6 w-full py-4 px-6 rounded-xl font-bold text-white transition-colors text-white ${
+                    !selectedAddress
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600 cursor-pointer"
+                  }`}>
+                  {isPaymentLoading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <svg
+                        className="animate-spin h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span className="text-white">Processing...</span>
+                    </div>
+                  ) : (
+                    "Continue to Payment"
+                  )}
+                </button>
+
+                {/* Trust Badges */}
+                <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
+                  <div className="flex flex-col items-center">
+                    <RiSecurePaymentLine
+                      className="text-gray-400 mb-1"
+                      size={20}
+                    />
+                    <span className="text-xs text-gray-500 text-center">
+                      Secure Payments
+                    </span>
                   </div>
-                ) : (
-                  "Continue to Payment"
-                )}
-              </button>
-
-              {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
-                <div className="flex flex-col items-center">
-                  <RiSecurePaymentLine
-                    className="text-gray-400 mb-1"
-                    size={20}
-                  />
-                  <span className="text-xs text-gray-500 text-center">
-                    Secure Payments
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <RiRefund2Fill className="text-gray-400 mb-1" size={20} />
-                  <span className="text-xs text-gray-500 text-center">
-                    Easy Returns
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <HiFire className="text-gray-400 mb-1" size={20} />
-                  <span className="text-xs text-gray-500 text-center">
-                    Quality Assurance
-                  </span>
+                  <div className="flex flex-col items-center">
+                    <RiRefund2Fill className="text-gray-400 mb-1" size={20} />
+                    <span className="text-xs text-gray-500 text-center">
+                      Easy Returns
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <HiFire className="text-gray-400 mb-1" size={20} />
+                    <span className="text-xs text-gray-500 text-center">
+                      Quality Assurance
+                    </span>
+                  </div>
                 </div>
               </div>
-
-              </div>
-
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Coupon Modal */}
+      <div
+        ref={couponModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Apply Coupon</h3>
+            <button
+              onClick={() => couponModalRef.current?.classList.add("hidden")}
+              className="text-gray-400 hover:text-gray-600 cursor-pointer">
+              <RiCloseLine size={24} />
+            </button>
+          </div>
+
+          <form onSubmit={handleCouponSubmit}>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                placeholder="Enter coupon code"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none"
+              />
+              {couponError && (
+                <p className="mt-2 text-sm text-red-600">{couponError}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={couponSubmitLoading || !couponCode}
+              className={`w-full py-3 px-6 rounded-lg font-medium text-white ${couponSubmitLoading || !couponCode ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600 cursor-pointer"}`}>
+              {couponSubmitLoading ? "Applying..." : "Apply Coupon"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Coupon Success Modal */}
+      <div
+        ref={couponSuccessModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          <FiCheckCircle className="mx-auto text-green-500 mb-4" size={48} />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Coupon Applied
+          </h3>
+          <p className="text-gray-600">
+            Your discount has been applied successfully
+          </p>
+        </div>
+      </div>
+
+      {/* Payment Loading Modal */}
+      <div
+        ref={paymentLoadingModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-md  z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Processing Payment
+          </h3>
+          <p className="text-gray-600">
+            Please wait while we process your payment
+          </p>
+        </div>
+      </div>
+
+      {/* Payment Status Modal */}
+      <div
+        ref={paymentStatusModalRef}
+        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          {orderStatus ? (
+            <>
+              <FiCheckCircle
+                className="mx-auto text-green-500 mb-4"
+                size={48}
+              />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Order Successful
+              </h3>
+              <p className="text-gray-600 mb-6">Thank you for your purchase!</p>
+              <Link
+                href="/myorders"
+                className="inline-block bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                View Orders
+              </Link>
+            </>
+          ) : (
+            <>
+              <RiCloseLine className="mx-auto text-red-500 mb-4" size={48} />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Payment Failed
+              </h3>
+              <p className="text-gray-600 mb-6">{orderStatusText}</p>
+              <button
+                onClick={() =>
+                  paymentStatusModalRef.current?.classList.add("hidden")
+                }
+                className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors">
+                Try Again
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

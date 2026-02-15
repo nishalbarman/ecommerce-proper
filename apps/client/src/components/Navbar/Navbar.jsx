@@ -38,8 +38,9 @@ async function Navbar({ title }) {
       <div className="flex flex-row">
         <Link href={"/"} className="flex flex-center items-center w-fit">
           <img
+            draggable={false}
             src="/assets/logo/logo.png"
-            className="h-[85px] max-sm:h-[51px] p-2"
+            className="h-[85px] max-sm:h-[51px] p-2 select-none user-select-none"
           />
           {/* <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden ml-4">
             <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">

@@ -22,6 +22,7 @@ import { BsTruck } from "react-icons/bs";
 import CartItem from "./CartItem";
 import { WishlistApi, CartApi, AppliedCouponSlice } from "@/redux";
 import { useRemoveAllCartMutation } from "@/redux/apis/cartApi";
+import { clearCouponData } from "@/redux/slices/appliedCouponSlice";
 
 function Cart() {
   const { useGetCartQuery } = CartApi;
@@ -51,18 +52,16 @@ function Cart() {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [paymentGatewayList] = useState([]);
 
-  const appliedCouponReduxStore = useSelector(
-    (state) => state.appliedCouponSlice,
-  );
-  const [appliedCoupon, setAppliedCoupon] = useState(
-    appliedCouponReduxStore._id ? appliedCouponReduxStore : null,
-  );
+  const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
+  // const [appliedCoupon, setAppliedCoupon] = useState(
+  //   appliedCouponReduxStore._id ? appliedCouponReduxStore : null,
+  // );
 
   const [subtotalPrice, setSubtotalPrice] = useState(0);
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
-  const [totalShippingPrice, setTotalShippingPrice] = useState(0);
+  // const [totalShippingPrice, setTotalShippingPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0);
+  // const [couponDiscountPrice, setCouponDiscountPrice] = useState(0);
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
 
@@ -92,23 +91,60 @@ function Cart() {
         `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
       );
 
-      if (!response.data.status) {
+      if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");
       }
 
-      const coupon = response.data.coupon;
-      const discount = (
-        coupon.isPercentage
-          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
-          : subtotalPrice > coupon.minPurchasePrice
-            ? coupon.off
-            : 0
-      ).toFixed(2);
+      const couponData = response?.data;
 
-      setCouponDiscountPrice(discount);
-      setAppliedCoupon(discount > 0 ? coupon : null);
-      dispatch(updateAppliedCoupon(coupon));
-      setSubtotalPrice((prev) => prev - discount);
+      console.log("Coupon Data", couponData);
+
+      if (!couponData) {
+        return setCouponError(couponData?.message || "Invalid coupon");
+      }
+
+      let subtotalPrice = purchasablePrice;
+
+      console.log("Subtotal Price", subtotalPrice);
+
+      const isFreeDeliveryAvailable =
+        requiredMinimumAmountForFreeDelivery > 0 &&
+        subtotalPrice >= requiredMinimumAmountForFreeDelivery;
+
+      if (!isFreeDeliveryAvailable) {
+        subtotalPrice += shippingPrice;
+      }
+
+      const coupon = couponData.coupon;
+      console.log("Applied Coupon Here", coupon);
+
+      let discount = null;
+      if (coupon?.minPurchasePrice > 0) {
+        if (subtotalPrice < coupon?.minPurchasePrice) {
+          setCouponError(
+            "Minimum purchase price not met,\n Minimum purchase price is " +
+              coupon?.minPurchasePrice,
+          );
+          return;
+        }
+        discount = coupon.isPercentage
+          ? subtotalPrice >= coupon.minPurchasePrice
+            ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+            : 0
+          : subtotalPrice >= coupon.minPurchasePrice
+            ? coupon.off
+            : 0;
+      } else {
+        discount = coupon.isPercentage
+          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+          : coupon.off || 0;
+      }
+
+      setCouponDiscountPrice(discount.toFixed(2));
+      // setAppliedCoupon(discount > 0 ? coupon : null);
+      dispatch(updateAppliedCoupon(discount > 0 ? coupon : null));
+      // dispatch(updateAppliedCoupon(coupon));
+      // setSubtotalPrice((prev) => prev - discount);
 
       couponModalRef.current?.classList.add("hidden");
       couponSuccessModalRef.current?.classList.remove("hidden");
@@ -117,6 +153,7 @@ function Cart() {
         couponSuccessModalRef.current?.classList.add("hidden");
       }, 1500);
     } catch (error) {
+      console.log("Coupon Error", error);
       setCouponError(error.response?.data?.message || "Failed to apply coupon");
     } finally {
       setCouponSubmitLoading(false);
@@ -124,9 +161,10 @@ function Cart() {
   };
 
   const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
+    // setAppliedCoupon(null);
     setCouponDiscountPrice(0);
-    setSubtotalPrice((prev) => prev + couponDiscountPrice);
+    dispatch(clearCouponData());
+    // setSubtotalPrice((prev) => prev + couponDiscountPrice);
   };
 
   const handleRemoveAllCart = () => {
@@ -188,53 +226,96 @@ function Cart() {
     }
   }, [Razorpay, appliedCoupon]);
 
+  const [MRP, setMRP] = useState(0);
+  const [purchasablePrice, setPurchasablePrice] = useState(0);
+  const [
+    totalDiscountPrice_OrignalPriceMinusPurchasablePrice,
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice,
+  ] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
+
+  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
+
+  // const [shippingPrice, setShippingPrice] = useState(0);
+  const [isShippingApplied, setIsShippingApplied] = useState(true);
+
+  // const [
+  //   requiredMinimumAmountForFreeDelivery,
+  //   setRequiredMinimumAmountForFreeDelivery,
+  // ] = useState(0);
+
+  // useEffect(() => {
+  //   if (shippingPricing) {
+  //     setRequiredMinimumAmountForFreeDelivery(
+  //       shippingPricing.requiredMinimumAmountForFreeDelivery,
+  //     );
+  //     setShippingPrice(shippingPricing.shippingPrice);
+  //   }
+  // }, [shippingPricing]);
+
   useEffect(() => {
-    let total = 0;
-    let subtotal = 0;
-    let discount = 0;
-    let shipping = 0;
+    let MRP = 0;
+    let purchasablePrice = 0;
+    let totalDiscount_OriginalMinusPurchasable = 0;
 
     userCartItems?.forEach((item) => {
       if (!item.product) return;
 
-      if (shipping === 0) shipping += item.product.shippingPrice || 0;
-
       if (item.variant) {
-        total +=
+        MRP +=
           (item.variant.originalPrice || item.variant.discountedPrice) *
           (item.quantity || 1);
-        subtotal += item.variant.discountedPrice * (item.quantity || 1);
-        discount += item.variant.originalPrice
+
+        purchasablePrice += item.variant.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.variant.originalPrice
           ? (item.quantity || 1) *
             (item.variant.originalPrice - item.variant.discountedPrice)
           : 0;
       } else {
-        total +=
+        MRP +=
           (item.product.originalPrice || item.product.discountedPrice) *
           (item.quantity || 1);
-        subtotal += item.product.discountedPrice * (item.quantity || 1);
-        discount += item.product.originalPrice
+
+        purchasablePrice += item.product.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.product.originalPrice
           ? (item.quantity || 1) *
             (item.product.originalPrice - item.product.discountedPrice)
           : 0;
       }
     });
 
-    setTotalPrice(total);
-    setTotalDiscountPrice(discount);
-    setTotalShippingPrice(shipping);
+    setMRP(MRP);
+    setPurchasablePrice(purchasablePrice);
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice(
+      totalDiscount_OriginalMinusPurchasable,
+    );
 
-    if (appliedCoupon?._id) {
-      const couponDiscount = appliedCoupon.isPercentage
-        ? (subtotal / 100) * (parseInt(appliedCoupon.off) || 0)
-        : subtotal > (appliedCoupon.minPurchasePrice || subtotal + 100)
+    const isFreeDeliveryAvailable =
+      requiredMinimumAmountForFreeDelivery > 0 &&
+      purchasablePrice >= requiredMinimumAmountForFreeDelivery;
+
+    let finalPrice = purchasablePrice;
+    setIsShippingApplied(false);
+    setFinalPrice(purchasablePrice);
+
+    if (!isFreeDeliveryAvailable) {
+      setIsShippingApplied(true);
+      setFinalPrice(purchasablePrice + shippingPrice);
+      finalPrice += shippingPrice;
+    }
+
+    if (!!appliedCoupon && appliedCoupon?._id) {
+      const couponDiscountPrice = appliedCoupon.isPercentage
+        ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+        : finalPrice > appliedCoupon.minPurchasePrice
           ? appliedCoupon.off
           : 0;
 
-      setCouponDiscountPrice(couponDiscount);
-      setSubtotalPrice(subtotal - couponDiscount + shipping);
-    } else {
-      setSubtotalPrice(subtotal + shipping);
+      setCouponDiscountPrice(couponDiscountPrice.toFixed(2));
+
+      setFinalPrice(finalPrice - (couponDiscountPrice || 0));
     }
   }, [userCartItems, appliedCoupon]);
 
@@ -278,13 +359,18 @@ function Cart() {
             </div>
 
             {/* Free Shipping Banner */}
-            {isFreeDeliveryMinAmntAvailable && <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-center">
-              <BsTruck className="text-blue-500 mr-3 flex-shrink-0" size={20} />
-              <p className="text-blue-800">
-                Get <span className="font-semibold">FREE delivery</span> on
-                orders over ₹{requiredMinimumAmountForFreeDelivery}
-              </p>
-            </div>}
+            {isFreeDeliveryMinAmntAvailable && (
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-center">
+                <BsTruck
+                  className="text-blue-500 mr-3 flex-shrink-0"
+                  size={20}
+                />
+                <p className="text-blue-800">
+                  Get <span className="font-semibold">FREE delivery</span> on
+                  orders over ₹{requiredMinimumAmountForFreeDelivery}
+                </p>
+              </div>
+            )}
 
             {/* Cart Items List */}
             <div className="space-y-4">
@@ -304,7 +390,7 @@ function Cart() {
 
                 {/* Coupon Section */}
                 <div className="mb-6">
-                  {appliedCoupon ? (
+                  {appliedCoupon?.code ? (
                     <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-4">
                       <div className="flex justify-between items-start">
                         <div className="flex items-center">
@@ -323,7 +409,7 @@ function Cart() {
                         </div>
                         <button
                           onClick={handleRemoveCoupon}
-                          className="text-gray-400 hover:text-gray-600">
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer">
                           <RiCloseLine size={18} />
                         </button>
                       </div>
@@ -347,13 +433,14 @@ function Cart() {
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">MRP </span>
-                    <span className="font-medium">₹{totalPrice}</span>
+                    <span className="font-medium">₹{MRP}</span>
                   </div>
-                  {totalDiscountPrice > 0 && (
+                  {totalDiscountPrice_OrignalPriceMinusPurchasablePrice > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Discount</span>
                       <span className="text-green-600 font-medium">
-                        - ₹{totalDiscountPrice}
+                        - ₹
+                        {totalDiscountPrice_OrignalPriceMinusPurchasablePrice}
                       </span>
                     </div>
                   )}
@@ -368,19 +455,24 @@ function Cart() {
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">After Discount</span>
-                    <span className="font-bold">₹{subtotalPrice}</span>
+                    <span className="font-bold">₹{purchasablePrice}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-bold">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? "FREE"
-                          : shippingPrice > 0 ? `₹${shippingPrice}` : "FREE"
-                        : "FREE"}
+                      {isShippingApplied > 0 ? `₹${shippingPrice}` : "FREE"}
                     </span>
                   </div>
+
+                  {couponDiscountPrice > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Coupon Discount</span>
+                      <span className="text-green-600 font-medium">
+                        - ₹{couponDiscountPrice}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Total */}
@@ -390,15 +482,14 @@ function Cart() {
                       Total
                     </span>
                     <span className="text-xl font-bold text-gray-900">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `₹${subtotalPrice + shippingPrice}`
-                        : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `(${subtotalPrice} + ${shippingPrice > 0 ? shippingPrice : "FREE"})`
-                        : `(${subtotalPrice} + FREE)`}</span>
+                      {`₹${finalPrice}`}{" "}
+                      <span className="text-xs text-gray-500">
+                        {isShippingApplied > 0
+                          ? appliedCoupon?.code
+                            ? `(${purchasablePrice} + ${shippingPrice}) - ${couponDiscountPrice}`
+                            : `(${purchasablePrice} + ${shippingPrice})`
+                          : "FREE"}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -457,7 +548,7 @@ function Cart() {
             <h3 className="text-lg font-bold text-gray-900">Apply Coupon</h3>
             <button
               onClick={() => couponModalRef.current?.classList.add("hidden")}
-              className="text-gray-400 hover:text-gray-600">
+              className="text-gray-400 hover:text-gray-600 cursor-pointer">
               <RiCloseLine size={24} />
             </button>
           </div>
@@ -488,7 +579,7 @@ function Cart() {
       {/* Coupon Success Modal */}
       <div
         ref={couponSuccessModalRef}
-        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
           <FiCheckCircle className="mx-auto text-green-500 mb-4" size={48} />
           <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -503,7 +594,7 @@ function Cart() {
       {/* Payment Loading Modal */}
       <div
         ref={paymentLoadingModalRef}
-        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -518,7 +609,7 @@ function Cart() {
       {/* Payment Status Modal */}
       <div
         ref={paymentStatusModalRef}
-        className="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
           {orderStatus ? (
             <>

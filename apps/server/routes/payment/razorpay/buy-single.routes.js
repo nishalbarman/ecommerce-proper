@@ -93,6 +93,8 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       totalPrice = Price * Quantity * RentDays;
     }
 
+    console.log("Total Price Stage One",totalPrice)
+
     const totalDiscountedPriceWithoutAnyCouponAndShipping = totalPrice;
     let couponDiscountedPrice = 0;
 
@@ -122,6 +124,8 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       shippingApplied = true;
     }
 
+    console.log("Total Price Stage Two",totalPrice)
+
     if (!!appliedCouponID) {
       const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
 
@@ -148,7 +152,9 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     totalPrice *= 100; // gateway takes amount as paisa (1 rupee = 100 paisa)
 
-    const productNames = productData.title;
+    console.log("Coupon Applied Total Price", totalPrice)
+
+    const productNames = productData?.title || productData?.product?.title;
 
     const addressDocument = await UserAddress.findById(address);
 

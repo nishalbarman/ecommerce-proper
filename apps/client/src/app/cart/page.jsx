@@ -4,8 +4,8 @@ import Cart from "../../components/Cart/Cart";
 export default async function page() {
   return (
     <>
-      <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
-        <div className="h-fill w-fill m-[40px_0]">
+      <main className="min-h-screen bg-gray-50 ">
+        <div className="h-fill w-fill ">
           <Cart />
         </div>
       </main>
