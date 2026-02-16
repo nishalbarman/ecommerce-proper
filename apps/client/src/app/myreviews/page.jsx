@@ -141,8 +141,8 @@ export default function MyFeedbackPage() {
 
       {/* Content card */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-          <div className="px-5 sm:px-6 py-4 border-b bg-gray-50">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="px-5 sm:px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-gray-800">
                 All Feedback ({feedbacks.length})
@@ -187,7 +187,7 @@ export default function MyFeedbackPage() {
                 {feedbacks.map((f) => (
                   <li
                     key={f._id}
-                    className="border-b last:border-0 pb-6 last:pb-0">
+                    className="border-b border-gray-200 last:border-0 pb-6 last:pb-0">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div>
                         <Link href={`/products/view/${f?.product?._id || ""}`}>

@@ -236,8 +236,8 @@ export default function EditFeedbackPage() {
         </p>
       </div>
       {/* Form card */}
-      <div className="container shadow-sm mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-2xl p-5 sm:p-6 max-w-3xl mx-auto">
+      <div className="container mx-auto px-5 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="bg-white p-8 rounded-sm shadow-lg border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Rating */}
             <div>

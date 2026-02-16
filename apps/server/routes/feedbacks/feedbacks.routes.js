@@ -455,7 +455,7 @@ router.post("/view/:fetchingId", checkRole(0, 1, 2), async (req, res) => {
 });
 
 // FEEDBACK: delete one feedback with feedback id
-router.delete("/delete/:feedbackId", checkRole(0, 1, 2), async (req, res) => {
+router.delete("/delete/:feedbackId", checkRole(0, 1), async (req, res) => {
   try {
     const params = req.params;
     console.log(TAG, params);
