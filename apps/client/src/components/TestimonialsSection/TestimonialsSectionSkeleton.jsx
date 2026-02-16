@@ -42,7 +42,15 @@ const TestimonialsSkeleton = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="mx-auto text-center w-2/4 max-sm:zoom-0_1">
-            <h1 className="text-white text-4xl leading-11 font-bold">
+            <div className="inline-flex items-center mb-5">
+              <div className="flex-grow flex flex-col pl-4">
+                <div className="h-4 w-24 bg-green-100 rounded mb-2"></div>
+              </div>
+            </div>
+
+            {/* Quote Icon Skeleton */}
+            <div className="w-full h-5 bg-green-100 mb-4"></div>
+            {/* <h1 className="text-white text-4xl leading-11 font-bold">
               Our Customer Said{" "}
               <span className="text-black font-light">
                 About Our Mehendi Products
@@ -50,7 +58,7 @@ const TestimonialsSkeleton = () => {
             </h1>
             <p className="my-10 font-andika">
               Hear from our happy customers about their experiences.
-            </p>
+            </p> */}
           </div>
         </div>
         <div className="text-black w-full relative">
