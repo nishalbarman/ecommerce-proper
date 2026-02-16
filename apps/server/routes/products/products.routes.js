@@ -204,24 +204,41 @@ const checkUpdatedProductHasError = ({
   rentingPrice,
 }) => {
   const error = [];
-  // if (!Array.isArray(previewImage)) {
-  //   error.push("Preview Image should be a non empty array");
-  // }
+
+  const imageTest = /^https:\/\/i\.ibb\.co\//;
+
+  if (!imageTest.test(previewImage)) {
+    error.push("Preview Image does not have valid allowed url");
+  }
+
+  if (!Array.isArray(slideImages)) {
+    let isOk = true;
+    for (let i = 0; i < slideImages.length; i++) {
+      isOk = isOk && imageTest.test(slideImages[i]);
+      if (!isOk) {
+        error.push("Slide Images does not have valid allowed url");
+        break;
+      }
+    }
+  }
 
   if (!title || title?.length < 5) {
     error.push("Title should be of minimum 5 characters");
   }
 
-  // const ObjectId = mongoose.Types.ObjectId;
-  // if (
-  //   !category ||
-  //   !(ObjectId.isValid(category) && String(new ObjectId(category)) === category)
-  // ) {
-  //   error.push("Category is not valid");
-  // }
+  const ObjectId = mongoose.Types.ObjectId;
+  if (
+    !category?._id ||
+    !(
+      ObjectId.isValid(category?._id) &&
+      String(new ObjectId(category?._id)) === category?._id
+    )
+  ) {
+    error.push("Category is not valid");
+  }
 
-  if (!discountedPrice && !originalPrice && !rentingPrice) {
-    error.push("Original price and Discounted price needs to be given");
+  if (!discountedPrice && !rentingPrice) {
+    error.push("Discounted price and Renting Price needs to be given");
   }
 
   if (
@@ -237,14 +254,12 @@ const checkUpdatedProductHasError = ({
   if (
     !!discountedPrice &&
     !!originalPrice &&
-    +originalPrice <= +discountedPrice
+    +originalPrice < +discountedPrice
   ) {
-    error.push("Discounted price should be lesser than Original price");
+    error.push(
+      "Discounted price should be lesser than Original price if given",
+    );
   }
-
-  // if (!Array.isArray(slideImages)) {
-  //   error.push("Slide images should be an non empty array");
-  // }
 
   try {
     const html = cheerio.load(description);
@@ -262,8 +277,13 @@ const checkUpdatedProductHasError = ({
 
   if (!!isVariantAvailable) {
     productVariant.forEach((variant, index) => {
-      if (Object.keys(variant).length !== 14) {
-        return error.push("Variant does not contain all the required keys");
+      if (Object.keys(variant)?.length < 8) {
+        return error.push(
+          "Variant +" +
+            (index + 1) +
+            ": " +
+            "Does not contain all the required keys",
+        );
       }
 
       const localError = [];
@@ -272,6 +292,12 @@ const checkUpdatedProductHasError = ({
       //   localError.push("Preview Image is not valid");
       // }
 
+      if (!imageTest.test(variant?.previewImage)) {
+        localError.push(
+          "Variant +" + (index + 1) + ": " + "Preview Image is not valid",
+        );
+      }
+
       if (!variant?.discountedPrice && !variant?.originalPrice) {
         localError.push(
           "Original price and Discounted price needs to be given",
@@ -279,18 +305,35 @@ const checkUpdatedProductHasError = ({
       }
 
       if (
-        !!variant?.discountedPrice &&
-        !!variant?.originalPrice &&
-        variant?.originalPrice <= variant?.discountedPrice
+        isNaN(Number(rentingPrice)) ||
+        isNaN(Number(discountedPrice)) ||
+        isNaN(Number(originalPrice))
       ) {
-        localError.push(
-          "Discounted price should be lesser than Original price",
+        error.push(
+          "Original price, Discounted price and Renting price should be numbers",
         );
       }
 
-      // if (!Array.isArray(variant?.slideImages)) {
-      //   localError.push("Slide images should be an non empty array");
-      // }
+      if (
+        !!variant?.discountedPrice &&
+        !!variant?.originalPrice &&
+        +variant?.originalPrice < +variant?.discountedPrice
+      ) {
+        localError.push(
+          "Discounted price should be lesser than original price",
+        );
+      }
+
+      if (!Array.isArray(variant?.slideImages)) {
+        let isOk = true;
+        for (let i = 0; i < variant?.slideImages.length; i++) {
+          isOk = isOk && imageTest.test(variant?.slideImages[i]);
+          if (!isOk) {
+            localError.push("Slide Images does not have valid allowed url");
+            break;
+          }
+        }
+      }
 
       if (!!variant?.shippingPrice && isNaN(parseInt(variant?.shippingPrice))) {
         localError.push("Shipping price must be a valid number");
@@ -304,20 +347,16 @@ const checkUpdatedProductHasError = ({
       }
 
       if (!variant?.color) {
-        localError.push(
-          "Variant +" + (index + 1) + ": " + "Color is not vallid",
-        );
+        localError.push("Color is not vallid");
       }
 
       if (!variant?.size) {
-        localError.push(
-          "Variant +" + (index + 1) + ": " + "Size is not vallid",
-        );
+        localError.push("Size is not vallid");
       }
 
       if (localError.length > 0) {
         error.push(
-          `Variant: ${index + 1}, has errors. Message: ${localError.join(", ")}`,
+          `Variant: ${index + 1}, has errors. Message: ${localError.join(",\n")}`,
         );
       }
     });
@@ -625,7 +664,27 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
 
     // TODO: Need to validate the incoming key values so that it fits the required formate
 
-    productData.productVariant = Object.values(productData.productVariant);
+    // productData.productVariant = Object.values(productData.productVariant)?.map(
+    //   (variant) => {
+    //     return {
+    //       product: productId,
+    //       size: variant.size,
+    //       color: variant.color,
+    //       previewImage: variant.previewImage,
+    //       slideImages: variant.slideImages,
+    //       availableStocks: variant.availableStocks,
+    //       shippingPrice: variant.shippingPrice || 0,
+    //       rentingPrice: variant.rentingPrice || 0,
+    //       discountedPrice: variant.discountedPrice,
+    //       originalPrice: variant.originalPrice,
+    //     };
+    //   },
+    // );
+
+    console.log(
+      "What is product variant, I guess it would be the ids of variant thats why product checkupdate is failed because it does not have the keys (it only has variant ids))",
+      productData.productVariant,
+    );
 
     const error = checkUpdatedProductHasError(productData);
 
@@ -655,34 +714,72 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
 
     console.log(productId);
 
-    await Product.findByIdAndUpdate(productId, productUpdatedData);
-
     if (productData?.isVariantAvailable) {
       // variants structure ==> [{key: value},{...}, {...}]
-      const variantPromises = Object.entries(productData.productVariant).map(
-        async ([key, value]) => {
-          const variantData = {
-            size: value.size,
-            color: value.color,
-            availableStocks: +value.availableStocks,
-            shippingPrice: +value.shippingPrice,
-            rentingPrice: +value.rentingPrice,
-            discountedPrice: +value.discountedPrice,
-            originalPrice: +value.originalPrice,
-          };
 
-          if (value.previewImage) {
-            variantData.previewImage = value.previewImage;
-          }
+      const existingVariants = [];
+      const newVariants = [];
 
-          if (value.slideImages.length) {
-            variantData.slideImages = value.slideImages;
-          }
+      // this is for final merge, we will collect all the ids for existing variant for faster merge. Later on creating new variant we add push the new ids here.
+      const variantIds = [];
 
-          return ProductVariant.findByIdAndUpdate(value._id, variantData);
-        },
-      );
+      Object.values(productData.productVariant)?.forEach((variant) => {
+        if (!!variant?._id) {
+          existingVariants.push(variant);
+          variantIds.push(variant._id);
+        } else {
+          newVariants.push({
+            product: productId,
+            size: variant.size,
+            color: variant.color,
+            previewImage: variant.previewImage,
+            slideImages: variant.slideImages,
+            availableStocks: +variant.availableStocks,
+            shippingPrice: +variant.shippingPrice || 0,
+            rentingPrice: +variant.rentingPrice || 0,
+            discountedPrice: +variant.discountedPrice,
+            originalPrice: +variant.originalPrice,
+          });
+        }
+      });
+
+      // update process of existing variants
+      const variantPromises = existingVariants.map(async (value) => {
+        const variantData = {
+          size: value.size,
+          color: value.color,
+          availableStocks: +value.availableStocks,
+          shippingPrice: +value.shippingPrice || 0,
+          rentingPrice: +value.rentingPrice || 0,
+          discountedPrice: +value.discountedPrice,
+          originalPrice: +value.originalPrice,
+        };
+
+        if (value.previewImage) {
+          variantData.previewImage = value.previewImage;
+        }
+
+        if (value.slideImages.length) {
+          variantData.slideImages = value.slideImages;
+        }
+
+        return ProductVariant.findByIdAndUpdate(value._id, variantData);
+      });
       await Promise.all(variantPromises);
+
+      // addition process of existing variants
+      if (newVariants.length > 0) {
+        const newVariantPromises = newVariants.map(async (variantData) => {
+          return ProductVariant.create(variantData);
+        });
+        const newVariantPromiseResponse = await Promise.all(newVariantPromises);
+        newVariantPromiseResponse.forEach((variant) => {
+          variantIds.push(variant._id);
+        });
+      }
+
+      productUpdatedData.productVariant = variantIds || [];
+      await Product.findByIdAndUpdate(productId, productUpdatedData);
     }
 
     return res.status(200).json({

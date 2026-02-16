@@ -77,7 +77,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       setCategoryList(response.data.categories);
     } catch (error: any) {
@@ -111,7 +111,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               headers: {
                 Authorization: `Bearer ${jwtToken}`,
               },
-            }
+            },
           );
 
           const product: Product = response.data.product;
@@ -147,7 +147,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
             product.productVariant !== undefined &&
               Array.isArray(product.productVariant)
               ? product?.productVariant?.length
-              : 0
+              : 0,
           );
           if (typeof setIsFormSubmitting !== undefined)
             setIsUpdateLoading(false);
@@ -203,7 +203,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },
-      }
+      },
     );
 
     console.log(response);
@@ -219,7 +219,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },
-      }
+      },
     );
 
     if (typeof refetchProducts !== undefined) {
@@ -438,7 +438,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                           classX="h-5"
                           htmlFor="productPreviewImage"
                           fileSelectCallback={(
-                            imageItems: Array<FileLibraryListItem>
+                            imageItems: Array<FileLibraryListItem>,
                           ) => {
                             console.log("Selected Image Link-->", imageItems);
                             setProductData((prev) => {
@@ -484,14 +484,14 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                           classX="h-5"
                           htmlFor="productSlideImage"
                           fileSelectCallback={(
-                            imageItems: Array<FileLibraryListItem>
+                            imageItems: Array<FileLibraryListItem>,
                           ) => {
                             console.log("Selected Image Link-->", imageItems);
                             setProductData((prev) => {
                               return {
                                 ...prev,
                                 slideImages: imageItems.map(
-                                  (eachImage) => eachImage.imageLink
+                                  (eachImage) => eachImage.imageLink,
                                 ),
                               };
                             });
@@ -522,7 +522,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                 className="w-full h-full object-contain"
                               />
                             </SwiperSlide>
-                          )
+                          ),
                         )}
                       </Swiper>
                     ) : (
@@ -717,9 +717,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               </div>
             </div>
 
-            {!updateProductId ||
-            (!!updateProductId &&
-              Object.keys(productData.productVariant as {}).length > 0) ? (
+            {(
               <div className="bg-white p-4 rounded shadow-lg border">
                 <h3 className="text-xl font-semibold mb-3">
                   Variant Information
@@ -773,12 +771,12 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </div>
 
                     <div className="flex items-center mb-3">
-                      {productData.isVariantAvailable && (
+                      {
                         <div className="flex items-center border-none border-gray-300 rounded-lg w-fit">
                           <button
                             type="button"
                             onClick={() => {
-                              setVariantQuantity((prev) => (prev || 0) - 1);
+                              setVariantQuantity((prev) => Math.max(0, (prev || 0) - 1));
                             }}
                             className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-l-lg focus:outline-none h-full">
                             -
@@ -793,7 +791,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             onWheel={(e) => {
                               e.preventDefault();
                             }}
-                            min={0}
+                            min="0"
                             placeholder="Number of variants requried"
                             aria-label="Variant quantity"
                           />
@@ -806,7 +804,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             +
                           </button>
                         </div>
-                      )}
+                      }
                     </div>
 
                     {!!productData?.isVariantAvailable &&
@@ -861,7 +859,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                           classX="h-5"
                                           htmlFor={`variantPreviewImages-${index + 1}`}
                                           fileSelectCallback={(
-                                            imageItems: Array<FileLibraryListItem>
+                                            imageItems: Array<FileLibraryListItem>,
                                           ) => {
                                             setProductData((prev) => {
                                               return {
@@ -889,7 +887,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                   <div className="flex justify-center w-full h-[400px] aspect-square overflow-hidden mt-1 border-2 rounded">
                                     {productData.productVariant &&
                                     !Array.isArray(
-                                      productData.productVariant
+                                      productData.productVariant,
                                     ) &&
                                     productData.productVariant[
                                       `variant_no_${index}`
@@ -929,11 +927,11 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                           classX="h-5"
                                           htmlFor={`variantSlideImages-${index + 1}`}
                                           fileSelectCallback={(
-                                            imageItems: Array<FileLibraryListItem>
+                                            imageItems: Array<FileLibraryListItem>,
                                           ) => {
                                             console.log(
                                               "Selected Image Link-->",
-                                              imageItems
+                                              imageItems,
                                             );
                                             setProductData((prev) => {
                                               return {
@@ -948,7 +946,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                                     )[`variant_no_${index}`],
                                                     slideImages: imageItems.map(
                                                       (eachImage) =>
-                                                        eachImage.imageLink
+                                                        eachImage.imageLink,
                                                     ),
                                                   },
                                                 },
@@ -962,7 +960,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                   </div>
                                   <div className="w-full h-[400px] aspect-square overflow-hidden mt-1 border-2 rounded">
                                     {!Array.isArray(
-                                      productData.productVariant
+                                      productData.productVariant,
                                     ) &&
                                     !!productData?.productVariant &&
                                     (productData.productVariant[
@@ -983,7 +981,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
                                         {productData.productVariant &&
                                           !Array.isArray(
-                                            productData.productVariant
+                                            productData.productVariant,
                                           ) &&
                                           (
                                             productData.productVariant[
@@ -1415,8 +1413,6 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </div>
                   )}
               </div>
-            ) : (
-              <></>
             )}
 
             <div className="flex justify-end">
