@@ -755,7 +755,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       <input
                         id="variantCheckbox"
                         type="checkbox"
-                        className="form-checkbox h-6 w-6 text-blue-600"
+                        className="form-checkbox h-6 w-6 text-blue-600 cursor-pointer"
                         onChange={(e) => {
                           setProductData((prev) => {
                             return {
@@ -766,11 +766,11 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         }}
                         checked={!!productData?.isVariantAvailable}
                         aria-label="Product Variant Checkbox"
-                        disabled={!!updateProductId}
+                        // disabled={!!updateProductId}
                       />
                     </div>
 
-                    <div className="flex items-center mb-3">
+                    {!!productData?.isVariantAvailable && <div className="flex items-center mb-3">
                       {
                         <div className="flex items-center border-none border-gray-300 rounded-lg w-fit">
                           <button
@@ -805,7 +805,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                           </button>
                         </div>
                       }
-                    </div>
+                    </div>}
 
                     {!!productData?.isVariantAvailable &&
                       variantQuantity !== undefined &&

@@ -708,6 +708,7 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
       rentingPrice: +productData.rentingPrice,
       discountedPrice: +productData.discountedPrice,
       originalPrice: +productData.originalPrice,
+      isVariantAvailable: !!productData.isVariantAvailable,
     };
 
     if (productData.previewImage) {
@@ -718,8 +719,6 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
       productUpdatedData.slideImages = productData.slideImages;
     }
 
-    console.log(productId);
-
     if (productData?.isVariantAvailable) {
       // variants structure ==> [{key: value},{...}, {...}]
 
@@ -728,8 +727,6 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
 
       // this is for final merge, we will collect all the ids for existing variant for faster merge. Later on creating new variant we add push the new ids here.
       const variantIds = [];
-
-      console.log("What are product variants", productData.productVariant);
 
       Object.values(productData.productVariant)?.forEach((variant) => {
         if (!!variant?._id) {
@@ -788,7 +785,12 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
 
       productUpdatedData.productVariant = variantIds || [];
       await Product.findByIdAndUpdate(productId, productUpdatedData);
+      return res.status(200).json({
+        message: `Product Updated`,
+      });
     }
+
+    await Product.findByIdAndUpdate(productId, productUpdatedData);
 
     return res.status(200).json({
       message: `Product Updated`,
@@ -937,11 +939,9 @@ router.post("/delete", checkRole(1, 2), async (req, res) => {
     const deletePromises = deletableProductIds.map(async (productId) => {
       const product = await Product.findById(productId);
       console.log(product);
-      await ProductVariant.deleteMany(
-        {
-          _id: {$in: product?.productVariant?.map((variant) => variant._id),}
-        }
-      );
+      await ProductVariant.deleteMany({
+        _id: { $in: product?.productVariant?.map((variant) => variant._id) },
+      });
       await Cart.deleteMany({ product: product._id });
       await Wishlist.deleteMany({ product: product._id });
       await Product.findByIdAndDelete(productId);
