@@ -62,7 +62,7 @@ export default function Page() {
               )}
 
               {wishlistData?.length > 0 && (
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6 md:flex-col md:items-start md:gap-2">
                   <h1 className="text-2xl font-bold text-gray-900">
                     Wishlist{" "}
                     <span className="text-gray-500">

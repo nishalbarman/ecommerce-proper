@@ -57,11 +57,6 @@ function Cart() {
   //   appliedCouponReduxStore._id ? appliedCouponReduxStore : null,
   // );
 
-  const [subtotalPrice, setSubtotalPrice] = useState(0);
-  const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
-  // const [totalShippingPrice, setTotalShippingPrice] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
-  // const [couponDiscountPrice, setCouponDiscountPrice] = useState(0);
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
 
@@ -236,22 +231,7 @@ function Cart() {
 
   const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
 
-  // const [shippingPrice, setShippingPrice] = useState(0);
   const [isShippingApplied, setIsShippingApplied] = useState(true);
-
-  // const [
-  //   requiredMinimumAmountForFreeDelivery,
-  //   setRequiredMinimumAmountForFreeDelivery,
-  // ] = useState(0);
-
-  // useEffect(() => {
-  //   if (shippingPricing) {
-  //     setRequiredMinimumAmountForFreeDelivery(
-  //       shippingPricing.requiredMinimumAmountForFreeDelivery,
-  //     );
-  //     setShippingPrice(shippingPricing.shippingPrice);
-  //   }
-  // }, [shippingPricing]);
 
   useEffect(() => {
     let MRP = 0;

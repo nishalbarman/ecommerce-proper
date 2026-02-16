@@ -22,6 +22,8 @@ import { HiFire } from "react-icons/hi2";
 import { IoIosArrowForward } from "react-icons/io";
 import { FiCheckCircle, FiShoppingBag } from "react-icons/fi";
 import { BsTruck } from "react-icons/bs";
+import Link from "next/link";
+import { clearCouponData, updateAppliedCoupon } from "@/redux/slices/appliedCouponSlice";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -79,7 +81,6 @@ export default function CheckoutPage() {
   const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
   const [totalShippingPrice, setTotalShippingPrice] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0); // original price without the discounts
-  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
@@ -270,67 +271,184 @@ export default function CheckoutPage() {
     }
   };
 
-  useEffect(() => {
-    let totalPrice = 0;
-    let subtotalPrice = 0;
-    let totalDiscountPrice = 0;
+  const handleCouponSubmit = async (e) => {
+    e.preventDefault();
+    setCouponSubmitLoading(true);
+    setCouponError("");
 
-    let shippingPrice = 0;
+    try {
+      if (!couponCode) {
+        return setCouponError("Please enter a coupon code");
+      }
 
-    userCartItems?.forEach((item) => {
-      if (!item.product && !item.variant) return;
+      if (appliedCoupon?.code?.toLowerCase() === couponCode.toLowerCase()) {
+        return setCouponError("Coupon already applied");
+      }
 
-      if (shippingPrice === 0) shippingPrice += item.product.shippingPrice || 0;
-
-      console.log(
-        "Item shipping price cart item",
-        item.product.shippingPrice,
-        shippingPrice,
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
       );
 
+      if (!response.data.coupon) {
+        return setCouponError(response.data.message || "Invalid coupon");
+      }
+
+      const couponData = response?.data;
+
+      console.log("Coupon Data", couponData);
+
+      if (!couponData) {
+        return setCouponError(couponData?.message || "Invalid coupon");
+      }
+
+      let subtotalPrice = purchasablePrice;
+
+      console.log("Subtotal Price", subtotalPrice);
+
+      const isFreeDeliveryAvailable =
+        requiredMinimumAmountForFreeDelivery > 0 &&
+        subtotalPrice >= requiredMinimumAmountForFreeDelivery;
+
+      if (!isFreeDeliveryAvailable) {
+        subtotalPrice += shippingPrice;
+      }
+
+      const coupon = couponData.coupon;
+      console.log("Applied Coupon Here", coupon);
+
+      let discount = null;
+      if (coupon?.minPurchasePrice > 0) {
+        if (subtotalPrice < coupon?.minPurchasePrice) {
+          setCouponError(
+            "Minimum purchase price not met,\n Minimum purchase price is " +
+              coupon?.minPurchasePrice,
+          );
+          return;
+        }
+        discount = coupon.isPercentage
+          ? subtotalPrice >= coupon.minPurchasePrice
+            ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+            : 0
+          : subtotalPrice >= coupon.minPurchasePrice
+            ? coupon.off
+            : 0;
+      } else {
+        discount = coupon.isPercentage
+          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+          : coupon.off || 0;
+      }
+
+      setCouponDiscountPrice(discount.toFixed(2));
+      // setAppliedCoupon(discount > 0 ? coupon : null);
+      dispatch(updateAppliedCoupon(discount > 0 ? coupon : null));
+      // dispatch(updateAppliedCoupon(coupon));
+      // setSubtotalPrice((prev) => prev - discount);
+
+      couponModalRef.current?.classList.add("hidden");
+      couponSuccessModalRef.current?.classList.remove("hidden");
+
+      setTimeout(() => {
+        couponSuccessModalRef.current?.classList.add("hidden");
+      }, 1500);
+    } catch (error) {
+      console.log("Coupon Error", error);
+      setCouponError(error.response?.data?.message || "Failed to apply coupon");
+    } finally {
+      setCouponSubmitLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    // setAppliedCoupon(null);
+    setCouponDiscountPrice(0);
+    dispatch(clearCouponData());
+    // setSubtotalPrice((prev) => prev + couponDiscountPrice);
+  };
+
+  const couponModalRef = useRef();
+  const couponSuccessModalRef = useRef();
+  const paymentLoadingModalRef = useRef();
+  const paymentStatusModalRef = useRef();
+
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
+
+  const [MRP, setMRP] = useState(0);
+  const [purchasablePrice, setPurchasablePrice] = useState(0);
+  const [
+    totalDiscountPrice_OrignalPriceMinusPurchasablePrice,
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice,
+  ] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
+
+  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
+
+  const [isShippingApplied, setIsShippingApplied] = useState(true);
+
+  useEffect(() => {
+    let MRP = 0;
+    let purchasablePrice = 0;
+    let totalDiscount_OriginalMinusPurchasable = 0;
+
+    userCartItems?.forEach((item) => {
+      if (!item.product) return;
+
       if (item.variant) {
-        totalPrice +=
+        MRP +=
           (item.variant.originalPrice || item.variant.discountedPrice) *
           (item.quantity || 1);
-        subtotalPrice += item.variant.discountedPrice * (item.quantity || 1);
-        totalDiscountPrice += !!item.variant.originalPrice
+
+        purchasablePrice += item.variant.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.variant.originalPrice
           ? (item.quantity || 1) *
             (item.variant.originalPrice - item.variant.discountedPrice)
           : 0;
-      } else if (item.product) {
-        totalPrice +=
+      } else {
+        MRP +=
           (item.product.originalPrice || item.product.discountedPrice) *
           (item.quantity || 1);
-        subtotalPrice += item.product.discountedPrice * (item.quantity || 1);
-        totalDiscountPrice += !!item.product.originalPrice
+
+        purchasablePrice += item.product.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.product.originalPrice
           ? (item.quantity || 1) *
             (item.product.originalPrice - item.product.discountedPrice)
           : 0;
       }
     });
-    console.log("Total Price", totalPrice + shippingPrice);
 
-    setTotalPrice(totalPrice);
-    setTotalDiscountPrice(totalDiscountPrice);
-    setTotalShippingPrice(shippingPrice);
+    setMRP(MRP);
+    setPurchasablePrice(purchasablePrice);
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice(
+      totalDiscount_OriginalMinusPurchasable,
+    );
 
-    if (!!appliedCoupon && appliedCoupon._id) {
+    const isFreeDeliveryAvailable =
+      requiredMinimumAmountForFreeDelivery > 0 &&
+      purchasablePrice >= requiredMinimumAmountForFreeDelivery;
+
+    let finalPrice = purchasablePrice;
+    setIsShippingApplied(false);
+    setFinalPrice(purchasablePrice);
+
+    if (!isFreeDeliveryAvailable) {
+      setIsShippingApplied(true);
+      setFinalPrice(purchasablePrice + shippingPrice);
+      finalPrice += shippingPrice;
+    }
+
+    if (!!appliedCoupon && appliedCoupon?._id) {
       const couponDiscountPrice = appliedCoupon.isPercentage
-        ? (subtotalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
-        : subtotalPrice > appliedCoupon.minPurchasePrice
+        ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+        : finalPrice > appliedCoupon.minPurchasePrice
           ? appliedCoupon.off
           : 0;
 
-      console.log("What is coupon discount price", couponDiscountPrice);
+      setCouponDiscountPrice(couponDiscountPrice.toFixed(2));
 
-      setCouponDiscountPrice(couponDiscountPrice);
-
-      setCouponDiscountPrice(couponDiscountPrice);
-      setSubtotalPrice(
-        subtotalPrice - (couponDiscountPrice || 0) + shippingPrice,
-      );
-    } else {
-      setSubtotalPrice(subtotalPrice + shippingPrice);
+      setFinalPrice(finalPrice - (couponDiscountPrice || 0));
     }
   }, [userCartItems, appliedCoupon]);
 
@@ -481,17 +599,63 @@ export default function CheckoutPage() {
               </h2>
 
               <div className="space-y-4">
+                {/* <h2 className="text-lg font-bold text-gray-900 mb-6">
+                  Order Summary
+                </h2> */}
+
+                {/* Coupon Section */}
+                <div className="mb-6">
+                  {appliedCoupon?.code ? (
+                    <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center">
+                          <FiCheckCircle className="text-green-500 mr-2" />
+                          <div>
+                            <p className="font-medium text-green-800">
+                              Coupon Applied:{" "}
+                              <span className="font-bold uppercase">
+                                {appliedCoupon.code}
+                              </span>
+                            </p>
+                            <p className="text-sm text-green-700">
+                              {appliedCoupon.description}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={handleRemoveCoupon}
+                          className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                          <RiCloseLine size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        couponModalRef.current?.classList.remove("hidden")
+                      }
+                      className="flex items-center justify-between w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 transition-colors cursor-pointer">
+                      <div className="flex items-center">
+                        <RiCouponLine className="text-red-500 mr-2" />
+                        <span className="font-medium">Apply Coupon</span>
+                      </div>
+                      <IoIosArrowForward className="text-gray-400" />
+                    </button>
+                  )}
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">MRP </span>
-                    <span className="font-medium">₹{totalPrice}</span>
+                    <span className="font-medium">₹{MRP}</span>
                   </div>
-                  {totalDiscountPrice > 0 && (
+                  {totalDiscountPrice_OrignalPriceMinusPurchasablePrice > 0 && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">Discount</span>
                       <span className="text-green-600 font-medium">
-                        - ₹{totalDiscountPrice}
+                        - ₹
+                        {totalDiscountPrice_OrignalPriceMinusPurchasablePrice}
                       </span>
                     </div>
                   )}
@@ -506,46 +670,41 @@ export default function CheckoutPage() {
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">After Discount</span>
-                    <span className="font-bold">₹{subtotalPrice}</span>
+                    <span className="font-bold">₹{purchasablePrice}</span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-bold">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? "FREE"
-                          : shippingPrice > 0 ? `₹${shippingPrice}` : "FREE"
-                        : "FREE"}
+                      {isShippingApplied > 0 ? `₹${shippingPrice}` : "FREE"}
                     </span>
                   </div>
+
+                  {couponDiscountPrice > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Coupon Discount</span>
+                      <span className="text-green-600 font-medium">
+                        - ₹{couponDiscountPrice}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {appliedCoupon?.code && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Coupon Applied</span>
-                    <span className="text-green-600 font-medium">
-                      {appliedCoupon.code}
-                    </span>
-                  </div>
-                )}
-
                 {/* Total */}
-                <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-gray-200 pt-4 mb-6">
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-gray-900">
                       Total
                     </span>
                     <span className="text-xl font-bold text-gray-900">
-                      {isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `₹${subtotalPrice + shippingPrice}`
-                        : `₹${subtotalPrice + shippingPrice}`} <span className="text-xs text-gray-500">{isFreeDeliveryMinAmntAvailable
-                        ? requiredMinimumAmountForFreeDelivery <= subtotalPrice
-                          ? `₹${subtotalPrice}`
-                          : `(${subtotalPrice} + ${shippingPrice > 0 ? shippingPrice : "FREE"})`
-                        : `(${subtotalPrice} + FREE)`}</span>
+                      {`₹${finalPrice}`}{" "}
+                      <span className="text-xs text-gray-500">
+                        {isShippingApplied > 0
+                          ? appliedCoupon?.code
+                            ? `(${purchasablePrice} + ${shippingPrice}) - ${couponDiscountPrice}`
+                            : `(${purchasablePrice} + ${shippingPrice})`
+                          : "FREE"}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -611,6 +770,113 @@ export default function CheckoutPage() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Coupon Modal */}
+      <div
+        ref={couponModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-bold text-gray-900">Apply Coupon</h3>
+            <button
+              onClick={() => couponModalRef.current?.classList.add("hidden")}
+              className="text-gray-400 hover:text-gray-600 cursor-pointer">
+              <RiCloseLine size={24} />
+            </button>
+          </div>
+
+          <form onSubmit={handleCouponSubmit}>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                placeholder="Enter coupon code"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline-none outline-none"
+              />
+              {couponError && (
+                <p className="mt-2 text-sm text-red-600">{couponError}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={couponSubmitLoading || !couponCode}
+              className={`w-full py-3 px-6 rounded-lg font-medium text-white ${couponSubmitLoading || !couponCode ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600 cursor-pointer"}`}>
+              {couponSubmitLoading ? "Applying..." : "Apply Coupon"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Coupon Success Modal */}
+      <div
+        ref={couponSuccessModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          <FiCheckCircle className="mx-auto text-green-500 mb-4" size={48} />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Coupon Applied
+          </h3>
+          <p className="text-gray-600">
+            Your discount has been applied successfully
+          </p>
+        </div>
+      </div>
+
+      {/* Payment Loading Modal */}
+      <div
+        ref={paymentLoadingModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            Processing Payment
+          </h3>
+          <p className="text-gray-600">
+            Please wait while we process your payment
+          </p>
+        </div>
+      </div>
+
+      {/* Payment Status Modal */}
+      <div
+        ref={paymentStatusModalRef}
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+          {orderStatus ? (
+            <>
+              <FiCheckCircle
+                className="mx-auto text-green-500 mb-4"
+                size={48}
+              />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Order Successful
+              </h3>
+              <p className="text-gray-600 mb-6">Thank you for your purchase!</p>
+              <Link
+                href="/myorders"
+                className="inline-block bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                View Orders
+              </Link>
+            </>
+          ) : (
+            <>
+              <RiCloseLine className="mx-auto text-red-500 mb-4" size={48} />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Payment Failed
+              </h3>
+              <p className="text-gray-600 mb-6">{orderStatusText}</p>
+              <button
+                onClick={() =>
+                  paymentStatusModalRef.current?.classList.add("hidden")
+                }
+                className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors">
+                Try Again
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
