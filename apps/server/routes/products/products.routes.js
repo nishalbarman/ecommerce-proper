@@ -228,11 +228,16 @@ const checkUpdatedProductHasError = ({
 
   const ObjectId = mongoose.Types.ObjectId;
   if (
-    !category?._id ||
-    !(
-      ObjectId.isValid(category?._id) &&
-      String(new ObjectId(category?._id)) === category?._id
-    )
+    (!category ||
+      !(
+        ObjectId.isValid(category) &&
+        String(new ObjectId(category)) === category
+      )) &&
+    (!category?._id ||
+      !(
+        ObjectId.isValid(category?._id) &&
+        String(new ObjectId(category?._id)) === category?._id
+      ))
   ) {
     error.push("Category is not valid");
   }
@@ -276,7 +281,8 @@ const checkUpdatedProductHasError = ({
   }
 
   if (!!isVariantAvailable) {
-    productVariant.forEach((variant, index) => {
+    console.log("What is product Variants", productVariant);
+    Object.values(productVariant).forEach((variant, index) => {
       if (Object.keys(variant)?.length < 8) {
         return error.push(
           "Variant +" +
@@ -723,6 +729,8 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
       // this is for final merge, we will collect all the ids for existing variant for faster merge. Later on creating new variant we add push the new ids here.
       const variantIds = [];
 
+      console.log("What are product variants", productData.productVariant);
+
       Object.values(productData.productVariant)?.forEach((variant) => {
         if (!!variant?._id) {
           existingVariants.push(variant);
@@ -930,7 +938,9 @@ router.post("/delete", checkRole(1, 2), async (req, res) => {
       const product = await Product.findById(productId);
       console.log(product);
       await ProductVariant.deleteMany(
-        product?.productVariantmap?.map((variant) => variant._id),
+        {
+          _id: {$in: product?.productVariant?.map((variant) => variant._id),}
+        }
       );
       await Cart.deleteMany({ product: product._id });
       await Wishlist.deleteMany({ product: product._id });
