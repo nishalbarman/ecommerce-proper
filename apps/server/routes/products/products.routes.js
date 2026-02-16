@@ -427,21 +427,21 @@ router.post("/view/:productId", async (req, res) => {
       user = getTokenDetails(token);
     }
 
-    console.log("User Detailsssssssssss", user?.userDetails?._id);
-
-    // return user;
+    console.log("What are params", params);
 
     // check whether we have the product id or not
-    if (!params.productId) {
+    if (!params?.productId) {
       return res
         .status(400)
         .json({ redirect: "/products", message: "Product ID missing!" });
     }
 
-    const product = await Product.findOne({ _id: params.productId }).populate([
+    const product = await Product.findOne({ _id: params?.productId }).populate([
       "category",
-      { path: "productVariant" },
+      "productVariant",
     ]);
+
+    console.log("What is the product", params?.productId, product);
 
     let hasUserBoughtThisProduct = false;
     if (user && user.userDetails && user.userDetails._id) {
@@ -745,7 +745,7 @@ router.post("/variant/instock/:productId", async (req, res) => {
     const productType = req.body?.productType || "buy";
     const variant = req.body?.variant;
 
-    console.log(req.body);
+    console.log("Here what is request body", req.body);
 
     console.log("Items", { productId, variant, productType });
 

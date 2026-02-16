@@ -397,7 +397,7 @@ router.post("/incart/:productId", checkRole(0, 1, 2), async (req, res) => {
     };
 
     if (body?.variant) {
-      filterObject.variant = body.variant;
+      filterObject.variant = body.variant || null;
     }
 
     const cartItem = await Cart.findOne(filterObject);
