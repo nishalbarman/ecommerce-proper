@@ -209,12 +209,13 @@ const MyAccountPage = () => {
           <div>
             <div className="flex items-center gap-2">
               <span
-                className="inline-block h-3 w-1.5 rounded-full"
-                style={{ background: brand.primary }}
+                className="inline-block h-3 w-1.5 rounded-full bg-primary"
+                // style={{ background: brand.primary }}
               />
               <span
-                className="text-sm font-semibold"
-                style={{ color: brand.primary }}>
+                className="text-sm font-semibold text-primary"
+                // style={{ color: brand.primary }}
+                >
                 Account
               </span>
             </div>
@@ -489,7 +490,7 @@ const MyAccountPage = () => {
               <Link
                 href="/myorders"
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white text-sm bg-[#DA4445] hover:bg-red-500">
-                View All Orders <FaArrowRight color="white" fill="white" />
+                View Orders
               </Link>
             </div>
           </div>
@@ -515,7 +516,7 @@ const MyAccountPage = () => {
                   </p>
                 </div>
                 {!userData?.isEmailVerfied && (
-                  <button className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                  <button className="text-sm font-medium text-primary hover:text-red-500">
                     Verify Now
                   </button>
                 )}
@@ -531,7 +532,7 @@ const MyAccountPage = () => {
                   </p>
                 </div>
                 {!userData?.isMobileNoVerified && (
-                  <button className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                  <button className="text-sm font-medium text-primary hover:text-red-500">
                     Verify Now
                   </button>
                 )}

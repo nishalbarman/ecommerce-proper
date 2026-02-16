@@ -60,6 +60,7 @@ const feedbackSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    bufferTimeoutMS: 60000
   }
 );
 

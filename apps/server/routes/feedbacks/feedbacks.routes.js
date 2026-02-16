@@ -135,10 +135,12 @@ router.get("/:feedbackId", async (req, res) => {
 
 // FEEDBACK CREATE ROUTE
 // Create feedback
-router.post("/", checkRole(0, 1), async (req, res) => {
+router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const { product, productType, description, starsGiven, imageIds } =
       req.body;
+
+    console.log(req.body);
 
     const errors = [];
 
@@ -178,7 +180,7 @@ router.post("/", checkRole(0, 1), async (req, res) => {
         // Link images to this feedback
         await FeedbackImage.updateMany(
           { _id: { $in: imageIds }, uploadedBy: req.user._id },
-          { feedback: existingFeedback._id }
+          { feedback: existingFeedback._id },
         );
         existingFeedback.images = imageIds;
       }
@@ -219,13 +221,15 @@ router.post("/", checkRole(0, 1), async (req, res) => {
       });
     }
 
+    console.log("What is users name", req.user);
+
     // Create new feedback
     const feedback = new Feedback({
       description,
       starsGiven,
       product,
       productType,
-      givenBy: req.user.name,
+      givenBy: req.user?.name || req.user?.email.split("@")[0],
       user: req.user._id,
       images: imageIds || [],
     });
@@ -236,7 +240,7 @@ router.post("/", checkRole(0, 1), async (req, res) => {
     if (imageIds && imageIds.length > 0) {
       await FeedbackImage.updateMany(
         { _id: { $in: imageIds }, uploadedBy: req.user._id },
-        { feedback: feedback._id }
+        { feedback: feedback._id },
       );
     }
 
@@ -287,7 +291,7 @@ router.post("/", checkRole(0, 1), async (req, res) => {
   }
 });
 
-router.patch("/:reviewFetchBy", checkRole(0, 1), async (req, res) => {
+router.patch("/:reviewFetchBy", checkRole(0, 1, 2), async (req, res) => {
   try {
     const feedbackFetchBy = req.params?.reviewFetchBy; // can be feedback id or product id
     const {
@@ -355,7 +359,7 @@ router.patch("/:reviewFetchBy", checkRole(0, 1), async (req, res) => {
         // Link images to this feedback
         await FeedbackImage.updateMany(
           { _id: { $in: imageIds }, uploadedBy: req.user._id },
-          { feedback: existingFeedback._id }
+          { feedback: existingFeedback._id },
         );
         existingFeedback.images = [...imageIds];
       }
@@ -417,7 +421,7 @@ router.patch("/:reviewFetchBy", checkRole(0, 1), async (req, res) => {
 });
 
 // FETCH FEEDBACK FOR ONE PRODUCT GIVEN BY ONE USER
-router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
+router.post("/view/:fetchingId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const fetchingId = req.params?.fetchingId;
     const productType = req.body?.productType || "buy";
@@ -441,7 +445,7 @@ router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
 
     console.log("Filter This One", filter, fetchBy);
 
-    const feedback = await Feedback.findOne(filter).populate("images");
+    const feedback = await Feedback.findOne(filter).populate("images  product");
 
     return res.status(200).json({ data: feedback });
   } catch (error) {
@@ -451,7 +455,7 @@ router.post("/view/:fetchingId", checkRole(0, 1), async (req, res) => {
 });
 
 // FEEDBACK: delete one feedback with feedback id
-router.delete("/delete/:feedbackId", checkRole(0, 1), async (req, res) => {
+router.delete("/delete/:feedbackId", checkRole(0, 1, 2), async (req, res) => {
   try {
     const params = req.params;
     console.log(TAG, params);
@@ -527,7 +531,7 @@ router.delete("/delete/:feedbackId", checkRole(0, 1), async (req, res) => {
 });
 
 // Upload feedback image
-router.post("/upload-image", checkRole(0, 1), async (req, res) => {
+router.post("/upload-image", checkRole(0, 1, 2), async (req, res) => {
   try {
     // Extract image data from the request body
     const imageData = req.body?.imageData;
@@ -541,7 +545,7 @@ router.post("/upload-image", checkRole(0, 1), async (req, res) => {
     // Process the base64 string to prepare for upload
     const base64string = imageData.base64String.replace(
       /^data:image\/\w+;base64,/,
-      ""
+      "",
     );
 
     let uploadResponse;

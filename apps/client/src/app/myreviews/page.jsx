@@ -147,7 +147,7 @@ export default function MyFeedbackPage() {
               <span className="font-semibold text-gray-800">
                 All Feedback ({feedbacks.length})
               </span>
-              <Link
+              {/* <Link
                 href="/products"
                 className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white"
                 style={{ background: brand.primary }}>
@@ -157,7 +157,7 @@ export default function MyFeedbackPage() {
                   fill="white"
                   className="opacity-90"
                 />
-              </Link>
+              </Link> */}
             </div>
           </div>
 
@@ -203,7 +203,7 @@ export default function MyFeedbackPage() {
                           {f?.product?._id && (
                             <Link
                               href={`/products/view/${f.product._id}`}
-                              className="text-blue-600">
+                              className="text-primary font-semibold">
                               View Product
                             </Link>
                           )}
@@ -211,16 +211,16 @@ export default function MyFeedbackPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <Link href={`/feedback/edit/${f._id}`}>
+                        <Link href={`/myreviews/edit/${f._id}`}>
                           <button
-                            className="px-2.5 py-2 rounded-md border text-blue-600 hover:bg-blue-50"
+                            className="px-2.5 py-2 rounded-md border text-primary hover:bg-red-50 cursor-pointer"
                             aria-label="Edit feedback">
                             <FaEdit />
                           </button>
                         </Link>
                         <button
                           onClick={() => handleDelete(f._id)}
-                          className="px-2.5 py-2 rounded-md border text-red-600 hover:bg-red-50"
+                          className="px-2.5 py-2 rounded-md border text-red-600 hover:bg-red-50 cursor-pointer"
                           aria-label="Delete feedback">
                           <FaTrash />
                         </button>
@@ -235,7 +235,7 @@ export default function MyFeedbackPage() {
 
                     {f?.givenBy && (
                       <p className="mt-2 text-xs text-gray-500">
-                        Submitted as: {f.givenBy}
+                        Submitted : {f.givenBy}
                       </p>
                     )}
                   </li>

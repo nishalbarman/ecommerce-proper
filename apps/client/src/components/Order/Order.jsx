@@ -34,7 +34,7 @@ const OrderHistoryPage = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       setOrders(response.data.data);
@@ -86,15 +86,28 @@ const OrderHistoryPage = () => {
   return (
     <div className="min-h-screen py-8 pt-3 px-4 sm:px-6 lg:px-8 mt-7">
       <div className="container mx-auto">
+        <div className="container mx-auto  mb-6">
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-3 w-1.5 rounded-full bg-primary" />
+            <span className="text-sm font-semibold text-primary">
+              Your Orders
+            </span>
+          </div>
+          <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-gray-900">
+            Order History
+          </h1>
+          <p className="text-gray-500 text-sm">View your recent orders and their status</p>
+        </div>
+
         <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200">
+          {/* <div className="px-6 py-5 border-b border-gray-200">
             <h1 className="text-2xl font-semibold text-gray-900">
               My Order History
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               View your recent orders and their status
             </p>
-          </div>
+          </div> */}
 
           {isLoading ? (
             <Loading />
@@ -143,7 +156,7 @@ const OrderHistoryPage = () => {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                                order.orderStatus
+                                order.orderStatus,
                               )}`}>
                               {order.orderStatus}
                             </span>
@@ -152,10 +165,10 @@ const OrderHistoryPage = () => {
                             <button
                               onClick={() =>
                                 router.push(
-                                  `/myorders/view/${order.paymentTxnId}`
+                                  `/myorders/view/${order.paymentTxnId}`,
                                 )
                               }
-                              className="text-blue-600 hover:text-blue-900">
+                              className="text-primary hover:text-red-500 cursor-pointer">
                               View Details
                             </button>
                           </td>
@@ -217,7 +230,7 @@ const OrderHistoryPage = () => {
                           className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
                             currentPage === 1
                               ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-500 hover:bg-gray-50"
+                              : "text-gray-500 hover:bg-gray-50 cursor-pointer"
                           }`}>
                           <span className="sr-only">Previous</span>
                           <FaChevronLeft
@@ -227,15 +240,15 @@ const OrderHistoryPage = () => {
                         </button>
                         {Array.from(
                           { length: totalPages },
-                          (_, i) => i + 1
+                          (_, i) => i + 1,
                         ).map((page) => (
                           <button
                             key={page}
                             onClick={() => handlePageChange(page)}
                             className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
                               currentPage === page
-                                ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                : "text-gray-500 hover:bg-gray-50"
+                                ? "z-10 bg-blue-50 border-blue-500 text-primary"
+                                : "text-gray-500 hover:bg-gray-50 cursor-pointer"
                             }`}>
                             {page}
                           </button>
@@ -246,7 +259,7 @@ const OrderHistoryPage = () => {
                           className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
                             currentPage === totalPages
                               ? "text-gray-300 cursor-not-allowed"
-                              : "text-gray-500 hover:bg-gray-50"
+                              : "text-gray-500 hover:bg-gray-50 cursor-pointer"
                           }`}>
                           <span className="sr-only">Next</span>
                           <FaChevronRight
