@@ -45,7 +45,9 @@ const Carousel = ({ items = [] }) => {
           key={index}
           onClick={() => item.redirectUrl && router.push(item.redirectUrl)}
           className="cursor-pointer px-2 sm:px-3 md:px-4">
-          <div className={`rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[${item?.bgColor}]`}>
+          <div style={{
+            backgroundColor: item?.bgColor || "transparent"
+          }} className={`rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[${item?.bgColor}]`}>
             {/* Image Section */}
             <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px]">
               <Image
