@@ -487,7 +487,7 @@ export default function ProductList() {
                     <button
                       onClick={() => handlePageChange(Math.max(1, page - 1))}
                       disabled={page === 1}
-                      className="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50">
+                      className="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                       Previous
                     </button>
 
@@ -507,8 +507,8 @@ export default function ProductList() {
                             onClick={() => handlePageChange(pageNum)}
                             className={`px-4 py-2 border rounded-lg ${
                               page === pageNum
-                                ? "text-white border-blue-600"
-                                : "bg-white hover:bg-gray-50"
+                                ? "text-white border-blue-600 cursor-not-allowed"
+                                : "bg-white hover:bg-gray-50 cursor-pointer"
                             }`}
                             style={
                               page === pageNum
@@ -529,7 +529,7 @@ export default function ProductList() {
                         handlePageChange(Math.min(data.totalPages, page + 1))
                       }
                       disabled={page === data.totalPages}
-                      className="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50">
+                      className="px-4 py-2 border rounded-lg bg-white hover:bg-gray-50 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
                       Next
                     </button>
                   </div>
