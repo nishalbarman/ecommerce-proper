@@ -26,7 +26,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-emerald-700 py-24 max-md:pt-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-red-300 py-24 max-md:pt-5">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image

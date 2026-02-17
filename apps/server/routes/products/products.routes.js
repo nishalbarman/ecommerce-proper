@@ -379,7 +379,7 @@ router.get("/", async (req, res) => {
     const LIMIT = parseInt(searchQuery?.limit) || 50;
     const SKIP = PAGE * LIMIT;
 
-    const SORT = searchQuery["sort"];
+    const SORT = searchQuery["sort"] || "popularity";
     const QUERY = searchQuery["query"];
 
     // Initialize filter object
