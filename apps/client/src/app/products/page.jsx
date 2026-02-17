@@ -57,15 +57,24 @@ export default function ProductList() {
   // URL writer (kept same behavior)
   const updateURL = useCallback(() => {
     const params = new URLSearchParams();
-    params.set("page", page);
+
+    params.set("page", page); // UI page (1-based)
+
     if (appliedSearch) params.set("query", appliedSearch);
     if (appliedSort !== "newest") params.set("sort", appliedSort);
-    if (appliedFilters.category.length > 0)
+
+    if (appliedFilters.category.length > 0) {
       params.set("category", appliedFilters.category.join(","));
-    if (appliedFilters.price[0] > 0)
-      params.set("minPrice", appliedFilters.price);
-    if (appliedFilters.price[1] < 200)
+    }
+
+    if (appliedFilters.price[0] > 0) {
+      params.set("minPrice", appliedFilters.price[0]);
+    }
+
+    if (appliedFilters.price[1] < 200) {
       params.set("maxPrice", appliedFilters.price[1]);
+    }
+
     router.replace(`/products?${params.toString()}`, { scroll: false });
   }, [page, appliedSearch, appliedSort, appliedFilters, router]);
 
@@ -76,7 +85,7 @@ export default function ProductList() {
   // Data
   const { data, error, isLoading } = useGetProductsQuery(
     {
-      page: page - 1,
+      page: page - 1, // ✅ convert UI → server
       limit,
       query: appliedSearch || undefined,
       sort: appliedSort !== "newest" ? appliedSort : undefined,
@@ -84,7 +93,8 @@ export default function ProductList() {
         appliedFilters.category.length > 0
           ? appliedFilters.category.join(",")
           : undefined,
-      minPrice: appliedFilters.price > 0 ? appliedFilters.price : undefined,
+      minPrice:
+        appliedFilters.price[0] > 0 ? appliedFilters.price[0] : undefined,
       maxPrice:
         appliedFilters.price[1] < 200 ? appliedFilters.price[1] : undefined,
     },
@@ -115,23 +125,56 @@ export default function ProductList() {
 
   // Handlers (kept your behavior)
   const handlePageChange = (newPage) => {
+    setPage(newPage);
+
     const params = new URLSearchParams();
+
     params.set("page", newPage);
+
     if (appliedSearch) params.set("query", appliedSearch);
     if (appliedSort !== "newest") params.set("sort", appliedSort);
-    params.set("filter", encodeURIComponent(JSON.stringify(appliedFilters)));
+
+    if (appliedFilters.category.length > 0) {
+      params.set("category", appliedFilters.category.join(","));
+    }
+
+    if (appliedFilters.price[0] > 0) {
+      params.set("minPrice", appliedFilters.price[0]);
+    }
+
+    if (appliedFilters.price[1] < 200) {
+      params.set("maxPrice", appliedFilters.price[1]);
+    }
+
     router.push(`/products?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+
     setAppliedSearch(localSearch);
-    const params = new URLSearchParams();
-    params.set("page", "1");
-    params.set("query", localSearch);
-    if (appliedSort !== "newest") params.set("sort", appliedSort);
-    router.push(`/products?${params.toString()}`);
     setPage(1);
+
+    const params = new URLSearchParams();
+
+    params.set("page", "1");
+
+    if (localSearch) params.set("query", localSearch);
+    if (appliedSort !== "newest") params.set("sort", appliedSort);
+
+    if (appliedFilters.category.length > 0) {
+      params.set("category", appliedFilters.category.join(","));
+    }
+
+    if (appliedFilters.price[0] > 0) {
+      params.set("minPrice", appliedFilters.price[0]);
+    }
+
+    if (appliedFilters.price[1] < 200) {
+      params.set("maxPrice", appliedFilters.price[1]);
+    }
+
+    router.push(`/products?${params.toString()}`);
   };
 
   const handleFilterChange = (filterName, value) => {
@@ -146,14 +189,34 @@ export default function ProductList() {
   const handleSortChange = (value) => {
     setLocalSort(value);
     setAppliedSort(value);
-    const params = new URLSearchParams();
-    params.set("sort", value);
-    params.set("page", "1");
-    if (appliedSearch) params.set("query", appliedSearch);
-    params.set("filter", encodeURIComponent(JSON.stringify(appliedFilters)));
-    router.push(`/products?${params.toString()}`);
     setPage(1);
+
+    const params = new URLSearchParams();
+
+    params.set("page", "1");
+    params.set("sort", value);
+
+    if (appliedSearch) params.set("query", appliedSearch);
+
+    if (appliedFilters.category.length > 0) {
+      params.set("category", appliedFilters.category.join(","));
+    }
+
+    if (appliedFilters.price[0] > 0) {
+      params.set("minPrice", appliedFilters.price[0]);
+    }
+
+    if (appliedFilters.price[1] < 200) {
+      params.set("maxPrice", appliedFilters.price[1]);
+    }
+
+    router.push(`/products?${params.toString()}`);
   };
+
+  useEffect(() => {
+  const newPage = parseInt(searchParams.get("page")) || 1;
+  setPage(newPage);
+}, [searchParams]);
 
   const resetFilters = () => {
     const newFilters = { category: [], color: [], price: [0, 200], rating: 0 };
