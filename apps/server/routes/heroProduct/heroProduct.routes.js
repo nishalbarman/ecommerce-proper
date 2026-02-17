@@ -30,6 +30,7 @@ router.patch("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { heroProductData } = req.body;
+    console.log(heroProductData)
     await HeroProduct.findByIdAndUpdate(id, heroProductData);
     res.status(200).json({ message: "Hero Product updated successfully" });
   } catch (error) {

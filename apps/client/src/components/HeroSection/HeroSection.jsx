@@ -9,7 +9,7 @@ import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 const fetchHeroProduct = async (cookieStore) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`,
     );
     const data = await response.json();
     return data[0];
@@ -26,7 +26,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 to-emerald-700 py-24 max-md:pt-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-emerald-700 py-24 max-md:pt-5">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -81,6 +81,7 @@ const HeroProduct = async () => {
           <div className="max-md:hidden lg:w-1/2 flex justify-center mt-10 lg:mt-0">
             <div className="relative w-full max-w-md aspect-square group">
               <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-md transform rotate-6 scale-95 group-hover:rotate-3 group-hover:scale-100 transition-all duration-500"></div>
+              <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-md transform rotate-8 scale-100 group-hover:rotate-5 group-hover:scale-105 transition-all duration-500"></div>
               <div className="relative overflow-hidden rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-500">
                 <Image
                   src={heroProduct.imageUrl}

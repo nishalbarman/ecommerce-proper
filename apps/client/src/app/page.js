@@ -47,9 +47,9 @@ export default async function Page() {
   return (
     <>
       {/* <BannerTop /> */}
-      {/* <Suspense fallback={<HeroSkeleton />}>
+      <Suspense fallback={<HeroSkeleton />}>
         <HeroProduct />
-      </Suspense> */}
+      </Suspense>
 
       <Suspense fallback={<HeroSkeleton />}>
         <TopSlider />
