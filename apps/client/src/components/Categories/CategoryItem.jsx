@@ -27,13 +27,13 @@ function CategoryItem({
 
         {/* Category name with slide-up animation */}
         <div className="absolute bottom-0 left-0 right-0 p-1 max-sm:p-1 z-20 transform  translate-y-0 transition-transform duration-300">
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-3 max-sm:p-2 shadow-sm">
-            <h3 className="text-lg max-sm:text-sm font-bold text-gray-800 text-center truncate">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg p-2 max-sm:p-2 shadow-sm">
+            <h3 className="text-lg max-sm:text-sm font-semibold text-sm text-gray-800 text-center truncate">
               {categoryName}
             </h3>
-            <p className="text-xs text-gray-500 text-center mt-1 opacity-0 opacity-100 transition-opacity duration-200">
+            {/* <p className="text-xs text-gray-500 text-center mt-1 opacity-0 opacity-100 transition-opacity duration-200">
               Shop now →
-            </p>
+            </p> */}
           </div>
         </div>
 
