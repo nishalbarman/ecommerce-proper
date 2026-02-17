@@ -26,7 +26,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-red-300 py-24 max-md:pt-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-emerald-500 py-24 max-md:pt-5">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -58,7 +58,7 @@ const HeroProduct = async () => {
             </span>
 
             <div
-              className="text-white mb-10 prose-lg drop-shadow-lg"
+              className="text-white mb-10 prose-lg drop-shadow-lg max-md:prose-sm"
               dangerouslySetInnerHTML={{
                 __html: `${heroProduct.shortDescription}`,
               }}></div>
