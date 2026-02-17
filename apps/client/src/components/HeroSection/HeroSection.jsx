@@ -26,7 +26,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-red-500 to-emerald-500 py-24 max-md:pt-5">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFEE5] to-white py-24 max-md:pt-5">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -35,6 +35,7 @@ const HeroProduct = async () => {
           layout="fill"
           objectFit="cover"
           quality={100}
+          draggable="none"
           className="select-none pointer-events-none"
         />
       </div>
@@ -53,12 +54,13 @@ const HeroProduct = async () => {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Text content */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-6">
-            <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-emerald-100 text-sm font-medium border border-white/20">
+            <span className="inline-block py-2 bg-white/10 backdrop-blur-sm rounded-full text-primary text-sm font-bold border border-white/20">
+              <span className="w-5 border-2 rounded-sm border border-primary mr-2"></span>
               {heroProduct.category || "Featured Product"}
             </span>
 
             <div
-              className="text-white mb-10 prose-lg drop-shadow-lg max-md:prose-sm"
+              className="text-black mb-10 prose-lg drop-shadow-lg max-md:prose-sm"
               dangerouslySetInnerHTML={{
                 __html: `${heroProduct.shortDescription}`,
               }}></div>
@@ -71,7 +73,7 @@ const HeroProduct = async () => {
               </Link> */}
               <Link
                 href="/products"
-                className="px-8 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/10 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                className="px-8 py-3 border-2 border-black text-black font-bold rounded-lg hover:bg-white/10 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 border-black border">
                 Explore
               </Link>
             </div>
