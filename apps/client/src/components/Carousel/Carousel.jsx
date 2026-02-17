@@ -49,7 +49,7 @@ const Carousel = ({ items = [] }) => {
             backgroundColor: item?.bgColor || "transparent"
           }} className={`rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[${item?.bgColor}]`}>
             {/* Image Section */}
-            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px]">
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px] overflow-hidden">
               <Image
                 src={item.imageUrl}
                 alt={item.altText || item.title}
@@ -96,12 +96,12 @@ const Carousel = ({ items = [] }) => {
               </h3>
 
               {item.description && (
-                <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                <p className="text-sm text-gray-600 mt-1 mb-1">{item.description}</p>
               )}
 
-              <p className="text-[rgb(219,69,69)] text-sm mt-2 font-semibold">
+              {/* <p className="text-[rgb(219,69,69)] text-sm mt-2 font-semibold">
                 Shop now →
-              </p>
+              </p> */}
             </div>
           </div>
         </div>
