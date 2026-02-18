@@ -83,6 +83,8 @@ const persistConfig = {
     productApi.reducerPath,
     wishlistSlice.name,
     reviewApi.reducerPath,
+    addressSlice.name,
+    appliedCouponSlice.name,
 
     cartSlice.name,
     categoryApi.reducerPath,

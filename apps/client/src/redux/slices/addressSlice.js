@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  defaultSelectedAddress: null,
+  selectedAddress: null,
 };
 
 export const addressSlice = createSlice({
@@ -9,12 +9,9 @@ export const addressSlice = createSlice({
   initialState,
   reducers: {
     setUserSelectedAddress: (state, { payload }) => {
-      state.coordinates = { ...payload.coordinates };
-      state.address = {
-        ...payload.address,
-        name: payload?.address?.name,
-        streetName: payload?.address?.thoroughfare,
-      };
+      console.log("What is selected address slice",payload)
+      state.selectedAddress = payload;
+      
     },
     clearAddressData: () => {
       return initialState;

@@ -186,6 +186,9 @@ export default function CheckoutPage() {
 
   const [removeAllCartItems] = useRemoveAllCartMutation();
 
+  const selectedAddressDetails = useSelector(
+    (state) => state.userAddress?.selectedAddress,
+  );
   // razor pay checkouts
   const handleRazorPayContinue = useCallback(async () => {
     try {
@@ -194,7 +197,7 @@ export default function CheckoutPage() {
       setLoadingText("Creating order...");
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
-        { address: selectedAddress },
+        { address: selectedAddressDetails },
         {
           withCredentials: true,
           headers: {
@@ -211,7 +214,8 @@ export default function CheckoutPage() {
         currency: "INR",
         name: process.env.NEXT_PUBLIC_BUSSINESS_NAME, //your business name
         description: response.data.productinfo,
-        image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
+        fullscreen: true,
+        image: "/assets/logo/logo-horizontal.png",
         order_id: response.data.razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
         handler: async function (response) {
           console.log(response);
@@ -219,11 +223,13 @@ export default function CheckoutPage() {
           setOrderStatus(true);
           setOrderStatusText("Order successful");
           transactionStatusRef.current?.classList.remove("hidden");
+
           setIsPaymentLoading(false);
           //   window.scrollTo(0);
           await removeAllCartItems().unwrap();
-          router.push("/myorders");
+          // router.push("/myorders");
         },
+        
         prefill: {
           name: response.data.name, //your customer's name
           email: response.data.email,
@@ -265,7 +271,7 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error(error.message);
     }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
+  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddressDetails]);
 
   const handlePayment = () => {
     switch (gatewayOption) {
@@ -279,8 +285,8 @@ export default function CheckoutPage() {
   };
 
   useEffect(() => {
-    handlePayment();
-  }, []);
+    if (selectedAddressDetails) handlePayment();
+  }, [selectedAddressDetails]);
 
   // const couponModalRef = useRef();
   // const couponSuccessModalRef = useRef();
@@ -396,7 +402,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="min-h-screen w-fit h-fit mx-auto mt-20 min-lg:mt-40 bg-gray-50">
+      <div className="min-h-[calc(100vh-180px)] max-sm:min-h-[calc(70vh)] mx-auto flex justify-center items-center bg-gray-50">
         <div className="bg-white p-8 rounded-xl shadow-md text-center">
           {/* Loader */}
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-6"></div>

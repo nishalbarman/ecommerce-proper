@@ -24,6 +24,7 @@ import { WishlistApi, CartApi, AppliedCouponSlice, AddressApi } from "@/redux";
 import { useRemoveAllCartMutation } from "@/redux/apis/cartApi";
 import { clearCouponData } from "@/redux/slices/appliedCouponSlice";
 import AddressForm from "../AddressForm/AddressForm";
+import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
 
 function Cart() {
   const { useGetCartQuery } = CartApi;
@@ -311,7 +312,10 @@ function Cart() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
-  console.log(selectedAddress);
+  const handleSelectedAddressChange = (address) => {
+    setSelectedAddress(address);
+    dispatch(setUserSelectedAddress(address));
+  };
 
   const handleContinueToPayment = () => {
     console.log("Is address selected then what is the value", selectedAddress);
@@ -794,7 +798,7 @@ function Cart() {
                         {addresses.map((address) => (
                           <div
                             key={address._id}
-                            onClick={() => setSelectedAddress(address._id)}
+                            onClick={() => handleSelectedAddressChange(address._id)}
                             className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
                               selectedAddress === address._id
                                 ? "border-red-500 bg-red-50 shadow-sm"
@@ -911,7 +915,7 @@ function Cart() {
                         {addresses.map((address) => (
                           <div
                             key={address._id}
-                            onClick={() => setSelectedAddress(address._id)}
+                            onClick={() => handleSelectedAddressChange(address._id)}
                             className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
                               selectedAddress === address._id
                                 ? "border-red-500 bg-red-50 shadow-sm"
