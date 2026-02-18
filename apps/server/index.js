@@ -38,10 +38,12 @@ app.use(
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    exposedHeaders: ["Set-Cookie"],xForwardedForHeader
+    exposedHeaders: ["Set-Cookie"],
     // maxAge: 86400, // 24 hours
   }),
 );
+
+app.set("trust proxy", 1);
 
 // In your Express server (development only)
 // if (process.env.NODE_ENV === "development") {
