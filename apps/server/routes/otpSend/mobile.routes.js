@@ -5,7 +5,7 @@ const {
   isValidIndianMobileNumber,
   hasOneSpaceBetweenNames,
   isValidEmail,
-} = require("custom-validator-renting");
+} = require("../../utils/validator");
 const fast2SMS = require("../../helpter/fast2SMS");
 
 const router = express.Router();

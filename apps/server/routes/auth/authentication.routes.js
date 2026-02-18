@@ -13,7 +13,7 @@ const {
   isValidEmail,
   isValidIndianMobileNumber,
   hasOneSpaceBetweenNames,
-} = require("custom-validator-renting");
+} = require("../../utils/validator");
 const { globalErrorHandler } = require("../../helpter/globalErrorHandler");
 
 const validatePass = new passValidator();

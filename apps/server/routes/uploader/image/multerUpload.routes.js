@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const { uploadImage } = require("firebase-utils");
-const { isValidImage } = require("custom-validator-renting");
+const { isValidImage } = require("../../../utils/validator");
 
 const router = express.Router();
 

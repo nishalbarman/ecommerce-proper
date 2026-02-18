@@ -3,7 +3,7 @@ const { Otp } = require("../../models/models");
 const {
   generateRandomCode,
   isValidEmail,
-} = require("custom-validator-renting");
+} = require("../../utils/validator");
 const { sendMail } = require("../../helper/sendEmail");
 
 const router = express.Router();

@@ -5,7 +5,7 @@ const cheerio = require("cheerio");
 const { Product, ProductVariant } = require("../../models/product.model");
 const Wishlist = require("../../models/wishlist.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
-const { isValidUrl } = require("custom-validator-renting");
+const { isValidUrl } = require("../../utils/validator");
 const Order = require("../../models/order.model");
 
 const checkRole = require("../../middlewares");

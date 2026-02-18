@@ -11,7 +11,7 @@ const {
   isValidEmail,
   hasOneSpaceBetweenNames,
   isValidIndianMobileNumber,
-} = require("custom-validator-renting");
+} = require("../../utils/validator");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 
 const validatePass = new passValidator();

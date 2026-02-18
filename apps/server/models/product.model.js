@@ -4,7 +4,7 @@ const {
   isValidEmail,
   isValidIndianMobileNumber,
   isValidUrl,
-} = require("custom-validator-renting");
+} = require("../utils/validator");
 
 const productSchema = new mongoose.Schema(
   {
