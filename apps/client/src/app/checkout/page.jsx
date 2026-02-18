@@ -223,13 +223,15 @@ export default function CheckoutPage() {
           setOrderStatus(true);
           setOrderStatusText("Order successful");
           transactionStatusRef.current?.classList.remove("hidden");
+          setLoadingText("Payment successful, redirecting to order page.");
+          toast.success("Payment successful, redirecting to order page.");
 
           setIsPaymentLoading(false);
           //   window.scrollTo(0);
           await removeAllCartItems().unwrap();
-          // router.push("/myorders");
+          router.push("/myorders");
         },
-        
+
         prefill: {
           name: response.data.name, //your customer's name
           email: response.data.email,
@@ -285,7 +287,14 @@ export default function CheckoutPage() {
   };
 
   useEffect(() => {
-    if (selectedAddressDetails) handlePayment();
+    // if (!document.referrer) {
+    //   // This is likely a direct visit, hard refresh, or the referrer is suppressed
+    //   console.log("Direct visit or no referrer info available");
+    //   router.replace("/");
+    // } else {
+      // Navigation from another page (internal or external link)
+      if (selectedAddressDetails) handlePayment();
+    // }
   }, [selectedAddressDetails]);
 
   // const couponModalRef = useRef();
