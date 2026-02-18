@@ -1,4 +1,4 @@
-const { FirebaseUtils } = require("firebase-utils");
+const { FirebaseUtils } = require("../utils/firebase-utils");
 const { Base64Decode } = require("base64-stream");
 
 const bufferStreamToBuffer = (stream) => {

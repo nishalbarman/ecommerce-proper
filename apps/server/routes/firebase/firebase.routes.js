@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const checkRole = require("../../middlewares");
-const { FirebaseUtils } = require("firebase-utils");
+const { FirebaseUtils } = require("../../utils/firebase-utils");
 
 // Store firebase messaging token to firestore
 
