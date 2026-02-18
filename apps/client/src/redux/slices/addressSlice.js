@@ -2,15 +2,13 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   defaultSelectedAddress: null,
-  coordinates: null,
-  address: null,
 };
 
 export const addressSlice = createSlice({
-  name: "mapSelectedAddress",
+  name: "userAddress",
   initialState,
   reducers: {
-    setAddressDataFromMap: (state, { payload }) => {
+    setUserSelectedAddress: (state, { payload }) => {
       state.coordinates = { ...payload.coordinates };
       state.address = {
         ...payload.address,
@@ -24,4 +22,4 @@ export const addressSlice = createSlice({
   },
 });
 
-export const { setAddressDataFromMap, clearAddressData } = addressSlice.actions;
+export const { setUserSelectedAddress, clearAddressData } = addressSlice.actions;

@@ -10,7 +10,6 @@ const SECRET_PASSPHRASE =
 const secretKey = crypto.scryptSync(SECRET_PASSPHRASE, SECRET_SALT, 32);
 
 function decryptToString(secureServiceAccountEntry, key = secretKey) {
-  console.log(`Decrypting ${JSON.stringify(secureServiceAccountEntry)}...`);
 
   const encryptedData = (secureServiceAccountEntry);
 

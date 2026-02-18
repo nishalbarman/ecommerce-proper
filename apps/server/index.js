@@ -45,6 +45,18 @@ app.use(
 
 app.set("trust proxy", 1);
 
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();   // ⬅ WAIT for DB
+    next();
+  } catch (err) {
+    console.error("DB ERROR:", err);
+    return res.status(500).json({
+      message: "Database connection failed",
+    });
+  }
+});
+
 // In your Express server (development only)
 // if (process.env.NODE_ENV === "development") {
 //   app.use((req, res, next) => {

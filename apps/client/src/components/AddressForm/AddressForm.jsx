@@ -159,13 +159,13 @@ export default function AddressForm({ onSuccess, onCancel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md">
+          className="px-4 py-2 border border-gray-300 rounded-md cursor-pointer">
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`px-4 py-2 bg-green-600 text-white rounded-md ${
+          className={`px-4 py-2 bg-green-600 text-white rounded-md cursor-pointer disabled:cursor-not-allowed ${
             isSubmitting ? "opacity-70" : ""
           }`}>
           {isSubmitting ? "Saving..." : "Save Address"}

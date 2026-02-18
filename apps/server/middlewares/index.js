@@ -1,10 +1,9 @@
 const getTokenDetails = require("../helpter/getTokenDetails");
-const dbConnect = require("../config/dbConfig")
 
 const checkRole = (...allowedRoles) => {
   // 0 = user, 1 = admin, 2 = center - more can be added through admin panel
 
-  return async (req, res, next) => {
+  return (req, res, next) => {
     try {
       console.log("REQUEST PATH: ", req.path);
       console.log("REQUEST METHOD: ", req.method);
@@ -69,7 +68,6 @@ const checkRole = (...allowedRoles) => {
       if (allowedRoles.includes(userDetails.roleNumber)) {
         req.jwt.role = userDetails?.roleNumber;
         req.jwt.center = userDetails?.center;
-        await dbConnect();
         return next();
       }
 
