@@ -38,7 +38,7 @@ app.use(
     ],
     credentials: true,
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    exposedHeaders: ["Set-Cookie"],
+    exposedHeaders: ["Set-Cookie"],xForwardedForHeader
     // maxAge: 86400, // 24 hours
   }),
 );
@@ -130,7 +130,10 @@ app.use(
 
 // payment summary
 app.use("/payment/summary", require("./routes/payment/summary.routes"));
-app.use("/shipping-config", require("./routes/shipping-config/shipping-config.routes"));
+app.use(
+  "/shipping-config",
+  require("./routes/shipping-config/shipping-config.routes"),
+);
 
 //shiprocket
 app.use("/shiprocket/track", require("./routes/shiprocket/track.routes"));
@@ -151,5 +154,3 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`App is running on http://localhost:${PORT}`);
 });
-
-// module.exports = app
