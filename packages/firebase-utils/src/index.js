@@ -5,7 +5,7 @@ import admin from "firebase-admin";
 import { decryptToString } from "./secure-file.js";
 
 // const serviceAccount = require("./service-account-key.json");
-const secureServiceAccountKeyFile = "./service-account-key.json.secure";
+const secureServiceAccountKeyFile = "./service-account-key.secure";
 const jsonStr = decryptToString(secureServiceAccountKeyFile);
 const serviceAccount = JSON.parse(jsonStr);
 
