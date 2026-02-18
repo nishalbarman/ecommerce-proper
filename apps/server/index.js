@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 // dotEnv.config();
 const dbConnect = require("./config/dbConfig");
 
-dbConnect(); // connect to databse
+// dbConnect(); // connect to databse
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minutes
@@ -47,7 +47,7 @@ app.set("trust proxy", 1);
 
 app.use(async (req, res, next) => {
   try {
-    await connectDB();   // ⬅ WAIT for DB
+    await dbConnect();   // ⬅ WAIT for DB
     next();
   } catch (err) {
     console.error("DB ERROR:", err);
