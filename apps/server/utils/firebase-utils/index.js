@@ -1,15 +1,18 @@
-import { v4 as uuidv4 } from "uuid";
-import { getStorage } from "firebase-admin/storage";
-import admin from "firebase-admin";
+const { v4: uuidv4 } = require("uuid");
+const { getStorage } = require("firebase-admin/storage");
+const admin = require("firebase-admin");
 
-import { decryptToString } from "./secure-file.js";
+const { decryptToString } = require("./secure-file");
 
 // const serviceAccount = require("./service-account-key.json");
 const secureServiceAccountEntry = require("../../service-account.js");
+
+console.log(secureServiceAccountEntry);
+
 const jsonStr = decryptToString(secureServiceAccountEntry);
 const serviceAccount = JSON.parse(jsonStr);
 
-// Initialize the app with a service account, granting admin privileges
+// Initialize the app with a service account
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -25,7 +28,7 @@ class FirebaseUtils {
   static async uploadImage(buffer, type) {
     const uniqueFileName = uuidv4();
     const fileReference = bucket.file(
-      `renting/images/products/${uniqueFileName}`
+      `renting/images/products/${uniqueFileName}`,
     );
 
     const writeFilePromise = new Promise((resolve, reject) => {
@@ -55,7 +58,7 @@ class FirebaseUtils {
       {
         token: firebaseMessagingToken,
       },
-      { merge: true }
+      { merge: true },
     );
   }
 
@@ -63,7 +66,7 @@ class FirebaseUtils {
     const docRef = db.collection("users").doc(userId);
     const docSnap = await docRef.get();
 
-    if (docSnap.exists()) {
+    if (docSnap.exists) {
       return docSnap.data().token;
     } else {
       console.log("No such Firebase Token Available!");
@@ -74,17 +77,20 @@ class FirebaseUtils {
   static async getAllTokens() {
     const tokens = [];
     const snapshot = await db.collection("users").get();
+
     snapshot.forEach((doc) => {
       const data = doc.data();
       if (data.token) {
         tokens.push(data.token);
       }
     });
+
     return tokens;
   }
 
   static async sendNotificationToAllTokens(payload) {
     const tokens = await this.getAllTokens();
+
     if (tokens.length === 0) {
       console.log("No tokens found.");
       return;
@@ -96,19 +102,19 @@ class FirebaseUtils {
         title: payload.title,
         body: payload.body,
       },
-      data: payload.data, // Optional: any additional data you want to send
+      data: payload.data,
     });
 
     console.log(
-      `Successfully sent message: ${response.successCount} notifications sent.`
+      `Successfully sent message: ${response.successCount} notifications sent.`,
     );
     console.log(`${response.failureCount} notifications failed.`);
   }
 
   static async sendNotificationToUser(payload) {
-    const userFirebaseToken = await this.getUserFirebaseTokenFromDatabase(
-      payload.userId
-    );
+    const userFirebaseToken = await this.getUserFirebaseTokenFromDatabase({
+      userId: payload.userId,
+    });
 
     if (!userFirebaseToken) {
       return console.error("No userId found in firestore database!");
@@ -120,16 +126,16 @@ class FirebaseUtils {
         title: payload.title,
         body: payload.body,
       },
-      data: payload.data, // Optional: any additional data you want to send
+      data: payload.data,
     });
 
     console.log(
-      `Successfully sent message: ${response.successCount} notifications sent.`
+      `Successfully sent message: ${response.successCount} notifications sent.`,
     );
     console.log(`${response.failureCount} notifications failed.`);
   }
-
-  constructor() {}
 }
 
-export { FirebaseUtils };
+module.exports = {
+  FirebaseUtils,
+};
