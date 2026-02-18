@@ -8,6 +8,6 @@ export const tsup = {
   skipNodeModulesBundle: false,
   entryPoints: ["src/index.js"],
   watch: false,
-  outDir: "api",
+  outDir: "dist",
   entry: ["./**/*.js"], //include all files under src
 };

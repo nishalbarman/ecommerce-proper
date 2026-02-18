@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node ./api/index.js",
     "dev": "concurrently \"yarn dev:validator\" \"yarn dev:firebase-utils\" \"yarn server_dev_start\"",
-    "server_dev_start": "nodemon index.js",
+    "server_dev_start": "nodemon api/index.js",
     "dev:validator": "yarn workspace custom-validator-renting dev",
     "dev:firebase-utils": "yarn workspace firebase-utils dev",
     "build": "concurrently \"yarn build:firebase-utils\" \"yarn build:validator\" \"yarn build:tsup-build\"",
-    "build:tsup-build": "tsup ./index.js",
+    "build:tsup-build": "tsup ./api/index.js",
     "build:firebase-utils": "yarn workspace firebase-utils build",
     "build:validator": "yarn workspace custom-validator-renting build"
   },
