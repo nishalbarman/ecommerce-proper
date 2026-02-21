@@ -17,7 +17,6 @@ const LoadingAnimation = () => {
           backgroundColor={"transparent"}
           renderConfig={{ autoResize: true }}
         />
-        <p>Ha pata hai subah panwel bhi nikalna hai.. Lekin ruko.</p>
       </div>
     </div>
   );
