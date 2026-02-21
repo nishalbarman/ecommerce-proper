@@ -2,6 +2,7 @@ import React, {
   BaseSyntheticEvent,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -52,6 +53,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
     slideImages: [],
     description: "",
     category: "",
+    categorySlug: "",
     productType: "buy",
     rentingPrice: "",
     discountedPrice: "",
@@ -124,6 +126,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
             slideImages: product.slideImages || [],
             description: product.description,
             category: product.category,
+            categorySlug: product.categorySlug,
             productType: product.productType,
             rentingPrice: product.rentingPrice,
             discountedPrice: product.discountedPrice,
@@ -270,6 +273,16 @@ const ProductAdd: React.FC<ProductAddProps> = ({
     }
   };
 
+  const categoryListed = useMemo(() => {
+    const map = {};
+
+    categoryList?.forEach((cat) => {
+      map[cat._id.toString()] = cat;
+    });
+
+    return map;
+  }, [categoryList]);
+
   return (
     <div
       className={`flex flex-col flex-1 bg-gray-100 ${
@@ -336,12 +349,26 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
                   <div className="flex items-center mt-1 h-10 w-full ">
                     <select
-                      id="centerCategory"
+                      id="centeCategory"
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border border-gray-300 px-2 rounded-r-none"
                       value={(productData?.category as Category)?._id}
+                      // value={JSON.stringify(productData?.category)}
                       onChange={(e) => {
+                        
+
+                        // console.log(
+                        //   "Selected Category-->",
+                        //   categoryList,
+                        //   selectedCategory,
+                        // );
+                        const selectedCategory = categoryListed[e.target.value];
+
                         setProductData((prev) => {
-                          return { ...prev, category: e.target.value };
+                          return {
+                            ...prev,
+                            category: e.target.value,
+                            categorySlug: selectedCategory.categoryKey,
+                          };
                         });
                       }}
                       required={!updateProductId}
@@ -350,7 +377,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       {categoryList?.map((category) => (
                         <option
                           key={(category as Category)?._id?.toString()}
-                          value={(category as Category)._id}>
+                          value={(category as Category)?._id?.toString()}>
                           {(category as Category).categoryName}
                         </option>
                       ))}
@@ -717,7 +744,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               </div>
             </div>
 
-            {(
+            {
               <div className="bg-white p-4 rounded shadow-lg border">
                 <h3 className="text-xl font-semibold mb-3">
                   Variant Information
@@ -770,42 +797,46 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       />
                     </div>
 
-                    {!!productData?.isVariantAvailable && <div className="flex items-center mb-3">
-                      {
-                        <div className="flex items-center border-none border-gray-300 rounded-lg w-fit">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setVariantQuantity((prev) => Math.max(0, (prev || 0) - 1));
-                            }}
-                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-l-lg focus:outline-none h-full">
-                            -
-                          </button>
-                          <input
-                            type="number"
-                            className="form-input p-2 border border-gray-300 rounded-md flex-1"
-                            onChange={(e) => {
-                              setVariantQuantity(+e.target.value);
-                            }}
-                            value={variantQuantity}
-                            onWheel={(e) => {
-                              e.preventDefault();
-                            }}
-                            min="0"
-                            placeholder="Number of variants requried"
-                            aria-label="Variant quantity"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setVariantQuantity((prev) => (prev || 0) + 1);
-                            }}
-                            className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-r-lg focus:outline-none">
-                            +
-                          </button>
-                        </div>
-                      }
-                    </div>}
+                    {!!productData?.isVariantAvailable && (
+                      <div className="flex items-center mb-3">
+                        {
+                          <div className="flex items-center border-none border-gray-300 rounded-lg w-fit">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setVariantQuantity((prev) =>
+                                  Math.max(0, (prev || 0) - 1),
+                                );
+                              }}
+                              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-l-lg focus:outline-none h-full">
+                              -
+                            </button>
+                            <input
+                              type="number"
+                              className="form-input p-2 border border-gray-300 rounded-md flex-1"
+                              onChange={(e) => {
+                                setVariantQuantity(+e.target.value);
+                              }}
+                              value={variantQuantity}
+                              onWheel={(e) => {
+                                e.preventDefault();
+                              }}
+                              min="0"
+                              placeholder="Number of variants requried"
+                              aria-label="Variant quantity"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setVariantQuantity((prev) => (prev || 0) + 1);
+                              }}
+                              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-r-lg focus:outline-none">
+                              +
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    )}
 
                     {!!productData?.isVariantAvailable &&
                       variantQuantity !== undefined &&
@@ -1413,7 +1444,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </div>
                   )}
               </div>
-            )}
+            }
 
             <div className="flex justify-end">
               <button

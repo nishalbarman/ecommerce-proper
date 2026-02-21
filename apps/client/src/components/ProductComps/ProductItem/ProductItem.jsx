@@ -38,6 +38,7 @@ function ProductCard({
 }) {
   const {
     _id: productId,
+    slug: productSlug,
     previewImage,
     title,
     category: { categoryName, categoryKey } = {},
@@ -48,6 +49,8 @@ function ProductCard({
     originalPrice,
     rentingPrice,
   } = productDetails;
+
+  // let productIdEncoded = Buffer.from(productId.toString()).toString("base64");
 
   const { useAddOneToCartMutation } = CartApi;
   const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
@@ -82,7 +85,7 @@ function ProductCard({
 
   const handleVisitProduct = (e) => {
     e.stopPropagation();
-    navigator.push(`/products/view/${productId}`);
+    navigator.push(`/products/view/${productSlug}`);
   };
 
   const handleAddToCart = async () => {
@@ -230,7 +233,7 @@ function ProductCard({
           </button>
         </div>
 
-        <Link href={`/products/view/${productId}`} className="block group">
+        <Link href={`/products/view/${productSlug}`} className="block group">
           <div className="w-full rounded py-2 px-2">
             <h5 className="text-lg font-semibold line-clamp-1 transition-colors duration-200">
               {title}

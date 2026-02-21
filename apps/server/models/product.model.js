@@ -8,6 +8,8 @@ const {
 
 const productSchema = new mongoose.Schema(
   {
+    slug: { type: String, unique: true, required: true },
+
     previewImage: { type: String, required: true },
     title: { type: String, required: true },
     category: {
@@ -15,6 +17,7 @@ const productSchema = new mongoose.Schema(
       ref: "categories",
       // default: "65f6c9f882ba818ab0e43d64",
     },
+    categorySlug: { type: String, required: true },
     slideImages: { type: Array, required: true }, // images array
     description: { type: String, required: true },
 
@@ -58,7 +61,7 @@ const productSchema = new mongoose.Schema(
           .limit(limit);
       },
     },
-  }
+  },
 );
 
 // productSchema.index({
@@ -89,7 +92,7 @@ const productVariantSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Product =

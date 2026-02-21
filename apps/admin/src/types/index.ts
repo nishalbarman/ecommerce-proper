@@ -145,6 +145,7 @@ export type Product = {
   previewImage: string | null;
   title: string;
   category: string | Category;
+  categorySlug: string;
   slideImages: string[] | null;
   description: string;
 

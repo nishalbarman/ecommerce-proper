@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const cheerio = require("cheerio");
+const slugify = require("slugify");
 const { Product, ProductVariant } = require("../../models/product.model");
 const Wishlist = require("../../models/wishlist.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
@@ -393,15 +394,19 @@ router.get("/", async (req, res) => {
     // Category filter (comma-separated string)
     if (searchQuery.category) {
       const categories = searchQuery.category.split(",");
-      filter.category = {
-        $in: categories.map((id) => new mongoose.Types.ObjectId(id)),
+      filter.categorySlug = {
+        $in: categories.map(
+          (categoryId) => categoryId || new mongoose.Types.ObjectId(categoryId),
+        ),
       };
     }
 
+    console.log("What are filters", filter);
+
     // Price range filter
     const minPrice = parseFloat(searchQuery.minPrice) || 0;
-    const maxPrice = parseFloat(searchQuery.maxPrice) || 200;
-    if (minPrice > 0 || maxPrice < 200) {
+    const maxPrice = parseFloat(searchQuery.maxPrice) || 50000;
+    if (minPrice > 0 || maxPrice < 50000) {
       filter.discountedPrice = {
         $gte: minPrice,
         $lte: maxPrice,
@@ -466,6 +471,16 @@ router.post("/view/:productId", async (req, res) => {
   try {
     const params = req.params;
     const productType = req.body?.productType || "buy";
+    const productId = params?.productId;
+
+    let isSlug = false;
+    if (
+      !mongoose.Types.ObjectId.isValid(productId) ||
+      String(new mongoose.Types.ObjectId(productId)) !== productId
+    ) {
+      isSlug = true;
+    }
+
     const token = req.headers["authorization"]?.split(" ")[1];
     let user = null;
     if (token) {
@@ -481,7 +496,14 @@ router.post("/view/:productId", async (req, res) => {
         .json({ redirect: "/products", message: "Product ID missing!" });
     }
 
-    const product = await Product.findOne({ _id: params?.productId }).populate([
+    const filter = {};
+    if (isSlug) {
+      filter.slug = productId;
+    } else {
+      filter._id = productId;
+    }
+
+    const product = await Product.findOne({ ...filter }).populate([
       "category",
       "productVariant",
     ]);
@@ -491,13 +513,13 @@ router.post("/view/:productId", async (req, res) => {
     let hasUserBoughtThisProduct = false;
     if (user && user.userDetails && user.userDetails._id) {
       hasUserBoughtThisProduct = await Order.countDocuments({
-        product: params.productId,
+        product: product.productId,
         user: user?.userDetails?._id,
         orderType: productType,
         orderStatus: "Delivered",
       });
       console.log("has user bought", {
-        product: params.productId,
+        product: product.productId,
         user: user?.userDetails?._id || undefined,
         orderType: productType,
         orderStatus: "Delivered",
@@ -594,9 +616,11 @@ router.post("/", checkRole(1, 2), async (req, res) => {
 
     // Create a new product document
     const newProduct = new Product({
+      slug: slugify(productData.title, { lower: true }),
       previewImage: productData.previewImage,
       title: productData.title,
       category: productData.category,
+      categorySlug: productData.categorySlug,
       slideImages: productData.slideImages,
       description: productData.description,
       // productType: productData.productType,
@@ -699,8 +723,10 @@ router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
     }
 
     const productUpdatedData = {
+      slug: slugify(productData.title, { lower: true }),
       title: productData.title,
       category: productData.category,
+      categorySlug: productData.categorySlug,
       description: productData.description,
       productType: productData.productType,
       shippingPrice: +productData.shippingPrice,

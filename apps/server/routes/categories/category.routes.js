@@ -4,6 +4,7 @@ const Category = require("../../models/category.model");
 const getTokenDetails = require("../../helpter/getTokenDetails");
 const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
 const checkRole = require("../../middlewares");
+const { default: mongoose } = require("mongoose");
 
 const TAG = "categories.routes.js:--";
 
@@ -142,14 +143,27 @@ router.delete("/:categoryId", checkRole(1, 2), async (req, res) => {
 router.get("/view/:categoryId", async (req, res) => {
   try {
     const categoryId = req.params?.categoryId;
+    let isSlug = false;
+    if (
+      !mongoose.Types.ObjectId.isValid(categoryId) ||
+      String(new mongoose.Types.ObjectId(categoryId)) !== categoryId
+    ) {
+      isSlug = true;
+    }
 
     if (!categoryId) {
       return res.status(400).json({ message: "Category ID Found" });
     }
 
-    const category = await Category.findOne({
-      _id: categoryId,
-    });
+    const filter = {};
+
+    if (isSlug) {
+      filter.categoryKey = categoryId;
+    } else {
+      filter._id = categoryId;
+    }
+
+    const category = await Category.findOne(filter);
 
     return res.status(200).json({
       category,

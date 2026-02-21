@@ -9,7 +9,7 @@ function CategoryItem({
   categoryKey,
 }) {
   return (
-    <Link href={`/categories/${categoryId}`} passHref>
+    <Link href={`/categories/${categoryKey}`} passHref>
       <div className="relative group transition-all duration-300 ease-in-out rounded-xl overflow-hidden shadow-md hover:shadow-xl w-full h-48 bg-gradient-to-br from-white to-gray-50 border border-gray-100 hover:border-green-200 cursor-pointer">
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 opacity-100 transition-opacity duration-300 z-10"></div>
