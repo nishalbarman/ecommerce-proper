@@ -83,9 +83,22 @@ router.get("/list/:productId", async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    const isSlug = false;
+    if (
+      !mongoose.Types.ObjectId.isValid(productId) &&
+      !mongoose.Types.ObjectId(productId).toString() === productId
+    ) {
+      isSlug = true;
+    }
+
     const PAGE = searchParams.page || 1;
     const LIMIT = searchParams.limit || 20;
     const SKIP = (PAGE - 1) * LIMIT;
+
+    const filter = {}
+    if(isSlug) {
+      filter.slug = productId
+    }
 
     const feedbackCount = await Feedback.countDocuments({
       product: productId,

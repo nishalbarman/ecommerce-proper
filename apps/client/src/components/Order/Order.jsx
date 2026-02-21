@@ -20,6 +20,8 @@ const OrderHistoryPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10); // Items per page
 
+  console.log(orders)
+
   const fetchOrders = async (page = 1) => {
     try {
       setIsLoading(true);
@@ -118,6 +120,9 @@ const OrderHistoryPage = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Preview
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Order ID
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -141,6 +146,9 @@ const OrderHistoryPage = () => {
                     {orders.length > 0 ? (
                       orders.map((order) => (
                         <tr key={order._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <img src={order.previewImage} className="w-10 h-10 rounded-full" />
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {order.orderGroupID || order._id}
                           </td>
