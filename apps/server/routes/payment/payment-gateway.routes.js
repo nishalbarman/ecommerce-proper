@@ -7,7 +7,7 @@ const checkRole = require("../../middlewares");
 const TAG = "payment-gateway.routes.js:--";
 
 // ✅ GET ALL
-router.get("/", async (req, res) => {
+router.get("/", checkRole(0, 1, 2), async (req, res) => {
   try {
     const PAGE = parseInt(req.query.page) || 1;
     const LIMIT = parseInt(req.query.limit) || 10;
@@ -15,10 +15,15 @@ router.get("/", async (req, res) => {
 
     const totalCounts = await PaymentGateway.countDocuments();
 
+    const filter = {};
+    if (req?.user?.roleNumber === 0) {
+      filter.isActive = true;
+    }
+
     const gateways =
       LIMIT === 0
-        ? await PaymentGateway.find({ isActive: true }).sort({ priority: 1 })
-        : await PaymentGateway.find({ isActive: true })
+        ? await PaymentGateway.find(filter).sort({ priority: 1 })
+        : await PaymentGateway.find(filter)
             .sort({ priority: 1 })
             .skip(SKIP)
             .limit(LIMIT);
@@ -99,7 +104,7 @@ router.delete("/:id", checkRole(1, 2), async (req, res) => {
 });
 
 // ✅ VIEW SINGLE
-router.get("/view/:id", async (req, res) => {
+router.get("/view/:id", checkRole(0, 1, 2), async (req, res) => {
   try {
     const gateway = await PaymentGateway.findById(req.params.id);
 
