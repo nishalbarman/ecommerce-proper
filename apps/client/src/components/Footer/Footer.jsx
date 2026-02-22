@@ -62,7 +62,7 @@ async function Footer() {
         {/* Exclusive */}
         <div className="w-full sm:w-[45%] lg:w-[20%]">
           <p className="font-andika text-white text-xl font-bold mb-6 max-sm:mb-4">
-            About Me
+            About Us
           </p>
           <div className="flex flex-col gap-4">
             {/* <p className=" font-andika text-white font-semibold mb-[10px]">
@@ -193,7 +193,7 @@ async function Footer() {
             <Link
               href={"/dynamic/about"}
               className="text-white underline max-sm:text-sm">
-              About Me
+              About Us
             </Link>
             <Link
               href={"/contact"}
@@ -267,7 +267,7 @@ async function Footer() {
               <Link
                 href={"/dynamic/about"}
                 className="text-white underline max-sm:text-sm">
-                About Me
+                About Us
               </Link>
               <Link
                 href={"/contact"}
