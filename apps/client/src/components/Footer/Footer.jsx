@@ -176,7 +176,7 @@ async function Footer() {
               Privacy Policy
             </Link>
             <Link
-                href={"/dynamic/	shipping-policy"}
+                href={"/dynamic/shipping-policy"}
                 className="text-white underline max-sm:text-sm">
                 Shipping Policy
               </Link>
