@@ -1,3 +1,5 @@
+import { selectedPaymentMethodSlice } from "./slices/selectedPaymentMethod";
+
 // Export all slices with namespace
 export * as AddressSlice from "./slices/addressSlice";
 export * as AuthSlice from "./slices/authSlice";
@@ -21,6 +23,10 @@ export * as CenterAddressApi from "./apis/centerAddresApi";
 export * as WishlistApi from "./apis/wishlistApi";
 export * as ProductApi from "./apis/productApi";
 export * as ReviewApi from "./apis/reviewApi";
+// export * as CouponApi from "./apis/couponApi";
+// export * as OrderApi from "./apis/orderApi";
+export * as pgApi from "./apis/paymentGatewayApi";
+export * as selectedPaymentMethodSlice from "./slices/selectedPaymentMethod";
 
 // Export store normally
 export * from "./store";

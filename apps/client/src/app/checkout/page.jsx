@@ -5,7 +5,7 @@ import { redirect, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
-import { CartApi, AddressApi, WishlistApi, CartSlice } from "@/redux";
+import { CartApi, AddressApi, WishlistApi, CartSlice, pgApi } from "@/redux";
 
 import AddressForm from "@/components/AddressForm/AddressForm";
 import { useRazorpay } from "react-razorpay";
@@ -37,6 +37,7 @@ export default function CheckoutPage() {
   const { useGetAddressQuery } = AddressApi;
   const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
   const { useGetWishlistQuery } = WishlistApi;
+  const { useGetAllPaymentGatewaysQuery } = pgApi;
 
   const {
     data: {
@@ -48,31 +49,44 @@ export default function CheckoutPage() {
   } = useGetCartQuery({
     productType: "buy",
   });
-  const { data: userWishlistItems } = useGetWishlistQuery({
-    productType: "buy",
-  });
+  // const { data: userWishlistItems } = useGetWishlistQuery({
+  //   productType: "buy",
+  // });
 
-  const { data: addresses, isLoading, refetch } = useGetAddressQuery();
-  const [selectedAddress, setSelectedAddress] = useState(null);
-  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const { data: paymentGatewayList, isLoading: isPaymentGatewayLoading } =
+    useGetAllPaymentGatewaysQuery();
 
-  console.log(selectedAddress);
+  const selectedPaymentMethod = useSelector(
+    (state) => state.selectedPaymentMethod?.selectedPaymentMethod,
+  );
 
-  const handleContinueToPayment = () => {
-    console.log("Is address selected then what is the value", selectedAddress);
+  console.log("What are payment gateways", paymentGatewayList);
 
-    if (!selectedAddress) {
-      toast.error("Please select a delivery address");
-      return;
-    }
+  // const { data: addresses, isLoading, refetch } = useGetAddressQuery();
+  // const [selectedAddress, setSelectedAddress] = useState(null);
+  // const [isAddingAddress, setIsAddingAddress] = useState(false);
 
-    handlePayment();
-  };
+  // console.log(selectedAddress);
+
+  // const handleContinueToPayment = () => {
+  //   console.log(
+  //     "Is address selected then what is the value",
+  //     selectedAddressDetails,
+  //   );
+
+  //   if (!selectedAddressDetails) {
+  //     toast.error("Please select a delivery address");
+  //     return;
+  //   }
+
+  //   setIsPaymentLoading(true);
+  //   handlePayment();
+  // };
 
   const { Razorpay } = useRazorpay();
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  const [gatewayOption, setGatewayOption] = useState(null);
+  // const [gatewayOption, setGatewayOption] = useState(null);
 
   // const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
 
@@ -182,7 +196,7 @@ export default function CheckoutPage() {
     } else {
       navigation.push("/billing?redirect=payment-cart");
     }
-  }, [appliedCoupon, gatewayOption]);
+  }, [appliedCoupon, selectedPaymentMethod]);
 
   const [removeAllCartItems] = useRemoveAllCartMutation();
 
@@ -298,7 +312,7 @@ export default function CheckoutPage() {
     } finally {
       setIsPaymentLoading(false);
     }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddressDetails]);
+  }, [Razorpay, appliedCoupon, selectedPaymentMethod, selectedAddressDetails]);
 
   const handleCashfreePayment = useCallback(async () => {
     try {
@@ -348,8 +362,8 @@ export default function CheckoutPage() {
     }
   }, [appliedCoupon, selectedAddressDetails, token]);
 
-  const handlePayment = () => {
-    switch (gatewayOption) {
+  const handlePayment = useCallback(() => {
+    switch (selectedPaymentMethod) {
       case "cashfree":
         return handleCashfreePayment();
       case "razorpay":
@@ -358,9 +372,14 @@ export default function CheckoutPage() {
         return handlePayUContinue();
       default:
         return handleRazorPayContinue();
-        // return handleCashfreePayment();
+      // return handleCashfreePayment();
     }
-  };
+  }, [
+    selectedPaymentMethod,
+    handleRazorPayContinue,
+    handlePayUContinue,
+    handleCashfreePayment,
+  ]);
 
   const paymentInitiatedRef = useRef(false);
 
@@ -371,7 +390,11 @@ export default function CheckoutPage() {
     document.body.appendChild(script);
 
     // ✅ Prevent duplicate calls
-    if (selectedAddressDetails && !paymentInitiatedRef.current) {
+    if (
+      selectedAddressDetails &&
+      selectedPaymentMethod &&
+      !paymentInitiatedRef.current
+    ) {
       paymentInitiatedRef.current = true;
       handlePayment();
     }
@@ -385,6 +408,12 @@ export default function CheckoutPage() {
   // const couponSuccessModalRef = useRef();
   const paymentLoadingModalRef = useRef();
   const paymentStatusModalRef = useRef();
+
+  // useEffect(() => {
+  //   if (paymentGatewayList?.data?.length > 0) {
+  //     setGatewayOption(paymentGatewayList.data[0].code);
+  //   }
+  // }, [paymentGatewayList]);
 
   // const [couponCode, setCouponCode] = useState("");
   // const [couponError, setCouponError] = useState("");
@@ -513,7 +542,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Payment Loading Modal */}
-      <div
+      {/* <div
         ref={paymentLoadingModalRef}
         className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
@@ -525,7 +554,66 @@ export default function CheckoutPage() {
             Please wait while we process your payment
           </p>
         </div>
-      </div>
+      </div> */}
+
+      {/* <div className="max-w-sm w-full">
+          <div className="bg-white p-6 rounded-xl shadow-md">
+            <h2 className="text-lg font-semibold mb-4">
+              Select Payment Method
+            </h2>
+
+            {isPaymentGatewayLoading ? (
+              <div className="flex justify-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-6"></div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {paymentGatewayList?.map((gateway) => (
+                  <label
+                    key={gateway._id}
+                    className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
+                      gatewayOption === gateway.code
+                        ? "border-red-500 bg-red-50"
+                        : "hover:bg-gray-50"
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name="payment"
+                        value={gateway.code}
+                        checked={gatewayOption === gateway.code}
+                        onChange={(e) => setGatewayOption(e.target.value)}
+                      />
+
+                      <div>
+                        <p className="font-medium">{gateway.title}</p>
+                        {gateway.description && (
+                          <p className="text-sm text-gray-500">
+                            {gateway.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {gateway.priority === 1 && (
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
+                        Recommended
+                      </span>
+                    )}
+                  </label>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={handleContinueToPayment}
+              disabled={isPaymentLoading}
+              className="mt-6 w-full bg-primary hover:bg-red-500 text-white py-3 rounded-lg font-medium cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400">
+              {isPaymentLoading ? "Processing..." : "Continue to Payment"}
+            </button>
+          </div>
+        </div> */}
+      {/* </div> */}
 
       {/* Payment Status Modal */}
       <div

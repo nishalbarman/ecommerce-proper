@@ -155,6 +155,9 @@ app.use(
 
 // payment summary
 app.use("/payment/summary", require("./routes/payment/summary.routes"));
+
+app.use("/payment/gateways", require("./routes/payment/payment-gateway.routes"));
+
 app.use(
   "/shipping-config",
   require("./routes/shipping-config/shipping-config.routes"),

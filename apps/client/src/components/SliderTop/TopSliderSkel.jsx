@@ -2,7 +2,7 @@ import React from "react";
 
 const TopSliderSkeleton = () => {
   return (
-    <div className="container mx-auto px-2 sm:px-3 md:px-4">
+    <div className="container mx-auto px-2 sm:px-3 md:px-4 my-5">
       <div className="rounded-xl sm:rounded-2xl overflow-hidden shadow-md animate-pulse">
         {/* Image Section */}
         <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px] bg-red-100" />

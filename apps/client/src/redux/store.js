@@ -41,6 +41,8 @@ import { appliedCouponSlice } from "./slices/appliedCouponSlice.js";
 import { loginModalSlice } from "./slices/loginModalSlice.js";
 import { productApi } from "./apis/productApi.js";
 import { reviewApi } from "./apis/reviewApi.js";
+import { pgApi } from "./apis/paymentGatewayApi.js";
+import { selectedPaymentMethodSlice } from "./slices/selectedPaymentMethod.js";
 
 const rootReducer = combineReducers({
   // [userAPI.reducerPath]: userAPI.reducer,
@@ -66,12 +68,15 @@ const rootReducer = combineReducers({
   // [orderSlice.name]: orderSlice.reducer,
   [centerAddressApi.reducerPath]: centerAddressApi.reducer,
   [centerAddressSlice.name]: centerAddressSlice.reducer,
+  [pgApi.reducerPath]: pgApi.reducer,
 
   // refetch slice
   [refetchSlice.name]: refetchSlice.reducer,
 
   // global error
   [globalMessage.name]: globalMessage.reducer,
+
+  [selectedPaymentMethodSlice.name]: selectedPaymentMethodSlice.reducer,
 });
 
 const persistConfig = {
@@ -88,6 +93,8 @@ const persistConfig = {
 
     cartSlice.name,
     categoryApi.reducerPath,
+    pgApi.reducerPath,
+    selectedPaymentMethodSlice.name,
 
     appliedCouponSlice.name,
   ],
@@ -105,6 +112,7 @@ const middlewares = [
   reviewApi.middleware,
   categoryApi.middleware,
   centerAddressApi.middleware,
+  pgApi.middleware,
   // userAPI.middleware,
 ];
 

@@ -9,7 +9,6 @@ export const addressSlice = createSlice({
   initialState,
   reducers: {
     setUserSelectedAddress: (state, { payload }) => {
-      console.log("What is selected address slice",payload)
       state.selectedAddress = payload;
       
     },

@@ -13,6 +13,7 @@ import {
   FaCubes,
   FaChevronDown,
   FaChevronRight,
+  FaMoneyCheck,
 } from "react-icons/fa";
 import { FaMessage } from "react-icons/fa6";
 import { IoMdClose } from "react-icons/io";
@@ -290,6 +291,8 @@ const SidebarNativeDnD: React.FC<SidebarProps> = ({
         id: "settings",
         title: "SETTINGS",
         items: [
+          
+          { id: "payment-gateway", title: "PG", icon: <FaMoneyCheck />, path: "/payment-gateway" },
           { id: "roles", title: "Roles", icon: <FaCogs />, path: "/roles" },
           {
             id: "web-config",

@@ -25,6 +25,7 @@ import Logout from "../components/Logout";
 import WebConfigPage from "@/components/WebConfig/WebConfig";
 import DashboardWithData from "@/components/DashboardWithData";
 import BannerList from "@/components/BannerSection/BannerList";
+import PaymentGateway from "@/components/PaymentGateway/PaymentGateway";
 
 const AllRoutes: React.FC = () => {
   const [navbarToogle, setNavbarToogle] = React.useState<Boolean>(true);
@@ -167,6 +168,15 @@ const AllRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <DynamicPageAdd />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/payment-gateway"
+        element={
+          <PrivateRoute>
+            <PaymentGateway />
           </PrivateRoute>
         }
       />
