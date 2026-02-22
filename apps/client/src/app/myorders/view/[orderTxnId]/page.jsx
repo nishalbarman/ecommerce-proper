@@ -39,14 +39,14 @@ const OrderViewPage = ({ params }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setOrderData(data);
     } catch (error) {
       console.error("Error fetching order:", error);
       toast.error(
-        error.response?.data?.message || "Failed to load order details"
+        error.response?.data?.message || "Failed to load order details",
       );
     } finally {
       setIsLoading(false);
@@ -76,7 +76,7 @@ const OrderViewPage = ({ params }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       toast.success("Order cancelled successfully");
       fetchOrder(); // Refresh order data
@@ -104,14 +104,14 @@ const OrderViewPage = ({ params }) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       toast.success("Order item cancelled successfully");
       fetchOrder(); // Refresh order data
     } catch (error) {
       console.error("Error cancelling order item:", error);
       toast.error(
-        error.response?.data?.message || "Failed to cancel order item"
+        error.response?.data?.message || "Failed to cancel order item",
       );
     } finally {
       setCancellingItemId(null);
@@ -189,14 +189,17 @@ const OrderViewPage = ({ params }) => {
                 <div className="flex justify-between items-start">
                   <div>
                     <h1 className="text-2xl font-semibold text-gray-900">
-                      Order #{orderDetails.orderGroupID}
+                      Order{" "}
+                      <span className="max-sm:text-sm max-md:text-base max-md:block max-md:mt-2">
+                        #{orderDetails.orderGroupID}
+                      </span>
                     </h1>
                     <p className="mt-1 text-sm text-gray-500">
                       Placed on {formatDate(firstOrderItem.createdAt)}
                     </p>
                   </div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(firstOrderItem.orderStatus)}`}>
+                    className={`text-nowrap px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(firstOrderItem.orderStatus)}`}>
                     {firstOrderItem.orderStatus}
                   </span>
                 </div>
@@ -393,14 +396,12 @@ const OrderViewPage = ({ params }) => {
                           <FaMoneyBillWave className="mr-2" /> Payment Method:
                         </h3>
                         <p className="text-sm text-gray-900">
-                          {firstOrderItem.paymentMode}
-                        </p>
-                      </div>
-
-                      <p
+                          {firstOrderItem.paymentMode}, <span
                         className={`mt-1 text-sm ${orderDetails.paymentStatus === "Success" ? "text-green-600" : "text-yellow-600"}`}>
                         ({orderDetails.paymentStatus})
-                      </p>
+                      </span>
+                        </p>
+                      </div>
                     </div>
 
                     <div className="border-t border-gray-200 pt-4">
@@ -429,7 +430,7 @@ const OrderViewPage = ({ params }) => {
               </div>
 
               {["On Hold", "Pending", "On Progress", "Accepted"].includes(
-                firstOrderItem.orderStatus
+                firstOrderItem.orderStatus,
               ) && (
                 <div className="mt-4">
                   <button
