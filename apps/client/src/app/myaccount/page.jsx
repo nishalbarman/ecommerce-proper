@@ -15,6 +15,7 @@ import {
   FaShieldAlt,
   FaArrowRight,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const brand = {
   primary: "#DA4445", // matches your header/user icon accent
@@ -35,6 +36,8 @@ const MyAccountPage = () => {
   });
   const [errors, setErrors] = useState({});
 
+  const token = useSelector((state) => state.auth.jwtToken);
+
   const fetchUserData = async () => {
     try {
       setIsLoading(true);
@@ -45,15 +48,16 @@ const MyAccountPage = () => {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       const data = await response.json();
       setUserData(data);
       setFormData({
-        name: response.data.name,
-        email: response.data.email,
-        mobileNo: response.data.mobileNo,
+        name: data.name,
+        email: data.email,
+        mobileNo: data.mobileNo,
         password: "",
         confirmPassword: "",
       });
@@ -150,8 +154,11 @@ const MyAccountPage = () => {
         payload,
         {
           withCredentials: true,
-          headers: { "Content-Type": "application/json" },
-        }
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
       toast.success("Profile updated successfully");
@@ -171,11 +178,96 @@ const MyAccountPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[90vh] flex items-center justify-center bg-gray-50">
-        <div
-          className="animate-spin rounded-full h-12 w-12 border-[3px] border-gray-200 border-t-[3px]"
-          style={{ borderTopColor: brand.primary }}
-        />
+      <div className="bg-gray-50 animate-pulse">
+        {/* Header */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="inline-block h-3 w-1.5 rounded-full bg-primary" />
+                <span className="text-sm font-semibold text-primary">
+                  Account
+                </span>
+              </div>
+              <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-gray-900">
+                My Account
+              </h1>
+              <p className="text-gray-500 mt-1">
+                Manage your profile information
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            {/* Top strip */}
+            <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+              <div className="h-5 w-5 bg-gray-300 rounded" />
+              <div className="h-4 w-40 bg-gray-300 rounded" />
+            </div>
+
+            {/* Form */}
+            <div className="px-5 sm:px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
+              {[1, 2, 3, 4].map((_, i) => (
+                <div key={i}>
+                  <div className="h-3 w-24 bg-gray-300 rounded mb-2" />
+                  <div className="h-10 w-full bg-gray-300 rounded-lg" />
+                </div>
+              ))}
+
+              {/* Buttons */}
+              <div className="col-span-1 sm:col-span-2 flex gap-3 pt-2">
+                <div className="h-10 w-32 bg-gray-300 rounded-lg" />
+                <div className="h-10 w-36 bg-gray-300 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary Sections */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Recent Orders */}
+            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+              <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+                <div className="h-2 w-2 bg-gray-300 rounded-full" />
+                <div className="h-4 w-32 bg-gray-300 rounded" />
+              </div>
+
+              <div className="px-5 sm:px-6 py-5 space-y-3">
+                <div className="h-3 w-52 bg-gray-300 rounded" />
+                <div className="h-9 w-32 bg-gray-300 rounded-lg" />
+              </div>
+            </div>
+
+            {/* Account Security */}
+            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+              <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+                <div className="h-5 w-5 bg-gray-300 rounded" />
+                <div className="h-4 w-40 bg-gray-300 rounded" />
+              </div>
+
+              <div className="px-5 sm:px-6 py-5 space-y-4">
+                {[1, 2].map((_, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <div className="space-y-2">
+                      <div className="h-3 w-32 bg-gray-300 rounded" />
+                      <div className="h-3 w-24 bg-gray-300 rounded" />
+                    </div>
+                    <div className="h-6 w-20 bg-gray-300 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Links */}
+          <div className="mt-8 flex flex-wrap gap-3">
+            {[1, 2, 3].map((_, i) => (
+              <div key={i} className="h-8 w-24 bg-gray-300 rounded-full" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -208,14 +300,8 @@ const MyAccountPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span
-                className="inline-block h-3 w-1.5 rounded-full bg-primary"
-                // style={{ background: brand.primary }}
-              />
-              <span
-                className="text-sm font-semibold text-primary"
-                // style={{ color: brand.primary }}
-                >
+              <span className="inline-block h-3 w-1.5 rounded-full bg-primary" />
+              <span className="text-sm font-semibold text-primary">
                 Account
               </span>
             </div>
@@ -230,13 +316,13 @@ const MyAccountPage = () => {
             {!isEditing ? (
               <button
                 onClick={handleEditToggle}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 cursor-pointer">
                 <FaEdit className="text-gray-500" /> Edit
               </button>
             ) : (
               <button
                 onClick={handleEditToggle}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 cursor-pointer">
                 Cancel
               </button>
             )}
@@ -256,13 +342,13 @@ const MyAccountPage = () => {
                 {!isEditing ? (
                   <button
                     onClick={handleEditToggle}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700">
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700 cursor-pointer">
                     <FaEdit className="text-gray-500" /> Edit
                   </button>
                 ) : (
                   <button
                     onClick={handleEditToggle}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700">
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white text-gray-700 cursor-pointer">
                     Cancel
                   </button>
                 )}
@@ -438,7 +524,7 @@ const MyAccountPage = () => {
                 <button
                   type="button"
                   onClick={handleEditToggle}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50">
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-50 cursor-pointer">
                   {!isEditing ? (
                     <>
                       <FaEdit className="text-gray-500" /> Edit Profile
@@ -452,7 +538,7 @@ const MyAccountPage = () => {
                   <button
                     type="submit"
                     disabled={isUpdating}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white shadow-sm disabled:opacity-70"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white shadow-sm disabled:opacity-70 cursor-pointer"
                     style={{ background: brand.primary }}>
                     {isUpdating ? (
                       "Saving..."
@@ -496,7 +582,7 @@ const MyAccountPage = () => {
           </div>
 
           {/* Account Security */}
-          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+          {/* <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
             <div className="px-5 sm:px-6 py-4 border-b bg-gray-50">
               <div className="flex items-center gap-2">
                 <FaShieldAlt className="text-gray-500" />
@@ -538,7 +624,7 @@ const MyAccountPage = () => {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Helpful links row to mirror footer/quick links style */}

@@ -177,7 +177,7 @@ async function TopSlider() {
         </div>
       </div>
 
-      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div>
+      {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-0"></div> */}
     </>
   );
 }

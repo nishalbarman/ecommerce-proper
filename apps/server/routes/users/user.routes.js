@@ -34,13 +34,25 @@ router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
     const email = req.body?.email;
     const name = req.body?.name;
     const password = req.body?.password;
+    const mobileNo = req.body?.mobileNo;
+    const confirmPassword = req.body?.confirmPassword;
+
+    const userDetails = req.user;
+    console.log(userDetails)
 
     const updateObject = {};
-    if (email) {
-      if (!isValidEmail(email)) {
-        error.push("Invalid email");
+    // if (email) {
+    //   if (!isValidEmail(email)) {
+    //     error.push("Invalid email");
+    //   }
+    //   updateObject.email = email;
+    // }
+
+    if (mobileNo) {
+      if (!isValidIndianMobileNumber(mobileNo)) {
+        error.push("Invalid mobile number");
       }
-      updateObject.email = email;
+      updateObject.mobileNo = mobileNo;
     }
 
     if (name) {
@@ -53,8 +65,16 @@ router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
     if (password) {
       if (!validatePass.validate(password)) {
         error.push(
-          "Password should be of minimum 8 digits containing uppercase and lowercase characters"
+          "Password should be of minimum 8 digits containing uppercase and lowercase characters",
         );
+      }
+
+      if (!confirmPassword) {
+        error.push("Passwords do not match");
+      }
+
+      if (password !== confirmPassword) {
+        error.push("Passwords do not match");
       }
       const salt = bcrypt.genSaltSync(10);
       const hashedPass = bcrypt.hashSync(password, salt);
@@ -69,8 +89,13 @@ router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
       { _id: userDetails._id },
       {
         $set: updateObject,
-      }
-    ).populate("role");
+      },
+      {
+        new: true,
+      },
+    );
+
+    console.log(update);
 
     const jwtToken = jwt.sign(
       {
@@ -82,7 +107,7 @@ router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
         email: update.email,
         mobileNo: update.mobileNo,
       },
-      secret
+      secret,
     );
 
     return res.status(200).json({
@@ -98,7 +123,7 @@ router.patch("/update", checkRole(0, 1, 2), async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({
@@ -188,7 +213,7 @@ router.get("/get-user-chart-data", checkRole(1, 2), async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({
@@ -416,7 +441,7 @@ router.patch("/update/:id", checkRole(1, 2), async (req, res) => {
 
     if (password && !validatePass.validate(password)) {
       error.push(
-        "Password should be of minimum 8 digits containing uppercase and lowercase characters"
+        "Password should be of minimum 8 digits containing uppercase and lowercase characters",
       );
     }
 
@@ -498,8 +523,8 @@ router.get("/me", checkRole(0, 1, 2), async (req, res) => {
 
     // Find user in database (excluding sensitive fields)
     const user = await User.findById(userId)
-      .select("-password -emailVerifyToken -resetToken")
-      .populate("role", "roleName roleNumber roleKey")
+      .select("-password -emailVerifyToken -resetToken -role")
+      // .populate("role", "roleName roleNumber roleKey")
       .populate("defaultAddress")
       .populate("center");
 

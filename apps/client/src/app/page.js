@@ -27,6 +27,7 @@ import TabBar from "@/components/TabBar/TabBar";
 import TopSlider from "@/components/SliderTop/TopSlider";
 import AuthModal from "@/modal/AuthModal";
 import { useSelector } from "react-redux";
+import TopSliderSkeleton from "@/components/SliderTop/TopSliderSkel";
 
 const getSaleDetails = async () => {
   try {
@@ -51,7 +52,8 @@ export default async function Page() {
         <HeroProduct />
       </Suspense>
 
-      <Suspense fallback={<HeroSkeleton />}>
+      {/* <TopSliderSkeleton /> */}
+      <Suspense fallback={<TopSliderSkeleton />}>
         <TopSlider />
       </Suspense>
 
