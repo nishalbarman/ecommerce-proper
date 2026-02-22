@@ -215,7 +215,7 @@ function ProductCard({
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800"
+            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
               <FaCheck
@@ -235,16 +235,16 @@ function ProductCard({
 
         <Link href={`/products/view/${productSlug}`} className="block group">
           <div className="w-full rounded py-2 px-2">
-            <h5 className="text-lg font-semibold line-clamp-1 transition-colors duration-200">
+            <h5 className="max-sm:tex-base text-lg font-semibold line-clamp-1 transition-colors duration-200">
               {title}
             </h5>
             <div className="flex flex-col gap-1 mt-2 max-sm:mt-1">
               <div className="flex items-center gap-3">
-                <span className="text-black text-xl md:text-lg font-bold">
+                <span className="text-black text-xl md:text-lg max-sm:tex-base font-bold">
                   &#8377;{discountedPrice}
                 </span>
                 {!!originalPrice && (
-                  <span className="line-through text-gray-400 text-sm md:text-base">
+                  <span className="line-through text-gray-400 text-sm md:text-base max-sm:tex-sm ">
                     &#8377;{originalPrice}
                   </span>
                 )}

@@ -179,56 +179,56 @@ function Cart() {
     }
   };
 
-  const handleRazorPayCheckout = useCallback(async () => {
-    try {
-      setIsPaymentLoading(true);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""}`,
-        {},
-        { withCredentials: true },
-      );
+  // const handleRazorPayCheckout = useCallback(async () => {
+  //   try {
+  //     setIsPaymentLoading(true);
+  //     const response = await axios.post(
+  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""}`,
+  //       {},
+  //       { withCredentials: true },
+  //     );
 
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: response.data.payment.amount,
-        currency: "INR",
-        name: process.env.NEXT_PUBLIC_BUSSINESS_NAME,
-        description: response.data.payment.productinfo,
-        image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
-        order_id: response.data.payment.razorpayOrderId,
-        handler: function (response) {
-          setOrderStatus(true);
-          setOrderStatusText("Order successful");
-          paymentStatusModalRef.current?.classList.remove("hidden");
-          setIsPaymentLoading(false);
-        },
-        prefill: {
-          name: response.data.payment.name,
-          email: response.data.payment.email,
-          contact: response.data.payment.mobileNo,
-        },
-        theme: {
-          color: "#DB4545",
-        },
-      };
+  //     const options = {
+  //       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+  //       amount: response.data.payment.amount,
+  //       currency: "INR",
+  //       name: process.env.NEXT_PUBLIC_BUSSINESS_NAME,
+  //       description: response.data.payment.productinfo,
+  //       image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
+  //       order_id: response.data.payment.razorpayOrderId,
+  //       handler: function (response) {
+  //         setOrderStatus(true);
+  //         setOrderStatusText("Order successful");
+  //         paymentStatusModalRef.current?.classList.remove("hidden");
+  //         setIsPaymentLoading(false);
+  //       },
+  //       prefill: {
+  //         name: response.data.payment.name,
+  //         email: response.data.payment.email,
+  //         contact: response.data.payment.mobileNo,
+  //       },
+  //       theme: {
+  //         color: "#DB4545",
+  //       },
+  //     };
 
-      const razorpay = new Razorpay(options);
-      razorpay.on("payment.failed", function (response) {
-        setOrderStatus(false);
-        setOrderStatusText("Payment failed");
-        paymentStatusModalRef.current?.classList.remove("hidden");
-        setIsPaymentLoading(false);
-      });
+  //     const razorpay = new Razorpay(options);
+  //     razorpay.on("payment.failed", function (response) {
+  //       setOrderStatus(false);
+  //       setOrderStatusText("Payment failed");
+  //       paymentStatusModalRef.current?.classList.remove("hidden");
+  //       setIsPaymentLoading(false);
+  //     });
 
-      razorpay.open();
-    } catch (error) {
-      setOrderStatus(false);
-      setOrderStatusText("Checkout failed");
-      paymentStatusModalRef.current?.classList.remove("hidden");
-    } finally {
-      setIsPaymentLoading(false);
-    }
-  }, [Razorpay, appliedCoupon]);
+  //     razorpay.open();
+  //   } catch (error) {
+  //     setOrderStatus(false);
+  //     setOrderStatusText("Checkout failed");
+  //     paymentStatusModalRef.current?.classList.remove("hidden");
+  //   } finally {
+  //     setIsPaymentLoading(false);
+  //   }
+  // }, [Razorpay, appliedCoupon]);
 
   const [MRP, setMRP] = useState(0);
   const [purchasablePrice, setPurchasablePrice] = useState(0);
@@ -356,182 +356,182 @@ function Cart() {
   const transactionStatusRef = useRef();
 
   // payu checkout
-  const initiatePayment = (pay) => {
-    const form = document.createElement("form");
-    form.method = "POST";
-    // form.action = "https://test.payu.in/_payment"; // URL of your payment page
-    form.action = "https://secure.payu.in/_payment"; // URL of your payment page
-    form.target = "CARFTER_PaymentPopup";
+  // const initiatePayment = (pay) => {
+  //   const form = document.createElement("form");
+  //   form.method = "POST";
+  //   // form.action = "https://test.payu.in/_payment"; // URL of your payment page
+  //   form.action = "https://secure.payu.in/_payment"; // URL of your payment page
+  //   form.target = "CARFTER_PaymentPopup";
 
-    // Add each key-value pair from postData as a hidden input field
-    for (const key in pay) {
-      if (pay.hasOwnProperty(key)) {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = pay[key];
-        form.appendChild(input);
-      }
-    }
+  //   // Add each key-value pair from postData as a hidden input field
+  //   for (const key in pay) {
+  //     if (pay.hasOwnProperty(key)) {
+  //       const input = document.createElement("input");
+  //       input.type = "hidden";
+  //       input.name = key;
+  //       input.value = pay[key];
+  //       form.appendChild(input);
+  //     }
+  //   }
 
-    const popup = window.open("", "_blank");
-    if (popup) {
-      // Submit the form when the popup is allowed
-      // Append the form to the body and submit it
-      document.body.appendChild(form);
-      form.submit();
+  //   const popup = window.open("", "_blank");
+  //   if (popup) {
+  //     // Submit the form when the popup is allowed
+  //     // Append the form to the body and submit it
+  //     document.body.appendChild(form);
+  //     form.submit();
 
-      // Clean up the form after submission
-      document.body.removeChild(form);
-      popup?.close();
-    } else {
-      // Inform the user if the popup was blocked
-      alert("Please enable pop-ups to proceed with payment.");
-    }
-  };
+  //     // Clean up the form after submission
+  //     document.body.removeChild(form);
+  //     popup?.close();
+  //   } else {
+  //     // Inform the user if the popup was blocked
+  //     alert("Please enable pop-ups to proceed with payment.");
+  //   }
+  // };
 
-  const handlePayUContinue = useCallback(async () => {
-    // if (!gatewayOption) return;
-    const isAddressAvailble = true || localStorage.getItem("isAddressAvailble");
-    if (isAddressAvailble) {
-      try {
-        setIsPaymentLoading(true);
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
-          {
-            headers: {},
-          },
-        ); // generate hash with coupon
+  // const handlePayUContinue = useCallback(async () => {
+  //   // if (!gatewayOption) return;
+  //   const isAddressAvailble = true || localStorage.getItem("isAddressAvailble");
+  //   if (isAddressAvailble) {
+  //     try {
+  //       setIsPaymentLoading(true);
+  //       const response = await axios.get(
+  //         `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+  //         {
+  //           headers: {},
+  //         },
+  //       ); // generate hash with coupon
 
-        const pay = response.data.paymentDetails;
+  //       const pay = response.data.paymentDetails;
 
-        initiatePayment(pay);
+  //       initiatePayment(pay);
 
-        transactionLoadingRef.current?.classList.remove("hidden");
+  //       transactionLoadingRef.current?.classList.remove("hidden");
 
-        // Define a function to handle custom events from the popup
-        function handlePopupEvent(event) {
-          // Handle the event from the popup
-          var data = event.detail;
+  //       // Define a function to handle custom events from the popup
+  //       function handlePopupEvent(event) {
+  //         // Handle the event from the popup
+  //         var data = event.detail;
 
-          // Close loading indicator or perform any other actions
+  //         // Close loading indicator or perform any other actions
 
-          if (data?.success) {
-            transactionLoadingRef.current?.classList.add("hidden");
-            transactionStatusRef.current?.classList.remove("hidden");
-            setOrderStatusText("Order Placed Successfully");
-            setOrderStatus(true);
-            dispatch(updateCart({ totalCount: 0, cartItems: {} }));
-          } else {
-            transactionLoadingRef.current?.classList.add("hidden");
-            transactionStatusRef.current?.classList.remove("hidden");
-            setOrderStatus(false);
-            setOrderStatusText("Order Failed");
-          }
-          document.removeEventListener("paymentResponseData", handlePopupEvent);
-        }
+  //         if (data?.success) {
+  //           transactionLoadingRef.current?.classList.add("hidden");
+  //           transactionStatusRef.current?.classList.remove("hidden");
+  //           setOrderStatusText("Order Placed Successfully");
+  //           setOrderStatus(true);
+  //           dispatch(updateCart({ totalCount: 0, cartItems: {} }));
+  //         } else {
+  //           transactionLoadingRef.current?.classList.add("hidden");
+  //           transactionStatusRef.current?.classList.remove("hidden");
+  //           setOrderStatus(false);
+  //           setOrderStatusText("Order Failed");
+  //         }
+  //         document.removeEventListener("paymentResponseData", handlePopupEvent);
+  //       }
 
-        // Listen for custom events from the popup
-        document.addEventListener("paymentResponseData", handlePopupEvent);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setIsPaymentLoading(false);
-      }
-    } else {
-      navigation.push("/billing?redirect=payment-cart");
-    }
-  }, [appliedCoupon, gatewayOption]);
+  //       // Listen for custom events from the popup
+  //       document.addEventListener("paymentResponseData", handlePopupEvent);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setIsPaymentLoading(false);
+  //     }
+  //   } else {
+  //     navigation.push("/billing?redirect=payment-cart");
+  //   }
+  // }, [appliedCoupon, gatewayOption]);
 
   const [removeAllCartItems] = useRemoveAllCartMutation();
 
   // razor pay checkouts
-  const handleRazorPayContinue = useCallback(async () => {
-    try {
-      setIsPaymentLoading(true);
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
-        { address: selectedAddress },
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      ); // generate razor pay order id and also apply coupon if applicable
+  // const handleRazorPayContinue = useCallback(async () => {
+  //   try {
+  //     setIsPaymentLoading(true);
+  //     const response = await axios.post(
+  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+  //       { address: selectedAddress },
+  //       {
+  //         withCredentials: true,
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       },
+  //     ); // generate razor pay order id and also apply coupon if applicable
 
-      const config = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-        amount: response.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-        currency: "INR",
-        name: process.env.NEXT_PUBLIC_BUSSINESS_NAME, //your business name
-        description: response.data.productinfo,
-        image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
-        order_id: response.data.razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        handler: async function (response) {
-          console.log(response);
-          dispatch(updateCart({ totalCount: 0, cartItems: {} }));
-          setOrderStatus(true);
-          setOrderStatusText("Order successful");
-          transactionStatusRef.current?.classList.remove("hidden");
-          setIsPaymentLoading(false);
-          //   window.scrollTo(0);
-          await removeAllCartItems().unwrap();
-          router.push("/myorders");
-        },
-        prefill: {
-          name: response.data.name, //your customer's name
-          email: response.data.email,
-          contact: response.data.mobileNo, //Provide the customer's phone number for better conversion rates
-        },
-        theme: {
-          color: "#DB4545",
-        },
-      };
+  //     const config = {
+  //       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+  //       amount: response.data.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+  //       currency: "INR",
+  //       name: process.env.NEXT_PUBLIC_BUSSINESS_NAME, //your business name
+  //       description: response.data.productinfo,
+  //       image: "https://i.ibb.co/Q3FPrQQm/64c844d378e5.png",
+  //       order_id: response.data.razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+  //       handler: async function (response) {
+  //         console.log(response);
+  //         dispatch(updateCart({ totalCount: 0, cartItems: {} }));
+  //         setOrderStatus(true);
+  //         setOrderStatusText("Order successful");
+  //         transactionStatusRef.current?.classList.remove("hidden");
+  //         setIsPaymentLoading(false);
+  //         //   window.scrollTo(0);
+  //         await removeAllCartItems().unwrap();
+  //         router.push("/myorders");
+  //       },
+  //       prefill: {
+  //         name: response.data.name, //your customer's name
+  //         email: response.data.email,
+  //         contact: response.data.mobileNo, //Provide the customer's phone number for better conversion rates
+  //       },
+  //       theme: {
+  //         color: "#DB4545",
+  //       },
+  //     };
 
-      const razorPay = new Razorpay(config);
+  //     const razorPay = new Razorpay(config);
 
-      razorPay.on("payment.failed", function (response) {
-        setIsPaymentLoading(false);
-        console.log(response.error.code);
-        console.log(response.error.description);
-        console.log(response.error.source);
-        console.log(response.error.step);
-        console.log(response.error.reason);
-        console.log(response.error.metadata.order_id);
-        console.log(response.error.metadata.payment_id);
-      });
+  //     razorPay.on("payment.failed", function (response) {
+  //       setIsPaymentLoading(false);
+  //       console.log(response.error.code);
+  //       console.log(response.error.description);
+  //       console.log(response.error.source);
+  //       console.log(response.error.step);
+  //       console.log(response.error.reason);
+  //       console.log(response.error.metadata.order_id);
+  //       console.log(response.error.metadata.payment_id);
+  //     });
 
-      razorPay.on("payment.dispute.lost", function (response) {
-        setIsPaymentLoading(false);
-        console.log("Disput closed");
-      });
+  //     razorPay.on("payment.dispute.lost", function (response) {
+  //       setIsPaymentLoading(false);
+  //       console.log("Disput closed");
+  //     });
 
-      razorPay.on("payment.dispute.created", function (response) {
-        console.log("payment.dispute.created");
-      });
+  //     razorPay.on("payment.dispute.created", function (response) {
+  //       console.log("payment.dispute.created");
+  //     });
 
-      razorPay.on("payment.dispute.closed", function (response) {
-        setIsPaymentLoading(false);
-        console.log("payment.dispute.closed");
-      });
+  //     razorPay.on("payment.dispute.closed", function (response) {
+  //       setIsPaymentLoading(false);
+  //       console.log("payment.dispute.closed");
+  //     });
 
-      razorPay.open();
-    } catch (error) {
-      console.error(error.message);
-    }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
+  //     razorPay.open();
+  //   } catch (error) {
+  //     console.error(error.message);
+  //   }
+  // }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress]);
 
-  const handlePayment = () => {
-    switch (gatewayOption) {
-      case "razorpay":
-        return handleRazorPayContinue();
-      case "payu":
-        return handlePayUContinue();
-      default:
-        return handleRazorPayContinue();
-    }
-  };
+  // const handlePayment = () => {
+  //   switch (gatewayOption) {
+  //     case "razorpay":
+  //       return handleRazorPayContinue();
+  //     case "payu":
+  //       return handlePayUContinue();
+  //     default:
+  //       return handleRazorPayContinue();
+  //   }
+  // };
 
   // const handleCouponSubmit = async (e) => {
   //   e.preventDefault();

@@ -120,6 +120,7 @@ app.use("/center", require("./routes/centers/center.routes"));
 
 // hooks
 app.use("/hook/razorpay", require("./hooks/razorpay-hook.routes"));
+app.use("/hook/cashfree", require("./hooks/cashfree-hook.routes"));
 
 // stripe payment gateway
 /!* ---- paytm */;
@@ -140,6 +141,16 @@ app.use("/stripe/cart", require("./routes/payment/stripe/pay-cart.routes"));
 app.use(
   "/stripe/single/purchase",
   require("./routes/payment/stripe/pay-single.routes"),
+);
+
+/!*---- cashfree */;
+app.use(
+  "/pay/cashfree/cart",
+  require("./routes/payment/cashfree/pay-cart.routes"),
+);
+app.use(
+  "/pay/cashfree/single",
+  require("./routes/payment/cashfree/pay-single.routes"),
 );
 
 // payment summary

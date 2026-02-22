@@ -151,7 +151,7 @@ export default function page() {
                             <th className="max-lg:hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Amount
                             </th>
-                            <th className="max-sm:hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="max-md:hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Status
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -173,7 +173,7 @@ export default function page() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                   <p className="">{order.orderGroupID || order._id}</p>
                                   <span
-                                    className={`min-md:hidden mt-1 min-md:block px-2 inline-flex text-[13px] leading-5 font-semibold rounded-full ${getStatusColor(
+                                    className={`min-md:hidden mt-2 min-md:block px-2 inline-flex text-[13px] leading-5 font-semibold rounded-full ${getStatusColor(
                                       order.orderStatus,
                                     )}`}>
                                     {order.orderStatus}
@@ -188,7 +188,7 @@ export default function page() {
                                 <td className="max-lg:hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   ₹{order.price?.toFixed(2) || "0.00"}
                                 </td>
-                                <td className="max-sm:hidden px-6 py-4 whitespace-nowrap">
+                                <td className="max-md:hidden px-6 py-4 whitespace-nowrap">
                                   <span
                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
                                       order.orderStatus,

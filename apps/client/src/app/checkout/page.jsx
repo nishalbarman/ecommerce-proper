@@ -1,7 +1,7 @@
 // app/checkout/page.tsx
 "use client";
 
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -218,7 +218,7 @@ export default function CheckoutPage() {
         image: "/assets/logo/logo-horizontal.png",
         order_id: response.data.razorpayOrderId, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
         handler: async function (response) {
-          console.log(response);
+          console.log("What is payment response razorpay", response);
           dispatch(updateCart({ totalCount: 0, cartItems: {} }));
           setOrderStatus(true);
           setOrderStatusText("Order successful");
@@ -230,6 +230,17 @@ export default function CheckoutPage() {
           //   window.scrollTo(0);
           await removeAllCartItems().unwrap();
           router.push("/myorders");
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log("User closed Razorpay popup");
+
+            setIsPaymentLoading(false);
+            toast.error("Payment cancelled");
+
+            router.replace("/cart"); // ✅ redirect here
+          },
         },
 
         prefill: {
@@ -246,55 +257,128 @@ export default function CheckoutPage() {
 
       razorPay.on("payment.failed", function (response) {
         setIsPaymentLoading(false);
-        console.log(response.error.code);
-        console.log(response.error.description);
-        console.log(response.error.source);
-        console.log(response.error.step);
-        console.log(response.error.reason);
-        console.log(response.error.metadata.order_id);
-        console.log(response.error.metadata.payment_id);
+        // console.log(response.error.code);
+        // console.log(response.error.description);
+        // console.log(response.error.source);
+        // console.log(response.error.step);
+        // console.log(response.error.reason);
+        // console.log(response.error.metadata.order_id);
+        // console.log(response.error.metadata.payment_id);
+        router.replace("/cart");
       });
 
       razorPay.on("payment.dispute.lost", function (response) {
         setIsPaymentLoading(false);
         console.log("Disput closed");
+        redirect("/cart");
       });
+      // razorPay.on("payment.dispute.closed", function (response) {
+      //   setIsPaymentLoading(false);
+      //   console.log("Disput closed");
+      //    redirect("/cart");
+      // });
 
-      razorPay.on("payment.dispute.created", function (response) {
-        console.log("payment.dispute.created");
-      });
+      // razorPay.on("payment.dispute.created", function (response) {
+      //   console.log("payment.dispute.created");
+      // });
 
       razorPay.on("payment.dispute.closed", function (response) {
         setIsPaymentLoading(false);
         console.log("payment.dispute.closed");
+        redirect("/cart");
       });
 
       razorPay.open();
     } catch (error) {
       console.error(error.message);
+      toast.error(
+        "Payment failed, please try again if the issue persists please contact us.",
+      );
+      redirect("/cart");
+    } finally {
+      setIsPaymentLoading(false);
     }
   }, [Razorpay, appliedCoupon, gatewayOption, selectedAddressDetails]);
 
+  const handleCashfreePayment = useCallback(async () => {
+    try {
+      setIsPaymentLoading(true);
+      setLoadingText("Creating order...");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/cashfree/cart/buy${
+          appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
+        }`,
+        {
+          address: selectedAddressDetails,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setLoadingText("Opening payment gateway...");
+
+      const { payment_session_id } = response.data;
+
+      if (!window.Cashfree) {
+        throw new Error("Cashfree SDK not loaded");
+      }
+
+      const cashfree = window.Cashfree({
+        mode:
+          process.env.NEXT_PUBLIC_CASHFREE_ENV === "PRODUCTION"
+            ? "production"
+            : "sandbox",
+      });
+
+      cashfree.checkout({
+        paymentSessionId: payment_session_id,
+        redirectTarget: "_modal", // or "_self" / "_blank"
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Payment failed to initialize, please retry.");
+      redirect("/cart");
+    } finally {
+      setIsPaymentLoading(false);
+    }
+  }, [appliedCoupon, selectedAddressDetails, token]);
+
   const handlePayment = () => {
     switch (gatewayOption) {
+      case "cashfree":
+        return handleCashfreePayment();
       case "razorpay":
         return handleRazorPayContinue();
       case "payu":
         return handlePayUContinue();
       default:
         return handleRazorPayContinue();
+      // return handleCashfreePayment();
     }
   };
 
+  const paymentInitiatedRef = useRef(false);
+
   useEffect(() => {
-    // if (!document.referrer) {
-    //   // This is likely a direct visit, hard refresh, or the referrer is suppressed
-    //   console.log("Direct visit or no referrer info available");
-    //   router.replace("/");
-    // } else {
-      // Navigation from another page (internal or external link)
-      if (selectedAddressDetails) handlePayment();
-    // }
+    const script = document.createElement("script");
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // ✅ Prevent duplicate calls
+    if (selectedAddressDetails && !paymentInitiatedRef.current) {
+      paymentInitiatedRef.current = true;
+      handlePayment();
+    }
+
+    return () => {
+      document.body.removeChild(script);
+    };
   }, [selectedAddressDetails]);
 
   // const couponModalRef = useRef();

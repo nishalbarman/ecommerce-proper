@@ -57,7 +57,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       return res.status(400).json({ message: "Product information is empty" });
     }
 
-    console.log("What is product data", productData)
+    console.log("What is product data", productData);
 
     let shippingPrice = 0;
 
@@ -93,7 +93,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       totalPrice = Price * Quantity * RentDays;
     }
 
-    console.log("Total Price Stage One",totalPrice)
+    console.log("Total Price Stage One", totalPrice);
 
     const totalDiscountedPriceWithoutAnyCouponAndShipping = totalPrice;
     let couponDiscountedPrice = 0;
@@ -124,7 +124,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       shippingApplied = true;
     }
 
-    console.log("Total Price Stage Two",totalPrice)
+    console.log("Total Price Stage Two", totalPrice);
 
     if (!!appliedCouponID) {
       const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
@@ -152,7 +152,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     totalPrice *= 100; // gateway takes amount as paisa (1 rupee = 100 paisa)
 
-    console.log("Coupon Applied Total Price", totalPrice)
+    console.log("Coupon Applied Total Price", totalPrice);
 
     const productNames = productData?.title || productData?.product?.title;
 
@@ -256,7 +256,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       }
     }
 
-    console.log("Order Details", createdOrder)
+    console.log("Order Details", createdOrder);
 
     const order = await Order.insertOne(createdOrder);
 
