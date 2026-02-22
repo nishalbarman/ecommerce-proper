@@ -308,30 +308,38 @@ function Cart() {
     }
   }, [userCartItems, appliedCoupon]);
 
-  
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  const selectedDefaultAddress = useSelector((state) => state.addressSlice?.selectedAddress);
+
+  const [selectedAddress, setSelectedAddress] = useState(selectedDefaultAddress || null);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
   const handleSelectedAddressChange = (address) => {
     setSelectedAddress(address);
     dispatch(setUserSelectedAddress(address));
   };
+  
 
-  const handleContinueToPayment = () => {
-    console.log("Is address selected then what is the value", selectedAddress);
+  let handlePayment=() => {
+                    setIsPaymentLoading(true);
+                    router.push("/checkout");
+                  }
 
-    if (!selectedAddress) {
-      toast.error("Please select a delivery address");
-      return;
-    }
+  // const handleContinueToPayment = () => {
+  //   console.log("Is address selected then what is the value", selectedAddress);
 
-    handlePayment();
-  };
+  //   if (!selectedAddress) {
+  //     toast.error("Please select a delivery address");
+  //     return;
+  //   }
+
+  //   handlePayment();
+  // };
 
   // const { Razorpay } = useRazorpay();
 
   // const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  const [gatewayOption, setGatewayOption] = useState(null);
+
+  // const [gatewayOption, setGatewayOption] = useState(null);
 
   // const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
 
@@ -347,13 +355,13 @@ function Cart() {
   // const [orderStatus, setOrderStatus] = useState(true);
   // const [orderStatusText, setOrderStatusText] = useState("");
 
-  console.log(userCartItems);
+  // console.log(userCartItems);
 
   // const dispatch = useDispatch();
-  const navigation = useRouter();
+  // const navigation = useRouter();
 
-  const transactionLoadingRef = useRef();
-  const transactionStatusRef = useRef();
+  // const transactionLoadingRef = useRef();
+  // const transactionStatusRef = useRef();
 
   // payu checkout
   // const initiatePayment = (pay) => {
@@ -443,7 +451,7 @@ function Cart() {
   //   }
   // }, [appliedCoupon, gatewayOption]);
 
-  const [removeAllCartItems] = useRemoveAllCartMutation();
+  // const [removeAllCartItems] = useRemoveAllCartMutation();
 
   // razor pay checkouts
   // const handleRazorPayContinue = useCallback(async () => {
@@ -1119,9 +1127,9 @@ function Cart() {
 
                 {/* Checkout Button */}
                 <button
-                  onClick={() => router.push("/checkout")}
-                  disabled={isPaymentLoading}
-                  className={`w-full py-4 px-6 rounded-lg font-bold text-white transition-colors ${isPaymentLoading ? "bg-red-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600 cursor-pointer"}`}>
+                  onClick={handlePayment}
+                  disabled={isPaymentLoading || !finalPrice || !selectedAddress || !userCartItems?.length}
+                  className={`w-full py-4 px-6 rounded-lg font-bold text-white transition-colors bg-primary disabled:cursor-not-allowed disabled:bg-gray-500 hover:bg-red-600 cursor-pointer`}>
                   {isPaymentLoading ? (
                     <span className="flex items-center justify-center">
                       Processing...
