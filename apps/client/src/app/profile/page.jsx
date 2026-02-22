@@ -71,6 +71,10 @@ export default function ProfilePage() {
   //   );
   // }
 
+  if (!token) {
+    redirect("/auth/login?redirect=myreviews");
+  }
+
   return (
     <div className="bg-white">
       {/* Header */}

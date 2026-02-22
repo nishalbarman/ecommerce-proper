@@ -409,6 +409,10 @@ export default function CheckoutPage() {
 
   const [loadingText, setLoadingText] = useState("Initializing payment...");
 
+  if (!token) {
+    redirect("/auth/login?redirect=myreviews");
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="min-h-[calc(100vh-180px)] max-sm:min-h-[calc(70vh)] mx-auto flex justify-center items-center bg-gray-50">

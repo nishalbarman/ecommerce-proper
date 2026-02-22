@@ -176,6 +176,10 @@ const MyAccountPage = () => {
     }
   };
 
+  if (!token) {
+    redirect("/auth/login?redirect=myreviews");
+  }
+
   if (isLoading) {
     return (
       <div className="bg-gray-50 animate-pulse">

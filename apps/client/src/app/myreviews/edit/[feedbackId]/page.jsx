@@ -165,6 +165,10 @@ export default function EditFeedbackPage() {
 
   console.log("Image Ids", images);
 
+  if (!jwtToken) {
+    redirect("/auth/login?redirect=myreviews");
+  }
+
   if (loading) {
     return (
       <div className="min-h-[100vh] flex items-center justify-center bg-gray-50">

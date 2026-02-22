@@ -16,7 +16,6 @@ import { useSelector } from "react-redux";
 import Loading from "../../components/LoadingComponent/Loading";
 
 export default function page() {
-  
   const router = useRouter();
   const productType = "buy";
 
@@ -93,9 +92,10 @@ export default function page() {
     }
   };
 
-  if (!token) {
-    redirect("/auth/login?redirect=myorders");
-  }
+  // if (!token) {
+  //   console.log("Not token", token);
+  //   redirect("/auth/login?redirect=myorders");
+  // }
 
   return (
     <>
@@ -142,7 +142,7 @@ export default function page() {
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Order ID
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Date
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -150,8 +150,8 @@ export default function page() {
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Amount
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            </th> */}
+                            <th className="max-sm:hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Status
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -170,9 +170,15 @@ export default function page() {
                                   />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  {order.orderGroupID || order._id}
+                                  <p className="">{order.orderGroupID || order._id}</p>
+                                  <span
+                                    className={`mt-1 min-md:block px-2 inline-flex text-[13px] leading-5 font-semibold rounded-full ${getStatusColor(
+                                      order.orderStatus,
+                                    )}`}>
+                                    {order.orderStatus}
+                                  </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   {formatDate(order.createdAt)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
@@ -180,8 +186,8 @@ export default function page() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   ₹{order.price?.toFixed(2) || "0.00"}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
+                                </td> */}
+                                <td className="max-sm:hidden px-6 py-4 whitespace-nowrap">
                                   <span
                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
                                       order.orderStatus,

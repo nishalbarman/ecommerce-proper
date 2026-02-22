@@ -198,7 +198,7 @@ async function Footer() {
             <Link
               href={"/contact"}
               className="text-white underline max-sm:text-sm">
-              Contact
+              Contact Us
             </Link>
           </div>
         </div>
@@ -272,7 +272,7 @@ async function Footer() {
               <Link
                 href={"/contact"}
                 className="text-white underline max-sm:text-sm">
-                Contact
+                Contact Us
               </Link>
             </div>
           </div>

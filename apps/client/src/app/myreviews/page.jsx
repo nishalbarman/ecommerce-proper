@@ -32,7 +32,7 @@ export default function MyFeedbackPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (res.status === 401) {
@@ -76,7 +76,7 @@ export default function MyFeedbackPage() {
           method: "DELETE",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-        }
+        },
       );
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Feedback deleted");
@@ -115,6 +115,10 @@ export default function MyFeedbackPage() {
       ))}
     </div>
   );
+
+  if (!token) {
+    redirect("/auth/login?redirect=myreviews");
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
