@@ -39,7 +39,8 @@ async function Navbar({ title }) {
         <Link href={"/"} className="flex flex-center items-center w-fit">
           <img
             draggable={false}
-            src="/assets/logo/logo-horizontal.png"
+            // src="/assets/logo/logo-horizontal.png"
+            src="/assets/logo/new-logo.png"
             className="max-md:hidden h-[90px] max-sm:h-[60px] p-2 select-none user-select-none"
           />
 
