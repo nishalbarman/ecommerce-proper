@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import Link from "next/link";
 import { MdErrorOutline } from "react-icons/md";
-import { ProductApi } from "@/redux";
+import { ProductApi, CategoryApi } from "@/redux";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
 import Loading from "@/components/LoadingComponent/Loading";
 
@@ -13,6 +13,8 @@ const BRAND = { primary: "#DA4445" };
 
 export default function ProductList() {
   const { useGetProductsQuery } = ProductApi;
+  const { useGetAllCategoryQuery } = CategoryApi;
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = useSelector((state) => state.auth.jwtToken);
@@ -28,7 +30,7 @@ export default function ProductList() {
         color: [],
         price: [
           minPrice ? parseInt(minPrice) : 0,
-          maxPrice ? parseInt(maxPrice) : 200,
+          maxPrice ? parseInt(maxPrice) : 10000,
         ],
         rating: 0,
       };
@@ -71,16 +73,16 @@ export default function ProductList() {
       params.set("minPrice", appliedFilters.price[0]);
     }
 
-    if (appliedFilters.price[1] < 200) {
+    if (appliedFilters.price[1] < 10000) {
       params.set("maxPrice", appliedFilters.price[1]);
     }
 
     router.replace(`/products?${params.toString()}`, { scroll: false });
   }, [page, appliedSearch, appliedSort, appliedFilters, router]);
 
-  useEffect(() => {
-    updateURL();
-  }, []); // eslint-disable-line
+  // useEffect(() => {
+  //   updateURL();
+  // }, []); // eslint-disable-line
 
   // Data
   const { data, error, isLoading } = useGetProductsQuery(
@@ -108,20 +110,23 @@ export default function ProductList() {
     updateURL();
   }, [appliedFilters, appliedSearch, appliedSort, page, updateURL]);
 
+  const { data: categoriesData, isLoading: isCategoryLoading } = useGetAllCategoryQuery();
+
+
   // Categories
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/categories`,
-        );
-        const json = await res.json();
-        if (res.ok) setAvailableCategories(json.categories || []);
-      } catch (err) {
-        console.error("Failed to fetch categories:", err);
-      }
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_SERVER_URL}/categories`,
+  //       );
+  //       const json = await res.json();
+  //       if (res.ok) setAvailableCategories(json.categories || []);
+  //     } catch (err) {
+  //       console.error("Failed to fetch categories:", err);
+  //     }
+  //   })();
+  // }, []);
 
   // Handlers (kept your behavior)
   const handlePageChange = (newPage) => {
@@ -214,12 +219,12 @@ export default function ProductList() {
   };
 
   useEffect(() => {
-  const newPage = parseInt(searchParams.get("page")) || 1;
-  setPage(newPage);
-}, [searchParams]);
+    const newPage = parseInt(searchParams.get("page")) || 1;
+    setPage(newPage);
+  }, [searchParams]);
 
   const resetFilters = () => {
-    const newFilters = { category: [], color: [], price: [0, 200], rating: 0 };
+    const newFilters = { category: [], color: [], price: [0, 10000], rating: 0 };
     setLocalFilters(newFilters);
     setAppliedFilters(newFilters);
     setLocalSort("newest");
@@ -239,20 +244,22 @@ export default function ProductList() {
       <div className="mb-6">
         <h4 className="font-medium mb-2">Categories</h4>
         <div className="space-y-2">
-          {availableCategories?.map((category, index) => (
-            <label key={index} className="flex items-center space-x-2">
+          {categoriesData?.categories?.map((category, index) => (
+            <label
+              key={index}
+              className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={localFilters.category.includes(category._id)}
+                checked={localFilters.category.includes(category.categoryKey)}
                 onChange={() => {
                   const newCategories = localFilters.category.includes(
-                    category._id,
+                    category.categoryKey,
                   )
-                    ? localFilters.category.filter((c) => c !== category._id)
-                    : [...localFilters.category, category._id];
+                    ? localFilters.category.filter((c) => c !== category.categoryKey)
+                    : [...localFilters.category, category.categoryKey];
                   handleFilterChange("category", newCategories);
                 }}
-                className="rounded text-blue-600 focus:ring-blue-500"
+                className="rounded text-primary focus:ring-primary"
               />
               <span>{category.categoryName}</span>
             </label>
@@ -263,13 +270,13 @@ export default function ProductList() {
       {/* Price range filter */}
       <div className="mb-6">
         <h4 className="font-medium mb-2">Price Range</h4>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-600">₹{localFilters.price[0]}</span>
-          <div className="flex-grow space-y-2">
+        <div className="flex flex-col justify-center gap-4">
+          <label className="text-gray-600">₹{localFilters.price[0]}</label>
+          <div className="flex space-y-2">
             <input
               type="range"
               min="0"
-              max="200"
+              max="10000"
               step="10"
               value={localFilters.price[0]}
               onChange={(e) =>
@@ -278,12 +285,12 @@ export default function ProductList() {
                   localFilters.price[1],
                 ])
               }
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-gray-200 rounded-lg rounded-r-none appearance-none cursor-pointer"
             />
             <input
               type="range"
               min="0"
-              max="200"
+              max="10000"
               step="10"
               value={localFilters.price[1]}
               onChange={(e) =>
@@ -292,22 +299,22 @@ export default function ProductList() {
                   parseInt(e.target.value),
                 ])
               }
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-gray-200 rounded-lg rounded-l-none appearance-none cursor-pointer"
             />
           </div>
-          <span className="text-gray-600">₹{localFilters.price[1]}</span>
+          <label className="text-gray-600">₹{localFilters.price[1]}</label>
         </div>
       </div>
 
       <div className="flex gap-2">
         <button
           onClick={applyFilters}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition-colors">
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer">
           Apply
         </button>
         <button
           onClick={resetFilters}
-          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors">
+          className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors cursor-pointer">
           Reset
         </button>
       </div>
@@ -316,29 +323,133 @@ export default function ProductList() {
 
   if (error) {
     return (
-      <div className="bg-gray-50 min-h-[72vh] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-sm border p-6 text-center max-w-md w-full">
-          <div className="mx-auto w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-            <MdErrorOutline className="w-7 h-7 text-gray-400" />
+      <div className="min-h-screen bg-white">
+        {/* Section header with pre-title bar */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-3 w-1.5 rounded-full"
+              style={{ background: BRAND.primary }}
+            />
+            <span
+              className="text-sm font-semibold"
+              style={{ color: BRAND.primary }}>
+              Catalogue
+            </span>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">
-            Something went wrong
-          </h2>
-          <p className="text-gray-500 mb-5">
-            We couldn’t load the products right now.
-          </p>
-          <Link
-            href="/"
-            className="inline-flex px-4 py-2 rounded-lg text-white"
-            style={{ background: BRAND.primary }}>
-            Go To Home Page
-          </Link>
+          <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-gray-900">
+            Products
+          </h1>
+          <p className="text-gray-500 text-sm">View our product catalogue</p>
+        </div>
+
+        <div className="min-h-[45vh] flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-md p-6 text-center max-w-md w-full">
+            <div className="mx-auto w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <MdErrorOutline className="w-7 h-7 text-gray-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              Something went wrong
+            </h2>
+            <p className="text-gray-500 mb-5">
+              We couldn’t load the products right now.
+            </p>
+            <Link
+              href="/"
+              className="inline-flex px-4 py-2 rounded-lg text-white"
+              style={{ background: BRAND.primary }}>
+              Go To Home Page
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (isLoading) return <Loading />;
+  if (isLoading)
+    return (
+      <div className="min-h-screen animate-pulse">
+        {/* Header */}
+        <div className="container mx-auto px-4 py-8">
+          <div className="h-3 w-16 bg-gray-200 rounded mb-3"></div>
+          <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 w-60 bg-gray-200 rounded"></div>
+        </div>
+
+        <div className="container mx-auto px-4 pb-8">
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Sidebar Skeleton */}
+            <aside className="hidden md:block w-72">
+              <div className="bg-white rounded-2xl shadow-sm border p-5 space-y-4">
+                <div className="h-5 w-24 bg-gray-200 rounded"></div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-4 w-full bg-gray-200 rounded"></div>
+                  ))}
+                </div>
+
+                {/* Price */}
+                <div className="space-y-2">
+                  <div className="h-4 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-2 w-full bg-gray-200 rounded"></div>
+                  <div className="h-2 w-full bg-gray-200 rounded"></div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-2">
+                  <div className="h-9 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-9 w-20 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Main */}
+            <section className="flex-1">
+              {/* Search + Sort */}
+              <div className="hidden md:flex items-center justify-between mb-6">
+                <div className="h-10 w-1/2 bg-gray-200 rounded"></div>
+                <div className="h-10 w-40 bg-gray-200 rounded"></div>
+              </div>
+
+              {/* Product Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-white rounded-xl shadow-md p-3 space-y-3">
+                    {/* Image */}
+                    <div className="w-full h-40 bg-gray-200 rounded"></div>
+
+                    {/* Title */}
+                    <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+
+                    {/* Price */}
+                    <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+
+                    {/* Buttons */}
+                    <div className="flex gap-2">
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              <div className="flex justify-center gap-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="h-10 w-10 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen ">
@@ -364,14 +475,14 @@ export default function ProductList() {
       {/* Content */}
       <div className="container mx-auto px-4 pb-8">
         {/* Mobile controls */}
-        <div className="md:hidden flex flex-col gap-4 mb-6">
+        <div className="lg:hidden flex flex-col gap-4 mb-6">
           <form onSubmit={handleSearchSubmit} className="w-full flex">
             <input
               type="text"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search products..."
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="submit"
@@ -381,16 +492,16 @@ export default function ProductList() {
             </button>
           </form>
 
-          <div className="flex gap-2 w-full">
+          <div className="flex gap-2 w-full max-sm:zoom_0.5">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 border rounded-lg bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+              className="px-4 py-2 max-sm:py-1 border rounded-lg bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
               {showFilters ? "Hide Filters" : "Show Filters"}
             </button>
             <select
               value={localSort}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1">
+              className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary flex-1 cursor-pointer">
               <option value="newest">Newest</option>
               <option value="popularity">Popularity</option>
               <option value="low-to-hight-price">Price: Low to High</option>
@@ -402,9 +513,9 @@ export default function ProductList() {
         </div>
 
         {/* Main area */}
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Desktop sidebar */}
-          <aside className="hidden md:block w-72 flex-shrink-0">
+          <aside className="hidden lg:block w-72 flex-shrink-0">
             <div className="sticky top-24">
               <FiltersPanel />
             </div>
@@ -413,14 +524,14 @@ export default function ProductList() {
           {/* Products */}
           <section className="flex-1">
             {/* Desktop search + sort */}
-            <div className="hidden md:flex items-center justify-between mb-6">
+            <div className="hidden lg:flex items-center justify-between mb-6">
               <form onSubmit={handleSearchSubmit} className="w-1/2 flex">
                 <input
                   type="text"
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
                   placeholder="Search products..."
-                  className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <button
                   type="submit"
@@ -434,7 +545,7 @@ export default function ProductList() {
                 <select
                   value={localSort}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary">
                   <option value="popularity">Popularity</option>
                   <option value="newest">Newest</option>
                   <option value="low-to-hight-price">Price: Low to High</option>
@@ -445,7 +556,7 @@ export default function ProductList() {
 
             {/* Grid */}
             {data?.data?.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm border p-10 text-center">
+              <div className="bg-white rounded-2xl p-10 min-h-[40vh] flex flex-col items-center justify-center text-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-16 w-16 mx-auto text-gray-400"

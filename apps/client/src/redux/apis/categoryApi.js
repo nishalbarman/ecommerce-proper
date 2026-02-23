@@ -14,7 +14,7 @@ export const categoryApi = createApi({
   endpoints: (builder) => ({
     getAllCategory: builder.query({
       query: () => ({
-        url: "category",
+        url: "categories",
         method: "GET",
       }),
     }),

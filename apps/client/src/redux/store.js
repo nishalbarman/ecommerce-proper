@@ -88,15 +88,17 @@ const persistConfig = {
     productApi.reducerPath,
     wishlistSlice.name,
     reviewApi.reducerPath,
-    addressSlice.name,
     appliedCouponSlice.name,
+    categoryApi.reducerPath,
+
 
     cartSlice.name,
-    categoryApi.reducerPath,
-    pgApi.reducerPath,
+    addressSlice.name,
     selectedPaymentMethodSlice.name,
 
     appliedCouponSlice.name,
+    pgApi.reducerPath,
+
   ],
 };
 

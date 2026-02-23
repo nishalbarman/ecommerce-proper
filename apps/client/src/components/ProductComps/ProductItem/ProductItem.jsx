@@ -215,17 +215,17 @@ function ProductCard({
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 max-sm:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center h-12 w-5 max-sm:h-7 max-md:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
               <FaCheck
-                size={innerWidth < 490 ? 17 : 20}
+                size={innerWidth < 490 ? 13 : 20}
                 color="white"
                 fill="white"
               />
             ) : (
               <FaCartShopping
-                size={innerWidth < 490 ? 17 : 20}
+                size={innerWidth < 490 ? 13 : 20}
                 color="white"
                 fill="white"
               />
@@ -235,12 +235,12 @@ function ProductCard({
 
         <Link href={`/products/view/${productSlug}`} className="block group">
           <div className="w-full rounded py-2 px-2">
-            <h5 className="max-sm:tex-base text-lg font-semibold line-clamp-1 transition-colors duration-200">
+            <h5 className="max-sm:text-sm text-lg font-semibold max-sm:line-clamp-2 line-clamp-1 transition-colors duration-200">
               {title}
             </h5>
             <div className="flex flex-col gap-1 mt-2 max-sm:mt-1">
               <div className="flex items-center gap-3">
-                <span className="text-black text-xl md:text-lg max-sm:tex-base font-bold">
+                <span className="text-black text-xl md:text-lg max-sm:text-base font-bold">
                   &#8377;{discountedPrice}
                 </span>
                 {!!originalPrice && (
@@ -264,14 +264,14 @@ function ProductCard({
         {/* Rating */}
         {!isRatingVisible && (
           <>
-            {/* <div className="flex items-center gap-2">
+            <div className="hidden flex items-center gap-2 px-2 -mt-1">
               <div className="flex items-center">
                 <RateStar stars={stars} />
               </div>
               <span className="text-gray-500 text-sm">({totalFeedbacks})</span>
-            </div> */}
+            </div>
             {/* Rating */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 px-1 -mt-1">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <svg

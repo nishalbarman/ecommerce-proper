@@ -46,7 +46,8 @@ async function Navbar({ title }) {
 
           <img
             draggable={false}
-            src="/assets/logo/logo-horizontal.png"
+            // src="/assets/logo/logo-horizontal.png"
+            src="/assets/logo/new-logo.png"
             className="md:hidden h-[70px] p-2 select-none user-select-none"
           />
           {/* <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden ml-4">

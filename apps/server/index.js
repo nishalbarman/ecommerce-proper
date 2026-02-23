@@ -28,12 +28,10 @@ app.use(
     origin: [
       "http://localhost:5000",
       "http://localhost:3000",
-      "https://cartshopping.in",
-      "https://bouquet.cartshopping.in",
       "https://trishna.vercel.app",
+      "https://cartshopping.in",
       "https://petal--perfection.vercel.app",
       "https://petalperfection.cartshopping.in",
-      "https://cartshopping.in",
       "https://www.cartshopping.in",
     ],
     credentials: true,
@@ -47,7 +45,7 @@ app.set("trust proxy", 1);
 
 app.use(async (req, res, next) => {
   try {
-    await dbConnect();   // ⬅ WAIT for DB
+    await dbConnect(); // ⬅ WAIT for DB
     next();
   } catch (err) {
     console.error("DB ERROR:", err);
@@ -156,7 +154,10 @@ app.use(
 // payment summary
 app.use("/payment/summary", require("./routes/payment/summary.routes"));
 
-app.use("/payment/gateways", require("./routes/payment/payment-gateway.routes"));
+app.use(
+  "/payment/gateways",
+  require("./routes/payment/payment-gateway.routes"),
+);
 
 app.use(
   "/shipping-config",
