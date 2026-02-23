@@ -21,25 +21,45 @@ const limiter = rateLimit({
   message: { message: "Take a break dear, you are sending too much requests." },
 });
 
+const allowedOrigins = {
+  "http://localhost:5000": true,
+  "http://localhost:3000": true,
+
+  "https://petal--perfection.vercel.app": true,
+  "https://petalperfection.cartshopping.in": true,
+
+  "https://trishna.vercel.app": true,
+
+  "https://cartshopping.in": true,
+  "https://www.cartshopping.in": true,
+};
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // allow requests without origin (Postman, mobile apps)
+    if (!origin) return callback(null, true);
+
+    // exact match
+    if (allowedOrigins[origin]) {
+      return callback(null, true);
+    }
+
+    // ✅ allow all subdomains of cartshopping.in
+    if (origin.endsWith(".cartshopping.in")) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  exposedHeaders: ["Set-Cookie"],
+  // maxAge: 86400, // 24 hours
+};
+
 const app = express();
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5000",
-      "http://localhost:3000",
-      "https://trishna.vercel.app",
-      "https://cartshopping.in",
-      "https://petal--perfection.vercel.app",
-      "https://petalperfection.cartshopping.in",
-      "https://www.cartshopping.in",
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-    exposedHeaders: ["Set-Cookie"],
-    // maxAge: 86400, // 24 hours
-  }),
-);
+app.use(cors(corsOptions));
 
 app.set("trust proxy", 1);
 

@@ -9,13 +9,13 @@ function RateStar({ stars = 0, size = 16 }) {
       {[...Array(5)].map((_, i) => (
         <FaStar
           key={i}
-          className={`${i < stars ? "text-yellow-400" : "text-gray-300"}`}
-          style={{
-            width: size,
-            height: size,
-          }}
-          color={`${i < stars ? "#DA4445" : "gray"}`}
-          fill={`${i < stars ? "#DA4445" : "gray"}`}
+          className={`max-sm:w-3 max-sm:h-3 w-4 h-4 ${i < Math.round(stars) ? "text-yellow-400" : "text-gray-300"}`}
+          // style={{
+          //   width: size,
+          //   height: size,
+          // }}
+          // color={`${i < Math.round(stars) ? "#DA4445" : "gray"}`}
+          // fill={`${i < Math.round(stars) ? "#DA4445" : "gray"}`}
         />
       ))}
     </div>

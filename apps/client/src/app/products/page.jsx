@@ -110,8 +110,8 @@ export default function ProductList() {
     updateURL();
   }, [appliedFilters, appliedSearch, appliedSort, page, updateURL]);
 
-  const { data: categoriesData, isLoading: isCategoryLoading } = useGetAllCategoryQuery();
-
+  const { data: categoriesData, isLoading: isCategoryLoading } =
+    useGetAllCategoryQuery();
 
   // Categories
   // useEffect(() => {
@@ -224,7 +224,12 @@ export default function ProductList() {
   }, [searchParams]);
 
   const resetFilters = () => {
-    const newFilters = { category: [], color: [], price: [0, 10000], rating: 0 };
+    const newFilters = {
+      category: [],
+      color: [],
+      price: [0, 10000],
+      rating: 0,
+    };
     setLocalFilters(newFilters);
     setAppliedFilters(newFilters);
     setLocalSort("newest");
@@ -255,7 +260,9 @@ export default function ProductList() {
                   const newCategories = localFilters.category.includes(
                     category.categoryKey,
                   )
-                    ? localFilters.category.filter((c) => c !== category.categoryKey)
+                    ? localFilters.category.filter(
+                        (c) => c !== category.categoryKey,
+                      )
                     : [...localFilters.category, category.categoryKey];
                   handleFilterChange("category", newCategories);
                 }}
@@ -475,33 +482,32 @@ export default function ProductList() {
       {/* Content */}
       <div className="container mx-auto px-4 pb-8">
         {/* Mobile controls */}
-        <div className="lg:hidden flex flex-col gap-4 mb-6">
+        <div className="lg:hidden flex flex-col gap-4 mb-8 -mt-2">
           <form onSubmit={handleSearchSubmit} className="w-full flex">
             <input
               type="text"
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search products..."
-              className="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="flex-grow px-4 py-2 max-sm:py-1 max-sm:h-9 max-sm:text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <button
               type="submit"
-              className="px-5 py-2 rounded-r-lg text-white cursor-pointer disabled:cursor-not-allowed"
-              style={{ background: BRAND.primary }}>
+              className="px-5 py-2 max-sm:py-1 max-sm:h-9 max-sm:text-sm bg-primary rounded-r-lg text-white cursor-pointer disabled:cursor-not-allowed">
               Search
             </button>
           </form>
 
-          <div className="flex gap-2 w-full max-sm:zoom_0.5">
+          <div className="flex gap-2 w-full max-sm:zoom[0.5]">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 max-sm:py-1 border rounded-lg bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
+              className="px-4 py-2 max-sm:px-2 max-sm:py-1 max-sm:h-8 max-sm:text-sm  border rounded-lg bg-white text-gray-700 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
               {showFilters ? "Hide Filters" : "Show Filters"}
             </button>
             <select
               value={localSort}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary flex-1 cursor-pointer">
+              className="px-4 py-2 max-sm:py-1 max-sm:px-1 max-sm:h-8 max-sm:text-sm  border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary flex-1 cursor-pointer">
               <option value="newest">Newest</option>
               <option value="popularity">Popularity</option>
               <option value="low-to-hight-price">Price: Low to High</option>
