@@ -271,7 +271,7 @@ function ProductCard({
               <span className="text-gray-500 text-sm">({totalFeedbacks})</span>
             </div>
             {/* Rating */}
-            <div className="flex items-center gap-1 px-1 -mt-1">
+            {/* <div className="flex items-center gap-1 px-1 -mt-1">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -288,7 +288,7 @@ function ProductCard({
                 ))}
               </div>
               <span className="text-xs text-gray-500">({totalFeedbacks})</span>
-            </div>
+            </div> */}
           </>
         )}
       </div>
