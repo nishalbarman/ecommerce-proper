@@ -41,12 +41,12 @@ const corsOptions = {
 
     // exact match
     if (allowedOrigins[origin]) {
-      return callback(null, true);
+      return callback(null, origin);
     }
 
     // ✅ allow all subdomains of cartshopping.in
     if (origin.endsWith(".cartshopping.in")) {
-      return callback(null, true);
+      return callback(null, origin);
     }
 
     return callback(new Error("Not allowed by CORS"));
@@ -60,6 +60,7 @@ const corsOptions = {
 const app = express();
 
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.set("trust proxy", 1);
 

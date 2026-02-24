@@ -61,11 +61,57 @@ export default function ReviewList({ productId, productType = "buy" }) {
     });
   };
 
-  if (isLoading && page === 1) {
+  if (true || isLoading && page === 1) {
     return (
-      <div className="flex justify-center py-12">
-        <FiLoader className="animate-spin text-indigo-600 text-3xl" />
-      </div>
+      <div className="space-y-6 animate-pulse">
+      {[...Array(count)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-white p-6 rounded-2xl shadow border border-gray-100"
+        >
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+
+            <div className="flex-1">
+              {/* Name + Date */}
+              <div className="flex justify-between mb-3">
+                <div className="space-y-2">
+                  <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, j) => (
+                      <div
+                        key={j}
+                        className="w-4 h-4 bg-gray-200 rounded"
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="h-4 w-24 bg-gray-200 rounded"></div>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2 mb-4">
+                <div className="h-3 w-full bg-gray-200 rounded"></div>
+                <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
+                <div className="h-3 w-4/6 bg-gray-200 rounded"></div>
+              </div>
+
+              {/* Images */}
+              <div className="flex gap-3">
+                {[...Array(3)].map((_, k) => (
+                  <div
+                    key={k}
+                    className="w-24 h-24 bg-gray-200 rounded-xl"
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
     );
   }
 
