@@ -656,7 +656,7 @@ export default function CheckoutPage() {
     isPricingReady,
   );
 
-  if (!productData || !shippingPricing || isLoading || !isPricingReady) {
+  if (!productData || !shippingPricing || isLoading || !isPricingReady || isPaymentGatewayLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 animate-pulse">
         <div className="container mx-auto px-4">
