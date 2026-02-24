@@ -75,7 +75,7 @@ export default function ViewProduct({ params }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       console.log("Response Data of Product", responseData);
@@ -142,7 +142,7 @@ export default function ViewProduct({ params }) {
 
       // Find the matched variant based on size and color
       const matchedVariant = productVariants.find(
-        (variant) => variant.size === size && variant.color === color
+        (variant) => variant.size === size && variant.color === color,
       );
 
       if (!matchedVariant) {
@@ -161,7 +161,7 @@ export default function ViewProduct({ params }) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       return {
@@ -186,7 +186,7 @@ export default function ViewProduct({ params }) {
       if (product.isVariantAvailable && selectedSize && selectedColor) {
         const result = await handleVariantSelection(
           selectedSize,
-          selectedColor
+          selectedColor,
         );
         setFilteredVariant(result.matchedVariant);
         setInStock(result.inStock);
@@ -200,7 +200,7 @@ export default function ViewProduct({ params }) {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
         setInStock(stockResponse.data.inStock);
         setCombinationExists(true);
@@ -216,7 +216,7 @@ export default function ViewProduct({ params }) {
         console.log(
           "Checking Product Stock",
           "Calling checkStock",
-          product._id
+          product._id,
         );
         const res = await checkStock(product._id);
         setInStock(res.inStock);
@@ -246,12 +246,13 @@ export default function ViewProduct({ params }) {
           body: JSON.stringify({
             variant: !!variantId ? variantId : null,
           }),
-        }
+        },
       );
       const data = await response.json();
       console.log("Cart status response:", data);
       return data.incart;
     } catch (error) {
+      console.error("Error checking cart status:", error);
       return false;
     }
   };
@@ -266,7 +267,8 @@ export default function ViewProduct({ params }) {
 
   // Handle form submission
 
-  const [addToCart] = useAddOneToCartMutation();
+  const [addToCart, { isLoading: isCartAddLoading }] =
+    useAddOneToCartMutation();
 
   const dispatch = useDispatch();
 
@@ -280,6 +282,7 @@ export default function ViewProduct({ params }) {
 
     try {
       setIsAddToCartLoading(true);
+
       const cartObject = {
         productId: product._id,
         quantity,
@@ -294,9 +297,22 @@ export default function ViewProduct({ params }) {
         cartObject.rentDays = rentDays;
       }
 
-      const response = await addToCart(cartObject).unwrap();
-      setInCart(true);
-      toast.success(response.message);
+      // const response = await addToCart(cartObject).unwrap();
+
+      toast.promise(addToCart(cartObject), {
+        loading: "Adding to cart...",
+        success: (res) => {
+          setInCart(true);
+          toast.success("Added to cart");
+        },
+        error: (res) => {
+          toast.error("Failed to add to cart");
+          console.error("Error adding to cart:", res);
+        },
+      });
+
+      // toast.dismiss("addtocart-loading");
+      // toast.success("Added to cart", response?.message);
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast.error(error.message || "Failed to add to cart");
@@ -305,6 +321,8 @@ export default function ViewProduct({ params }) {
     }
   };
 
+  const [isBying, setIsBying] = useState(false);
+
   const handleBuyNow = () => {
     if (!token) {
       console.log(token);
@@ -312,6 +330,8 @@ export default function ViewProduct({ params }) {
       dispatch(setLoginModalState({ modalVisible: true }));
       return;
     }
+
+    setIsBying(true);
 
     const queryParams = new URLSearchParams();
     queryParams.set("productId", product._id);
@@ -329,7 +349,143 @@ export default function ViewProduct({ params }) {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return (
+      <>
+        <div className="container mx-auto mt-13 max-md:mt-2">
+          <div className="w-full p-4 min-h-[100vh] bg-white rounded-md">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-pulse">
+              {/* LEFT SIDE */}
+              <div className="lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
+                {/* Category */}
+                <div className="h-4 w-32 bg-gray-200 rounded mb-4" />
+
+                {/* Main Image */}
+                <div className="w-full h-[400px] max-md:h-[320px] bg-gray-200 rounded-lg mb-4" />
+
+                {/* Thumbnails */}
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4].map((_, i) => (
+                    <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg" />
+                  ))}
+                </div>
+
+                {/* Review stats */}
+                <div className="mt-6 space-y-2">
+                  <div className="h-4 w-40 bg-gray-200 rounded" />
+                  <div className="h-4 w-24 bg-gray-200 rounded" />
+                </div>
+              </div>
+
+              {/* RIGHT SIDE */}
+              <div className="sm:pl-8 max-sm:pt-8 sm:border-l border-gray-200">
+                {/* Stock */}
+                <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
+
+                {/* Title */}
+                <div className="h-8 w-3/4 bg-gray-200 rounded mb-4" />
+
+                {/* Rating */}
+                <div className="h-5 w-32 bg-gray-200 rounded mb-6" />
+
+                {/* Pricing */}
+                <div className="bg-gray-50 p-6 rounded-lg mb-6 space-y-3">
+                  <div className="h-4 w-20 bg-gray-200 rounded" />
+                  <div className="h-8 w-40 bg-gray-200 rounded" />
+                  <div className="h-4 w-24 bg-gray-200 rounded" />
+                </div>
+
+                {/* Variants */}
+                <div className="hidden border-none p-4 rounded-md mb-6 space-y-4">
+                  <div className="h-4 w-32 bg-gray-200 rounded" />
+
+                  {/* Size */}
+                  <div className="flex gap-2 flex-wrap">
+                    {[1, 2, 3, 4].map((_, i) => (
+                      <div key={i} className="h-10 w-16 bg-gray-200 rounded" />
+                    ))}
+                  </div>
+
+                  {/* Color */}
+                  <div className="flex gap-2 flex-wrap">
+                    {[1, 2, 3].map((_, i) => (
+                      <div key={i} className="h-10 w-20 bg-gray-200 rounded" />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quantity */}
+                <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                  <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
+                  <div className="h-10 w-32 bg-gray-200 rounded" />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-4 mb-12">
+                  <div className="h-12 w-40 bg-gray-200 rounded-lg" />
+                  <div className="h-12 w-40 bg-gray-200 rounded-lg" />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-3">
+                  <div className="h-4 w-full bg-gray-200 rounded" />
+                  <div className="h-4 w-5/6 bg-gray-200 rounded" />
+                  <div className="h-4 w-4/6 bg-gray-200 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Review Section Skeleton */}
+          <div className="mb-10 space-y-4 animate-pulse">
+            <div className="h-6 w-40 bg-gray-200 rounded" />
+            {[1, 2].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-6 rounded-2xl shadow border border-gray-100">
+                <div className="flex items-start gap-4">
+                  {/* Avatar */}
+                  <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+
+                  <div className="flex-1">
+                    {/* Name + Date */}
+                    <div className="flex justify-between mb-3">
+                      <div className="space-y-2">
+                        <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                        <div className="flex gap-1">
+                          {[...Array(5)].map((_, j) => (
+                            <div
+                              key={j}
+                              className="w-4 h-4 bg-gray-200 rounded"></div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="space-y-2 mb-4">
+                      <div className="h-3 w-full bg-gray-200 rounded"></div>
+                      <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
+                      <div className="h-3 w-4/6 bg-gray-200 rounded"></div>
+                    </div>
+
+                    {/* Images */}
+                    <div className="flex gap-3">
+                      {[...Array(3)].map((_, k) => (
+                        <div
+                          key={k}
+                          className="w-24 h-24 bg-gray-200 rounded-xl"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -372,7 +528,7 @@ export default function ViewProduct({ params }) {
                         className="w-full h-full object-contain select-none"
                       />
                     </SwiperSlide>
-                  )
+                  ),
                 )}
               </Swiper>
 
@@ -404,7 +560,7 @@ export default function ViewProduct({ params }) {
                         className="w-full h-full !border shadow-lg border-primary  object-contain rounded-lg cursor-pointer select-none"
                       />
                     </SwiperSlide>
-                  )
+                  ),
                 )}
               </Swiper>
 
@@ -415,7 +571,7 @@ export default function ViewProduct({ params }) {
             </div>
 
             {/* Right Side: Product Details */}
-            <div className="sm:pl-8 max-sm:py-8 sm:border-l border-gray-200 sm:border-t-0 border-t sm:mt-0">
+            <div className="sm:pl-8 max-sm:pt-8 sm:border-l border-gray-200 sm:border-t-0 border-t sm:mt-0">
               <p className="mb-2 max-md:text-sm">
                 {inStock ? (
                   <span className="text-green-800 font-bold">In stock</span>
@@ -424,40 +580,109 @@ export default function ViewProduct({ params }) {
                 )}
               </p>
 
-              <h1 className="text-4xl max-md:text-lg font-bold mb-2 text-gray-800">
+              <h1 className="text-4xl max-md:text-lg font-bold text-gray-800">
                 {product && product.title}
               </h1>
 
-              <div className="my-6">
+              <div className="mt-3 mb-6">
                 <RateStar stars={product.stars || 0} />
               </div>
 
-              {/* Pricing */}
-              <div className="mb-6 bg-gray-50 p-6 rounded-lg">
-                <h2 className="text-sm font-semibold mb-2">Pricing</h2>
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl font-bold text-green-900">
-                    ₹
-                    {filteredVariant
-                      ? filteredVariant.discountedPrice
-                      : product.discountedPrice}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-lg text-gray-500 line-through">
+              <div className="flex items-center justify-start bg-gray-50 rounded-lg">
+                {/* Pricing */}
+                <div className="mb-6 bg-gray-50 p-6 rounded-lg">
+                  <h2 className="text-sm font-semibold mb-2">Pricing</h2>
+                  <div className="flex items-center gap-4">
+                    <span className="text-3xl font-bold text-green-900">
                       ₹
                       {filteredVariant
-                        ? filteredVariant.originalPrice
-                        : product.originalPrice}
+                        ? filteredVariant.discountedPrice
+                        : product.discountedPrice}
                     </span>
-                  )}
-                </div>
-                <p className="text-gray-600 mt-2 text-xs">
-                  + Shipping Charges
-                  {/* : ₹
+                    {product.originalPrice && (
+                      <span className="text-lg text-gray-500 line-through">
+                        ₹
+                        {filteredVariant
+                          ? filteredVariant.originalPrice
+                          : product.originalPrice}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 mt-2 text-xs">
+                    + Shipping Charges
+                    {/* : ₹
                   {filteredVariant
                     ? filteredVariant.shippingPrice
                     : product.shippingPrice} */}
-                </p>
+                  </p>
+                </div>
+                <div className="mb-6 bg-gray-50 p-6 rounded-lg max-sm:hidden">
+                  {/* <h2 className="text-sm font-semibold mb-4">Quantity</h2> */}
+                  {/* <div className="flex items-center space-x-4">
+                  <button
+                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
+                    -
+                  </button>
+                  <span className="text-lg font-medium">{quantity}</span>
+                  <button
+                    onClick={() =>
+                      setQuantity((prev) => Math.min(50, prev + 1))
+                    }
+                    className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
+                    +
+                  </button>
+                </div> */}
+
+                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden w-fit">
+                    <button
+                      onClick={() =>
+                        setQuantity((prev) => Math.max(1, prev - 1))
+                      }
+                      className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                      disabled={quantity <= 1}>
+                      -
+                    </button>
+                    <span className="px-4 py-2 text-center min-w-[40px]">
+                      {quantity} Qty
+                    </span>
+                    <button
+                      onClick={() =>
+                        setQuantity((prev) => Math.min(50, prev + 1))
+                      }
+                      className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                      disabled={quantity >= 50}>
+                      +
+                    </button>
+                  </div>
+
+                  {product.type === "rent" && (
+                    <>
+                      <h2 className="text-sm font-semibold mb-4 mt-6">
+                        Rental Duration
+                      </h2>
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={() =>
+                            setRentDays((prev) => Math.max(1, prev - 1))
+                          }
+                          className="w-10 h-10 flex items-center justify-center border rounded-full">
+                          -
+                        </button>
+                        <span className="text-lg font-medium">
+                          {rentDays} days
+                        </span>
+                        <button
+                          onClick={() =>
+                            setRentDays((prev) => Math.min(30, prev + 1))
+                          }
+                          className="w-10 h-10 flex items-center justify-center border rounded-full">
+                          +
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="mb-3 rounded-sm">
@@ -553,9 +778,9 @@ export default function ViewProduct({ params }) {
               )}
 
               {/* Quantity Selector */}
-              <div className="mb-6 bg-gray-50 p-6 rounded-lg">
+              <div className="max-sm:block hidden mb-6 bg-gray-50 p-6 rounded-lg">
                 <h2 className="text-sm font-semibold mb-4">Quantity</h2>
-                <div className="flex items-center space-x-4">
+                {/* <div className="flex items-center space-x-4">
                   <button
                     onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
                     className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
@@ -567,6 +792,26 @@ export default function ViewProduct({ params }) {
                       setQuantity((prev) => Math.min(50, prev + 1))
                     }
                     className="w-10 h-10 flex items-center justify-center border rounded-full cursor-pointer">
+                    +
+                  </button>
+                </div> */}
+
+                <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden w-fit">
+                  <button
+                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                    className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    disabled={quantity <= 1}>
+                    -
+                  </button>
+                  <span className="px-4 py-2 text-center min-w-[40px]">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() =>
+                      setQuantity((prev) => Math.min(50, prev + 1))
+                    }
+                    className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                    disabled={quantity >= 50}>
                     +
                   </button>
                 </div>
@@ -617,44 +862,67 @@ export default function ViewProduct({ params }) {
                     />
                   )}
 
-                  {!inCart ? (
-                    <button
-                      type="submit"
-                      disabled={!inStock || isAddToCartLoading}
-                      className={`flex items-center justify-center gap-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
-                        !inStock || isAddToCartLoading
-                          ? "bg-gray-300 cursor-not-allowed"
-                          : "bg-black text-white hover:bg-gray-800"
+                  {inStock ? (
+                    !inCart ? (
+                      <button
+                        type="submit"
+                        disabled={!inStock || isCartAddLoading}
+                        className={`flex items-center justify-center gap-1 py-3 px-6 rounded-lg font-medium cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed bg-black text-white hover:bg-gray-800
                       }`}>
-                      {/* <CiShoppingCart size={24} /> */}
-                      <span>{isAddToCartLoading ? "Adding..." : "Add to Cart"}</span>
-                    </button>
+                        {/* <CiShoppingCart size={24} /> */}
+                        {isAddToCartLoading || isCartAddLoading ? (
+                          <div className="flex items-center justify-center">
+                            <span>
+                              Adding{" "}
+                              <div className="inline-block animate-spin">
+                                😎
+                              </div>
+                            </span>
+                          </div>
+                        ) : (
+                          <span>
+                            <span>🛒 Add to Cart</span>
+                          </span>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => navigate.push("/cart")}
+                        className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer">
+                        ✔️ Go to Cart
+                      </button>
+                    )
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => navigate.push("/cart")}
-                      className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer">
-                      Go to Cart
-                    </button>
+                    <></>
                   )}
                 </form>
 
                 <button
                   onClick={handleBuyNow}
-                  disabled={!inStock}
-                  className={`flex-1 py-3 px-6 rounded-lg font-medium cursor-pointer ${
-                    !inStock
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-[#DA4445] text-white hover:bg-primary-dark"
-                  }`}>
-                  Buy Now
+                  disabled={!inStock || isBying}
+                  className={`flex-1 py-3 px-6 rounded-lg font-medium cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed bg-primary text-white hover:bg-primary-dark`}>
+                  {!inStock ? (
+                    <span>Out of Stock</span>
+                  ) : isBying ? (
+                    <div className="flex items-center justify-center">
+                      <span>
+                        Please wait{" "}
+                        <div className="inline-block animate-spin">✌️</div>
+                      </span>
+                    </div>
+                  ) : (
+                    <span>
+                      <span>Buy Now 🤞</span>
+                    </span>
+                  )}
                 </button>
               </div>
 
               {/* Description */}
               {product.description && (
                 <div
-                  className="prose prose-stone my-10"
+                  className="prose prose-stone mt-10"
                   dangerouslySetInnerHTML={{
                     __html: product.description,
                   }}

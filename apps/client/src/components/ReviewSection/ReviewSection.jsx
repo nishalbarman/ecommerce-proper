@@ -15,7 +15,7 @@ function ReviewSection({ product, hasUserBoughtThisProduct }) {
   };
 
   return (
-    <section className="mt-2 container mx-auto p-4">
+    <section className="container mx-auto p-4">
       {/* Review Header */}
       <div className="flex max-sm:flex-col gap-3 items-center justify-between mb-8">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">

@@ -58,6 +58,12 @@ function Cart() {
     setGatewayOption(gatewayOption);
   }
 
+  useEffect(() => {
+      if (!gatewayOption && paymentGatewayList?.length > 0) {
+        handleGatewayOptionChange(paymentGatewayList[0].code);
+      }
+    }, [paymentGatewayList]);
+
   const {
     data: addresses,
     isLoading: isAddressFetchLoading,
@@ -338,12 +344,12 @@ function Cart() {
     router.push(`/checkout?pm=${gatewayOption}`);
   };
 
-  useEffect(() => {
-    if (paymentGatewayList?.data?.length > 0) {
-      dispatch(setSelectedPaymentMethod(paymentGatewayList.data[0].code));
-      setGatewayOption(paymentGatewayList.data[0].code);
-    }
-  }, [paymentGatewayList]);
+  // useEffect(() => {
+  //   if (paymentGatewayList?.data?.length > 0) {
+  //     dispatch(setSelectedPaymentMethod(paymentGatewayList.data[0].code));
+  //     setGatewayOption(paymentGatewayList.data[0].code);
+  //   }
+  // }, [paymentGatewayList]);
 
   // const handleContinueToPayment = () => {
   //   console.log("Is address selected then what is the value", selectedAddress);

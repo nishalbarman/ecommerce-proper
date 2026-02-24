@@ -61,10 +61,10 @@ export default function ReviewList({ productId, productType = "buy" }) {
     });
   };
 
-  if (true || isLoading && page === 1) {
+  if (isLoading && page === 1) {
     return (
       <div className="space-y-6 animate-pulse">
-      {[...Array(count)].map((_, i) => (
+      {[...Array(2)].map((_, i) => (
         <div
           key={i}
           className="bg-white p-6 rounded-2xl shadow border border-gray-100"

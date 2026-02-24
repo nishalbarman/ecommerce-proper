@@ -57,7 +57,7 @@ router.get("/", checkRole(0, 1, 2), async (req, res) => {
     const requiredMinimumAmountForFreeDelivery =
       deliveryChargeDetails?.freeDeliveryAbove;
 
-      console.log(deliveryChargeDetails)
+    console.log(deliveryChargeDetails);
 
     return res.json({
       totalCount: totalCount,
@@ -392,7 +392,7 @@ router.post("/incart/:productId", checkRole(0, 1, 2), async (req, res) => {
 
     const filterObject = {
       product: searchParams.productId,
-      productType: body.productType,
+      productType: "buy" || body.productType,
       user: userDetails._id,
     };
 
@@ -400,22 +400,26 @@ router.post("/incart/:productId", checkRole(0, 1, 2), async (req, res) => {
       filterObject.variant = body.variant || null;
     }
 
+    console.log("Filter object for incart check", filterObject);
+
     const cartItem = await Cart.findOne(filterObject);
 
-    if (!!cartItem) {
-      return res.json({
-        incart: true,
-      });
-    }
+    console.log(cartItem)
+
+    // if (!!cartItem) {
+    //   return res.json({
+    //     incart: true,
+    //   });
+    // }
 
     return res.json({
-      incart: false,
+      incart: !!cartItem,
     });
   } catch (error) {
     console.log(error);
-    return res.json({
+    return res.status(500).json({
       status: false,
-      message: "Internal server error!",
+      message: "Internal server error!, "+error?.message,
     });
   }
 });

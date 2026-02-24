@@ -34,6 +34,8 @@ import {
   updateAppliedCoupon,
 } from "@/redux/slices/appliedCouponSlice";
 import { set } from "mongoose";
+import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
+import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -58,7 +60,7 @@ export default function CheckoutPage() {
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
-  const [paymentGatewayList] = useState([]);
+  // const [paymentGatewayList] = useState([]);
 
   const appliedCouponReduxStore = useSelector(
     (state) => state.appliedCouponSlice,
@@ -83,7 +85,19 @@ export default function CheckoutPage() {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [gatewayOption, setGatewayOption] = useState(null);
 
-  // const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
+  const { data: paymentGatewayList, isLoading: isPaymentGatewayLoading } =
+    useGetAllPaymentGatewaysQuery();
+
+  const handleGatewayOptionChange = (gatewayOption) => {
+    dispatch(setSelectedPaymentMethod(gatewayOption));
+    setGatewayOption(gatewayOption);
+  };
+
+  useEffect(() => {
+    if (!gatewayOption && paymentGatewayList?.length > 0) {
+      handleGatewayOptionChange(paymentGatewayList[0].code);
+    }
+  }, [paymentGatewayList]);
 
   const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
 
@@ -330,10 +344,60 @@ export default function CheckoutPage() {
     }
   }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress, searchParams]);
 
+  const handleCashfreePayment = useCallback(async () => {
+    try {
+      setIsPaymentLoading(true);
+      setLoadingText("Creating order...");
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/cashfree/cart/buy${
+          appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
+        }`,
+        {
+          address: selectedAddress,
+        },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setLoadingText("Opening payment gateway...");
+
+      const { payment_session_id } = response.data;
+
+      if (!window.Cashfree) {
+        throw new Error("Cashfree SDK not loaded");
+      }
+
+      const cashfree = window.Cashfree({
+        mode:
+          process.env.NEXT_PUBLIC_CASHFREE_ENV === "PRODUCTION"
+            ? "production"
+            : "sandbox",
+      });
+
+      cashfree.checkout({
+        paymentSessionId: payment_session_id,
+        redirectTarget: "_modal", // or "_self" / "_blank"
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Payment failed to initialize, please retry.");
+      // redirect("/cart");
+    } finally {
+      setIsPaymentLoading(false);
+    }
+  }, [appliedCoupon, selectedAddress, token]);
+
   const handlePayment = () => {
     switch (gatewayOption) {
       case "razorpay":
         return handleRazorPayContinue();
+      case "cashfree":
+        return handleCashfreePayment();
       case "payu":
         return handlePayUContinue();
       default:
@@ -465,6 +529,8 @@ export default function CheckoutPage() {
   const [shippingPrice, setShippingPrice] = useState(0);
   const [isShippingApplied, setIsShippingApplied] = useState(true);
 
+  const [isPricingReady, setIsPricingReady] = useState(false);
+
   const [
     requiredMinimumAmountForFreeDelivery,
     setRequiredMinimumAmountForFreeDelivery,
@@ -549,6 +615,7 @@ export default function CheckoutPage() {
 
       setFinalPrice(finalPrice - (couponDiscountPrice.toFixed(2) || 0));
     }
+    setIsPricingReady(true);
   }, [
     productData,
     appliedCoupon,
@@ -581,7 +648,107 @@ export default function CheckoutPage() {
   //   getPaymentGateways();
   // }, []);
 
-  console.log(productData);
+  console.log(
+    "Buy single",
+    productData,
+    shippingPricing,
+    isLoading,
+    isPricingReady,
+  );
+
+  if (!productData || !shippingPricing || isLoading || !isPricingReady) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 animate-pulse">
+        <div className="container mx-auto px-4">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="h-6 w-48 bg-gray-200 rounded"></div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* LEFT SECTION */}
+            <div className="lg:w-2/3 space-y-6">
+              {/* Product Card */}
+              <div className="bg-white rounded-xl p-4 flex gap-4">
+                <div className="w-32 h-32 bg-gray-200 rounded-lg"></div>
+
+                <div className="flex-1 space-y-3">
+                  <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
+                  <div className="h-5 w-32 bg-gray-200 rounded"></div>
+
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                    <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                  </div>
+
+                  <div className="h-10 w-28 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="bg-white rounded-xl p-6 space-y-4">
+                <div className="h-5 w-40 bg-gray-200 rounded"></div>
+
+                {/* Address Cards */}
+                <div className="grid md:grid-cols-2 gap-4">
+                  {[...Array(2)].map((_, i) => (
+                    <div key={i} className="rounded-xl p-4 space-y-2">
+                      <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                      <div className="h-3 w-full bg-gray-200 rounded"></div>
+                      <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
+                      <div className="h-3 w-1/2 bg-gray-200 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add Address Button */}
+                <div className="h-12 w-full bg-gray-200 rounded-xl"></div>
+              </div>
+            </div>
+
+            {/* RIGHT SECTION */}
+            <div className="lg:w-1/3">
+              <div className="bg-white rounded-xl p-6 space-y-4">
+                <div className="h-5 w-40 bg-gray-200 rounded"></div>
+
+                {/* Coupon */}
+                <div className="h-12 w-full bg-gray-200 rounded-lg"></div>
+
+                {/* Price Lines */}
+                <div className="space-y-3">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex justify-between">
+                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Total */}
+                <div className="pt-4 flex justify-between">
+                  <div className="h-5 w-20 bg-gray-200 rounded"></div>
+                  <div className="h-5 w-24 bg-gray-200 rounded"></div>
+                </div>
+
+                {/* Button */}
+                <div className="h-14 w-full bg-gray-200 rounded-xl"></div>
+
+                {/* Icons */}
+                <div className="grid grid-cols-3 gap-4 pt-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="flex flex-col items-center gap-2">
+                      <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                      <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -799,7 +966,68 @@ export default function CheckoutPage() {
 
           {/* Order Summary Section */}
           <div className="lg:w-1/3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 sticky top-4">
+            <div className="w-full rounded-xl shadow-sm border border-gray-200">
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <h2 className="text-lg font-bold text-gray-900 mb-6">
+                  Select Payment Method
+                </h2>
+
+                {isPaymentGatewayLoading ? (
+                  <div className="flex justify-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-6"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {paymentGatewayList?.map((gateway) => (
+                      <label
+                        key={gateway._id}
+                        className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
+                          gatewayOption === gateway.code
+                            ? "border-red-500 bg-red-50"
+                            : "hover:bg-gray-50"
+                        }`}>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="payment"
+                            value={gateway.code}
+                            checked={gatewayOption === gateway.code}
+                            onChange={(e) =>
+                              handleGatewayOptionChange(e.target.value)
+                            }
+                          />
+
+                          <div>
+                            <p className="font-medium">{gateway.title}</p>
+                            {gateway.description && (
+                              <p className="text-sm text-gray-500">
+                                {gateway.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {gateway.priority === 1 && (
+                          <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
+                            Recommended
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {/* Continue Button */}
+                {/* <button
+                  onClick={handleContinueToPayment}
+                  disabled={isPaymentLoading}
+                  className="mt-6 w-full bg-primary hover:bg-red-500 text-white py-3 rounded-lg font-medium cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-400">
+                  {isPaymentLoading ? "Processing..." : "Continue to Payment"}
+                </button> */}
+              </div>
+            </div>
+
+            <div className="mt-4 bg-white rounded-xl shadow-sm border border-gray-200 sticky top-4">
               <div className="p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-6">
                   Order Summary

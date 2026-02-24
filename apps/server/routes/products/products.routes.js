@@ -898,10 +898,23 @@ router.post("/variant/instock/:productId", async (req, res) => {
       });
     }
 
+    let isSlug = true;
+    if (
+      mongoose.Types.ObjectId.isValid(productId) &&
+      String(new mongoose.Types.ObjectId(productId)) === productId
+    ) {
+      isSlug = false;
+    }
+
     const filterObject = {
-      _id: productId,
       productType: productType,
     };
+
+    if (isSlug) {
+      filterObject.slug = productId;
+    } else {
+      filterObject._id = productId;
+    }
 
     const productItem = await Product.findOne(filterObject);
 
@@ -914,7 +927,7 @@ router.post("/variant/instock/:productId", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.json({
+    return res(500).json({
       status: false,
       message: "Internal server error!",
     });
