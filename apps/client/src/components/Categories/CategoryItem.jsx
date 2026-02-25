@@ -7,7 +7,7 @@ function CategoryItem({
   categoryImage,
   categoryName,
   categoryKey,
-  slug
+  slug,
 }) {
   return (
     <Link href={`/categories/${slug}`} passHref>
@@ -18,7 +18,10 @@ function CategoryItem({
         {/* Category image with zoom effect */}
         <div className="relative w-full h-full">
           <Image
-           src={categoryImage?.imageUrl}
+            style={{
+              backgroundColor: categoryImage?.bgColor,
+            }}
+            src={categoryImage?.imageUrl}
             alt={categoryName}
             fill
             className={`object-contain transition-transform duration-500 group-hover:scale-110 bg-[${categoryImage?.bgColor}]`}
@@ -48,7 +51,6 @@ function CategoryItem({
 }
 
 export default CategoryItem;
-
 
 // import React from "react";
 // import Image from "next/image";

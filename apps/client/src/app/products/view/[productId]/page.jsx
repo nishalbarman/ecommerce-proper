@@ -512,6 +512,11 @@ export default function ViewProduct({ params }) {
                 {/* Main Image */}
                 <SwiperSlide>
                   <img
+                    style={{
+                      backgroundColor:
+                        filteredVariant?.previewImage?.bgColor ||
+                        product.previewImage?.bgColor,
+                    }}
                     src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
                     alt={product ? product.title : undefined}
                     className={`w-full h-full object-contain select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
@@ -523,6 +528,9 @@ export default function ViewProduct({ params }) {
                   (image, index) => (
                     <SwiperSlide key={index}>
                       <img
+                        style={{
+                          backgroundColor: image.bgColor,
+                        }}
                         src={`${image.imageUrl}`}
                         alt={`Product Image ${index + 1}`}
                         className={`w-full h-full object-contain select-none bg-[${image.bgColor}]`}
@@ -544,6 +552,11 @@ export default function ViewProduct({ params }) {
                 {/* Main Image Thumbnail */}
                 <SwiperSlide>
                   <img
+                    style={{
+                      backgroundColor:
+                        filteredVariant?.previewImage?.bgColor ||
+                        product.previewImage?.bgColor,
+                    }}
                     src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
                     alt={product ? product?.title : undefined}
                     className={`w-full h-full !border shadow-lg border-gray-200 object-contain rounded-lg cursor-pointer select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
@@ -555,6 +568,9 @@ export default function ViewProduct({ params }) {
                   (image, index) => (
                     <SwiperSlide key={index}>
                       <img
+                        style={{
+                          backgroundColor: image.bgColor,
+                        }}
                         src={`${image.imageUrl}`}
                         alt={`Product Image ${index + 1}`}
                         className={`w-full h-full !border shadow-lg border-gray-200  object-contain rounded-lg cursor-pointer select-none bg-[${image.bgColor}]`}
@@ -889,7 +905,7 @@ export default function ViewProduct({ params }) {
                         type="button"
                         onClick={() => navigate.push("/cart")}
                         className="flex justify-center py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer max-sm:w-full">
-                        Go to Cart ✔️ 
+                        Go to Cart ✔️
                       </button>
                     )
                   ) : (

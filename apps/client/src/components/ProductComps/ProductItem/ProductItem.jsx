@@ -204,7 +204,10 @@ function ProductCard({
 
         {/* Product Image */}
         <img
-          className="absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg"
+        style={{
+          backgroundColor: previewImage?.bgColor,
+        }}
+          className={`absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg`}
           src={previewImage?.imageUrl}
           alt={title}
         />
