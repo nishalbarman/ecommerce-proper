@@ -5,6 +5,7 @@ const imageSchema = new mongoose.Schema(
     title: { type: String },
     thumbnailUrl: { type: String, required: true },
     imageLink: { type: String, required: true },
+    bgColor: { type: String, required: true, default: null },
     deleteLink: { type: String, required: false, default: "" },
     reference: { type: String, required: false },
     platform: { type: String, required: true },
@@ -17,7 +18,7 @@ const imageSchema = new mongoose.Schema(
         return this.where({});
       },
     },
-  }
+  },
 );
 
 const Image = mongoose.models.images || mongoose.model("images", imageSchema);

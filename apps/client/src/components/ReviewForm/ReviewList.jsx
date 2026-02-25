@@ -189,7 +189,7 @@ export default function ReviewList({ productId, productType = "buy" }) {
                     {review.images.map((image, index) => (
                       <div
                         key={image._id || index}
-                        className="relative w-24 h-24 rounded-xl overflow-hidden cursor-pointer group"
+                        className={`relative w-24 h-24 rounded-xl overflow-hidden cursor-pointer group bg-[image.bgColor]`}
                         onClick={() => openImage(review.images, index)}>
                         <Image
                           src={image.thumbnailUrl || image.imageUrl}

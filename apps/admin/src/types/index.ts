@@ -28,6 +28,11 @@ export type OrderAddress = {
   location: [number, number];
 };
 
+export type Image = {
+  imageUrl: string;
+  bgColor: string;
+};
+
 export type Order = {
   address: OrderAddress;
   center: string | null;
@@ -40,7 +45,7 @@ export type Order = {
   paymentStatus: string;
   paymentTxnId: string;
   pickupDate: string | null;
-  previewImage: string;
+  previewImage: Image | null | Image[];
   price: number;
   product: string;
   quantity: number;
@@ -63,6 +68,8 @@ export type OrderGroup = {
   createdAt: string;
   orderGroupID: string;
   orderType: string;
+  images: Image[];
+  paymentStatus: string;
   orders: Order[];
   paymentTransactionId: string;
   totalDocumentCount: number;
@@ -75,6 +82,11 @@ export type PaymentSummary = {
   shippingPrice: number;
   subTotalPrice: number;
   totalPrice: number;
+  MRP: number;
+  afterDiscountPrice: number;
+  discount: number;
+  couponDiscount: number;
+  finalPrice: number;
 };
 
 export type Base64StringWithType = {
@@ -85,8 +97,8 @@ export type Base64StringWithType = {
 export type ProductVariant = {
   product: string;
 
-  previewImage: string | null;
-  slideImages: string[] | null;
+  previewImage: Image | null;
+  slideImages: Image[] | null;
 
   size: string;
   color: string;
@@ -104,10 +116,11 @@ export type ProductVariant = {
 export type Category = {
   _id?: string;
   categoryName: string;
-  categoryImageUrl: string | null;
+  categoryImage: Image | null;
   createdAt?: string;
   updatedAt?: string;
   __v?: number | undefined;
+  slug: string;
   categoryKey?: string;
 };
 
@@ -142,11 +155,11 @@ export type Role = {
 };
 
 export type Product = {
-  previewImage: string | null;
+  previewImage: Image | null;
   title: string;
   category: string | Category;
   categorySlug: string;
-  slideImages: string[] | null;
+  slideImages: Image[] | null;
   description: string;
 
   stars?: string | number;
@@ -214,8 +227,8 @@ export interface DynamicPage {
   title: string;
   description: string;
   shortDescription: string;
-  avatar: string;
-  cover: string;
+  avatar: Image;
+  cover: Image;
   slug: string;
   [key: string]: any;
 }

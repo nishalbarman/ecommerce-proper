@@ -179,7 +179,7 @@ function ProductCard({
         </button>
 
         {/* Action Icons */}
-        <div className="absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit">
+        <div className={`absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit bg-[${previewImage.bgColor}]`}>
           {/* Toogle Wishlist Button */}
           <div
             className={`max-sm:w-auto max-sm:h-auto max-sm:p-1 flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${
@@ -205,7 +205,7 @@ function ProductCard({
         {/* Product Image */}
         <img
           className="absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg"
-          src={previewImage}
+          src={previewImage.imageUrl}
           alt={title}
         />
       </div>

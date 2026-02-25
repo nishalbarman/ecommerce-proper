@@ -377,7 +377,7 @@ export default function ViewProduct({ params }) {
               </div>
 
               {/* RIGHT SIDE */}
-              <div className="sm:pl-8 max-sm:pt-8 sm:border-l border-gray-200">
+              <div className="md:pl-8 max-sm:pt-8 md:border-l border-gray-200">
                 {/* Stock */}
                 <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
 
@@ -508,13 +508,13 @@ export default function ViewProduct({ params }) {
                 thumbs={{ swiper: thumbsSwiper }}
                 spaceBetween={10}
                 slidesPerView={1}
-                className="my-swiper w-full h-[400px] bg-gray-50 max-md:h-[320px] aspect-square rounded-lg shadow-lg mb-4">
+                className={`my-swiper w-full h-[400px] bg-gray-50 max-md:h-[320px] aspect-square rounded-lg shadow-lg mb-4 bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}>
                 {/* Main Image */}
                 <SwiperSlide>
                   <img
-                    src={`${filteredVariant?.previewImage || product.previewImage}`}
+                    src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
                     alt={product ? product.title : undefined}
-                    className="w-full h-full object-contain select-none"
+                    className={`w-full h-full object-contain select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
                   />
                 </SwiperSlide>
 
@@ -523,9 +523,9 @@ export default function ViewProduct({ params }) {
                   (image, index) => (
                     <SwiperSlide key={index}>
                       <img
-                        src={`${image}`}
+                        src={`${image.imageUrl}`}
                         alt={`Product Image ${index + 1}`}
-                        className="w-full h-full object-contain select-none"
+                        className={`w-full h-full object-contain select-none bg-[${image.bgColor}]`}
                       />
                     </SwiperSlide>
                   ),
@@ -544,9 +544,9 @@ export default function ViewProduct({ params }) {
                 {/* Main Image Thumbnail */}
                 <SwiperSlide>
                   <img
-                    src={`${filteredVariant?.previewImage || product.previewImage}`}
+                    src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
                     alt={product ? product?.title : undefined}
-                    className="w-full h-full !border shadow-lg border-primary object-contain rounded-lg cursor-pointer select-none"
+                    className={`w-full h-full !border shadow-lg border-gray-200 object-contain rounded-lg cursor-pointer select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
                   />
                 </SwiperSlide>
 
@@ -555,9 +555,9 @@ export default function ViewProduct({ params }) {
                   (image, index) => (
                     <SwiperSlide key={index}>
                       <img
-                        src={`${image}`}
+                        src={`${image.imageUrl}`}
                         alt={`Product Image ${index + 1}`}
-                        className="w-full h-full !border shadow-lg border-primary  object-contain rounded-lg cursor-pointer select-none"
+                        className={`w-full h-full !border shadow-lg border-gray-200  object-contain rounded-lg cursor-pointer select-none bg-[${image.bgColor}]`}
                       />
                     </SwiperSlide>
                   ),
@@ -571,7 +571,7 @@ export default function ViewProduct({ params }) {
             </div>
 
             {/* Right Side: Product Details */}
-            <div className="sm:pl-8 max-sm:pt-8 sm:border-l border-gray-200 sm:border-t-0 border-t sm:mt-0">
+            <div className="md:pl-8 max-sm:pt-8 md:border-l border-gray-200 sm:border-t-0 border-t sm:mt-0">
               <p className="mb-2 max-md:text-sm">
                 {inStock ? (
                   <span className="text-green-800 font-bold">In stock</span>
@@ -588,9 +588,9 @@ export default function ViewProduct({ params }) {
                 <RateStar stars={product.stars || 0} />
               </div>
 
-              <div className="flex items-center justify-start bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-start bg-gray-50 rounded-lg mb-6 max-sm:mb-0">
                 {/* Pricing */}
-                <div className="mb-6 bg-gray-50 p-6 rounded-lg">
+                <div className="bg-gray-50 p-6 rounded-lg">
                   <h2 className="text-sm font-semibold mb-2">Pricing</h2>
                   <div className="flex items-center gap-4">
                     <span className="text-3xl font-bold text-green-900">
@@ -616,7 +616,7 @@ export default function ViewProduct({ params }) {
                     : product.shippingPrice} */}
                   </p>
                 </div>
-                <div className="mb-6 bg-gray-50 p-6 rounded-lg max-sm:hidden">
+                <div className="bg-gray-50 p-6 rounded-lg max-sm:hidden">
                   {/* <h2 className="text-sm font-semibold mb-4">Quantity</h2> */}
                   {/* <div className="flex items-center space-x-4">
                   <button
@@ -845,7 +845,7 @@ export default function ViewProduct({ params }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-4 mb-12">
+              <div className="flex max-sm:flex-col gap-4 mb-12">
                 <form action={handleAddToCart}>
                   <input type="hidden" name="productId" value={product._id} />
                   <input
@@ -867,8 +867,7 @@ export default function ViewProduct({ params }) {
                       <button
                         type="submit"
                         disabled={!inStock || isCartAddLoading}
-                        className={`flex items-center justify-center gap-1 py-3 px-6 rounded-lg font-medium cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed bg-black text-white hover:bg-gray-800
-                      }`}>
+                        className={`flex items-center justify-center gap-1 py-3 px-6 rounded-lg font-medium cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed bg-black text-white hover:bg-gray-800 max-sm:w-full`}>
                         {/* <CiShoppingCart size={24} /> */}
                         {isAddToCartLoading || isCartAddLoading ? (
                           <div className="flex items-center justify-center">
@@ -881,7 +880,7 @@ export default function ViewProduct({ params }) {
                           </div>
                         ) : (
                           <span>
-                            <span>🛒 Add to Cart</span>
+                            <span>🛒 Add to Cart 🛒</span>
                           </span>
                         )}
                       </button>
@@ -889,8 +888,8 @@ export default function ViewProduct({ params }) {
                       <button
                         type="button"
                         onClick={() => navigate.push("/cart")}
-                        className="flex-1 py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer">
-                        ✔️ Go to Cart
+                        className="flex justify-center py-3 px-6 rounded-lg font-medium bg-black text-white hover:bg-gray-800 cursor-pointer max-sm:w-full">
+                        Go to Cart ✔️ 
                       </button>
                     )
                   ) : (

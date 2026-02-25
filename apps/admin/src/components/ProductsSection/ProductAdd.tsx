@@ -7,7 +7,7 @@ import React, {
 } from "react";
 
 import { toast } from "react-toastify";
-import { Category, Product } from "../../types";
+import { Category, Image, Product } from "../../types";
 import { useAppSelector } from "../../redux/index";
 import { FaRegCopy } from "react-icons/fa";
 import { SlRefresh } from "react-icons/sl";
@@ -49,7 +49,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
   const [productData, setProductData] = useState<Product>({
     title: "",
-    previewImage: "",
+    previewImage: null,
     slideImages: [],
     description: "",
     category: "",
@@ -172,7 +172,8 @@ const ProductAdd: React.FC<ProductAddProps> = ({
       !!productData?.title &&
       productData.title.length >= 5 &&
       productData.previewImage !== null &&
-      productData.previewImage !== "" &&
+      productData.previewImage?.imageUrl !== "" &&
+      productData.previewImage?.bgColor !== "" &&
       productData.slideImages !== null &&
       productData.slideImages.length > 0 &&
       productData.description?.length > 5 &&
@@ -354,8 +355,6 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       value={(productData?.category as Category)?._id}
                       // value={JSON.stringify(productData?.category)}
                       onChange={(e) => {
-                        
-
                         // console.log(
                         //   "Selected Category-->",
                         //   categoryList,
@@ -367,7 +366,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                           return {
                             ...prev,
                             category: e.target.value,
-                            categorySlug: selectedCategory.categoryKey,
+                            categorySlug: selectedCategory.slug,
                           };
                         });
                       }}
@@ -471,7 +470,10 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             setProductData((prev) => {
                               return {
                                 ...prev,
-                                previewImage: imageItems[0].imageLink,
+                                previewImage: {
+                                  imageUrl: imageItems[0].imageLink,
+                                  bgColor: imageItems[0].bgColor,
+                                },
                               };
                             });
                           }}
@@ -481,11 +483,12 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </div>
                   </div>
 
-                  <div className="w-full h-[400px] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded">
+                  <div
+                    className={`w-full h-[400px] bg-[${productData.previewImage?.bgColor}] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded`}>
                     {productData.previewImage ? (
                       <img
-                        className="w-full h-full w-[200px] aspect-square object-contain"
-                        src={productData?.previewImage as string}
+                        className={`w-full h-full w-[200px] aspect-square object-contain bg-[${productData.previewImage?.bgColor}]`}
+                        src={productData?.previewImage?.imageUrl as string}
                       />
                     ) : (
                       <div className="flex justify-center items-center w-full h-[400px]">
@@ -517,9 +520,10 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             setProductData((prev) => {
                               return {
                                 ...prev,
-                                slideImages: imageItems.map(
-                                  (eachImage) => eachImage.imageLink,
-                                ),
+                                slideImages: imageItems.map((eachImage) => ({
+                                  imageUrl: eachImage.imageLink,
+                                  bgColor: eachImage.bgColor,
+                                })),
                               };
                             });
                           }}
@@ -540,13 +544,13 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         className="my-swiper w-full h-full bg-gray-50 min-md:h-[500px] aspect-square rounded-lg shadow-lg mb-4">
                         {/* Slider Images */}
 
-                        {(productData.slideImages as string[])?.map(
+                        {(productData.slideImages as Image[])?.map(
                           (image, index) => (
                             <SwiperSlide key={index}>
                               <img
-                                src={`${image}`}
+                                src={`${image.imageUrl}`}
                                 alt={`Product Image ${index + 1}`}
-                                className="w-full h-full object-contain"
+                                className={`w-full h-full object-contain bg-[${image.bgColor}]`}
                               />
                             </SwiperSlide>
                           ),
@@ -903,8 +907,12 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                                         [key: string]: any;
                                                       }
                                                     )[`variant_no_${index}`],
-                                                    previewImage:
-                                                      imageItems[0].imageLink,
+                                                    previewImage: {
+                                                      imageUrl:
+                                                        imageItems[0].imageLink,
+                                                      bgColor:
+                                                        imageItems[0].bgColor,
+                                                    },
                                                   },
                                                 },
                                               };
@@ -924,11 +932,15 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                       `variant_no_${index}`
                                     ]?.previewImage ? (
                                       <img
-                                        className="h-full w-full aspect-square object-contain"
+                                        className={`h-full w-full aspect-square object-contain bg-[${
+                                          productData.productVariant[
+                                            `variant_no_${index}`
+                                          ]?.previewImage?.bgColor as string
+                                        }]`}
                                         src={
                                           productData.productVariant[
                                             `variant_no_${index}`
-                                          ]?.previewImage as string
+                                          ]?.previewImage?.imageUrl as string
                                         }
                                       />
                                     ) : (
@@ -976,8 +988,12 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                                       }
                                                     )[`variant_no_${index}`],
                                                     slideImages: imageItems.map(
-                                                      (eachImage) =>
-                                                        eachImage.imageLink,
+                                                      (eachImage) => ({
+                                                        imageUrl:
+                                                          eachImage.imageLink,
+                                                        bgColor:
+                                                          eachImage.imageLink,
+                                                      }),
                                                     ),
                                                   },
                                                 },
@@ -996,7 +1012,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                     !!productData?.productVariant &&
                                     (productData.productVariant[
                                       `variant_no_${index}`
-                                    ]?.slideImages as string[]) ? (
+                                    ]?.slideImages as Image[]) ? (
                                       <Swiper
                                         modules={[
                                           Navigation,
@@ -1017,18 +1033,18 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                           (
                                             productData.productVariant[
                                               `variant_no_${index}`
-                                            ]?.slideImages as string[]
+                                            ]?.slideImages as Image[]
                                           )?.length > 0 &&
                                           (
                                             productData.productVariant[
                                               `variant_no_${index}`
-                                            ]?.slideImages as string[]
+                                            ]?.slideImages as Image[]
                                           )?.map((image, index) => (
                                             <SwiperSlide key={index}>
                                               <img
-                                                src={`${image}`}
+                                                src={`${image.imageUrl}`}
                                                 alt={`Product Image ${index + 1}`}
-                                                className="w-full h-full object-contain"
+                                                className={`w-full h-full object-contain bg-[${image.bgColor}]`}
                                               />
                                             </SwiperSlide>
                                           ))}

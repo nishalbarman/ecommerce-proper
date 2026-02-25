@@ -6,6 +6,8 @@ const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
 const checkRole = require("../../middlewares");
 const { default: mongoose } = require("mongoose");
 
+const slugify = require("slugify");
+
 const TAG = "categories.routes.js:--";
 
 router.get("/", async (req, res) => {
@@ -89,10 +91,13 @@ router.patch("/update/:categoryId", checkRole(1, 2), async (req, res) => {
     }
 
     if (categoryData?.categoryName) {
-      categoryData.categoryKey = categoryData.categoryName
-        .trim()
-        .replaceAll(" ", "-")
-        .toLowerCase();
+      const slug = slugify(categoryData.categoryName, {
+        lower: true,
+        strict: true,
+      });
+
+      categoryData.categoryKey = slug
+      categoryData.slug = slug
     } else {
       delete categoryData.categoryName;
     }

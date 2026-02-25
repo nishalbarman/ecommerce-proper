@@ -2,6 +2,7 @@ const { default: axios } = require("axios");
 const express = require("express");
 const imgbbUploader = require("imgbb-uploader");
 const { ImageUploadHelper } = require("../../../helpter/imgUploadhelpter");
+const Image = require("../../../models/image.model");
 
 const router = express.Router();
 
@@ -22,10 +23,26 @@ router.post("/upload", async (req, res) => {
       return res.status(403).json({ status: false, message: err.message });
     }
 
+    const mongooseResponse = await Image.insertMany(
+      response.map((url) => {
+        return {
+        title: "notitle" || uploadResponse.title,
+        imageLink: url,
+        averageColor: averageColor,
+        reference: uploadResponse.id,
+        platform: "firebase",
+        thumbnailUrl: url || url,
+        deleteLink: "" || uploadResponse.delete_url,
+        // uploadedBy: req.jwt.user,
+        uploadedBy: req.user?.name || "",
+      }}),
+    );
+
+    // Create a new image document in the database
     return res.status(200).json({
       status: true,
       message: "Image uploaded",
-      publicUrl: publicUrl,
+      // publicUrl: url,
     });
   } catch (error) {
     console.error(error);

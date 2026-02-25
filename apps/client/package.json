@@ -43,6 +43,7 @@
     "validators": "*"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.19"
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/get-image-colors": "^4.0.5"
   }
 }

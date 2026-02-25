@@ -24,7 +24,8 @@ import { MdDeleteOutline } from "react-icons/md";
 const CategoryList = () => {
   const [categoryData, setCategoryData] = useState<Category>({
     categoryName: "",
-    categoryImageUrl: "",
+    categoryImage: null,
+    slug: "",
   });
 
   //   const categoryImageRef = useRef(null);
@@ -35,8 +36,9 @@ const CategoryList = () => {
     let isEverythingOk =
       !!categoryData?.categoryName &&
       categoryData.categoryName.length >= 3 &&
-      categoryData.categoryImageUrl !== null &&
-      categoryData.categoryImageUrl !== "";
+      categoryData.categoryImage !== null &&
+      categoryData.categoryImage?.imageUrl !== "" &&
+      categoryData.categoryImage?.bgColor !== "";
     setIsSubmitDisabled(!isEverythingOk);
   }, [categoryData]);
 
@@ -61,7 +63,7 @@ const CategoryList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       setCategoryList(response.data?.categories);
       setTotalPages(response.data?.totalPages);
@@ -88,9 +90,9 @@ const CategoryList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
-      console.log(response);
+      // console.log(response);
       toast.success("Category deleted");
       setDeleteCategoryId(null);
       getCategories();
@@ -115,13 +117,14 @@ const CategoryList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
 
       toast.success(response?.data?.message);
       setCategoryData({
         categoryName: "",
-        categoryImageUrl: "",
+        categoryImage: null,
+        slug: "",
       });
       getCategories();
     } catch (error: any) {
@@ -129,7 +132,7 @@ const CategoryList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -137,7 +140,7 @@ const CategoryList = () => {
   };
 
   const [updateCategoryId, setUpdateCategoryId] = useState<undefined | string>(
-    undefined
+    undefined,
   );
 
   const handleUpdateCategory = async () => {
@@ -153,12 +156,13 @@ const CategoryList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       toast.success(response?.data?.message);
       setCategoryData({
         categoryName: "",
-        categoryImageUrl: "",
+        categoryImage: null,
+        slug: "",
       });
 
       setUpdateCategoryId(undefined);
@@ -168,7 +172,7 @@ const CategoryList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -190,11 +194,14 @@ const CategoryList = () => {
       setCategoryData((prev) => {
         return {
           ...prev,
-          categoryImageUrl: imageItems[0].imageLink,
+          categoryImage: {
+            imageUrl: imageItems[0].imageLink,
+            bgColor: imageItems[0].bgColor,
+          },
         };
       });
     },
-    []
+    [],
   );
 
   const [categoryViewImage, setCategoryViewImage] = useState<string>("");
@@ -271,7 +278,7 @@ const CategoryList = () => {
                   Category Image
                 </label>
                 <div className="flex max-md:flex-col gap-4 h-40">
-                  {!categoryData.categoryImageUrl ? (
+                  {!categoryData.categoryImage ? (
                     <AssetPicker
                       classX="h-40"
                       htmlFor="previewImage"
@@ -282,14 +289,14 @@ const CategoryList = () => {
                     <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                       <img
                         className="w-full h-full w-[200px] aspect-square object-contain"
-                        src={categoryData.categoryImageUrl as string}
+                        src={categoryData.categoryImage?.imageUrl as string}
                       />
                       <button
                         onClick={() => {
                           setCategoryData((prev) => {
                             return {
                               ...prev,
-                              categoryImageUrl: null,
+                              categoryImage: null,
                             };
                           });
                         }}
@@ -328,7 +335,8 @@ const CategoryList = () => {
                   onClick={() => {
                     setCategoryData({
                       categoryName: "",
-                      categoryImageUrl: "",
+                      categoryImage: null,
+                      slug: "",
                     });
                     setUpdateCategoryId(undefined);
                   }}
@@ -388,20 +396,22 @@ const CategoryList = () => {
                         <td
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
-                            if (item?.categoryImageUrl)
-                              setCategoryViewImage(item.categoryImageUrl);
+                            if (item?.categoryImage)
+                              setCategoryViewImage(
+                                item.categoryImage?.imageUrl,
+                              );
                           }}>
                           <img
-                            src={item.categoryImageUrl as string}
+                            src={item.categoryImage?.imageUrl as string}
                             alt={item.categoryName}
-                            className="w-12 h-12 rounded-full"
+                            className={`w-12 h-12 rounded-full bg-[${item.categoryImage?.bgColor}]`}
                           />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {item.categoryName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.categoryKey}
+                          {item.slug}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div>Created: {item.createdAt}</div>
@@ -416,7 +426,13 @@ const CategoryList = () => {
                                   return {
                                     ...prev,
                                     categoryName: item.categoryName,
-                                    categoryImageUrl: item.categoryImageUrl,
+                                    categoryImage: {
+                                      imageUrl:
+                                        item.categoryImage?.imageUrl || "",
+                                      bgColor:
+                                        item.categoryImage?.bgColor || "",
+                                    },
+                                    slug: item.slug,
                                   };
                                 });
                               }}
@@ -454,7 +470,7 @@ const CategoryList = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, totalPages)
+                          Math.min(prev + 1, totalPages),
                         )
                       }
                       disabled={paginationPage === totalPages}

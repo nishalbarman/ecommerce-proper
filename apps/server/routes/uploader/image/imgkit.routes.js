@@ -1,5 +1,6 @@
 const express = require("express");
 const imgbbUploader = require("imgbb-uploader");
+const getImageColors = require("get-image-colors");
 const ImageKit = require("imagekit");
 const { v4: uuidv4 } = require("uuid");
 const Image = require("../../../models/image.model");
@@ -26,7 +27,7 @@ router.post("/upload", async (req, res) => {
     // Process the base64 string to prepare for upload
     const base64string = imageData.base64String.replace(
       /^data:image\/\w+;base64,/,
-      ""
+      "",
     );
 
     let uploadResponse;
@@ -68,11 +69,20 @@ router.post("/upload", async (req, res) => {
 
     let mongoResponse;
     if (uploadResponse) {
+      const imageColors = await getImageColors(uploadResponse.url, {
+        count: 5,
+      });
+
+      const [first, second, third] = imageColors[0]._rgb;
+
+      const averageColor = `rgba(${first},${second},${third},0.8)`;
+
       // Create a new image document in the database
 
       mongoResponse = await Image.create({
         title: uploadResponse.name,
         imageLink: uploadResponse.url,
+        averageColor: averageColor,
         reference: uploadResponse.fileId,
         platform: "imgkit",
         thumbnailUrl: uploadResponse.thumbnailUrl || uploadResponse.url,

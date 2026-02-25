@@ -105,14 +105,14 @@ const ListProduct = () => {
               <Box
                 className="cursor-pointer"
                 onClick={() => {
-                  setProductImageModal(cell.getValue() as string);
+                  setProductImageModal((cell.getValue() as any)?.imageUrl as string);
                 }}
                 sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <img
                   className="object-contain rounded-md select-none"
                   alt="avatar"
                   height={30}
-                  src={cell.getValue() as string}
+                  src={(cell.getValue() as any)?.imageUrl as string}
                   loading="lazy"
                   style={{ width: 50, height: 50 }}
                 />

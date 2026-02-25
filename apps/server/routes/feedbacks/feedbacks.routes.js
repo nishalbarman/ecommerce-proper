@@ -13,6 +13,8 @@ const checkRole = require("../../middlewares");
 const FeedbackImage = require("../../models/feedbackImage.model");
 const imgbbUploader = require("imgbb-uploader");
 
+const getImageColors = require("get-image-colors");
+
 // Rate limiting for image uploads
 const uploadLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
@@ -95,9 +97,9 @@ router.get("/list/:productId", async (req, res) => {
     const LIMIT = searchParams.limit || 20;
     const SKIP = (PAGE - 1) * LIMIT;
 
-    const filter = {}
-    if(isSlug) {
-      filter.slug = productId
+    const filter = {};
+    if (isSlug) {
+      filter.slug = productId;
     }
 
     const feedbackCount = await Feedback.countDocuments({
@@ -109,7 +111,7 @@ router.get("/list/:productId", async (req, res) => {
       product: productId,
     })
       .sort({ createdAt: "desc" })
-      .populate("images")
+      .populate({ path: "images", select: "imageUrl bgColor _id" })
       .skip(SKIP)
       .limit(LIMIT);
 
@@ -150,8 +152,11 @@ router.get("/:feedbackId", async (req, res) => {
 // Create feedback
 router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
-    const { product, productType, description, starsGiven, imageIds } =
-      req.body;
+    const { product, productType, description, starsGiven, images } = req.body;
+
+    const imageIds = imageIds.map(
+      (imageId) => new mongoose.Types.ObjectId(imageId),
+    );
 
     console.log(req.body);
 
@@ -577,10 +582,19 @@ router.post("/upload-image", checkRole(0, 1, 2), async (req, res) => {
 
     let mongoResponse;
     if (uploadResponse) {
+      const imageColors = await getImageColors(image.imageLink, {
+        count: 5,
+      });
+
+      const [r, g, b] = imageColors[0]._rgb;
+
+      const averageColor = `rgba(${r},${g},${b},0.8)`;
+
       // Create a new image document in the database
       mongoResponse = new FeedbackImage({
         title: uploadResponse.title,
-        imageLink: uploadResponse.display_url,
+        imageUrl: uploadResponse.display_url,
+        bgColor: averageColor,
         reference: uploadResponse.id,
         platform: "imgbb",
         thumbnailUrl: uploadResponse.display_url,

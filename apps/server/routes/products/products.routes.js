@@ -3,16 +3,19 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const cheerio = require("cheerio");
 const slugify = require("slugify");
+
+const getImageColors = require("get-image-colors");
+
 const { Product, ProductVariant } = require("../../models/product.model");
 const Wishlist = require("../../models/wishlist.model");
-const getTokenDetails = require("../../helpter/getTokenDetails");
 const { isValidUrl } = require("../../utils/validator");
 const Order = require("../../models/order.model");
+const Cart = require("../../models/cart.model");
 
 const checkRole = require("../../middlewares");
+const getTokenDetails = require("../../helpter/getTokenDetails");
 
 const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
-const Cart = require("../../models/cart.model");
 
 const TAG = "products/route.js:--";
 
@@ -35,7 +38,11 @@ const checkProductHasError = ({
 
   const imageTest = /^https:\/\/i\.ibb\.co\//;
 
-  if (!imageTest.test(previewImage)) {
+  if (!previewImage) {
+    error.push("Preview Image Not Valid");
+  }
+
+  if (!imageTest.test(previewImage?.imageUrl)) {
     error.push("Preview Image does not have valid allowed url");
   }
 
@@ -117,7 +124,7 @@ const checkProductHasError = ({
       //   localError.push("Preview Image is not valid");
       // }
 
-      if (!imageTest.test(variant?.previewImage)) {
+      if (!imageTest.test(variant?.previewImage?.imageUrl)) {
         localError.push(
           "Variant +" + (index + 1) + ": " + "Preview Image is not valid",
         );
@@ -152,7 +159,7 @@ const checkProductHasError = ({
       if (!Array.isArray(variant?.slideImages)) {
         let isOk = true;
         for (let i = 0; i < variant?.slideImages.length; i++) {
-          isOk = isOk && imageTest.test(variant?.slideImages[i]);
+          isOk = isOk && imageTest.test(variant?.slideImages[i]?.imageUrl);
           if (!isOk) {
             localError.push("Slide Images does not have valid allowed url");
             break;
@@ -208,14 +215,18 @@ const checkUpdatedProductHasError = ({
 
   const imageTest = /^https:\/\/i\.ibb\.co\//;
 
-  if (!imageTest.test(previewImage)) {
+  if (!previewImage) {
+    error.push("Preview Image Not Valid");
+  }
+
+  if (!imageTest.test(previewImage?.imageUrl)) {
     error.push("Preview Image does not have valid allowed url");
   }
 
   if (!Array.isArray(slideImages)) {
     let isOk = true;
     for (let i = 0; i < slideImages.length; i++) {
-      isOk = isOk && imageTest.test(slideImages[i]);
+      isOk = isOk && imageTest.test(slideImages[i]?.imageUrl);
       if (!isOk) {
         error.push("Slide Images does not have valid allowed url");
         break;
@@ -299,7 +310,7 @@ const checkUpdatedProductHasError = ({
       //   localError.push("Preview Image is not valid");
       // }
 
-      if (!imageTest.test(variant?.previewImage)) {
+      if (!imageTest.test(variant?.previewImage?.imageUrl)) {
         localError.push(
           "Variant +" + (index + 1) + ": " + "Preview Image is not valid",
         );
@@ -334,7 +345,7 @@ const checkUpdatedProductHasError = ({
       if (!Array.isArray(variant?.slideImages)) {
         let isOk = true;
         for (let i = 0; i < variant?.slideImages.length; i++) {
-          isOk = isOk && imageTest.test(variant?.slideImages[i]);
+          isOk = isOk && imageTest.test(variant?.slideImages[i]?.imageUrl);
           if (!isOk) {
             localError.push("Slide Images does not have valid allowed url");
             break;
@@ -613,6 +624,14 @@ router.post("/", checkRole(1, 2), async (req, res) => {
     // Now we are going to save the product to our database
 
     console.log(productData);
+
+    const imageColors = await getImageColors(categoryData.imageUrl, {
+      count: 5,
+    });
+
+    const [first, second, third] = imageColors[0]._rgb;
+
+    const averageColor = `rgba(${first},${second},${third},0.8)`;
 
     // Create a new product document
     const newProduct = new Product({

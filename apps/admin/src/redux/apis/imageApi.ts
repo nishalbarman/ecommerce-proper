@@ -8,6 +8,7 @@ export interface ImageItem {
   title: string;
   thumbnailUrl: string;
   imageLink: string;
+  bgColor: string;
   deleteLink: string;
   reference: string;
   platform: string;
@@ -33,6 +34,7 @@ export interface FileLibraryListItem {
   src: string;
   imageLink: string;
   thumbnail?: string;
+  bgColor?: string;
   createdAt?: string;
   deleteLink?: string;
   mimeType?: string;
@@ -67,6 +69,7 @@ export const imageApi = createApi({
             src: image.imageLink,
             thumbnail: image.thumbnailUrl,
             imageLink: image.imageLink,
+            bgColor: image.bgColor,
             createdAt: image.createdAt,
             deleteLink: image.deleteLink,
             mimeType: "image/png", // Default based on imgbb
@@ -114,6 +117,7 @@ export const imageApi = createApi({
             size: 0,
             src: image.imageLink,
             imageLink: image.imageLink,
+            bgColor: image.bgColor,
             thumbnail: image.thumbnailUrl,
             createdAt: image.createdAt,
             deleteLink: image.deleteLink,

@@ -10,7 +10,10 @@ const productSchema = new mongoose.Schema(
   {
     slug: { type: String, unique: true, required: true },
 
-    previewImage: { type: String, required: true },
+    previewImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
     title: { type: String, required: true },
     category: {
       type: mongoose.Types.ObjectId,
@@ -18,7 +21,12 @@ const productSchema = new mongoose.Schema(
       // default: "65f6c9f882ba818ab0e43d64",
     },
     categorySlug: { type: String, required: true },
-    slideImages: { type: Array, required: true }, // images array
+    slideImages: [
+      {
+        imageUrl: { type: String, required: true },
+        bgColor: { type: String, required: true },
+      },
+    ], // images array
     description: { type: String, required: true },
 
     stars: { type: Number, default: 0 },
@@ -77,8 +85,16 @@ const productVariantSchema = new mongoose.Schema(
   {
     product: { type: mongoose.Types.ObjectId, ref: "products" },
 
-    previewImage: { type: String, required: true },
-    slideImages: { type: [String], required: true }, // images array
+    previewImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
+    slideImages: [
+      {
+        imageUrl: { type: String, required: true },
+        bgColor: { type: String, required: true },
+      },
+    ], // images array
 
     size: { type: String, required: true },
     color: { type: String, required: true },
@@ -110,7 +126,7 @@ const ProductVariant =
 /****************************************** */
 // ----------------------------------------->
 
-Product.schema.path("previewImage").validate({
+Product.schema.path("previewImage.imageUrl").validate({
   validator: (value) => !!value,
   // && isValidUrl(value)
   message: "Invalid Preview Image Url",

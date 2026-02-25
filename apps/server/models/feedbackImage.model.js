@@ -4,7 +4,8 @@ const feedbackImageSchema = new mongoose.Schema(
   {
     title: { type: String },
     thumbnailUrl: { type: String, required: true },
-    imageLink: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    bgColor: { type: String, required: true, default: null },
     reference: { type: String, required: false },
     platform: { type: String, required: true },
     uploadedBy: { type: String, required: true },

@@ -1,5 +1,6 @@
 const express = require("express");
 const imgbbUploader = require("imgbb-uploader");
+const getImageColors = require("get-image-colors");
 const Image = require("../../../models/image.model");
 
 const router = express.Router();
@@ -18,7 +19,7 @@ router.post("/upload", async (req, res) => {
     // Process the base64 string to prepare for upload
     const base64string = imageData.base64String.replace(
       /^data:image\/\w+;base64,/,
-      ""
+      "",
     );
 
     let uploadResponse;
@@ -37,16 +38,25 @@ router.post("/upload", async (req, res) => {
 
     let mongoResponse;
     if (uploadResponse) {
+      const imageColors = await getImageColors(uploadResponse.display_url, {
+        count: 5,
+      });
+
+      const [first, second, third] = imageColors[0]._rgb;
+
+      const averageColor = `rgba(${first},${second},${third},0.8)`;
+
       // Create a new image document in the database
       mongoResponse = await Image.create({
         title: uploadResponse.title,
         imageLink: uploadResponse.display_url,
+        bgColor: averageColor,
         reference: uploadResponse.id,
         platform: "imgbb",
         thumbnailUrl: uploadResponse.thumb.url || uploadResponse.display_url,
         deleteLink: uploadResponse.delete_url,
         // uploadedBy: req.jwt.user,
-        uploadedBy: "Test",
+        uploadedBy: req.jwt?.user || "Test",
       });
     }
 
@@ -72,4 +82,76 @@ router.post("/upload", async (req, res) => {
   }
 });
 
+router.get("/imageBackgroundSet", async (req, res) => {
+  try {
+    const images = await Image.find({bgColor: {$exists: false}}).lean(); // faster
+    console.log("Total images:", images.length);
+
+    const chunkSize = 10; // control load
+    const finalResults = [];
+
+    for (let i = 0; i < images.length; i += chunkSize) {
+      const chunk = images.slice(i, i + chunkSize);
+
+      const chunkResults = await Promise.all(
+        chunk.map(async (image) => {
+          try {
+            if (!image.imageLink) return null;
+
+            const imageColors = await getImageColors(image.imageLink, {
+              count: 5,
+            });
+
+            if (!imageColors || !imageColors[0]?._rgb) return null;
+
+            const [r, g, b] = imageColors[0]._rgb;
+
+            return {
+              _id: image._id,
+              color: `rgba(${r},${g},${b},0.8)`,
+            };
+          } catch (err) {
+            console.error("Image failed:", image._id, err.message);
+            return null; // ✅ safe skip
+          }
+        })
+      );
+
+      // filter valid results
+      const valid = chunkResults.filter(Boolean);
+      finalResults.push(...valid);
+    }
+
+    console.log("Processed:", finalResults.length);
+
+    // ✅ Avoid empty bulkWrite
+    if (finalResults.length === 0) {
+      return res.status(200).json({
+        status: true,
+        message: "No valid images to update",
+      });
+    }
+
+    const bulkOps = finalResults.map((item) => ({
+      updateOne: {
+        filter: { _id: item._id },
+        update: { $set: { bgColor: item.color } },
+      },
+    }));
+
+    const result = await Image.bulkWrite(bulkOps);
+
+    return res.status(200).json({
+      status: true,
+      matched: result.matchedCount,
+      modified: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Main Error:", error);
+    return res.status(500).json({
+      status: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
+});
 module.exports = router;
