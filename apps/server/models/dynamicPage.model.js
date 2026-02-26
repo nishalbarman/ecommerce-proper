@@ -6,10 +6,10 @@ const dynamicPageSchema = new mongoose.Schema(
     title: { type: String, required: true }, // Title of the page
     description: { type: String, required: true }, // Main content of the page
     shortDescription: { type: String }, // Short summary of the page
-    avatar: { type: String }, // URL for the avatar/image
-    cover: { type: String }, // URL for the cover image
+    avatar: { imageUrl: { type: String }, bgColor: { type: String } }, // URL for the avatar/image
+    cover: { imageUrl: { type: String }, bgColor: { type: String } }, // URL for the cover image
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const DynamicPage =

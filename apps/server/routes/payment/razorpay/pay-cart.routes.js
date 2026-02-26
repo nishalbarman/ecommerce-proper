@@ -14,6 +14,8 @@ const PaymentTransModel = require("../../../models/transaction.model");
 const generateUniqueId = require("../../../helpter/generateUniqueId");
 const OrderGroupModel = require("../../../models/orderGroup.model");
 const WebConfig = require("../../../models/webConfig.model");
+const calculateCart = require("../../../helpter/cart/calculateCart");
+const createOrderWithTransaction = require("../../../helpter/order/createOrder");
 
 const RAZORPAY_KEY = process.env.RAZORPAY_KEY;
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET;
@@ -55,119 +57,27 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-    let shippingPrice = 0;
 
     // TODO: Still NEED to handle out of stock products
 
-    const cartIds = [];
+   
 
-    const paymentObject = cartItemsForUser.reduce(
-      (pay, cartItem) => {
-        cartIds.push(cartItem._id);
+    const {
+      cartIds,
+      productNames,
+      MRP,
+      saleDiscountedPrice,
+      totalSaleDiscount,
+      shippingPrice,
+      shippingApplied,
+      couponDiscount,
+      finalOrderPrice,
+    } = await calculateCart({
+      cartItems: cartItemsForUser,
+      productType,
+      couponId: appliedCouponID,
+    });
 
-        let totalPrice; // price for one cart item
-        const Title = cartItem.product.title;
-
-        // if type is buy and product have variants (diffent color different size etc etc)
-        if (productType === "buy" && !!cartItem.variant) {
-          const Price = cartItem.variant.discountedPrice;
-          const Quantity = cartItem.quantity;
-          totalPrice = Price * Quantity;
-
-          // shippingPrice += cartItem.variant.shippingPrice;
-        }
-        // else if type is buy and product does not have variants (diffent color different size etc etc)
-        else if (productType === "buy" && !cartItem.variant) {
-          const Price = cartItem.product.discountedPrice;
-          const Quantity = cartItem.quantity;
-          totalPrice = Price * Quantity;
-
-          // shippingPrice += cartItem.product.shippingPrice;
-        }
-        // else if type is rent and product does not have variants (diffent color different size etc etc)
-        else if (productType === "rent" && !!cartItem.variant) {
-          const Price = cartItem.variant.rentingPrice;
-          const Quantity = cartItem.quantity;
-          const RentDays = cartItem.rentDays;
-          totalPrice = Price * Quantity * RentDays;
-
-          // shippingPrice += cartItem.variant.shippingPrice;
-        }
-        // else if type is rent and product does not have variants (diffent color different size etc etc)
-        else if (productType === "rent" && !cartItem.variant) {
-          const Price = cartItem.product.rentingPrice;
-          const Quantity = cartItem.quantity;
-          const RentDays = cartItem.rentDays;
-          totalPrice = Price * Quantity * RentDays;
-
-          // shippingPrice += cartItem.variant.shippingPrice;
-        }
-
-        return {
-          amount: pay.amount + totalPrice,
-          productinfo: [...pay.productinfo, Title],
-        };
-      },
-      { amount: 0, productinfo: [] },
-    );
-
-    const totalDiscountedPriceWithoutAnyCouponAndShipping =
-      paymentObject.amount;
-    let couponDiscountedPrice = 0;
-
-    let deliveryChargeDetails = await WebConfig.findOne()
-      .sort({ createdAt: -1 })
-      .select("deliveryPrice freeDeliveryAbove");
-    if (!deliveryChargeDetails) {
-      deliveryChargeDetails = { deliveryPrice: 100, freeDeliveryAbove: 0 };
-    }
-
-    console.log(deliveryChargeDetails)
-
-    const freeDeliveryAboveMinimumPurchase =
-      deliveryChargeDetails?.freeDeliveryAbove > 0;
-    const freeDeliveryMinimumAmount = deliveryChargeDetails?.freeDeliveryAbove;
-    let shippingApplied = !freeDeliveryAboveMinimumPurchase;
-
-    // console.log("What is the shipping price: ", shippingPrice);
-
-    if (
-      !(
-        freeDeliveryAboveMinimumPurchase &&
-        paymentObject.amount >= freeDeliveryMinimumAmount
-      )
-    ) {
-      paymentObject.amount += deliveryChargeDetails.deliveryPrice;
-      shippingApplied = true;
-    }
-
-    if (!!appliedCouponID) {
-      const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
-
-      console.log(
-        "What are the prices after coupon: ",
-        appliedCoupon,
-        paymentObject.amount,
-        appliedCoupon.minPurchasePrice,
-        paymentObject.amount > appliedCoupon.minPurchasePrice,
-      );
-      if (!!appliedCoupon) {
-        const discountedPrice = appliedCoupon?.isPercentage
-          ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
-          : paymentObject.amount > appliedCoupon.minPurchasePrice
-            ? appliedCoupon.off
-            : 0;
-
-        couponDiscountedPrice = discountedPrice;
-        paymentObject.amount -= discountedPrice;
-
-        console.log("What are the prices after coupon: ", discountedPrice);
-      }
-    }
-
-    paymentObject.amount *= 100; // gateway takes amount as paisa (1 rupee = 100 paisa)
-
-    const productNames = paymentObject.productinfo.join(", ");
 
     const addressDocument = await UserAddress.findById(address);
 
@@ -175,178 +85,62 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     // const paymentTxnId = uuidv4();
     // const orderGroupID = uuidv4();
-    const paymentTxnId = generateUniqueId("PT");
-    const orderGroupID = generateUniqueId("OD");
+    const paymentTxnId = generateUniqueId("pt");
+    const orderGroupID = generateUniqueId("od");
 
-    console.log("What is the payment final amount", +paymentObject.amount);
+    console.log("What is the payment final amount", +finalOrderPrice);
 
     // create one razor pay order with the amount
     const razorpayOrder = await razorpayInstance.orders.create({
-      amount: parseInt(paymentObject.amount),
+      amount: parseInt(finalOrderPrice * 100),
       currency: "INR",
       receipt: paymentTxnId,
       partial_payment: false,
       notes: {
         orderGroupID,
-        user: userDetails._id.toString(),
+        user: `${userDetails._id.toString()}, ${user.name.toString()}`,
+        phoneNumber: user.mobileNo.toString(),
+        email: user.email.toString(),
         address: address.toString(),
         cartProductIds: cartIds.join(","),
         productIds: cartItemsForUser.map((item) => item.product._id).join(","),
         description: productNames,
         paymentTxnId: paymentTxnId,
-        totalDiscountedPriceWithoutAnyCouponAndShipping:
-          totalDiscountedPriceWithoutAnyCouponAndShipping,
-        shippingPrice: shippingApplied ? shippingPrice : 0,
-        couponDiscountedPrice: couponDiscountedPrice,
+        MRP,
+        saleDiscountedPrice,
+        totalSaleDiscount,
+        shippingPrice,
+        shippingApplied,
+        couponDiscount,
+        finalOrderPrice,
       },
     });
 
     console.log(razorpayOrder);
 
-    let orderItemsWithOrderIDandPaymentId;
+     const orders = await createOrderWithTransaction({
+      cartItemsForUser,
 
-    if (productType === "buy") {
-      orderItemsWithOrderIDandPaymentId = cartItemsForUser.map((item) => {
-        const createdOrder = {
-          ...item,
+      userId: userDetails._id,
+      addressDocument,
 
-          product: item.product._id,
-          user: userDetails._id,
-
-          // order related
-          orderGroupID: orderGroupID,
-          // paymentTxnId: paymentIntent.id,
-          paymentTxnId: paymentTxnId,
-
-          // product details
-          title: item.product.title,
-
-          quantity: item.quantity,
-          orderType: "buy",
-
-          // address: {
-          //   address: {
-          //     // prefix: addressDocument?.prefix,
-          //     streetName: addressDocument.streetName,
-          //     locality: addressDocument.locality,
-          //     city: addressDocument.locality,
-          //     state: addressDocument.locality,
-          //     postalCode: addressDocument.postalCode,
-          //     country: addressDocument.country,
-          //   },
-          //   // location: [addressDocument.longitude, addressDocument.latitude],
-          // },
-          address: {
-            physicalAddress: addressDocument,
-          },
-          // center: centerAddresses[0]._id,
-          center: null,
-
-          orderStatus: "Pending",
-          paymentMode: "Prepaid",
-          shipmentType: "delivery_partner",
-        };
-
-        if (!!item.variant) {
-          createdOrder.previewImage = item.variant.previewImage;
-          createdOrder.price = item.variant.discountedPrice * item.quantity;
-          createdOrder.shippingPrice = +item.variant.shippingPrice;
-
-          createdOrder.color = item.variant.color;
-          createdOrder.size = item.variant.size;
-        } else {
-          createdOrder.previewImage = item.product.previewImage;
-          createdOrder.price = item.product.discountedPrice * item.quantity;
-          createdOrder.shippingPrice = +item.product.shippingPrice;
-
-          createdOrder.color = null;
-          createdOrder.size = null;
-        }
-
-        return createdOrder;
-      });
-    }
-
-    const orders = await Order.insertMany(orderItemsWithOrderIDandPaymentId);
-
-    await PaymentTransModel.create({
       orderGroupID,
-      // paymentTransactionID: paymentIntent.id,
-      paymentTransactionID: paymentTxnId,
-      user: userDetails._id,
-      order: orders.map((item) => item._id),
+      paymentTxnId,
 
-      paymentStatus: "Pending",
+      pricingDetails: {
+        MRP,
+        saleDiscountedPrice,
+        totalSaleDiscount,
+        shippingPrice,
+        shippingApplied,
+        couponDiscount,
+        finalOrderPrice,
+      },
 
-      shippingPrice: !!shippingApplied ? shippingPrice : 0,
-      subTotalPrice:
-        paymentObject.amount / 100 - (!!shippingApplied ? shippingPrice : 0),
-      totalPrice: paymentObject.amount / 100,
+      appliedCouponID,
+      orderType: "buy",
+      gateway: "Razorpay"
     });
-
-    // await OrderGroupModel.create({
-    //   orderGroupID,
-    //   // paymentTransactionID: paymentIntent.id,
-    //   paymentTransactionID: paymentTxnId,
-    //   user: userDetails._id,
-    //   order: orders.map((item) => item._id),
-
-    //   paymentStatus: "Pending",
-
-    //   originalPrice: paymentObject.amount / 100,
-    //   couponDiscountedPrice: { type: Number, default: 0 },
-    //   appliedCoupon: appliedCouponID,
-    //   discountedPrice:
-    //     paymentObject.amount / 100 - (!!shippingApplied ? shippingPrice : 0),
-    //   shippingPrice: !!shippingApplied ? shippingPrice : 0,
-
-    //   address: {
-    //     physicalAddress: addressDocument,
-    //     location: null,
-    //   },
-
-    //   orderType: { type: String, required: true, enums: ["buy", "rent"] },
-
-    //   // status related
-    //   orderStatus: {
-    //     type: String,
-    //     default: "On Hold",
-    //     enums: [
-    //       "On Hold",
-    //       "Pending",
-    //       "On Progress",
-    //       "Accepted",
-    //       "Rejected",
-    //       "Cancelled",
-    //       "On The Way",
-    //       "PickUp Ready",
-    //       "Delivered",
-    //     ],
-    //   },
-
-    //   paymentMode: {
-    //     type: String,
-    //     enums: ["Prepaid", "Cash On Delivery", "Cash On Pickup"],
-    //   },
-
-    //   paymentStatus: {
-    //     type: String,
-    //     default: "Pending",
-    //     enums: ["Success", "Failed", "Pending"],
-    //   },
-
-    //   shipmentType: {
-    //     type: String,
-    //     required: false,
-    //     enums: ["self_pickup", "delivery_partner"],
-    //     default: "self_pickup",
-    //   },
-
-    //   store: { type: mongoose.Types.ObjectId, required: false, default: null },
-
-    //   // tracking link for the order track
-    //   trackingLink: { type: String, default: "" },
-    // });
 
     return res.status(200).json({
       razorpayOrderId: razorpayOrder.id,

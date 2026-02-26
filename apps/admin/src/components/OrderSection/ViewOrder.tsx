@@ -2,7 +2,7 @@ import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
 import { useAppSelector } from "../../redux/index";
-import { OrderGroup, PaymentSummary } from "../../types";
+import { Image, OrderGroup, PaymentSummary } from "../../types";
 import stopSign from "../../assets/stop-sign.png";
 import cAxios from "../../axios/cutom-axios";
 
@@ -289,8 +289,9 @@ function ViewSingleOrder() {
 
                             <div className="p-4">
                               <div className="flex gap-4">
+                              <span>{JSON.stringify(order.previewImage)}</span>
                                 <img
-                                  src={order.previewImage}
+                                  src={(order.previewImage as Image)?.imageUrl}
                                   alt={order.title}
                                   className="w-40 h-40 object-cover rounded-md"
                                 />

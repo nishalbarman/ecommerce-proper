@@ -14,6 +14,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { redirect, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import Loading from "../../components/LoadingComponent/Loading";
+import { useGetOrderGroupListQuery } from "@/redux/apis/orderApi";
 
 export default function page() {
   const router = useRouter();
@@ -21,51 +22,30 @@ export default function page() {
 
   const token = useSelector((state) => state.auth.jwtToken);
 
-  const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [orders, setOrders] = useState([]);
+  // const [isLoading, setIsLoading] = useState(true);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [totalPages, setTotalPages] = useState(1);
+  // const [limit] = useState(10); // Items per page
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [limit] = useState(10); // Items per page
+  const limit = 10;
+
+  const { data, isLoading, error } = useGetOrderGroupListQuery({
+    productType,
+    page: currentPage - 1, // backend expects 0-based
+    limit,
+  });
+
+  // Extract data
+  const orders = data?.orders || [];
+  const totalPages = data?.pagination?.totalPage || 1;
 
   console.log(orders);
 
-  const fetchOrders = async (page = 1) => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/l/${productType}`,
-        {
-          params: {
-            page: page - 1, // Your API uses 0-based index
-            limit: limit,
-          },
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      setOrders(response.data.data);
-      setTotalPages(response.data.totalPage);
-      setCurrentPage(page);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      toast.error(error.response?.data?.message || "Failed to fetch orders");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (productType) {
-      fetchOrders();
-    }
-  }, [productType]);
-
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
-    fetchOrders(newPage);
+    setCurrentPage(newPage);
   };
 
   const formatDate = (dateString) => {
@@ -164,14 +144,46 @@ export default function page() {
                             orders.map((order) => (
                               <tr key={order._id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  <img
-                                    src={order.previewImage}
-                                    className="w-10 h-10 rounded-md object-cover"
-                                    alt={order?.title}
-                                  />
+                                  <div className="w-24 h-24">
+                                    <div className="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+                                      {order.previewImages
+                                        ?.slice(0, 4)
+                                        .map((item, index) => {
+                                          const totalImages =
+                                            order.previewImages.length;
+                                          const extraCount = totalImages - 4;
+
+                                          const isLastVisible = index === 3;
+                                          const showOverlay =
+                                            isLastVisible && extraCount > 0;
+
+                                          return (
+                                            <div
+                                              key={index}
+                                              className="relative w-full h-full">
+                                              <img
+                                                src={item.imageUrl}
+                                                className="w-full h-full object-cover rounded"
+                                              />
+
+                                              {showOverlay && (
+                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
+                                                  <span className="text-white text-xs font-bold">
+                                                    +{extraCount}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                    </div>
+                                  </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  <p className="">{order.orderGroupID || order._id}</p>
+                                  <p className="">
+                                    {order.orderGroupID?.toUpperCase() ||
+                                      order._id}
+                                  </p>
                                   <span
                                     className={`min-md:hidden mt-2 min-md:block px-2 inline-flex text-[13px] leading-5 font-semibold rounded-full ${getStatusColor(
                                       order.orderStatus,
@@ -186,7 +198,10 @@ export default function page() {
                                   {order.orderType}
                                 </td> */}
                                 <td className="max-lg:hidden px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  ₹{order.price?.toFixed(2) || "0.00"}
+                                  ₹
+                                  {order.pricingDetails?.groupFinalOrderPrice?.toFixed(
+                                    2,
+                                  ) || "0.00"}
                                 </td>
                                 <td className="max-md:hidden px-6 py-4 whitespace-nowrap">
                                   <span
@@ -200,7 +215,7 @@ export default function page() {
                                   <button
                                     onClick={() =>
                                       router.push(
-                                        `/myorders/view/${order.paymentTxnId}`,
+                                        `/myorders/view/${order.orderGroupID}`,
                                       )
                                     }
                                     className="text-primary hover:text-red-500 cursor-pointer">

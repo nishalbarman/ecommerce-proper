@@ -7,17 +7,26 @@ const orderGroupSchema = new mongoose.Schema(
 
     user: { type: mongoose.Types.ObjectId, ref: "users" },
 
-    orders: { type: mongoose.Types.ObjectId, ref: "orders" },
+    previewImages: [{ imageUrl: { type: String }, bgColor: { type: String } }],
 
-    originalPrice: { type: Number, required: true },
-    couponDiscountedPrice: { type: Number, default: 0 },
+    orders: [{ type: mongoose.Types.ObjectId, ref: "orders" }],
+
+    pricingDetails: {
+      groupOriginalPrice: { type: Number, default: 0 },
+      groupDiscountedPrice: { type: Number, default: 0 },
+      groupSaleDiscount: { type: Number, default: 0 },
+      couponDiscountGiven: { type: Number, default: 0 },
+      shippingPrice: { type: Number, default: 0 },
+      groupFinalOrderPrice: { type: Number, default: 0 },
+    },
+
     appliedCoupon: {
       type: mongoose.Types.ObjectId,
       required: false,
       ref: "coupons",
     },
-    discountedPrice: { type: Number, default: 0 },
-    shippingPrice: { type: Number, default: 0 },
+
+    shippingApplied: { type: Boolean, default: false },
 
     address: {
       physicalAddress: {
@@ -47,6 +56,7 @@ const orderGroupSchema = new mongoose.Schema(
         "Pending",
         "On Progress",
         "Accepted",
+        "Processing",
         "Rejected",
         "Cancelled",
         "On The Way",
@@ -70,7 +80,7 @@ const orderGroupSchema = new mongoose.Schema(
       type: String,
       required: false,
       enums: ["self_pickup", "delivery_partner"],
-      default: "self_pickup",
+      default: "delivery_partner",
     },
 
     store: { type: mongoose.Types.ObjectId, required: false, default: null },
@@ -80,7 +90,7 @@ const orderGroupSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 orderGroupSchema.index({ "$**": "text" });

@@ -37,7 +37,7 @@ function WishlistItem({
     _id: productId,
     previewImage,
     title,
-    category: { categoryName, categoryKey } = {},
+    category: { categoryName, categoryKey, slug } = {},
     description,
     stars,
     totalFeedbacks,
@@ -125,7 +125,9 @@ function WishlistItem({
   return (
     <div className="w-full group/product_item">
       {/* Image Section */}
-      <div className="relative md:max-h-[300px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)]">
+      <div style={{
+        backgroundColor: previewImage?.bgColor,
+      }} className={`relative md:max-h-[300px] aspect-square rounded-lg overflow-hidden bg-[${previewImage?.bgColor}]`}>
         {!!originalPrice && (
           <div className="z-[999] absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[#DB4444] flex items-center justify-center max-sm:p-1 p-1.5">
             <span className="text-white text-sm max-sm:text-[12px] font-medium">
@@ -165,8 +167,8 @@ function WishlistItem({
 
         {/* Product Image */}
         <img
-          className="absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg"
-          src={previewImage}
+          className="absolute inset-0 object-contain w-full h-full rounded-lg"
+          src={previewImage?.imageUrl}
           alt={title}
         />
       </div>
@@ -194,7 +196,7 @@ function WishlistItem({
           </button>
         </div>
 
-        <div className="w-full max-md:shadow rounded py-2 max-sm:pt-1 px-2">
+        <div className="w-full rounded py-2 max-sm:pt-1 px-2">
           <Link href={`/products/view/${productId}`} className="block group">
             <h3 className="text-lg max-md:text-lg max-sm:text-base font-semibold line-clamp-2 transition-colors duration-200">
               {title}

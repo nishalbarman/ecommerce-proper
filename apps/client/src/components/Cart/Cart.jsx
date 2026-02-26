@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -32,7 +38,7 @@ function Cart() {
   const { useGetCartQuery } = CartApi;
   const { useGetWishlistQuery } = WishlistApi;
   const { updateAppliedCoupon } = AppliedCouponSlice;
-  const { useGetAddressQuery } = AddressApi;
+  const { useGetAddressQuery, useGetDefaultAddressQuery } = AddressApi;
 
   const {
     data: {
@@ -53,22 +59,28 @@ function Cart() {
 
   const [gatewayOption, setGatewayOption] = useState(null);
 
-  const handleGatewayOptionChange = (gatewayOption)=>{
+  const handleGatewayOptionChange = (gatewayOption) => {
     dispatch(setSelectedPaymentMethod(gatewayOption));
     setGatewayOption(gatewayOption);
-  }
+  };
 
   useEffect(() => {
-      if (!gatewayOption && paymentGatewayList?.length > 0) {
-        handleGatewayOptionChange(paymentGatewayList[0].code);
-      }
-    }, [paymentGatewayList]);
+    if (!gatewayOption && paymentGatewayList?.length > 0) {
+      handleGatewayOptionChange(paymentGatewayList[0].code);
+    }
+  }, [paymentGatewayList]);
 
   const {
     data: addresses,
     isLoading: isAddressFetchLoading,
     refetch: refetchAddress,
   } = useGetAddressQuery();
+
+  const {
+    data: defaultAddress,
+    isLoading: isRefetchLoading,
+    refetch: refetchDefaultAddress,
+  } = useGetDefaultAddressQuery();
 
   const [removeALlCart] = useRemoveAllCartMutation();
 
@@ -325,9 +337,12 @@ function Cart() {
     }
   }, [userCartItems, appliedCoupon]);
 
-  const selectedDefaultAddress = useSelector(
-    (state) => state.addressSlice?.selectedAddress,
-  );
+  const selectedDefaultAddress =
+    useSelector((state) => state.userAddress?.selectedAddress) ||
+    defaultAddress?.id ||
+    null;
+
+  console.log("selectedDefaultAddress", selectedDefaultAddress);
 
   const [selectedAddress, setSelectedAddress] = useState(
     selectedDefaultAddress || null,
@@ -749,6 +764,12 @@ function Cart() {
   //   }
   // }, [userCartItems, appliedCoupon]);
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  const selectedAddressData = useMemo(() => {
+    return addresses?.data?.find((addr) => addr._id === selectedAddress);
+  }, [addresses, selectedAddress]);
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Empty Cart State */}
@@ -810,7 +831,7 @@ function Cart() {
             </div>
 
             {/* Delivery Details Section */}
-            <div className="w-full ">
+            {/* <div className="w-full ">
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">
@@ -823,13 +844,13 @@ function Cart() {
                     <div className="h-24 bg-gray-200 rounded-lg"></div>
                     <div className="h-24 bg-gray-200 rounded-lg"></div>
                   </div>
-                ) : addresses?.length > 0 ? (
+                ) : addresses?.data??.length > 0 ? (
                   <div className="space-y-6">
                     <h3 className="text-lg font-medium text-gray-800">
                       Select Delivery Address
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {addresses.map((address) => (
+                      {addresses?.data?.map((address) => (
                         <div
                           key={address._id}
                           onClick={() =>
@@ -885,7 +906,7 @@ function Cart() {
                       </svg>
                     </div>
                     <p className="text-gray-600 mb-4">
-                      No saved addresses found
+                      No saved addresses?.data? found
                     </p>
                   </div>
                 )}
@@ -922,122 +943,140 @@ function Cart() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Order Summary Section */}
           <div className="lg:col-span-1">
             <div className="w-full">
-              <div className="hidden bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white rounded-xl shadow-sm p-6 transition-all mb-5">
+                {/* HEADER */}
+                <div className="flex items-center justify-between mb-4 cursor-pointer">
                   <h2 className="text-2xl font-bold text-gray-900">
                     Delivery Details
                   </h2>
-                  {/* <span className="text-sm text-gray-500">Step 1 of 2</span> */}
+
+                  <button
+                    onClick={() => setIsOpen((prev) => !prev)}
+                    className="text-sm text-primary font-medium cursor-pointer">
+                    {isOpen ? "Hide" : "Change"}
+                  </button>
                 </div>
 
-                {isAddressFetchLoading ? (
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-24 bg-gray-200 rounded-lg"></div>
-                    <div className="h-24 bg-gray-200 rounded-lg"></div>
-                  </div>
-                ) : addresses?.length > 0 ? (
-                  <div className="space-y-6">
-                    <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2">
-                      Select Delivery Address
+                {/* COLLAPSED VIEW */}
+                {!isOpen && selectedAddressData && (
+                  <>
+                    <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                      Selected Address
                     </h3>
-                    <div className="grid grid-cols-1 lg:grid-cols-1 md:grid-cols-2 gap-4">
-                      {addresses.map((address) => (
-                        <div
-                          key={address._id}
-                          onClick={() =>
-                            handleSelectedAddressChange(address._id)
-                          }
-                          className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
-                            selectedAddress === address._id
-                              ? "border-red-500 bg-red-50 shadow-sm"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}>
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-medium text-gray-900">
-                              {address.fullName}
-                            </h4>
-                            {selectedAddress === address._id && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                Selected
-                              </span>
-                            )}
-                          </div>
-                          <div className="mt-2 space-y-1 text-gray-600">
-                            <p>{address.streetName}</p>
+                    <div
+                      onClick={() => setIsOpen((prev) => !prev)}
+                      className="flex justify-between gap-3 border border-red-500 rounded-xl p-4 bg-red-50">
+                      <div className="flex gap-3">
+                        <input type="radio" defaultChecked={true} />
+                        <div>
+                          <h4 className="font-medium text-gray-900">
+                            {selectedAddressData.fullName}
+                          </h4>
+                          <div className="mt-1 text-sm text-gray-600">
+                            <p>{selectedAddressData.streetName}</p>
                             <p>
-                              {address.city}, {address.state} -{" "}
-                              {address.postalCode}
+                              {selectedAddressData.city},{" "}
+                              {selectedAddressData.state} -{" "}
+                              {selectedAddressData.postalCode}
                             </p>
-                            <p>Phone: {address.phone}</p>
+                            <p>Phone: {selectedAddressData.phone}</p>
                           </div>
                         </div>
-                      ))}
+                      </div>
+
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded h-fit">
+                        Selected
+                      </span>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                      <svg
-                        className="h-12 w-12 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-gray-600 mb-4">
-                      No saved addresses found
-                    </p>
-                  </div>
+                  </>
                 )}
 
-                <button
-                  onClick={() => setIsAddingAddress(true)}
-                  className="mt-6 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:border-gray-400 hover:text-gray-800 transition-colors cursor-pointer">
-                  <div className="flex items-center justify-center gap-2">
-                    <svg
-                      className="h-5 w-5 text-gray-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                    Add New Address
-                  </div>
-                </button>
+                {/* EXPANDED VIEW */}
+                {(isOpen || !selectedAddress) && (
+                  <>
+                    {isAddressFetchLoading ? (
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-24 bg-gray-200 rounded-lg"></div>
+                        <div className="h-24 bg-gray-200 rounded-lg"></div>
+                      </div>
+                    ) : addresses?.data?.length > 0 ? (
+                      <div className="space-y-6">
+                        <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                          Select Delivery Address
+                        </h3>
 
-                {isAddingAddress && (
-                  <div className="mt-6">
-                    <AddressForm
-                      onSuccess={() => {
-                        setIsAddingAddress(false);
-                        refetch();
-                      }}
-                      onCancel={() => setIsAddingAddress(false)}
-                    />
-                  </div>
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                          {addresses?.data?.map((address) => (
+                            <div
+                              key={address._id}
+                              onClick={() => {
+                                handleSelectedAddressChange(address._id);
+                                setIsOpen(false); // collapse after select
+                              }}
+                              className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
+                                selectedAddress === address._id
+                                  ? "border-red-500 bg-red-50 shadow-sm"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}>
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-medium text-gray-900">
+                                  {address.fullName}
+                                </h4>
+
+                                {selectedAddress === address._id && (
+                                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="mt-2 text-gray-600">
+                                <p>{address.streetName}</p>
+                                <p>
+                                  {address.city}, {address.state} -{" "}
+                                  {address.postalCode}
+                                </p>
+                                <p>Phone: {address.phone}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">
+                          No saved addresses found
+                        </p>
+                      </div>
+                    )}
+
+                    {/* ADD ADDRESS BUTTON */}
+                    <button
+                      onClick={() => setIsAddingAddress(true)}
+                      className="mt-6 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:border-gray-400 hover:text-gray-800 transition-colors cursor-pointer">
+                      + Add New Address
+                    </button>
+
+                    {/* ADDRESS FORM */}
+                    {isAddingAddress && (
+                      <div className="mt-6">
+                        <AddressForm
+                          onSuccess={() => {
+                            setIsAddingAddress(false);
+                            refetchAddress();
+                            refetchDefaultAddress();
+                          }}
+                          onCancel={() => setIsAddingAddress(false)}
+                        />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -1068,7 +1107,9 @@ function Cart() {
                             name="payment"
                             value={gateway.code}
                             checked={gatewayOption === gateway.code}
-                            onChange={(e) => handleGatewayOptionChange(e.target.value)}
+                            onChange={(e) =>
+                              handleGatewayOptionChange(e.target.value)
+                            }
                           />
 
                           <div>

@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { CartApi, AddressApi, WishlistApi, CartSlice } from "@/redux";
@@ -36,21 +36,49 @@ import {
 import { set } from "mongoose";
 import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
 import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
+import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
 
 export default function CheckoutPage() {
   const router = useRouter();
 
   const token = useSelector((state) => state.auth.jwtToken);
 
+  const dispatch = useDispatch();
+
   const { updateCart } = CartSlice;
-  const { useGetAddressQuery } = AddressApi;
+  const { useGetAddressQuery, useGetDefaultAddressQuery } = AddressApi;
+
+  const { data: addresses, isLoading: isAddressRTKLoading, refetch: refetchAddressRTK } = useGetAddressQuery();
+
+  const {
+    data: defaultAddress,
+    isLoading: isRefetchLoading,
+    refetch: refetchDefaultAddress,
+  } = useGetDefaultAddressQuery();
+
+  const selectedDefaultAddress =
+    useSelector((state) => state.userAddress?.selectedAddress) ||
+    defaultAddress?.id ||
+    null;
+
+  const [selectedAddress, setSelectedAddress] = useState(
+    selectedDefaultAddress || null,
+  );
+
+  const handleSelectedAddressChange = (address) => {
+    setSelectedAddress(address);
+    dispatch(setUserSelectedAddress(address));
+  };
+
+  const selectedAddressData = useMemo(() => {
+    return addresses?.data?.find((addr) => addr._id === selectedAddress);
+  }, [addresses, selectedAddress]);
   // const { useGetCartQuery, useRemoveAllCartMutation } = CartApi;
   // const { useGetWishlistQuery } = WishlistApi;
 
   const [productData, setProductData] = useState(null);
 
-  const { data: addresses, isLoading, refetch } = useGetAddressQuery();
-  const [selectedAddress, setSelectedAddress] = useState(null);
+  // const [selectedAddress, setSelectedAddress] = useState(null);
   const [isAddingAddress, setIsAddingAddress] = useState(false);
 
   const searchParams = useSearchParams();
@@ -110,7 +138,6 @@ export default function CheckoutPage() {
 
   const pathname = usePathname();
 
-  const dispatch = useDispatch();
   const navigation = useRouter();
 
   const transactionLoadingRef = useRef();
@@ -648,15 +675,23 @@ export default function CheckoutPage() {
   //   getPaymentGateways();
   // }, []);
 
-  console.log(
-    "Buy single",
-    productData,
-    shippingPricing,
-    isLoading,
-    isPricingReady,
-  );
+  // console.log(
+  //   "Buy single",
+  //   productData,
+  //   shippingPricing,
+  //   isLoading,
+  //   isPricingReady,
+  // );
 
-  if (!productData || !shippingPricing || isLoading || !isPricingReady || isPaymentGatewayLoading) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (
+    !productData ||
+    !shippingPricing ||
+    isAddressRTKLoading ||
+    !isPricingReady ||
+    isPaymentGatewayLoading
+  ) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 animate-pulse">
         <div className="container mx-auto px-4">
@@ -768,7 +803,7 @@ export default function CheckoutPage() {
                     {/* <Link href={`/products/view/${product?._id}`}> */}
                     <img
                       className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300"
-                      src={productData?.previewImage}
+                      src={productData?.previewImage?.imageUrl}
                       alt={productData?.title || productData?.product?.title}
                     />
                     {/* </Link> */}
@@ -854,113 +889,137 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Delivery Details
-                </h2>
-                {/* <span className="text-sm text-gray-500">Step 1 of 2</span> */}
-              </div>
+            <div className="w-full">
+              <div className="bg-white rounded-xl shadow-sm p-6 transition-all mb-5">
+                {/* HEADER */}
+                <div className="flex items-center justify-between mb-4 cursor-pointer">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Delivery Details
+                  </h2>
 
-              {isLoading ? (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-24 bg-gray-200 rounded-lg"></div>
-                  <div className="h-24 bg-gray-200 rounded-lg"></div>
+                  <button
+                    onClick={() => setIsOpen((prev) => !prev)}
+                    className="text-sm text-primary font-medium cursor-pointer">
+                    {isOpen ? "Hide" : "Change"}
+                  </button>
                 </div>
-              ) : addresses?.length > 0 ? (
-                <div className="space-y-6">
-                  <h3 className="text-md font-medium text-gray-800">
-                    Select Delivery Address
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {addresses.map((address) => (
-                      <div
-                        key={address._id}
-                        onClick={() => setSelectedAddress(address._id)}
-                        className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
-                          selectedAddress === address._id
-                            ? "border-red-500 bg-red-50 shadow-sm"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}>
-                        <div className="flex justify-between items-start">
+
+                {/* COLLAPSED VIEW */}
+                {!isOpen && selectedAddressData && (
+                  <>
+                    <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                      Selected Address
+                    </h3>
+                    <div
+                      onClick={() => setIsOpen((prev) => !prev)}
+                      className="flex justify-between gap-3 border border-red-500 rounded-xl p-4 bg-red-50 cursor-pointer">
+                      <div className="flex gap-3">
+                        <input type="radio" defaultChecked={true} />
+                        <div>
                           <h4 className="font-medium text-gray-900">
-                            {address.fullName}
+                            {selectedAddressData.fullName}
                           </h4>
-                          {selectedAddress === address._id && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              Selected
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-2 space-y-1 text-gray-600">
-                          <p>{address.streetName}</p>
-                          <p>
-                            {address.city}, {address.state} -{" "}
-                            {address.postalCode}
-                          </p>
-                          <p>Phone: {address.phone}</p>
+                          <div className="mt-1 text-sm text-gray-600">
+                            <p>{selectedAddressData.streetName}</p>
+                            <p>
+                              {selectedAddressData.city},{" "}
+                              {selectedAddressData.state} -{" "}
+                              {selectedAddressData.postalCode}
+                            </p>
+                            <p>Phone: {selectedAddressData.phone}</p>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="mx-auto h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <svg
-                      className="h-12 w-12 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1}
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-gray-600 mb-4">No saved addresses found</p>
-                </div>
-              )}
 
-              <button
-                onClick={() => setIsAddingAddress(true)}
-                className="mt-6 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:border-gray-400 hover:text-gray-800 transition-colors cursor-pointer">
-                <div className="flex items-center justify-center gap-2">
-                  <svg
-                    className="h-5 w-5 text-gray-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    />
-                  </svg>
-                  Add New Address
-                </div>
-              </button>
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded h-fit">
+                        Selected
+                      </span>
+                    </div>
+                  </>
+                )}
 
-              {isAddingAddress && (
-                <div className="mt-6">
-                  <AddressForm
-                    onSuccess={() => {
-                      setIsAddingAddress(false);
-                      refetch();
-                    }}
-                    onCancel={() => setIsAddingAddress(false)}
-                  />
-                </div>
-              )}
+                {/* EXPANDED VIEW */}
+                {(isOpen || !selectedAddress) && (
+                  <>
+                    {isAddressRTKLoading ? (
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-24 bg-gray-200 rounded-lg"></div>
+                        <div className="h-24 bg-gray-200 rounded-lg"></div>
+                      </div>
+                    ) : addresses?.data?.length > 0 ? (
+                      <div className="space-y-6">
+                        <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                          Select Delivery Address
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                          {addresses?.data?.map((address) => (
+                            <div
+                              key={address._id}
+                              onClick={() => {
+                                handleSelectedAddressChange(address._id);
+                                setIsOpen(false); // collapse after select
+                              }}
+                              className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
+                                selectedAddress === address._id
+                                  ? "border-red-500 bg-red-50 shadow-sm"
+                                  : "border-gray-200 hover:border-gray-300"
+                              }`}>
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-medium text-gray-900">
+                                  {address.fullName}
+                                </h4>
+
+                                {selectedAddress === address._id && (
+                                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="mt-2 text-gray-600">
+                                <p>{address.streetName}</p>
+                                <p>
+                                  {address.city}, {address.state} -{" "}
+                                  {address.postalCode}
+                                </p>
+                                <p>Phone: {address.phone}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">
+                          No saved addresses found
+                        </p>
+                      </div>
+                    )}
+
+                    {/* ADD ADDRESS BUTTON */}
+                    <button
+                      onClick={() => setIsAddingAddress(true)}
+                      className="mt-6 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:border-gray-400 hover:text-gray-800 transition-colors cursor-pointer">
+                      + Add New Address
+                    </button>
+
+                    {/* ADDRESS FORM */}
+                    {isAddingAddress && (
+                      <div className="mt-6">
+                        <AddressForm
+                          onSuccess={() => {
+                            setIsAddingAddress(false);
+                            refetchAddressRTK();
+                            refetchDefaultAddress();
+                          }}
+                          onCancel={() => setIsAddingAddress(false)}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
 

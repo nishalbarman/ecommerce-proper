@@ -28,7 +28,7 @@ function CartItem({ item }) {
   const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
 
   const wishlistMappedItems = useSelector(
-    (state) => state.wishlistSlice.wishlists
+    (state) => state.wishlistSlice.wishlists,
   );
 
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ function CartItem({ item }) {
   const handleAddToWishlist = (e) => {
     e.stopPropagation();
     if (!token) return toast.success("You need to be logged in first.");
-    
+
     if (wishlistMappedItems?.hasOwnProperty(product?._id)) {
       deleteOneCartItem({ id: cartProductId });
     } else {
@@ -93,7 +93,7 @@ function CartItem({ item }) {
       setLoadingVariants(true);
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${product?._id}`,
-        { method: "POST" }
+        { method: "POST" },
       );
       const data = await response.json();
       setAvailableVariants(data.product?.productVariant || []);
@@ -130,12 +130,17 @@ function CartItem({ item }) {
       <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
         <div className="flex flex-col md:flex-row p-4 gap-4">
           {/* Product Image */}
-          <div className="w-full md:w-32 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
+          <div
+            style={{
+              backgroundColor: selectedVariant?.previewImage?.bgColor ||product?.previewImage?.bgColor,
+            }}
+            className="w-full md:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
             <Link href={`/products/view/${product?._id}`}>
               <img
-                className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300"
-                src={product?.previewImage}
+                className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
+                src={selectedVariant?.previewImage?.imageUrl || product?.previewImage?.imageUrl}
                 alt={product?.title}
+                draggable={false}
               />
             </Link>
           </div>
@@ -145,14 +150,12 @@ function CartItem({ item }) {
             <div className="flex justify-between items-start">
               <Link
                 href={`/products/view/${product?._id}`}
-                className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors"
-              >
+                className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors">
                 {product?.title}
               </Link>
               <button
                 onClick={handleRemoveFromCart}
-                className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer"
-              >
+                className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer">
                 <IoIosClose size={24} />
               </button>
             </div>
@@ -179,11 +182,15 @@ function CartItem({ item }) {
               <div className="mt-2 flex flex-wrap gap-2">
                 <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
                   <span className="text-gray-600">Size:</span>
-                  <span className="font-medium ml-1">{selectedVariant.size}</span>
+                  <span className="font-medium ml-1">
+                    {selectedVariant.size}
+                  </span>
                 </div>
                 <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
                   <span className="text-gray-600">Color:</span>
-                  <span className="font-medium ml-1">{selectedVariant.color}</span>
+                  <span className="font-medium ml-1">
+                    {selectedVariant.color}
+                  </span>
                 </div>
               </div>
             )}
@@ -192,9 +199,10 @@ function CartItem({ item }) {
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {product?.isVariantAvailable && (
                 <button
-                  onClick={() => variantModalRef.current?.classList.remove("hidden")}
-                  className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm cursor-pointer h-full"
-                >
+                  onClick={() =>
+                    variantModalRef.current?.classList.remove("hidden")
+                  }
+                  className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm cursor-pointer h-full">
                   Change option
                   <FiChevronDown size={16} />
                 </button>
@@ -202,10 +210,11 @@ function CartItem({ item }) {
 
               <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                 <button
-                  onClick={() => handleQuantityChange(Math.max(1, productQuantity - 1))}
+                  onClick={() =>
+                    handleQuantityChange(Math.max(1, productQuantity - 1))
+                  }
                   className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
-                  disabled={productQuantity <= 1}
-                >
+                  disabled={productQuantity <= 1}>
                   -
                 </button>
                 <span className="px-4 py-2 text-center min-w-[40px]">
@@ -213,19 +222,21 @@ function CartItem({ item }) {
                 </span>
                 <button
                   onClick={() => handleQuantityChange(productQuantity + 1)}
-                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
-                >
+                  className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed">
                   +
                 </button>
               </div>
 
               <button
                 onClick={handleAddToWishlist}
-                className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer"
-              >
+                className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer">
                 <FiHeart
                   size={16}
-                  className={wishlistMappedItems?.hasOwnProperty(product?._id) ? "fill-pink-500 text-pink-500" : ""}
+                  className={
+                    wishlistMappedItems?.hasOwnProperty(product?._id)
+                      ? "fill-pink-500 text-pink-500"
+                      : ""
+                  }
                 />
                 Move to wishlist
               </button>
@@ -245,17 +256,15 @@ function CartItem({ item }) {
       <div
         ref={variantModalRef}
         onClick={() => variantModalRef.current?.classList.add("hidden")}
-        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm bg-opacity-50 z-50 flex items-center justify-center p-4"
-      >
+        className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto"
-        >
+          className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[80vh] overflow-y-auto">
           <div className="p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Select Option
             </h3>
-            
+
             {loadingVariants ? (
               <div className="flex justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
@@ -270,15 +279,16 @@ function CartItem({ item }) {
                       selectedVariant?._id === variant._id
                         ? "border-red-500 bg-red-50"
                         : "border-gray-200 hover:bg-gray-50"
-                    }`}
-                  >
+                    }`}>
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium">
-                          Size: <span className="font-semibold">{variant.size}</span>
+                          Size:{" "}
+                          <span className="font-semibold">{variant.size}</span>
                         </p>
                         <p className="text-gray-600">
-                          Color: <span className="font-semibold">{variant.color}</span>
+                          Color:{" "}
+                          <span className="font-semibold">{variant.color}</span>
                         </p>
                       </div>
                       {selectedVariant?._id === variant._id && (
@@ -288,14 +298,12 @@ function CartItem({ item }) {
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
+                            xmlns="http://www.w3.org/2000/svg">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               strokeWidth="2"
-                              d="M5 13l4 4L19 7"
-                            ></path>
+                              d="M5 13l4 4L19 7"></path>
                           </svg>
                         </div>
                       )}
@@ -304,14 +312,15 @@ function CartItem({ item }) {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4">No options available</p>
+              <p className="text-gray-500 text-center py-4">
+                No options available
+              </p>
             )}
-            
+
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => variantModalRef.current?.classList.add("hidden")}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              >
+                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                 Close
               </button>
             </div>

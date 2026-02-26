@@ -7,6 +7,7 @@ const { default: mongoose } = require("mongoose");
 const checkRole = require("../../middlewares");
 const shipRocketLogin = require("../../helpter/shipRocketLogin");
 const PaymentTransModel = require("../../models/transaction.model");
+const OrderGroup = require("../../models/orderGroup.model");
 
 //! ORDER LISTING ROUTE FOR ADMIN AND CENTER
 // Update the /list route to support payment status filtering
@@ -134,8 +135,73 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
     const orderDetails = await Order.aggregate(pipeline);
 
     return res.json(
-      orderDetails[0] || { globalTotalDocumentCount: 0, groupedOrders: [] }
+      orderDetails[0] || { globalTotalDocumentCount: 0, groupedOrders: [] },
     );
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error!",
+    });
+  }
+});
+
+router.get("/list-group/:productType", checkRole(0, 1, 2), async (req, res) => {
+  try {
+    const searchQuery = req.query;
+
+    const PAGE = +searchQuery.page || 0;
+    const LIMIT = +searchQuery.limit || 20;
+    const SKIP = +PAGE * LIMIT;
+
+    const orderStatus = searchQuery?.orderStatus;
+    const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+
+    if (!req.user._id) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const filterQuery = {
+      orderGroupID: { $exists: true, $ne: null },
+      user: req.user._id,
+    };
+
+    // Add payment status filter if provided
+    if (paymentStatus && paymentStatus !== "all") {
+      filterQuery.paymentStatus = paymentStatus;
+    }
+
+    if (orderStatus && orderStatus !== "all") {
+      filterQuery.orderStatus = orderStatus;
+    }
+
+    const totalItems = await OrderGroup.countDocuments(filterQuery);
+
+    const orderDetails = await OrderGroup.find(filterQuery)
+      .populate("orders")
+      .sort({ createdAt: "desc" })
+      .skip(SKIP)
+      .limit(LIMIT);
+
+    const totalPages = Math.ceil(totalItems / LIMIT);
+
+    const pagination = {
+      totalItems,
+      totalPages,
+      currentPage: PAGE + 1,
+      limit: LIMIT,
+
+      hasNextPage: PAGE + 1 < totalPages,
+      hasPrevPage: PAGE + 1 > 1,
+
+      nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
+      prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
+    };
+
+    return res.json({ data: orderDetails, pagination });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -250,23 +316,73 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 });
 
 //! Order details for normal user, orders can be viewed with the transaction id
-router.get("/view/:paymentTransactionId", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const paymentTransactionId = req.params?.paymentTransactionId;
+router.get(
+  "/view/:paymentTransactionId",
+  checkRole(0, 1, 2),
+  async (req, res) => {
+    try {
+      const paymentTransactionId = req.params?.paymentTransactionId;
 
-    const orderDetails = await PaymentTransModel.findOne({
-      paymentTransactionID: paymentTransactionId,
-    }).populate("order");
+      const orderDetails = await PaymentTransModel.findOne({
+        paymentTransactionID: paymentTransactionId,
+      }).populate("orders");
 
-    return res.json({ orderDetails });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
+      return res.json({ orderDetails });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
+    }
+  },
+);
+
+//! Order details for normal user, orders can be viewed with the transaction id
+router.get(
+  "/view-orders/:orderGroupId",
+  checkRole(0, 1, 2),
+  async (req, res) => {
+    try {
+      const orderGroupId = req.params?.orderGroupId;
+
+      const orderDetails = await Order.find({
+        orderGroupID: orderGroupId,
+      });
+
+      return res.json({ data: orderDetails });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
+    }
+  },
+);
+
+//! Order details for normal user, orders can be viewed with the transaction id
+router.get(
+  "/view-group-order/:orderGroupId",
+  checkRole(0, 1, 2),
+  async (req, res) => {
+    try {
+      const orderGroupId = req.params?.orderGroupId;
+
+      const orderGroup = await OrderGroup.findOne({
+        orderGroupID: orderGroupId,
+      });
+
+      return res.json({ data: orderGroup });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
+    }
+  },
+);
 
 //! ORDER LISTING ROUTE FOR NORMAL USERS
 router.get("/l/:productType", checkRole(0, 1, 2), async (req, res) => {
@@ -457,7 +573,7 @@ router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
     const order = await Order.findOneAndUpdate(
       orderFilter,
       { $set: { orderStatus: "Cancelled" } },
-      { new: true }
+      { new: true },
     );
 
     if (!order) {
@@ -576,7 +692,7 @@ router.get("/get-order-chart-data", checkRole(1), async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({

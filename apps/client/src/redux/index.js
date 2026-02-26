@@ -12,6 +12,8 @@ export * as WishlistSlice from "./slices/wishlistSlice";
 export * as CartSlice from "./slices/cartSlice";
 export * as AppliedCouponSlice from "./slices/appliedCouponSlice";
 export * as loginModalSlice from "./slices/loginModalSlice";
+export * as selectedPaymentMethodSlice from "./slices/selectedPaymentMethod";
+
 
 // Export all APIs with namespace
 export * as AddressApi from "./apis/addressApi";
@@ -26,7 +28,7 @@ export * as ReviewApi from "./apis/reviewApi";
 // export * as CouponApi from "./apis/couponApi";
 // export * as OrderApi from "./apis/orderApi";
 export * as pgApi from "./apis/paymentGatewayApi";
-export * as selectedPaymentMethodSlice from "./slices/selectedPaymentMethod";
+export * as OrderApi from "./apis/orderApi"
 
 // Export store normally
 export * from "./store";

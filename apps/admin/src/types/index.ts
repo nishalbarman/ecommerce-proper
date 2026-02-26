@@ -68,7 +68,7 @@ export type OrderGroup = {
   createdAt: string;
   orderGroupID: string;
   orderType: string;
-  images: Image[];
+  images?: Image[] | null;
   paymentStatus: string;
   orders: Order[];
   paymentTransactionId: string;
@@ -227,8 +227,8 @@ export interface DynamicPage {
   title: string;
   description: string;
   shortDescription: string;
-  avatar: Image;
-  cover: Image;
+  avatar: Image | null;
+  cover: Image | null;
   slug: string;
   [key: string]: any;
 }

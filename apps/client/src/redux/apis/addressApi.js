@@ -20,7 +20,7 @@ export const addressApi = createApi({
         method: "GET",
       }),
       providesTags: ["Address"],
-      transformResponse: (response, meta) => response.data,
+      // transformResponse: (response, meta) => response.data,
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
 
@@ -52,6 +52,15 @@ export const addressApi = createApi({
       invalidatesTags: ["Address"],
       // transformErrorResponse: (response, meta, arg) => response.message,
     }),
+
+    getDefaultAddress: builder.query({
+      query: () => ({
+        url: `address/get-default-address`,
+        method: "GET",
+      }),
+      invalidatesTags: ["Address"],
+      // transformResponse: (response, meta) => response.data,
+    }),
   }),
 });
 
@@ -60,4 +69,5 @@ export const {
   useAddAddressMutation,
   useUpdateAddressMutation,
   useDeleteAddressMutation,
+  useGetDefaultAddressQuery,
 } = addressApi;

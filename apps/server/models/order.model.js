@@ -10,17 +10,24 @@ const orderSchema = new mongoose.Schema(
 
     product: { type: mongoose.Types.ObjectId, ref: "products" },
 
-    previewImage: { type: String },
+    previewImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
     title: { type: String, required: true },
 
     // pricing
-    price: { type: Number, required: true },
-    shippingPrice: { type: Number, default: 0 },
+    // price: { type: Number, required: true },
+    // shippingPrice: { type: Number, default: 0 },
 
     // variant related info
     color: { type: String, required: false },
     size: { type: String, required: false },
     quantity: { type: Number, default: null },
+
+    originalPrice: { type: Number, required: true },
+    discountedPrice: { type: Number, required: true },
+
 
     address: {
       physicalAddress: {
@@ -50,9 +57,10 @@ const orderSchema = new mongoose.Schema(
         "Pending",
         "On Progress",
         "Accepted",
+        "Processing",
         "Rejected",
         "Cancelled",
-        "On The Way",
+        "Shipped",
         "PickUp Ready",
         "Delivered",
       ],
@@ -73,7 +81,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: false,
       enums: ["self_pickup", "delivery_partner"],
-      default: "self_pickup",
+      default: "delivery_partner",
     },
 
     // renting related
@@ -90,7 +98,7 @@ const orderSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 orderSchema.index({ "$**": "text" });
@@ -102,7 +110,7 @@ const orderListSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Order = mongoose.models.orders || mongoose.model("orders", orderSchema);

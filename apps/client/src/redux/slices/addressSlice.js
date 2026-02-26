@@ -10,7 +10,6 @@ export const addressSlice = createSlice({
   reducers: {
     setUserSelectedAddress: (state, { payload }) => {
       state.selectedAddress = payload;
-      
     },
     clearAddressData: () => {
       return initialState;
@@ -18,4 +17,5 @@ export const addressSlice = createSlice({
   },
 });
 
-export const { setUserSelectedAddress, clearAddressData } = addressSlice.actions;
+export const { setUserSelectedAddress, clearAddressData } =
+  addressSlice.actions;

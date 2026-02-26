@@ -36,6 +36,16 @@ router.get("/", checkRole(0, 1, 2), async (req, res) => {
 
 router.post("/", checkRole(0, 1, 2), async (req, res) => {
   try {
+    const fullName = req.body?.fullName;
+    const phone = req.body?.phone;
+    const streetName = req.body?.streetName;
+    const city = req.body?.city;
+    const state = req.body?.state;
+    const postalCode = req.body?.postalCode;
+    const landmark = req.body?.landmark;
+    const country = req.body?.country;
+    const isDefault = req.body?.isDefault;
+
     const userDetails = req.user;
 
     const oldAddressCount = await UserAddress.countDocuments({
@@ -51,9 +61,24 @@ router.post("/", checkRole(0, 1, 2), async (req, res) => {
 
     const newAddress = new UserAddress({
       user: userDetails._id,
-      ...req.body,
+      fullName,
+      phone,
+      streetName,
+      city,
+      state,
+      postalCode,
+      landmark,
+      country,
     });
     await newAddress.save();
+
+    if (isDefault) {
+      await User.findByIdAndUpdate(userDetails._id, {
+        $set: {
+          defaultAddress: newAddress._id,
+        },
+      });
+    }
 
     return res.json({
       message: "Address added.",
@@ -79,15 +104,16 @@ router.get("/get-default-address", checkRole(0, 1, 2), async (req, res) => {
   try {
     const userDetails = req.user;
 
-    const user = await User.findOneById(userDetails._id)
-      .sort({ createdAt: "desc" })
-      .select("defaultAddress");
+    const user = await User.findOne({ _id: userDetails._id }).populate(
+      "defaultAddress",
+    );
+    console.log("User Default Address", user);
 
     return res.json({
-      defaultAddress: user?.defaultAddress,
+      defaultAddress: user?.defaultAddress || null,
     });
   } catch (error) {
-    console.log(error);
+    console.log("default address error", error);
     return res.status(500).json({
       message: "Internal server error!",
     });
@@ -165,7 +191,7 @@ router.patch("/:address_item_id", checkRole(0, 1, 2), async (req, res) => {
       },
       {
         $set: req.body,
-      }
+      },
     );
 
     if (!address) {

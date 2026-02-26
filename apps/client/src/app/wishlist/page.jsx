@@ -69,11 +69,11 @@ export default function Page() {
                       ({wishlistData?.length})
                     </span>
                   </h1>
-                  <button
+                  {/* <button
                     // onClick={handleMoveAllToCart}
                     className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
                     Move to Cart
-                  </button>
+                  </button> */}
                 </div>
               )}
 

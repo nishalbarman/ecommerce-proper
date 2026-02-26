@@ -19,8 +19,8 @@ const DynamicPageAdd = () => {
     title: "",
     description: "",
     shortDescription: "",
-    avatar: "",
-    cover: "",
+    avatar: null,
+    cover: null,
     slug: "",
   });
 
@@ -37,7 +37,7 @@ const DynamicPageAdd = () => {
   const [isDynamicPagesLoading, setIsDynamicPagesLoading] = useState(true);
 
   const [deleteDynamicPageId, setDeleteDynamicPageId] = useState<string | null>(
-    null
+    null,
   );
   const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
 
@@ -55,7 +55,7 @@ const DynamicPageAdd = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       setDynamicPageList(response.data?.dynamicPages);
       setTotalPages(response.data?.totalPages);
@@ -101,14 +101,14 @@ const DynamicPageAdd = () => {
             headers: {
               Authorization: `Bearer ${jwtToken}`,
             },
-          }
+          },
         );
         toast.success(response?.data?.message);
       } else {
         // Add new dynamic page
         const response = await cAxios.post(
           `${process.env.VITE_APP_API_URL}/dynamic-pages`,
-          { dynamicPageData }
+          { dynamicPageData },
         );
         toast.success(response?.data?.message);
       }
@@ -141,7 +141,7 @@ const DynamicPageAdd = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       toast.success(response?.data?.message);
       setDeleteDynamicPageId(null);
@@ -276,7 +276,7 @@ const DynamicPageAdd = () => {
                     <AssetPicker
                       htmlFor="avatar"
                       fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>
+                        imageItems: Array<FileLibraryListItem>,
                       ) => {
                         setDynamicPageData({
                           ...dynamicPageData,
@@ -289,7 +289,7 @@ const DynamicPageAdd = () => {
                       {dynamicPageData.avatar ? (
                         <img
                           className="w-full h-full aspect-square object-contain"
-                          src={dynamicPageData.avatar}
+                          src={dynamicPageData.avatar?.imageUrl}
                         />
                       ) : (
                         <img
@@ -308,7 +308,7 @@ const DynamicPageAdd = () => {
                     <AssetPicker
                       htmlFor="cover"
                       fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>
+                        imageItems: Array<FileLibraryListItem>,
                       ) => {
                         setDynamicPageData({
                           ...dynamicPageData,
@@ -321,7 +321,7 @@ const DynamicPageAdd = () => {
                       {dynamicPageData.cover ? (
                         <img
                           className="w-full h-full aspect-square object-contain"
-                          src={dynamicPageData.cover}
+                          src={dynamicPageData.cover?.imageUrl}
                         />
                       ) : (
                         <img
@@ -352,8 +352,8 @@ const DynamicPageAdd = () => {
                         title: "",
                         description: "",
                         shortDescription: "",
-                        avatar: "",
-                        cover: "",
+                        avatar: null,
+                        cover: null,
                         slug: "",
                       });
                       setUpdateDynamicPageId(undefined);
@@ -421,8 +421,14 @@ const DynamicPageAdd = () => {
                                   title: item.title,
                                   description: item.description,
                                   shortDescription: item.shortDescription,
-                                  avatar: item.avatar,
-                                  cover: item.cover,
+                                  avatar: {
+                                    imageUrl: item.imageUrl,
+                                    bgColor: item.bgColor,
+                                  },
+                                  cover: {
+                                    imageUrl: item.imageUrl,
+                                    bgColor: item.bgColor,
+                                  },
                                   slug: item.slug,
                                 });
                                 setUpdateDynamicPageId(item._id);
@@ -460,7 +466,7 @@ const DynamicPageAdd = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, totalPages)
+                          Math.min(prev + 1, totalPages),
                         )
                       }
                       disabled={paginationPage === totalPages}
