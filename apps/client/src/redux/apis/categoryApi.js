@@ -18,7 +18,13 @@ export const categoryApi = createApi({
         method: "GET",
       }),
     }),
+    getOneCategory: builder.query({
+      query: (categorySlug) => ({
+        url: `categories/view/${categorySlug}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetAllCategoryQuery } = categoryApi;
+export const { useGetAllCategoryQuery, useGetOneCategoryQuery } = categoryApi;

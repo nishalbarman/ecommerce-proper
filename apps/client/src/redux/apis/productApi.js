@@ -31,7 +31,18 @@ export const productApi = createApi({
       // Cache behavior
       keepUnusedDataFor: 60, // Keep unused data for 60 seconds
     }),
+
+    getOneProduct: builder.query({
+      query: ({ productSlug }) => ({
+        url: `products/view/${productSlug}`,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: { productType: "buy" }, // or send data if needed
+      }),
+    }),
   }),
 });
 
-export const { useGetProductsQuery } = productApi;
+export const { useGetProductsQuery, useGetOneProductQuery } = productApi;

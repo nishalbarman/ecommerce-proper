@@ -43,7 +43,7 @@ function ReviewSection({ product, hasUserBoughtThisProduct }) {
       <div className="md:col-span-2 mb-10 mt-5">
         {/* <div className="bg-white p-6 rounded-lg shadow-md w-full"> */}
         {/* <h3 className="text-lg font-semibold mb-4">Customer Re  views</h3> */}
-        <ReviewList productId={product._id} />
+        <ReviewList productId={product?._id} />
         {/* </div> */}
       </div>
     </section>

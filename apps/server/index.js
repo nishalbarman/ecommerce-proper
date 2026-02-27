@@ -11,15 +11,15 @@ const dbConnect = require("./config/dbConfig");
 
 // dbConnect(); // connect to databse
 
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minutes
-  // limit: 3600, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
-  limit: 240, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
-  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  // store: ... , // Redis, Memcached, etc. See below.
-  message: { message: "Take a break dear, you are sending too much requests." },
-});
+// const limiter = rateLimit({
+//   windowMs: 1 * 60 * 1000, // 1 minutes
+//   // limit: 3600, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
+//   limit: 240, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
+//   standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+//   // store: ... , // Redis, Memcached, etc. See below.
+//   message: { message: "Take a break dear, you are sending too much requests." },
+// });
 
 const allowedOrigins = {
   "http://localhost:5000": true,
@@ -85,7 +85,7 @@ app.use(async (req, res, next) => {
 // }
 
 app.use(cookieParser());
-app.use(limiter);
+// app.use(limiter);
 
 // payment hooks
 /!* these route need raw json data so thats why placing it before experss.json() *!/;

@@ -3,9 +3,18 @@
 import { notFound, useParams } from "next/navigation";
 
 import ReviewSection from "@/components/ReviewSection/ReviewSection";
-import { useActionState, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Swiper, SwiperSlide } from "swiper/react";
+
+// const Swiper = dynamic(() => import("swiper/react").then((mod) => mod.Swiper), {
+//   ssr: false,
+// });
+
+// const SwiperSlide = dynamic(
+//   () => import("swiper/react").then((mod) => mod.SwiperSlide),
+//   { ssr: false },
+// );
+
 import { Navigation, Pagination, Thumbs } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -14,38 +23,35 @@ import "swiper/css/thumbs";
 import "@/styles/swiper-style.css";
 import "@/styles/view-product.css";
 import RateStar from "@/components/RatingStart";
-import checkStock from "@/actions/product/checkStock";
 import ReviewStats from "@/components/ReviewForm/ReviewStats";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { CartApi } from "@/redux";
-import axiosInstance from "@/services/axiosInstance";
-import Loading from "@/app/cart/loading";
+
 import axios from "axios";
 import { setLoginModalState } from "@/redux/slices/loginModalSlice";
-import { IoCartOutline } from "react-icons/io5";
-import { CiShoppingCart } from "react-icons/ci";
 
-export default function ViewProduct({ params }) {
+import { useGetOneProductQuery } from "@/redux/apis/productApi";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+export default function ViewOneProductClient({ initialProductData }) {
   // const cookie = await cookies();
   const navigate = useRouter();
 
-  const { productId } = useParams();
+  console.log("Initial Product Data", initialProductData);
 
-  console.log("Am I geting the productId", productId);
+  const { productSlug } = useParams();
 
   const token = useSelector((state) => state.auth.jwtToken);
 
   const { useAddOneToCartMutation } = CartApi;
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasUserBoughtThisProduct, setHasUserBoughtThisProduct] =
-    useState(false);
-  const [product, setProduct] = useState({});
-
   const [availableColors, setAvailableColors] = useState([]);
   const [availableSizes, setAvailableSizes] = useState([]);
   const [validCombinations, setValidCombinations] = useState([]);
+  const [validCombinationsMap, setValidCombinationsMap] = useState(new Map());
+
+  console.log("What are validCombinationsMap", validCombinationsMap);
 
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -56,45 +62,58 @@ export default function ViewProduct({ params }) {
   const [combinationExists, setCombinationExists] = useState(true);
   const [error, setError] = useState(null);
 
-  // Ref to the form element
-  const formRef = useRef(null);
-
   const [quantity, setQuantity] = useState(1);
   const [rentDays, setRentDays] = useState(1);
   const [inCart, setInCart] = useState(false);
   const [isAddToCartLoading, setIsAddToCartLoading] = useState(false);
   const [productVariants, setProductVariants] = useState([]);
 
-  const fetchProductDetails = async () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const {
+    data,
+    isLoading: isGetOneProductLoading,
+    error: getOneProductRtkError,
+    isSuccess: isProductRtkFetchSuccess,
+  } = useGetOneProductQuery(
+    { productSlug: productSlug },
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data: result.data || initialProductData,
+      }),
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const product = data?.product;
+  const hasUserBoughtThisProduct = data?.hasUserBoughtThisProduct;
+
+  const generateProductVariant = useCallback(async () => {
     try {
-      setIsLoading(true);
-      const responseData = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const variants = product?.productVariant || [];
 
-      console.log("Response Data of Product", responseData);
+      if (!variants.length) {
+        return;
+      }
 
-      const product = responseData.data.product;
-      const hasUserBoughtThisProduct =
-        responseData.data.hasUserBoughtThisProduct;
-      const variants = product.productVariant || [];
       setProductVariants(variants);
 
       // Extract sizes and colors from variants
       const sizes = new Set();
       const colors = new Set();
       const combinations = new Set();
+      const combinationsMap = new Map();
 
       variants.forEach((variant) => {
         sizes.add(variant.size);
         colors.add(variant.color);
         combinations.add(`${variant.size}-${variant.color}`);
+        combinationsMap.set(`${variant.size}-${variant.color}`, variant);
       });
 
       const availableSizes = Array.from(sizes);
@@ -104,8 +123,7 @@ export default function ViewProduct({ params }) {
       setAvailableColors(availableColors);
       setAvailableSizes(availableSizes);
       setValidCombinations(validCombinations);
-      setProduct(product);
-      setHasUserBoughtThisProduct(hasUserBoughtThisProduct);
+      setValidCombinationsMap(combinationsMap);
 
       // Set default selected size and color
       let selectedSize = "";
@@ -117,73 +135,81 @@ export default function ViewProduct({ params }) {
       setSelectedColor(selectedColor);
       setSelectedSize(selectedSize);
     } catch (error) {
-      console.error("Error fetching product details:", error);
-      toast.error("Failed to load product details");
+      console.error("Error variant handling:", error);
+      toast.error("Product variant handling failed");
       notFound();
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [product]);
 
   useEffect(() => {
-    fetchProductDetails();
-  }, []);
+    (() => {
+      if (isProductRtkFetchSuccess) {
+        generateProductVariant();
+      }
+    })();
+  }, [isProductRtkFetchSuccess]);
 
   // Client-side variant selection handler
-  const handleVariantSelection = async (size, color) => {
-    try {
-      if (!product.isVariantAvailable) {
+  const handleVariantSelection = useCallback(
+    async (size, color) => {
+      try {
+        if (!product?.isVariantAvailable) {
+          return {
+            matchedVariant: null,
+            inStock: true,
+            combinationExists: true,
+          };
+        }
+
+        // Find the matched variant based on size and color
+        // const matchedVariant = productVariants.find(
+        //   (variant) => variant.size === size && variant.color === color,
+        // );
+        console.log("Trying to find variant for Size:", `${size}-${color}`);
+
+        const matchedVariant = validCombinationsMap.get(`${size}-${color}`);
+
+        if (!matchedVariant) {
+          return {
+            matchedVariant: null,
+            inStock: false,
+            combinationExists: false,
+          };
+        }
+
+        // Check stock availability for the matched variant
+        const stockResponse = await axios.post(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productSlug}`,
+          { variant: matchedVariant._id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
         return {
-          matchedVariant: null,
-          inStock: true,
+          matchedVariant,
+          inStock: stockResponse.data.inStock,
           combinationExists: true,
         };
-      }
-
-      // Find the matched variant based on size and color
-      const matchedVariant = productVariants.find(
-        (variant) => variant.size === size && variant.color === color,
-      );
-
-      if (!matchedVariant) {
+      } catch (error) {
+        console.error("Error in variant selection:", error);
+        setError("Failed to select variant. Please try again.");
         return {
           matchedVariant: null,
           inStock: false,
           combinationExists: false,
         };
       }
-
-      // Check stock availability for the matched variant
-      const stockResponse = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
-        { variant: matchedVariant._id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      return {
-        matchedVariant,
-        inStock: stockResponse.data.inStock,
-        combinationExists: true,
-      };
-    } catch (error) {
-      console.error("Error in variant selection:", error);
-      setError("Failed to select variant. Please try again.");
-      return {
-        matchedVariant: null,
-        inStock: false,
-        combinationExists: false,
-      };
-    }
-  };
+    },
+    [validCombinationsMap, product, productSlug, token],
+  );
 
   // Update variant selection effect
   useEffect(() => {
     const updateVariantSelection = async () => {
-      if (product.isVariantAvailable && selectedSize && selectedColor) {
+      if (product?.isVariantAvailable && selectedSize && selectedColor) {
         const result = await handleVariantSelection(
           selectedSize,
           selectedColor,
@@ -191,12 +217,13 @@ export default function ViewProduct({ params }) {
         setFilteredVariant(result.matchedVariant);
         setInStock(result.inStock);
         setCombinationExists(result.combinationExists);
-      } else if (!product.isVariantAvailable) {
+      } else if (!product?.isVariantAvailable) {
         // For individual products without variants
         const stockResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productSlug}`,
           { variant: null },
           {
+            withCredentials: true,
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -208,34 +235,33 @@ export default function ViewProduct({ params }) {
     };
 
     updateVariantSelection();
-  }, [selectedSize, selectedColor, product.isVariantAvailable, productId]);
+  }, [selectedSize, selectedColor, product, productSlug]);
 
-  useEffect(() => {
-    if (!product.isVariantAvailable) {
-      (async () => {
-        console.log(
-          "Checking Product Stock",
-          "Calling checkStock",
-          product._id,
-        );
-        const res = await checkStock(product._id);
-        setInStock(res.inStock);
-      })();
-    }
-  }, [product]);
+  // useEffect(() => {
+  //   if (!product?.isVariantAvailable) {
+  //     (async () => {
+  //       console.log(
+  //         "Checking Product Stock",
+  //         "Calling checkStock",
+  //         product?._id,
+  //       );
+  //       const res = await checkStock(product?._id);
+  //       setInStock(res.inStock);
+  //     })();
+  //   }
+  // }, [product]);
 
-  const isCombinationValid = (size, color) => {
-    return validCombinations.has(`${size}-${color}`);
-  };
+  const isCombinationValid = useCallback(
+    (size, color) => {
+      return validCombinations.has(`${size}-${color}`);
+    },
+    [validCombinations],
+  );
 
-  const checkCartStatus = async (productId, variantId) => {
-    console.log("Checking cart status for:", {
-      productId,
-      variantId,
-    });
+  const checkCartStatus = useCallback(async (productSlug, variantId) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/incart/${productId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/incart/${productSlug}`,
         {
           method: "POST",
           headers: {
@@ -255,12 +281,11 @@ export default function ViewProduct({ params }) {
       console.error("Error checking cart status:", error);
       return false;
     }
-  };
+  }, []);
 
   useEffect(() => {
-    console.log("filterd variant:", product, filteredVariant);
     (async () => {
-      const inCart = await checkCartStatus(product._id, filteredVariant?._id);
+      const inCart = await checkCartStatus(product?._id, filteredVariant?._id);
       setInCart(inCart);
     })();
   }, [filteredVariant, product]);
@@ -284,16 +309,16 @@ export default function ViewProduct({ params }) {
       setIsAddToCartLoading(true);
 
       const cartObject = {
-        productId: product._id,
+        productSlug: product?._id,
         quantity,
-        productType: product.productType,
+        productType: product?.productType,
       };
 
-      if (product.isVariantAvailable && filteredVariant) {
+      if (product?.isVariantAvailable && filteredVariant) {
         cartObject.variant = filteredVariant._id;
       }
 
-      if (product.type === "rent") {
+      if (product?.type === "rent") {
         cartObject.rentDays = rentDays;
       }
 
@@ -334,159 +359,176 @@ export default function ViewProduct({ params }) {
     setIsBying(true);
 
     const queryParams = new URLSearchParams();
-    queryParams.set("productId", product._id);
+    queryParams.set("productSlug", product?._id);
     queryParams.set("quantity", quantity.toString());
-    queryParams.set("productType", product.type || "buy");
+    queryParams.set("productType", product?.type || "buy");
 
     if (filteredVariant?._id) {
       queryParams.set("productVariantId", filteredVariant._id);
     }
-    // if (product.type === "rent") {
+    // if (product?.type === "rent") {
     //   queryParams.set("rentDays", rentDays.toString());
     // }
 
     navigate.push(`/buy-single?${queryParams.toString()}`);
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <div className="container mx-auto mt-13 max-md:mt-2">
-          <div className="w-full p-4 min-h-[100vh] bg-white rounded-md">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-pulse">
-              {/* LEFT SIDE */}
-              <div className="lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
-                {/* Category */}
-                <div className="h-4 w-32 bg-gray-200 rounded mb-4" />
+  const images = (() => {
+    if (filteredVariant) {
+      return [
+        filteredVariant.previewImage,
+        ...(filteredVariant.slideImages || []),
+      ].filter(Boolean);
+    }
 
-                {/* Main Image */}
-                <div className="w-full h-[400px] max-md:h-[320px] bg-gray-200 rounded-lg mb-4" />
+    if (product) {
+      return [product?.previewImage, ...(product?.slideImages || [])].filter(
+        Boolean,
+      );
+    }
 
-                {/* Thumbnails */}
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4].map((_, i) => (
-                    <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg" />
-                  ))}
-                </div>
+    return [];
+  })();
 
-                {/* Review stats */}
-                <div className="mt-6 space-y-2">
-                  <div className="h-4 w-40 bg-gray-200 rounded" />
-                  <div className="h-4 w-24 bg-gray-200 rounded" />
-                </div>
-              </div>
+  // if (isGetOneProductLoading) {
+  //   return (
+  //     <>
+  //       <div className="container mx-auto mt-13 max-md:mt-2">
+  //         <div className="w-full p-4 min-h-[100vh] bg-white rounded-md">
+  //           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-pulse">
+  //             {/* LEFT SIDE */}
+  //             <div className="lg:sticky lg:top-20 lg:h-[calc(100vh-5rem)]">
+  //               {/* Category */}
+  //               <div className="h-4 w-32 bg-gray-200 rounded mb-4" />
 
-              {/* RIGHT SIDE */}
-              <div className="md:pl-8 max-sm:pt-8 md:border-l border-gray-200">
-                {/* Stock */}
-                <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
+  //               {/* Main Image */}
+  //               <div className="w-full h-[400px] max-md:h-[320px] bg-gray-200 rounded-lg mb-4" />
 
-                {/* Title */}
-                <div className="h-8 w-3/4 bg-gray-200 rounded mb-4" />
+  //               {/* Thumbnails */}
+  //               <div className="flex gap-2">
+  //                 {[1, 2, 3, 4].map((_, i) => (
+  //                   <div key={i} className="w-20 h-20 bg-gray-200 rounded-lg" />
+  //                 ))}
+  //               </div>
 
-                {/* Rating */}
-                <div className="h-5 w-32 bg-gray-200 rounded mb-6" />
+  //               {/* Review stats */}
+  //               <div className="mt-6 space-y-2">
+  //                 <div className="h-4 w-40 bg-gray-200 rounded" />
+  //                 <div className="h-4 w-24 bg-gray-200 rounded" />
+  //               </div>
+  //             </div>
 
-                {/* Pricing */}
-                <div className="bg-gray-50 p-6 rounded-lg mb-6 space-y-3">
-                  <div className="h-4 w-20 bg-gray-200 rounded" />
-                  <div className="h-8 w-40 bg-gray-200 rounded" />
-                  <div className="h-4 w-24 bg-gray-200 rounded" />
-                </div>
+  //             {/* RIGHT SIDE */}
+  //             <div className="md:pl-8 max-sm:pt-8 md:border-l border-gray-200">
+  //               {/* Stock */}
+  //               <div className="h-4 w-24 bg-gray-200 rounded mb-3" />
 
-                {/* Variants */}
-                <div className="hidden border-none p-4 rounded-md mb-6 space-y-4">
-                  <div className="h-4 w-32 bg-gray-200 rounded" />
+  //               {/* Title */}
+  //               <div className="h-8 w-3/4 bg-gray-200 rounded mb-4" />
 
-                  {/* Size */}
-                  <div className="flex gap-2 flex-wrap">
-                    {[1, 2, 3, 4].map((_, i) => (
-                      <div key={i} className="h-10 w-16 bg-gray-200 rounded" />
-                    ))}
-                  </div>
+  //               {/* Rating */}
+  //               <div className="h-5 w-32 bg-gray-200 rounded mb-6" />
 
-                  {/* Color */}
-                  <div className="flex gap-2 flex-wrap">
-                    {[1, 2, 3].map((_, i) => (
-                      <div key={i} className="h-10 w-20 bg-gray-200 rounded" />
-                    ))}
-                  </div>
-                </div>
+  //               {/* Pricing */}
+  //               <div className="bg-gray-50 p-6 rounded-lg mb-6 space-y-3">
+  //                 <div className="h-4 w-20 bg-gray-200 rounded" />
+  //                 <div className="h-8 w-40 bg-gray-200 rounded" />
+  //                 <div className="h-4 w-24 bg-gray-200 rounded" />
+  //               </div>
 
-                {/* Quantity */}
-                <div className="bg-gray-50 p-6 rounded-lg mb-6">
-                  <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
-                  <div className="h-10 w-32 bg-gray-200 rounded" />
-                </div>
+  //               {/* Variants */}
+  //               <div className="hidden border-none p-4 rounded-md mb-6 space-y-4">
+  //                 <div className="h-4 w-32 bg-gray-200 rounded" />
 
-                {/* Buttons */}
-                <div className="flex gap-4 mb-12">
-                  <div className="h-12 w-40 bg-gray-200 rounded-lg" />
-                  <div className="h-12 w-40 bg-gray-200 rounded-lg" />
-                </div>
+  //                 {/* Size */}
+  //                 <div className="flex gap-2 flex-wrap">
+  //                   {[1, 2, 3, 4].map((_, i) => (
+  //                     <div key={i} className="h-10 w-16 bg-gray-200 rounded" />
+  //                   ))}
+  //                 </div>
 
-                {/* Description */}
-                <div className="space-y-3">
-                  <div className="h-4 w-full bg-gray-200 rounded" />
-                  <div className="h-4 w-5/6 bg-gray-200 rounded" />
-                  <div className="h-4 w-4/6 bg-gray-200 rounded" />
-                </div>
-              </div>
-            </div>
-          </div>
+  //                 {/* Color */}
+  //                 <div className="flex gap-2 flex-wrap">
+  //                   {[1, 2, 3].map((_, i) => (
+  //                     <div key={i} className="h-10 w-20 bg-gray-200 rounded" />
+  //                   ))}
+  //                 </div>
+  //               </div>
 
-          {/* Review Section Skeleton */}
-          <div className="mb-10 space-y-4 animate-pulse">
-            <div className="h-6 w-40 bg-gray-200 rounded" />
-            {[1, 2].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white p-6 rounded-2xl shadow border border-gray-100">
-                <div className="flex items-start gap-4">
-                  {/* Avatar */}
-                  <div className="w-12 h-12 rounded-full bg-gray-200"></div>
+  //               {/* Quantity */}
+  //               <div className="bg-gray-50 p-6 rounded-lg mb-6">
+  //                 <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
+  //                 <div className="h-10 w-32 bg-gray-200 rounded" />
+  //               </div>
 
-                  <div className="flex-1">
-                    {/* Name + Date */}
-                    <div className="flex justify-between mb-3">
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 bg-gray-200 rounded"></div>
-                        <div className="flex gap-1">
-                          {[...Array(5)].map((_, j) => (
-                            <div
-                              key={j}
-                              className="w-4 h-4 bg-gray-200 rounded"></div>
-                          ))}
-                        </div>
-                      </div>
+  //               {/* Buttons */}
+  //               <div className="flex gap-4 mb-12">
+  //                 <div className="h-12 w-40 bg-gray-200 rounded-lg" />
+  //                 <div className="h-12 w-40 bg-gray-200 rounded-lg" />
+  //               </div>
 
-                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                    </div>
+  //               {/* Description */}
+  //               <div className="space-y-3">
+  //                 <div className="h-4 w-full bg-gray-200 rounded" />
+  //                 <div className="h-4 w-5/6 bg-gray-200 rounded" />
+  //                 <div className="h-4 w-4/6 bg-gray-200 rounded" />
+  //               </div>
+  //             </div>
+  //           </div>
+  //         </div>
 
-                    {/* Description */}
-                    <div className="space-y-2 mb-4">
-                      <div className="h-3 w-full bg-gray-200 rounded"></div>
-                      <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
-                      <div className="h-3 w-4/6 bg-gray-200 rounded"></div>
-                    </div>
+  //         {/* Review Section Skeleton */}
+  //         <div className="mb-10 space-y-4 animate-pulse">
+  //           <div className="h-6 w-40 bg-gray-200 rounded" />
+  //           {[1, 2].map((_, i) => (
+  //             <div
+  //               key={i}
+  //               className="bg-white p-6 rounded-2xl shadow border border-gray-100">
+  //               <div className="flex items-start gap-4">
+  //                 {/* Avatar */}
+  //                 <div className="w-12 h-12 rounded-full bg-gray-200"></div>
 
-                    {/* Images */}
-                    <div className="flex gap-3">
-                      {[...Array(3)].map((_, k) => (
-                        <div
-                          key={k}
-                          className="w-24 h-24 bg-gray-200 rounded-xl"></div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </>
-    );
-  }
+  //                 <div className="flex-1">
+  //                   {/* Name + Date */}
+  //                   <div className="flex justify-between mb-3">
+  //                     <div className="space-y-2">
+  //                       <div className="h-4 w-32 bg-gray-200 rounded"></div>
+  //                       <div className="flex gap-1">
+  //                         {[...Array(5)].map((_, j) => (
+  //                           <div
+  //                             key={j}
+  //                             className="w-4 h-4 bg-gray-200 rounded"></div>
+  //                         ))}
+  //                       </div>
+  //                     </div>
+
+  //                     <div className="h-4 w-24 bg-gray-200 rounded"></div>
+  //                   </div>
+
+  //                   {/* Description */}
+  //                   <div className="space-y-2 mb-4">
+  //                     <div className="h-3 w-full bg-gray-200 rounded"></div>
+  //                     <div className="h-3 w-5/6 bg-gray-200 rounded"></div>
+  //                     <div className="h-3 w-4/6 bg-gray-200 rounded"></div>
+  //                   </div>
+
+  //                   {/* Images */}
+  //                   <div className="flex gap-3">
+  //                     {[...Array(3)].map((_, k) => (
+  //                       <div
+  //                         key={k}
+  //                         className="w-24 h-24 bg-gray-200 rounded-xl"></div>
+  //                     ))}
+  //                   </div>
+  //                 </div>
+  //               </div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       </div>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
@@ -500,89 +542,126 @@ export default function ViewProduct({ params }) {
                   {product && product?.category?.categoryName}
                 </p>
               </div>
-              {/* Main Image Slider */}
-              <Swiper
-                modules={[Navigation, Pagination, Thumbs]}
-                navigation
-                pagination={{ clickable: true }}
-                thumbs={{ swiper: thumbsSwiper }}
-                spaceBetween={10}
-                slidesPerView={1}
-                className={`my-swiper w-full h-[400px] bg-gray-50 max-md:h-[320px] aspect-square rounded-lg shadow-lg mb-4 bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}>
-                {/* Main Image */}
-                <SwiperSlide>
-                  <img
-                    style={{
-                      backgroundColor:
-                        filteredVariant?.previewImage?.bgColor ||
-                        product.previewImage?.bgColor,
-                    }}
-                    src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
-                    alt={product ? product.title : undefined}
-                    className={`w-full h-full object-contain select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
-                  />
-                </SwiperSlide>
 
-                {/* Slider Images */}
-                {(filteredVariant?.slideImages || product.slideImages)?.map(
-                  (image, index) => (
-                    <SwiperSlide key={index}>
+              {isClient && images.length > 0 ? (
+                <>
+                  {/* Main Image Slider */}
+                  <Swiper
+                    key={images.length}
+                    modules={[Navigation, Pagination, Thumbs]}
+                    navigation
+                    pagination={{ clickable: true }}
+                    thumbs={{ swiper: thumbsSwiper }}
+                    spaceBetween={10}
+                    slidesPerView={1}
+                    className={`my-swiper w-full h-[400px] bg-gray-50 max-md:h-[320px] aspect-square rounded-lg shadow-lg mb-4 flex items-center justify-center`}>
+                    {/* Main Image */}
+                    {/* <SwiperSlide>
                       <img
                         style={{
-                          backgroundColor: image.bgColor,
+                          backgroundColor:
+                            filteredVariant?.previewImage?.bgColor ||
+                            product?.previewImage?.bgColor,
                         }}
-                        src={`${image.imageUrl}`}
-                        alt={`Product Image ${index + 1}`}
-                        className={`w-full h-full object-contain select-none bg-[${image.bgColor}]`}
+                        src={`${filteredVariant?.previewImage?.imageUrl || product?.previewImage?.imageUrl}`}
+                        alt={product ? product?.title : undefined}
+                        className={`w-full h-full object-contain select-none bg-[${filteredVariant?.previewImage?.bgColor || product?.previewImage?.bgColor}]`}
                       />
-                    </SwiperSlide>
-                  ),
-                )}
-              </Swiper>
+                    </SwiperSlide> */}
 
-              {/* Thumbnail Slider */}
-              <Swiper
-                modules={[Thumbs]}
-                onSwiper={(swiper) => {
-                  setThumbsSwiper(swiper);
-                }}
-                spaceBetween={10}
-                slidesPerView={4}
-                className="w-full h-24 max-sm:h-14 ">
-                {/* Main Image Thumbnail */}
-                <SwiperSlide>
-                  <img
-                    style={{
-                      backgroundColor:
-                        filteredVariant?.previewImage?.bgColor ||
-                        product.previewImage?.bgColor,
+                    {/* Slider Images */}
+                    {images?.map((image, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          style={{
+                            backgroundColor: image.bgColor,
+                          }}
+                          src={`${image.imageUrl}`}
+                          alt={`Product Image ${index + 1}`}
+                          className={`w-full h-full object-contain select-none bg-[${image.bgColor}]`}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+
+                  {/* Thumbnail Slider */}
+                  <Swiper
+                    key={images.length + 1}
+                    modules={[Thumbs]}
+                    onSwiper={(swiper) => {
+                      setThumbsSwiper(swiper);
                     }}
-                    src={`${filteredVariant?.previewImage?.imageUrl || product.previewImage?.imageUrl}`}
-                    alt={product ? product?.title : undefined}
-                    className={`w-full h-full !border shadow-lg border-gray-200 object-contain rounded-lg cursor-pointer select-none bg-[${filteredVariant?.previewImage?.bgColor || product.previewImage?.bgColor}]`}
-                  />
-                </SwiperSlide>
-
-                {/* Slider Images Thumbnails */}
-                {(filteredVariant?.slideImages || product.slideImages)?.map(
-                  (image, index) => (
-                    <SwiperSlide key={index}>
+                    spaceBetween={10}
+                    slidesPerView={4}
+                    className="w-full h-24 max-sm:h-14 ">
+                    {/* Main Image Thumbnail */}
+                    {/* <SwiperSlide>
                       <img
                         style={{
-                          backgroundColor: image.bgColor,
+                          backgroundColor:
+                            filteredVariant?.previewImage?.bgColor ||
+                            product?.previewImage?.bgColor,
                         }}
-                        src={`${image.imageUrl}`}
-                        alt={`Product Image ${index + 1}`}
-                        className={`w-full h-full !border shadow-lg border-gray-200  object-contain rounded-lg cursor-pointer select-none bg-[${image.bgColor}]`}
+                        src={`${filteredVariant?.previewImage?.imageUrl || product?.previewImage?.imageUrl}`}
+                        alt={product ? product?.title : undefined}
+                        className={`w-full h-full !border shadow-lg border-gray-200 object-contain rounded-lg cursor-pointer select-none bg-[${filteredVariant?.previewImage?.bgColor || product?.previewImage?.bgColor}]`}
                       />
-                    </SwiperSlide>
-                  ),
-                )}
-              </Swiper>
+                    </SwiperSlide> */}
+
+                    {/* Slider Images Thumbnails */}
+                    {images?.map((image, index) => (
+                      <SwiperSlide key={index}>
+                        <img
+                          style={{
+                            backgroundColor: image.bgColor,
+                          }}
+                          src={`${image.imageUrl}`}
+                          alt={`Product Image ${index + 1}`}
+                          className={`w-full h-full !border shadow-lg border-gray-200  object-contain rounded-lg cursor-pointer select-none bg-[${image.bgColor}]`}
+                        />
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </>
+              ) : (
+                <>
+                  {/* Main Image */}
+                  <div>
+                    <img
+                      style={{
+                        backgroundColor:
+                          filteredVariant?.previewImage?.bgColor ||
+                          product?.previewImage?.bgColor,
+                      }}
+                      src={`${filteredVariant?.previewImage?.imageUrl || product?.previewImage?.imageUrl}`}
+                      alt={product ? product?.title : undefined}
+                      className={`w-full h-[400px] !border shadow-lg border-gray-200 object-contain rounded-lg cursor-pointer select-none`}
+                    />
+
+                    {/* Slider Images Thumbnails */}
+                    {(
+                      filteredVariant?.slideImages || product?.slideImages
+                    )?.map((image, index) => (
+                      <div
+                        key={index}
+                        style={{
+                          backgroundColor: image?.bgColor,
+                        }}
+                        className="mt-2 w-24 h-24 rounded-xl">
+                        <img
+                          src={`${image?.imageUrl}`}
+                          alt={`Product Image ${index + 1}`}
+                          className={`w-full h-full !border shadow-lg border-gray-200  object-contain rounded-lg cursor-pointer select-none bg-[${image?.bgColor}]`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <ReviewStats
-                averageRating={product.stars}
-                totalReviews={product.totalFeedbacks}
+                averageRating={product?.stars}
+                totalReviews={product?.totalFeedbacks}
               />
             </div>
 
@@ -597,11 +676,11 @@ export default function ViewProduct({ params }) {
               </p>
 
               <h1 className="text-4xl max-md:text-lg font-bold text-gray-800">
-                {product && product.title}
+                {product && product?.title}
               </h1>
 
               <div className="mt-3 mb-6">
-                <RateStar stars={product.stars || 0} />
+                <RateStar stars={product?.stars || 0} />
               </div>
 
               <div className="flex items-center justify-start bg-gray-50 rounded-lg mb-6 max-sm:mb-0">
@@ -612,24 +691,24 @@ export default function ViewProduct({ params }) {
                     <span className="text-3xl font-bold text-green-900">
                       ₹
                       {filteredVariant
-                        ? filteredVariant.discountedPrice
-                        : product.discountedPrice}
+                        ? filteredVariant?.discountedPrice
+                        : product?.discountedPrice}
                     </span>
-                    {product.originalPrice && (
+                    {product?.originalPrice && (
                       <span className="text-lg text-gray-500 line-through">
                         ₹
                         {filteredVariant
-                          ? filteredVariant.originalPrice
-                          : product.originalPrice}
+                          ? filteredVariant?.originalPrice
+                          : product?.originalPrice}
                       </span>
                     )}
                   </div>
                   <p className="text-gray-600 mt-2 text-xs">
                     + Shipping Charges
-                    {/* : ₹
-                  {filteredVariant
-                    ? filteredVariant.shippingPrice
-                    : product.shippingPrice} */}
+                    {/* : ₹ */}
+                    {/* {filteredVariant
+                      ? filteredVariant.shippingPrice
+                      : product?.shippingPrice} */}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-6 rounded-lg max-sm:hidden">
@@ -672,7 +751,7 @@ export default function ViewProduct({ params }) {
                     </button>
                   </div>
 
-                  {product.type === "rent" && (
+                  {product?.type === "rent" && (
                     <>
                       <h2 className="text-sm font-semibold mb-4 mt-6">
                         Rental Duration
@@ -704,10 +783,14 @@ export default function ViewProduct({ params }) {
               <div className="mb-3 rounded-sm">
                 {/* Variants (Only if VariantAvailable is true) */}
                 {product &&
-                  product.isVariantAvailable &&
+                  product?.isVariantAvailable &&
                   productVariants?.length > 0 && (
                     <div className="border shadow p-4 rounded-md border-primary">
-                      <input type="hidden" name="productId" value={productId} />
+                      <input
+                        type="hidden"
+                        name="productSlug"
+                        value={productSlug}
+                      />
                       <div className="mb-6">
                         <h2 className="text-sm font-semibold mb-2">
                           Select Option
@@ -832,7 +915,7 @@ export default function ViewProduct({ params }) {
                   </button>
                 </div>
 
-                {product.type === "rent" && (
+                {product?.type === "rent" && (
                   <>
                     <h2 className="text-sm font-semibold mb-4 mt-6">
                       Rental Duration
@@ -863,11 +946,15 @@ export default function ViewProduct({ params }) {
               {/* Action Buttons */}
               <div className="flex max-sm:flex-col gap-4 mb-12">
                 <form action={handleAddToCart}>
-                  <input type="hidden" name="productId" value={product._id} />
+                  <input
+                    type="hidden"
+                    name="productSlug"
+                    value={product?._id}
+                  />
                   <input
                     type="hidden"
                     name="productType"
-                    value={product.type}
+                    value={product?.type}
                   />
                   <input type="hidden" name="quantity" value={quantity} />
                   {filteredVariant?._id && (
@@ -935,11 +1022,11 @@ export default function ViewProduct({ params }) {
               </div>
 
               {/* Description */}
-              {product.description && (
+              {product?.description && (
                 <div
                   className="prose prose-stone mt-10"
                   dangerouslySetInnerHTML={{
-                    __html: product.description,
+                    __html: product?.description,
                   }}
                 />
               )}

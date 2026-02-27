@@ -365,8 +365,8 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         setProductData((prev) => {
                           return {
                             ...prev,
-                            category: e.target.value,
-                            categorySlug: selectedCategory.slug,
+                            category: e.target.value || "",
+                            categorySlug: selectedCategory?.slug || "",
                           };
                         });
                       }}

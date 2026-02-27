@@ -889,7 +889,7 @@ router.post("/duplicate", checkRole(1, 2), async (req, res) => {
 });
 
 /// product instock check
-router.post("/variant/instock/:productId", async (req, res) => {
+router.post("/instock/:productId", async (req, res) => {
   try {
     console.log("Hit on varian in stockk");
 

@@ -20,6 +20,7 @@ import Image from "next/image";
 import { AddressApi, ReviewApi } from "@/redux";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import AddressForm from "@/components/AddressForm/AddressForm";
 
 export default function Address() {
   const jwtToken = useSelector((state) => state.auth.jwtToken);
@@ -198,14 +199,6 @@ export default function Address() {
               View and manage your address
             </p>
           </div>
-
-          {/* ➕ Add Address Button */}
-          <Link
-            href="/profile/address/add-address"
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg shadow hover:opacity-90">
-            <RiAddLine />
-            Add Address
-          </Link>
         </div>
       </div>
 
@@ -214,137 +207,15 @@ export default function Address() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-5 sm:px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-gray-800">
-                All Addresses ({addresses.length})
-              </span>
-              {/* <Link
-                href="/products"
-                className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg text-white"
-                style={{ background: brand.primary }}>
-                Browse Products{" "}
-                <FaArrowRight
-                  color="white"
-                  fill="white"
-                  className="opacity-90"
-                />
-              </Link> */}
+              <span className="font-semibold text-gray-800">Add Address</span>
             </div>
           </div>
 
           {/* List / Empty / Loading */}
           <div className="px-5 sm:px-6 py-5">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div
-                  className="animate-spin rounded-full h-10 w-10 border-[3px] border-gray-200 border-t-[3px]"
-                  style={{ borderTopColor: brand.primary }}
-                />
-              </div>
-            ) : addressData.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-500">
-                  No Address found. Add one address now.
-                </p>
-                <Link
-                  href="/profile/address/add-address"
-                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white bg-primary"
-                  s>
-                  Add Address <FaArrowRight className="opacity-90" />
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {addresses.map((addr, index) => (
-                  <div
-                    key={addr._id}
-                    className={`border-b border-gray-200 pb-5 ${index >= addresses?.length - 1 && "border-none"}`}>
-                    <div className="flex justify-between flex-wrap gap-3">
-                      {/* LEFT CONTENT */}
-                      <div className="flex gap-4">
-                        <div className="bg-red-50 p-3 rounded-full h-fit">
-                          <RiUser3Line className="text-red-500" />
-                        </div>
-
-                        <div>
-                          <h3 className="font-bold text-lg">{addr.fullName}</h3>
-
-                          <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                            <RiTimeLine />
-                            {new Date(addr.createdAt).toLocaleDateString(
-                              "en-IN",
-                            )}
-                          </div>
-
-                          <div className="mt-2 flex items-center gap-2 text-gray-700">
-                            <RiPhoneLine /> {addr.phone}
-                          </div>
-
-                          <div className="mt-2 flex gap-2 text-gray-700">
-                            <RiMapPinLine className="mt-1" />
-                            <p>
-                              {addr.streetName},{" "}
-                              {addr.landmark && `${addr.landmark}, `}
-                              {addr.city}, {addr.state} - {addr.postalCode},{" "}
-                              {addr.country}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          {/* ✏️ Edit Button */}
-                          <Link
-                            href={`/profile/address/edit-address/${addr._id}`}
-                            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition cursor-pointer">
-                            <RiEdit2Line size={14} />
-                            Edit
-                          </Link>
-
-                          {/* 🗑️ Delete Button */}
-                          <button
-                            onClick={() => handleDelete(addr._id)}
-                            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition cursor-pointer">
-                            <RiDeleteBin2Line size={14} />
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Load More */}
-                {hasMore && (
-                  <div className="text-center mt-10">
-                    <button
-                      onClick={loadMore}
-                      disabled={isFetching}
-                      className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-70">
-                      {isFetching ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <FiLoader className="animate-spin" />
-                          Loading...
-                        </span>
-                      ) : (
-                        "Load More Addresses"
-                      )}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+            <AddressForm />
           </div>
         </div>
-
-        {/* Quick access chips like your site */}
-        {/* <div className="mt-8 flex flex-wrap gap-3">
-          <Chip href="/myaccount" label="My Account" />
-          <Chip href="/myorders" label="My Orders" />
-          <Chip href="/wishlist" label="Wishlist" />
-          <Chip href="/cart" label="Cart" />
-          <Chip href="/support" label="Support" />
-        </div> */}
       </div>
     </div>
   );

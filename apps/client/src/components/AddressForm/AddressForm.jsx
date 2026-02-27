@@ -1,11 +1,12 @@
-// components/AddressForm.tsx
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useAddAddressMutation } from "@store/redux";
+import { useRouter } from "next/navigation";
 
 export default function AddressForm({ onSuccess, onCancel }) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
@@ -17,7 +18,11 @@ export default function AddressForm({ onSuccess, onCancel }) {
     country: "India",
     isDefault: false,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [
+    addAddress,
+    { isLoading: isAddAddressLoading, error: addAddressError },
+  ] = useAddAddressMutation();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -32,23 +37,14 @@ export default function AddressForm({ onSuccess, onCancel }) {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/address`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await addAddress({ address: formData }).unwrap();
 
       toast.success("Address added successfully");
-      onSuccess();
+      onSuccess?.();
+      router.push("/profile/address");
     } catch (error) {
+      console.error("Failed to add address", error);
       toast.error(error.response?.data?.message || "Failed to add address");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -145,14 +141,16 @@ export default function AddressForm({ onSuccess, onCancel }) {
       </div>
 
       <div className="flex items-center">
-        <input
-          type="checkbox"
-          name="isDefault"
-          checked={formData.isDefault}
-          onChange={handleChange}
-          className="h-4 w-4 text-primary rounded"
-        />
-        <label className="ml-2 text-sm">Make this my default address</label>
+        <label className="text-sm flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            name="isDefault"
+            checked={formData.isDefault}
+            onChange={handleChange}
+            className="h-4 w-4 text-primary rounded"
+          />
+          <span>Make this my default address</span>
+        </label>
       </div>
 
       <div className="flex justify-end gap-4 pt-4">
@@ -164,11 +162,11 @@ export default function AddressForm({ onSuccess, onCancel }) {
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isAddAddressLoading}
           className={`px-4 py-2 bg-primary text-white rounded-md cursor-pointer disabled:cursor-not-allowed ${
-            isSubmitting ? "opacity-70" : ""
+            isAddAddressLoading ? "opacity-70" : ""
           }`}>
-          {isSubmitting ? "Saving..." : "Save Address"}
+          {isAddAddressLoading ? "Saving..." : "Save Address"}
         </button>
       </div>
     </form>
