@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@lottiefiles/dotlottie-react": "^0.17.15",
-    "@store/redux": "*",
     "@tailwindcss/postcss": "^4.1.18",
     "@vonage/server-sdk": "^3.12.2",
     "axios": "^1.6.7",
