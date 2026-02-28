@@ -1,0 +1,867 @@
+"use client";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import Link from "next/link";
+
+import {
+  RiRefund2Fill,
+  RiSecurePaymentLine,
+  RiCouponLine,
+  RiCloseLine,
+} from "react-icons/ri";
+import { HiFire } from "react-icons/hi2";
+import { IoIosArrowForward } from "react-icons/io";
+import { FiCheckCircle, FiShoppingBag } from "react-icons/fi";
+import { BsTruck } from "react-icons/bs";
+
+import CartItem from "../../../components/Cart/CartItem";
+import { WishlistApi, CartApi, AppliedCouponSlice, AddressApi } from "@/redux";
+import { useRemoveAllCartMutation } from "@/redux/apis/cartApi";
+import { clearCouponData } from "@/redux/slices/appliedCouponSlice";
+import AddressForm from "../../../components/AddressForm/AddressForm";
+import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
+import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
+import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
+import Loading from "../loading";
+
+export default function CartClientPage({ initialCartData }) {
+  const { useGetCartQuery } = CartApi;
+  const { useGetWishlistQuery } = WishlistApi;
+  const { updateAppliedCoupon } = AppliedCouponSlice;
+  const { useGetAddressQuery, useGetDefaultAddressQuery } = AddressApi;
+
+  const {
+    data: {
+      cart: userCartItems,
+      shippingPrice,
+      requiredMinimumAmountForFreeDelivery,
+      isFreeDeliveryMinAmntAvailable,
+    } = {},
+    isLoading: isUserCartRtkLoading,
+    error: userCartRtkError,
+    refetch: refetchUserCartRtk,
+  } = useGetCartQuery(
+    {
+      productType: "buy",
+    },
+    {
+      selectFromResult: (result) => ({
+        ...result,
+        data: result.data || initialCartData,
+      }),
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  const { data: userWishlistItems } = useGetWishlistQuery({
+    productType: "buy",
+  });
+
+  const { data: paymentGatewayList, isLoading: isPaymentGatewayLoading } =
+    useGetAllPaymentGatewaysQuery();
+
+  const [gatewayOption, setGatewayOption] = useState(null);
+
+  const handleGatewayOptionChange = (gatewayOption) => {
+    dispatch(setSelectedPaymentMethod(gatewayOption));
+    setGatewayOption(gatewayOption);
+  };
+
+  useEffect(() => {
+    if (!gatewayOption && paymentGatewayList?.length > 0) {
+      handleGatewayOptionChange(paymentGatewayList[0].code);
+    }
+  }, [paymentGatewayList]);
+
+  const {
+    data: addresses,
+    isLoading: isAddressFetchLoading,
+    refetch: refetchAddress,
+  } = useGetAddressQuery();
+
+  const {
+    data: defaultAddress,
+    isLoading: isDefaultAddressRtkLoading,
+    refetch: refetchDefaultAddress,
+  } = useGetDefaultAddressQuery();
+
+  const [removeALlCart] = useRemoveAllCartMutation();
+
+  const [couponCode, setCouponCode] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
+
+  const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
+
+  const [orderStatus, setOrderStatus] = useState(true);
+  const [orderStatusText, setOrderStatusText] = useState("");
+
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const couponModalRef = useRef();
+  const couponSuccessModalRef = useRef();
+  const paymentLoadingModalRef = useRef();
+  const paymentStatusModalRef = useRef();
+
+  const handleCouponSubmit = async (e) => {
+    e.preventDefault();
+    setCouponSubmitLoading(true);
+    setCouponError("");
+
+    try {
+      if (!couponCode) {
+        return setCouponError("Please enter a coupon code");
+      }
+
+      if (appliedCoupon?.code?.toLowerCase() === couponCode.toLowerCase()) {
+        return setCouponError("Coupon already applied");
+      }
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
+      );
+
+      if (!response.data.coupon) {
+        return setCouponError(response.data.message || "Invalid coupon");
+      }
+
+      const couponData = response?.data;
+
+      console.log("Coupon Data", couponData);
+
+      if (!couponData) {
+        return setCouponError(couponData?.message || "Invalid coupon");
+      }
+
+      let subtotalPrice = purchasablePrice;
+
+      console.log("Subtotal Price", subtotalPrice);
+
+      const isFreeDeliveryAvailable =
+        requiredMinimumAmountForFreeDelivery > 0 &&
+        subtotalPrice >= requiredMinimumAmountForFreeDelivery;
+
+      if (!isFreeDeliveryAvailable) {
+        subtotalPrice += shippingPrice;
+      }
+
+      const coupon = couponData.coupon;
+      console.log("Applied Coupon Here", coupon);
+
+      let discount = null;
+      if (coupon?.minPurchasePrice > 0) {
+        if (subtotalPrice < coupon?.minPurchasePrice) {
+          setCouponError(
+            "Minimum purchase price not met,\n Minimum purchase price is " +
+              coupon?.minPurchasePrice,
+          );
+          return;
+        }
+        discount = coupon.isPercentage
+          ? subtotalPrice >= coupon.minPurchasePrice
+            ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+            : 0
+          : subtotalPrice >= coupon.minPurchasePrice
+            ? coupon.off
+            : 0;
+      } else {
+        discount = coupon.isPercentage
+          ? (subtotalPrice / 100) * (parseInt(coupon.off) || 0)
+          : coupon.off || 0;
+      }
+
+      setCouponDiscountPrice(discount.toFixed(2));
+      dispatch(updateAppliedCoupon(discount > 0 ? coupon : null));
+
+      couponModalRef.current?.classList.add("hidden");
+      couponSuccessModalRef.current?.classList.remove("hidden");
+
+      setTimeout(() => {
+        couponSuccessModalRef.current?.classList.add("hidden");
+      }, 1500);
+    } catch (error) {
+      console.log("Coupon Error", error);
+      setCouponError(error.response?.data?.message || "Failed to apply coupon");
+    } finally {
+      setCouponSubmitLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponDiscountPrice(0);
+    dispatch(clearCouponData());
+  };
+
+  const handleRemoveAllCart = () => {
+    try {
+      removeALlCart();
+    } catch (error) {
+      console.error("Failed to remove all items from cart", error);
+    }
+  };
+
+  const [MRP, setMRP] = useState(0);
+  const [purchasablePrice, setPurchasablePrice] = useState(0);
+  const [
+    totalDiscountPrice_OrignalPriceMinusPurchasablePrice,
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice,
+  ] = useState(0);
+  const [finalPrice, setFinalPrice] = useState(0);
+
+  const [couponDiscountPrice, setCouponDiscountPrice] = useState(0);
+
+  const [isShippingApplied, setIsShippingApplied] = useState(true);
+
+  useEffect(() => {
+    let MRP = 0;
+    let purchasablePrice = 0;
+    let totalDiscount_OriginalMinusPurchasable = 0;
+
+    userCartItems?.forEach((item) => {
+      if (!item.product) return;
+
+      if (item.variant) {
+        MRP +=
+          (item.variant.originalPrice || item.variant.discountedPrice) *
+          (item.quantity || 1);
+
+        purchasablePrice += item.variant.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.variant.originalPrice
+          ? (item.quantity || 1) *
+            (item.variant.originalPrice - item.variant.discountedPrice)
+          : 0;
+      } else {
+        MRP +=
+          (item.product.originalPrice || item.product.discountedPrice) *
+          (item.quantity || 1);
+
+        purchasablePrice += item.product.discountedPrice * (item.quantity || 1);
+
+        totalDiscount_OriginalMinusPurchasable += item.product.originalPrice
+          ? (item.quantity || 1) *
+            (item.product.originalPrice - item.product.discountedPrice)
+          : 0;
+      }
+    });
+
+    setMRP(MRP);
+    setPurchasablePrice(purchasablePrice);
+    setDiscountPrice_OrignalPriceMinusPurchasablePrice(
+      totalDiscount_OriginalMinusPurchasable,
+    );
+
+    const isFreeDeliveryAvailable =
+      requiredMinimumAmountForFreeDelivery > 0 &&
+      purchasablePrice >= requiredMinimumAmountForFreeDelivery;
+
+    let finalPrice = purchasablePrice;
+    setIsShippingApplied(false);
+    setFinalPrice(purchasablePrice);
+
+    if (!isFreeDeliveryAvailable) {
+      setIsShippingApplied(true);
+      setFinalPrice(purchasablePrice + shippingPrice);
+      finalPrice += shippingPrice;
+    }
+
+    if (!!appliedCoupon && appliedCoupon?._id) {
+      const couponDiscountPrice = appliedCoupon.isPercentage
+        ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
+        : finalPrice > appliedCoupon.minPurchasePrice
+          ? appliedCoupon.off
+          : 0;
+
+      setCouponDiscountPrice(couponDiscountPrice.toFixed(2));
+
+      setFinalPrice(finalPrice - (couponDiscountPrice || 0));
+    }
+  }, [userCartItems, appliedCoupon]);
+
+  const selectedDefaultAddress =
+    useSelector((state) => state.userAddress?.selectedAddress) ||
+    defaultAddress?.id ||
+    null;
+
+  const [selectedAddress, setSelectedAddress] = useState(
+    selectedDefaultAddress || null,
+  );
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+
+  const handleSelectedAddressChange = (address) => {
+    setSelectedAddress(address);
+    dispatch(setUserSelectedAddress(address));
+  };
+
+  let handlePayment = () => {
+    setIsPaymentLoading(true);
+    router.push(`/checkout?pm=${gatewayOption}`);
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const selectedAddressData = useMemo(() => {
+    return addresses?.data?.find((addr) => addr._id === selectedAddress);
+  }, [addresses, selectedAddress]);
+
+  //   if(isUserCartRtkLoading) {
+  //     return <Loading/>
+  //   }
+
+  return (
+    <>
+      <main className="min-h-screen bg-gray-50 ">
+        <div className="h-fill w-fill ">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Empty Cart State */}
+            {!userCartItems?.length && (
+              <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+                <div className="bg-gray-100 p-6 rounded-full mb-6">
+                  <FiShoppingBag className="w-12 h-12 text-gray-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Your cart is empty
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Looks like you haven't added anything to your cart yet
+                </p>
+                <Link
+                  href="/products"
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                  Continue Shopping
+                </Link>
+              </div>
+            )}
+
+            {/* Cart with Items */}
+            {
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Cart Items Section */}
+                <div className="lg:col-span-2">
+                  <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      My Cart{" "}
+                      <span className="text-gray-500">
+                        ({userCartItems?.length})
+                      </span>
+                    </h1>
+                    <button
+                      onClick={handleRemoveAllCart}
+                      className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer">
+                      Remove All
+                    </button>
+                  </div>
+
+                  {/* Free Shipping Banner */}
+                  {isFreeDeliveryMinAmntAvailable && (
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6 flex items-center">
+                      <BsTruck
+                        className="text-blue-500 mr-3 flex-shrink-0"
+                        size={20}
+                      />
+                      <p className="text-blue-800">
+                        Get <span className="font-semibold">FREE delivery</span>{" "}
+                        on orders over ₹{requiredMinimumAmountForFreeDelivery}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Cart Items List */}
+                  <div className="space-y-4">
+                    {userCartItems?.map((item) => (
+                      <CartItem key={item._id} item={item} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Order Summary Section */}
+                <div className="lg:col-span-1">
+                  <div className="w-full">
+                    <div className="bg-white rounded-xl shadow-sm p-6 transition-all mb-5">
+                      {/* HEADER */}
+                      <div className="flex items-center justify-between mb-4 cursor-pointer">
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          Delivery Details
+                        </h2>
+
+                        <button
+                          onClick={() => setIsOpen((prev) => !prev)}
+                          className="text-sm text-primary font-medium cursor-pointer">
+                          {isOpen ? "Hide" : "Change"}
+                        </button>
+                      </div>
+
+                      {/* COLLAPSED VIEW */}
+                      {!isOpen && selectedAddressData && (
+                        <>
+                          <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                            Selected Address
+                          </h3>
+                          <div
+                            onClick={() => setIsOpen((prev) => !prev)}
+                            className="flex justify-between gap-3 border border-red-500 rounded-xl p-4 bg-red-50">
+                            <div className="flex gap-3">
+                              <input type="radio" defaultChecked={true} />
+                              <div>
+                                <h4 className="font-medium text-gray-900">
+                                  {selectedAddressData.fullName}
+                                </h4>
+                                <div className="mt-1 text-sm text-gray-600">
+                                  <p>{selectedAddressData.streetName}</p>
+                                  <p>
+                                    {selectedAddressData.city},{" "}
+                                    {selectedAddressData.state} -{" "}
+                                    {selectedAddressData.postalCode}
+                                  </p>
+                                  <p>Phone: {selectedAddressData.phone}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded h-fit">
+                              Selected
+                            </span>
+                          </div>
+                        </>
+                      )}
+
+                      {/* EXPANDED VIEW */}
+                      {(isOpen || !selectedAddress) && (
+                        <>
+                          {isAddressFetchLoading ? (
+                            <div className="animate-pulse space-y-4">
+                              <div className="h-24 bg-gray-200 rounded-lg"></div>
+                              <div className="h-24 bg-gray-200 rounded-lg"></div>
+                            </div>
+                          ) : addresses?.data?.length > 0 ? (
+                            <div className="space-y-6">
+                              <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
+                                Select Delivery Address
+                              </h3>
+
+                              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                                {addresses?.data?.map((address) => (
+                                  <div
+                                    key={address._id}
+                                    onClick={() => {
+                                      handleSelectedAddressChange(address._id);
+                                      setIsOpen(false); // collapse after select
+                                    }}
+                                    className={`border-2 rounded-xl p-5 cursor-pointer transition-all ${
+                                      selectedAddress === address._id
+                                        ? "border-red-500 bg-red-50 shadow-sm"
+                                        : "border-gray-200 hover:border-gray-300"
+                                    }`}>
+                                    <div className="flex justify-between items-start">
+                                      <h4 className="font-medium text-gray-900">
+                                        {address.fullName}
+                                      </h4>
+
+                                      {selectedAddress === address._id && (
+                                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                                          Selected
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="mt-2 text-gray-600">
+                                      <p>{address.streetName}</p>
+                                      <p>
+                                        {address.city}, {address.state} -{" "}
+                                        {address.postalCode}
+                                      </p>
+                                      <p>Phone: {address.phone}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-center py-8">
+                              <p className="text-gray-600 mb-4">
+                                No saved addresses found
+                              </p>
+                            </div>
+                          )}
+
+                          {/* ADD ADDRESS BUTTON */}
+                          <button
+                            onClick={() => setIsAddingAddress(true)}
+                            className="mt-6 w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:border-gray-400 hover:text-gray-800 transition-colors cursor-pointer">
+                            + Add New Address
+                          </button>
+
+                          {/* ADDRESS FORM */}
+                          {isAddingAddress && (
+                            <div className="mt-6">
+                              <AddressForm
+                                onSuccess={() => {
+                                  setIsAddingAddress(false);
+                                  refetchAddress();
+                                  refetchDefaultAddress();
+                                }}
+                                onCancel={() => setIsAddingAddress(false)}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="w-full">
+                    <div className="bg-white p-6 rounded-xl shadow-md">
+                      <h2 className="text-lg font-bold text-gray-900 mb-6">
+                        Select Payment Method
+                      </h2>
+
+                      {isPaymentGatewayLoading ? (
+                        <div className="animate-pulse space-y-4">
+                          <div className="h-24 bg-gray-200 rounded-lg"></div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {paymentGatewayList?.map((gateway) => (
+                            <label
+                              key={gateway._id}
+                              className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
+                                gatewayOption === gateway.code
+                                  ? "border-red-500 bg-red-50"
+                                  : "hover:bg-gray-50"
+                              }`}>
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="payment"
+                                  value={gateway.code}
+                                  checked={gatewayOption === gateway.code}
+                                  onChange={(e) =>
+                                    handleGatewayOptionChange(e.target.value)
+                                  }
+                                />
+
+                                <div>
+                                  <p className="font-medium">{gateway.title}</p>
+                                  {gateway.description && (
+                                    <p className="text-sm text-gray-500">
+                                      {gateway.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              {gateway.priority === 1 && (
+                                <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
+                                  Recommended
+                                </span>
+                              )}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-5 bg-white rounded-xl shadow-sm border border-gray-200 sticky top-4">
+                    <div className="p-6">
+                      <h2 className="text-lg font-bold text-gray-900 mb-6">
+                        Order Summary
+                      </h2>
+
+                      {/* Coupon Section */}
+                      <div className="mb-6">
+                        {appliedCoupon?.code ? (
+                          <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-4">
+                            <div className="flex justify-between items-start">
+                              <div className="flex items-center">
+                                <FiCheckCircle className="text-green-500 mr-2" />
+                                <div>
+                                  <p className="font-medium text-green-800">
+                                    Coupon Applied:{" "}
+                                    <span className="font-bold uppercase">
+                                      {appliedCoupon.code}
+                                    </span>
+                                  </p>
+                                  <p className="text-sm text-green-700">
+                                    {appliedCoupon.description}
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={handleRemoveCoupon}
+                                className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                                <RiCloseLine size={18} />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              couponModalRef.current?.classList.remove("hidden")
+                            }
+                            className="flex items-center justify-between w-full bg-gray-50 hover:bg-gray-100 rounded-lg px-4 py-3 transition-colors cursor-pointer">
+                            <div className="flex items-center">
+                              <RiCouponLine className="text-red-500 mr-2" />
+                              <span className="font-medium">Apply Coupon</span>
+                            </div>
+                            <IoIosArrowForward className="text-gray-400" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Price Breakdown */}
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">MRP </span>
+                          <span className="font-medium">₹{MRP}</span>
+                        </div>
+                        {totalDiscountPrice_OrignalPriceMinusPurchasablePrice >
+                          0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Discount</span>
+                            <span className="text-green-600 font-medium">
+                              - ₹
+                              {
+                                totalDiscountPrice_OrignalPriceMinusPurchasablePrice
+                              }
+                            </span>
+                          </div>
+                        )}
+                        {couponDiscountPrice > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              Coupon Discount
+                            </span>
+                            <span className="text-green-600 font-medium">
+                              - ₹{couponDiscountPrice}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">After Discount</span>
+                          <span className="font-bold">₹{purchasablePrice}</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Shipping</span>
+                          <span className="font-bold">
+                            {isShippingApplied > 0
+                              ? `₹${shippingPrice}`
+                              : "FREE"}
+                          </span>
+                        </div>
+
+                        {couponDiscountPrice > 0 && (
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              Coupon Discount
+                            </span>
+                            <span className="text-green-600 font-medium">
+                              - ₹{couponDiscountPrice}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Total */}
+                      <div className="border-t border-gray-200 pt-4 mb-6">
+                        <div className="flex justify-between items-center">
+                          <span className="text-lg font-bold text-gray-900">
+                            Total
+                          </span>
+                          <span className="text-xl font-bold text-gray-900">
+                            {`₹${finalPrice}`}{" "}
+                            <span className="text-xs text-gray-500">
+                              {isShippingApplied > 0
+                                ? appliedCoupon?.code
+                                  ? `(${purchasablePrice} + ${shippingPrice}) - ${couponDiscountPrice}`
+                                  : `(${purchasablePrice} + ${shippingPrice})`
+                                : "FREE"}
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Checkout Button */}
+                      <button
+                        onClick={handlePayment}
+                        disabled={
+                          isPaymentLoading ||
+                          !finalPrice ||
+                          !selectedAddress ||
+                          !userCartItems?.length
+                        }
+                        className={`w-full py-4 px-6 rounded-lg font-bold text-white transition-colors bg-primary disabled:cursor-not-allowed disabled:bg-gray-500 hover:bg-red-600 cursor-pointer`}>
+                        {isPaymentLoading ? (
+                          <span className="flex items-center justify-center">
+                            Processing...
+                            <div className="ml-2 inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-white border-r-transparent"></div>
+                          </span>
+                        ) : (
+                          "Proceed to Checkout"
+                        )}
+                      </button>
+
+                      {/* Trust Badges */}
+                      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
+                        <div className="flex flex-col items-center">
+                          <RiSecurePaymentLine
+                            className="text-gray-400 mb-1"
+                            size={20}
+                          />
+                          <span className="text-xs text-gray-500 text-center">
+                            Secure Payments
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <RiRefund2Fill
+                            className="text-gray-400 mb-1"
+                            size={20}
+                          />
+                          <span className="text-xs text-gray-500 text-center">
+                            Easy Returns
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <HiFire className="text-gray-400 mb-1" size={20} />
+                          <span className="text-xs text-gray-500 text-center">
+                            Quality Assurance
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            {/* Coupon Modal */}
+            <div
+              ref={couponModalRef}
+              className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl max-w-md w-full p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">
+                    Apply Coupon
+                  </h3>
+                  <button
+                    onClick={() =>
+                      couponModalRef.current?.classList.add("hidden")
+                    }
+                    className="text-gray-400 hover:text-gray-600 cursor-pointer">
+                    <RiCloseLine size={24} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCouponSubmit}>
+                  <div className="mb-4">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="Enter coupon code"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent focus:outline"
+                    />
+                    {couponError && (
+                      <p className="mt-2 text-sm text-red-600">{couponError}</p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={couponSubmitLoading || !couponCode}
+                    className={`w-full py-3 px-6 rounded-lg font-medium text-white ${couponSubmitLoading || !couponCode ? "bg-gray-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"}`}>
+                    {couponSubmitLoading ? "Applying..." : "Apply Coupon"}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Coupon Success Modal */}
+            <div
+              ref={couponSuccessModalRef}
+              className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+                <FiCheckCircle
+                  className="mx-auto text-green-500 mb-4"
+                  size={48}
+                />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Coupon Applied
+                </h3>
+                <p className="text-gray-600">
+                  Your discount has been applied successfully
+                </p>
+              </div>
+            </div>
+
+            {/* Payment Loading Modal */}
+            <div
+              ref={paymentLoadingModalRef}
+              className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-4"></div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Processing Payment
+                </h3>
+                <p className="text-gray-600">
+                  Please wait while we process your payment
+                </p>
+              </div>
+            </div>
+
+            {/* Payment Status Modal */}
+            <div
+              ref={paymentStatusModalRef}
+              className="hidden fixed inset-0 bg-[rgba(0,0,0,0.6)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-xl max-w-sm w-full p-8 text-center">
+                {orderStatus ? (
+                  <>
+                    <FiCheckCircle
+                      className="mx-auto text-green-500 mb-4"
+                      size={48}
+                    />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Order Successful
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Thank you for your purchase!
+                    </p>
+                    <Link
+                      href="/myorders"
+                      className="inline-block bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-6 rounded-lg transition-colors">
+                      View Orders
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <RiCloseLine
+                      className="mx-auto text-red-500 mb-4"
+                      size={48}
+                    />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Payment Failed
+                    </h3>
+                    <p className="text-gray-600 mb-6">{orderStatusText}</p>
+                    <button
+                      onClick={() =>
+                        paymentStatusModalRef.current?.classList.add("hidden")
+                      }
+                      className="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-lg transition-colors">
+                      Try Again
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}

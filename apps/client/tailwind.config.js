@@ -15,7 +15,7 @@ module.exports = {
     // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  
+
   plugins: [
     require("@tailwindcss/typography"),
     plugin(function ({ matchUtilities }) {
@@ -25,7 +25,17 @@ module.exports = {
             zoom: value,
           }),
         },
-        { values: {} },
+        {
+          values: {
+            50: "0.5",
+            75: "0.75",
+            90: "0.9",
+            100: "1",
+            110: "1.1",
+            125: "1.25",
+            150: "1.5",
+          },
+        },
       );
     }),
   ],

@@ -10,7 +10,7 @@ import {
 
 function MyAccount() {
   return (
-    <div className="flex h-fit flex-col gap-1 p-[18px_12px_18px_12px] text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur">
+    <div className="flex h-fit flex-col gap-1 p-[18px_12px_18px_12px] text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur-sm rounded-md">
       <div className="flex items-center gap-4 w-[100%] cursor-pointer">
         <Link
           className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
@@ -39,6 +39,16 @@ function MyAccount() {
             <FaTimes size={5} />
           </div>
           My Cancellations
+        </Link>
+      </div>
+      <div className="flex items-center gap-4 w-[100%] cursor-pointer">
+        <Link
+          className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
+          href={"/profile/myaddresses"}>
+          <div className="h-fit w-fit">
+            <FaTimes size={5} />
+          </div>
+          My Addresses
         </Link>
       </div>
       <div className="flex items-center gap-4 w-[100%] cursor-pointer">

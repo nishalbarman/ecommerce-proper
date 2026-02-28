@@ -21,10 +21,13 @@ import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { useCookies } from "next-client-cookies";
 
 function NavbarPartNonLogged() {
-  const token = useSelector((state) => state.auth.jwtToken);
-  console.log("Token from NavbarPartNonLogged: ", token);
+  // const token = useSelector((state) => state.auth.jwtToken);
+  // console.log("Token from NavbarPartNonLogged: ", token);
+  const cookies = useCookies();
+  const token = cookies.get("token");
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -95,7 +98,7 @@ function NavbarPartNonLogged() {
               />
               <div className="absolute top-6 pt-2 right-[-15px] z-[999] ease-linear duration-300 group-hover:flex hidden rounded-lg">
                 <div className="bg-black opacity-[0.8] rounded-lg">
-                  <div className="flex h-fit flex-col gap-1 p-[18px_12px_18px_12px] text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur">
+                  <div className="flex h-fit flex-col gap-1 p-4 text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur-sm rounded-lg">
                     <div className="flex items-center gap-4 w-[100%] cursor-pointer">
                       <Link
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
@@ -154,6 +157,21 @@ function NavbarPartNonLogged() {
                     <div className="flex items-center gap-4 w-[100%] cursor-pointer">
                       <Link
                         className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
+                        href={"/profile/myaddresses"}>
+                        <div className="h-fit w-fit">
+                          <FaShoppingBag
+                            size={20}
+                            color="white"
+                            className="text-white"
+                            fill="white"
+                          />
+                        </div>
+                        My Addresses
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-4 w-[100%] cursor-pointer">
+                      <Link
+                        className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"
                         href={"/myreviews"}>
                         <div className="h-fit w-fit">
                           <FaStar
@@ -204,19 +222,7 @@ function NavbarPartNonLogged() {
                 </div>
               </div>
 
-              <div className="h-[100%] w-fit relative group flex items-center">
-                {/* <Link
-                  className="underline align-center text-md font-semibold text-white"
-                  href={"/auth/login"}>
-                  Login / Signup
-                </Link> */}
-                {/* <Image
-                className="cursor-pointer transform translate-y-[0.14rem]"
-                src="/assets/user.svg"
-                alt="user logo"
-                width={35}
-                height={35}
-              /> */}
+              <div className="h-full w-fit relative group flex items-center">
                 <div className="h-fit w-fit relative group mb-[8px]">
                   <FaUserCircle
                     className="w-[35px] h-[35px] my-auto cursor-pointer transform translate-y-[0.14rem]"
@@ -225,7 +231,7 @@ function NavbarPartNonLogged() {
                   />
                   <div className="absolute top-6 pt-2 right-[-15px] z-[999] ease-linear duration-300 group-hover:flex hidden rounded-lg">
                     <div className="bg-black opacity-[0.8] rounded-lg">
-                      <div className="flex h-fit flex-col gap-1 p-[18px_12px_18px_12px] text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur">
+                      <div className="flex h-fit flex-col gap-1 p-4 text-white w-[250px] justify-center items-center text-md bg-[rgba(0,0,0,0.2)] backdrop-blur-sm rounded-lg">
                         <div className="flex items-center gap-4 w-[100%] cursor-pointer">
                           <Link
                             className="hover:bg-[rgb(200,200,200,0.2)] p-[10px_7px] backdrop-blur-0 flex gap-4 items-center text-white w-[100%] rounded-md"

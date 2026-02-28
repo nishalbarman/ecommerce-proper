@@ -9,7 +9,7 @@ export const cartApi = createApi({
     baseUrl: SERVER_URL,
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
-      headers.set("Authorization", `Bearer ${getState().auth.jwtToken}`);
+      // headers.set("Authorization", `Bearer ${getState().auth.jwtToken}`);
       return headers;
     },
   }),
