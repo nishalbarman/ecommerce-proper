@@ -38,15 +38,16 @@ const checkRole = (...allowedRoles) => {
 
       let userDetails = getTokenDetails(token);
       if (userDetails.message === "TOKEN_EXPIRED") {
+        console.log("Token Expired");
         return res
           .clearCookie("token", {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain:
-              process.env.NODE_ENV === "production"
-                ? ".cartshopping.in"
-                : undefined,
+            domain: undefined,
+            // process.env.NODE_ENV === "production"
+            //   ? ".cartshopping.in"
+            //   : undefined,
           })
           .status(401)
           .json({
