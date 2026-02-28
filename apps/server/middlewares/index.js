@@ -22,7 +22,6 @@ const checkRole = (...allowedRoles) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain: undefined,
             // process.env.NODE_ENV === "production"
             //   ? ".cartshopping.in"
             //   : undefined,
@@ -44,7 +43,6 @@ const checkRole = (...allowedRoles) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain: undefined,
             // process.env.NODE_ENV === "production"
             //   ? ".cartshopping.in"
             //   : undefined,

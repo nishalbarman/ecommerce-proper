@@ -159,10 +159,11 @@ router.post("/login", async (req, res) => {
       // { expiresIn: 1 + "h" }
     );
 
-    const oneDay = 24 * 60 * 60 * 1000;
+     const cookieAge = (24 * 60 * 60 * 1000) * 15 // 15 days
 
     return res
       .cookie("token", jwtToken, {
+        maxAge: cookieAge,
         httpOnly: true,
         secure: true,
         sameSite: "none",
@@ -282,16 +283,26 @@ router.post("/signup", async (req, res) => {
 
     console.log("User Created");
 
-    return res.status(200).json({
-      status: true,
-      message: "Registration successful",
-      user: {
-        name: userObject.name,
-        email: userObject.email,
-        mobileNo: userObject.mobileNo,
-        jwtToken: jwtToken,
-      },
-    });
+    const cookieAge = (24 * 60 * 60 * 1000) * 15 // 15 days
+
+    return res
+      .cookie("token", jwtToken, {
+        maxAge: cookieAge,
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+      })
+      .status(200)
+      .json({
+        status: true,
+        message: "Registration successful",
+        user: {
+          name: userObject.name,
+          email: userObject.email,
+          mobileNo: userObject.mobileNo,
+          jwtToken: jwtToken,
+        },
+      });
   } catch (error) {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {

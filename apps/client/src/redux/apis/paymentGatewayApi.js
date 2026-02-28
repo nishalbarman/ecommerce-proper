@@ -8,10 +8,10 @@ export const pgApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
-      headers.set(
-        "Authorization",
-        `Bearer ${(getState()).auth.jwtToken}`,
-      );
+      // headers.set(
+      //   "Authorization",
+      //   `Bearer ${(getState()).auth.jwtToken}`,
+      // );
       return headers;
     },
   }),

@@ -5,10 +5,10 @@ export const productApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.jwtToken;
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
+      // const token = getState().auth.jwtToken;
+      // if (token) {
+      //   headers.set("Authorization", `Bearer ${token}`);
+      // }
       return headers;
     },
   }),
