@@ -8,6 +8,8 @@ const checkRole = (...allowedRoles) => {
       console.log("REQUEST PATH: ", req.path);
       console.log("REQUEST METHOD: ", req.method);
 
+      console.log("Cookies", req?.cookies);
+
       const token =
         req?.cookies?.token || req?.headers?.authorization?.split(" ")[1];
 
@@ -20,10 +22,10 @@ const checkRole = (...allowedRoles) => {
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            domain:
-              process.env.NODE_ENV === "production"
-                ? ".cartshopping.in"
-                : undefined,
+            domain: undefined,
+            // process.env.NODE_ENV === "production"
+            //   ? ".cartshopping.in"
+            //   : undefined,
           })
           .status(401)
           .json({
