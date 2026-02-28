@@ -57,7 +57,6 @@ const obfuscator = withNextJsObfuscator({
 const nextConfig = obfuscator({
   turbopack: {},
   transpilePackages: [
-    "@store/redux",
     "@custom-hooks/custom-clicks",
     "validator",
     "firebase-utils",

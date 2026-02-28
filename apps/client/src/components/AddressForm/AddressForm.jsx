@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { useAddAddressMutation } from "@store/redux";
 import { useRouter } from "next/navigation";
+import { useAddAddressMutation } from "@/redux/apis/addressApi";
 
 export default function AddressForm({ onSuccess, onCancel }) {
   const router = useRouter();
