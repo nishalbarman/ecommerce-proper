@@ -7,9 +7,7 @@ import CategoryLink from "../SliderTopLinks/CategoryLink";
 const getBanners = async () => {
   try {
     // const backendUrl = getBackendUrl();
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/banners`,
-    );
+    const response = await axios.get(`/banners`);
     console.log("Array Data:", response.data);
     return response.data.banners;
     // const items = [
@@ -37,7 +35,7 @@ const getBanners = async () => {
     //     try {
     //       const itemsWithBGColorPromises = items.map(async (item) => {
     //         const response = await axios.post(
-    //           `${process.env.NEXT_PUBLIC_SERVER_URL}/image-bg-color`,
+    //           `/image-bg-color`,
     //           {
     //             imageUrl: `${item.imageUrl}`,
     //           }

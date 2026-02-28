@@ -1,7 +1,7 @@
 // reviewApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
+const SERVER_URL = `/`;
 
 export const reviewApi = createApi({
   reducerPath: "reviewApi",

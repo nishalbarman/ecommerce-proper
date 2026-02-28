@@ -34,7 +34,7 @@ export default function EditFeedbackPage() {
       try {
         setLoading(true);
         const res = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/view/${feedbackId}`,
+          `/feedbacks/view/${feedbackId}`,
           {},
           {
             withCredentials: true,
@@ -90,18 +90,15 @@ export default function EditFeedbackPage() {
           reader.readAsDataURL(file);
         });
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/upload-image`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${jwtToken}`,
-            },
-            body: JSON.stringify({ imageData: { base64String } }),
+        const res = await fetch(`/feedbacks/upload-image`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwtToken}`,
           },
-        );
+          body: JSON.stringify({ imageData: { base64String } }),
+        });
 
         const data = await res.json();
         if (!res.ok) throw new Error(data?.message || "Upload failed");
@@ -140,7 +137,7 @@ export default function EditFeedbackPage() {
     try {
       const imageIds = images.map((img) => img._id);
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/review`,
+        `/feedbacks/review`,
         {
           feedbackId,
           description,

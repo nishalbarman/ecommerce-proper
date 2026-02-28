@@ -23,7 +23,10 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FiCheckCircle, FiShoppingBag } from "react-icons/fi";
 import { BsTruck } from "react-icons/bs";
 import Link from "next/link";
-import { clearCouponData, updateAppliedCoupon } from "@/redux/slices/appliedCouponSlice";
+import {
+  clearCouponData,
+  updateAppliedCoupon,
+} from "@/redux/slices/appliedCouponSlice";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -135,7 +138,7 @@ export default function CheckoutPage() {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          `/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
           {
             headers: {},
           },
@@ -188,7 +191,7 @@ export default function CheckoutPage() {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddress },
         {
           withCredentials: true,
@@ -285,9 +288,7 @@ export default function CheckoutPage() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
-      );
+      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
 
       if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");
@@ -455,7 +456,7 @@ export default function CheckoutPage() {
   // const getPaymentGateways = async () => {
   //   try {
   //     const response = await axios.get(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
+  //       `/payment/gateways`
   //     );
   //     console.log(response.data.data);
   //     setPaymentGatewaysList(response.data.data);

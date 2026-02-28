@@ -9,14 +9,11 @@ export default async function Page({ params, searchParams }) {
   const limit = Number(sp.limit) || 12;
 
   const productRes = fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/products?page=${page - 1}&limit=${limit}&category=${p.categoryId}`,
+    `/products?page=${page - 1}&limit=${limit}&category=${p.categoryId}`,
     { cache: "no-store" },
   );
 
-  const res = fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/categories/view/${p.categoryId}`,
-    { cache: "no-store" },
-  );
+  const res = fetch(`/categories/view/${p.categoryId}`, { cache: "no-store" });
 
   const response = await Promise.all([productRes, res]);
 

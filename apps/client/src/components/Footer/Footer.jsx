@@ -11,9 +11,7 @@ import axios from "axios";
 async function Footer() {
   let webData = {};
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`
-    );
+    const response = await axios.get(`/api/web-config`);
     webData = response.data;
     console.log("fetch web config:", response.data);
   } catch (error) {
@@ -176,10 +174,10 @@ async function Footer() {
               Privacy Policy
             </Link>
             <Link
-                href={"/dynamic/shipping-policy"}
-                className="text-white underline max-sm:text-sm">
-                Shipping Policy
-              </Link>
+              href={"/dynamic/shipping-policy"}
+              className="text-white underline max-sm:text-sm">
+              Shipping Policy
+            </Link>
             <Link
               href={"/dynamic/terms-and-conditions"}
               className="text-white underline max-sm:text-sm">

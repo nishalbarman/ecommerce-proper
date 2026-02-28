@@ -152,7 +152,7 @@ export default function CheckoutPage() {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          `/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
           {
             headers: {},
           },
@@ -210,7 +210,7 @@ export default function CheckoutPage() {
 
       setLoadingText("Creating order...");
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddressDetails },
         {
           withCredentials: true,
@@ -320,7 +320,7 @@ export default function CheckoutPage() {
       setLoadingText("Creating order...");
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/cashfree/cart/buy${
+        `/pay/cashfree/cart/buy${
           appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
         }`,
         {
@@ -500,7 +500,7 @@ export default function CheckoutPage() {
   // const getPaymentGateways = async () => {
   //   try {
   //     const response = await axios.get(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
+  //       `/payment/gateways`
   //     );
   //     console.log(response.data.data);
   //     setPaymentGatewaysList(response.data.data);

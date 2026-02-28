@@ -6,17 +6,14 @@ export default async function Page() {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_SERVER_URL}/cart?productType=buy`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: cookieHeader,
-      },
-      cache: "no-store",
+  const response = await fetch(`/cart?productType=buy`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: cookieHeader,
     },
-  );
+    cache: "no-store",
+  });
 
   const cartData = await response.json();
 

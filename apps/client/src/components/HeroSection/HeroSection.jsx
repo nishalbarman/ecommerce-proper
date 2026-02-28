@@ -8,9 +8,7 @@ import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 
 const fetchHeroProduct = async (cookieStore) => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/hero-products`,
-    );
+    const response = await fetch(`/hero-products`);
     const data = await response.json();
     return data[0];
   } catch (error) {

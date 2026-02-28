@@ -1,10 +1,8 @@
 // actions/cart/addToCart.ts
 "use server";
 
-
 export async function addToCart(formData) {
   try {
-
     const productId = formData.get("productId");
     const productType = formData.get("productType");
     const quantity = formData.get("quantity");
@@ -25,7 +23,7 @@ export async function addToCart(formData) {
       cartObject.variant = variantId;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`, {
+    const response = await fetch(`/cart`, {
       method: "POST",
       credentials: "include",
       headers: {

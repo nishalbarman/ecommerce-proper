@@ -8,7 +8,7 @@ export default async function Page({ searchParams }) {
   const minPrice = searchParams.minPrice || "";
   const maxPrice = searchParams.maxPrice || "";
 
-  const url = new URL(`${process.env.NEXT_PUBLIC_SERVER_URL}/products`);
+  const url = new URL(`/products`);
 
   url.searchParams.set("page", page - 1);
   url.searchParams.set("limit", 12);

@@ -1,7 +1,7 @@
 // import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // import { setUserAuthData } from "../slices/authSlice";
 
-// const SERVER_URL = `${process.env.NEXT_PUBLIC_SERVER_URL}/`;
+// const SERVER_URL = `/`;
 
 // export const userAPI = createApi({
 //   reducerPath: "user",

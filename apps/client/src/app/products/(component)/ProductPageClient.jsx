@@ -51,7 +51,9 @@ export default function ProductList({ initialData, initialPage }) {
   const [appliedSort, setAppliedSort] = useState(localSort);
   const [showFilters, setShowFilters] = useState(false);
   const [availableCategories, setAvailableCategories] = useState([]);
-  const [page, setPage] = useState(initialPage ||parseInt(searchParams.get("page")) || 1);
+  const [page, setPage] = useState(
+    initialPage || parseInt(searchParams.get("page")) || 1,
+  );
 
   const limit = 12;
 
@@ -120,7 +122,7 @@ export default function ProductList({ initialData, initialPage }) {
   //   (async () => {
   //     try {
   //       const res = await fetch(
-  //         `${process.env.NEXT_PUBLIC_SERVER_URL}/categories`,
+  //         `/categories`,
   //       );
   //       const json = await res.json();
   //       if (res.ok) setAvailableCategories(json.categories || []);

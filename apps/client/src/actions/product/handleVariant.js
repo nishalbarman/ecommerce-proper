@@ -14,10 +14,9 @@ async function handleVariantSelection(formData, product) {
 
   try {
     // Fetch the product and its variants
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
-      { method: "POST" }
-    );
+    const response = await fetch(`/products/view/${productId}`, {
+      method: "POST",
+    });
 
     const responseData = await response.json();
 
@@ -47,18 +46,15 @@ async function handleVariantSelection(formData, product) {
       if (matchedVariant) {
         console.log(
           "Is Product In Stock",
-          JSON.stringify({ variant: matchedVariant._id })
+          JSON.stringify({ variant: matchedVariant._id }),
         );
-        const stockResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ variant: matchedVariant._id }),
-          }
-        );
+        const stockResponse = await fetch(`/products/instock/${productId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ variant: matchedVariant._id }),
+        });
 
         const sResponse = await stockResponse.json();
 
@@ -77,18 +73,15 @@ async function handleVariantSelection(formData, product) {
         combinationExists: !!matchedVariant,
       };
     } else {
-      const stockResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            variant: null,
-          }),
-        }
-      );
+      const stockResponse = await fetch(`/products/instock/${productId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          variant: null,
+        }),
+      });
 
       const sResponse = await stockResponse.json();
 

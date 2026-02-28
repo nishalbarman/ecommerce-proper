@@ -24,16 +24,13 @@ export default function MyFeedbackPage() {
       setLoading(true);
       // Use querystring for fetch; params option is for axios
       const qs = new URLSearchParams({ page: String(p), limit: String(limit) });
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/all?${qs.toString()}`,
-        {
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`/feedbacks/all?${qs.toString()}`, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (res.status === 401) {
         router.push("/auth/login?redirect=myreviews");
@@ -70,14 +67,11 @@ export default function MyFeedbackPage() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this feedback?")) return;
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/feedbacks/delete/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      const res = await fetch(`/feedbacks/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!res.ok) throw new Error("Delete failed");
       toast.success("Feedback deleted");
       // If current page becomes empty after delete, step back one page if possible

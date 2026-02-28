@@ -8,21 +8,18 @@ export default async function submitContactMessage(formData) {
   const message = formData.get("message");
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/contact/create`,
-      {
-        credentials: "include",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          message,
-        }),
-      }
-    );
+    const response = await fetch(`/contact/create`, {
+      credentials: "include",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        message,
+      }),
+    });
 
     if (response.ok) {
       return redirect("/contact?status=success");

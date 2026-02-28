@@ -90,7 +90,6 @@ function Cart() {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
-  
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
@@ -117,9 +116,7 @@ function Cart() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
-      );
+      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
 
       if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");
@@ -205,7 +202,6 @@ function Cart() {
     }
   };
 
-  
   const [MRP, setMRP] = useState(0);
   const [purchasablePrice, setPurchasablePrice] = useState(0);
   const [
@@ -289,7 +285,6 @@ function Cart() {
     defaultAddress?.id ||
     null;
 
-
   const [selectedAddress, setSelectedAddress] = useState(
     selectedDefaultAddress || null,
   );
@@ -305,10 +300,8 @@ function Cart() {
     router.push(`/checkout?pm=${gatewayOption}`);
   };
 
-  
   console.log("applied coupon from checkrout page", appliedCoupon);
 
-  
   const [isOpen, setIsOpen] = useState(false);
 
   const selectedAddressData = useMemo(() => {
@@ -374,7 +367,6 @@ function Cart() {
                 <CartItem key={item._id} item={item} />
               ))}
             </div>
-
           </div>
 
           {/* Order Summary Section */}

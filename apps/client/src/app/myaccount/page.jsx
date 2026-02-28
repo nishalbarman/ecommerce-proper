@@ -41,17 +41,14 @@ const MyAccountPage = () => {
   const fetchUserData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/user/me`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await fetch(`/user/me`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
       const data = await response.json();
       setUserData(data);
       setFormData({
@@ -149,17 +146,13 @@ const MyAccountPage = () => {
       };
       if (formData.password) payload.password = formData.password;
 
-      const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/user/update`,
-        payload,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await axios.patch(`/user/update`, payload, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       toast.success("Profile updated successfully");
       setIsEditing(false);

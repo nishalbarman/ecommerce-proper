@@ -8,9 +8,7 @@ import axios from "axios";
 
 export default async function Footer() {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`
-    );
+    const response = await axios.get(`/api/web-config`);
     webData = response.data;
   } catch (error) {
     console.error("Failed to fetch web config:", error);

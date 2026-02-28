@@ -4,7 +4,7 @@ import { revalidateTag } from "next/cache";
 
 export const fetchCart = async ({ page = 0, limit = 10 } = {}) => {
   try {
-    const url = new URL(`${process.env.NEXT_PUBLIC_SERVER_URL}/cart`);
+    const url = new URL(`/cart`);
     url.searchParams.append("productType", "buy");
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
@@ -83,8 +83,8 @@ export const updateCartItemQuantity = async ({
 }) => {
   try {
     const url = new URL(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/update-qty/${productType}`,
-      process.env.NEXT_PUBLIC_SERVER_URL
+      `/cart/update-qty/${productType}`,
+      process.env.NEXT_PUBLIC_SERVER_URL,
     );
 
     const res = await fetch(url.href, {
@@ -111,10 +111,7 @@ export const deleteCartItem = async ({ id = undefined, token = undefined }) => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
 
-    const url = new URL(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/delete/${id}`,
-      backendUrl
-    );
+    const url = new URL(`/cart/delete/${id}`, backendUrl);
 
     await fetch(url.href, {
       credentials: "include",

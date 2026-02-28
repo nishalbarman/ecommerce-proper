@@ -16,9 +16,7 @@ const fetchTestimonials = async () => {
     //   }, 10000);
     // });
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/testimonials`
-    );
+    const response = await fetch(`/testimonials`);
     const data = await response.json();
     return data?.data;
   } catch (error) {
@@ -66,9 +64,7 @@ const Testimonials = async () => {
           <div className="mx-auto text-center w-2/4 max-md:w-3/4 max-sm:zoom-0_1">
             <h1 className="text-black text-4xl leading-[50px] font-bold max-md:text-base">
               Our Customer Said{" "}
-              <span className="text-black font-light">
-                About Our Products
-              </span>
+              <span className="text-black font-light">About Our Products</span>
             </h1>
           </div>
         </div>

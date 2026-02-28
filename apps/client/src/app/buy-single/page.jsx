@@ -48,7 +48,11 @@ export default function CheckoutPage() {
   const { updateCart } = CartSlice;
   const { useGetAddressQuery, useGetDefaultAddressQuery } = AddressApi;
 
-  const { data: addresses, isLoading: isAddressRTKLoading, refetch: refetchAddressRTK } = useGetAddressQuery();
+  const {
+    data: addresses,
+    isLoading: isAddressRTKLoading,
+    refetch: refetchAddressRTK,
+  } = useGetAddressQuery();
 
   const {
     data: defaultAddress,
@@ -151,27 +155,21 @@ export default function CheckoutPage() {
 
       let response = null;
       if (productVariantId) {
-        response = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view-variant/${productVariantId}`,
-          {
-            headers: {
-              "Contect-Type": "application/json",
-            },
-            method: "POST",
+        response = await fetch(`/products/view-variant/${productVariantId}`, {
+          headers: {
+            "Contect-Type": "application/json",
           },
-        );
+          method: "POST",
+        });
         const data = await response.json();
         setProductData(data?.variant);
       } else {
-        response = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/view/${productId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+        response = await fetch(`/products/view/${productId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+        });
         const data = await response.json();
         setProductData(data?.product);
       }
@@ -185,9 +183,7 @@ export default function CheckoutPage() {
 
   const getShippingPricing = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/shipping-config/shipping-pricing/buy`,
-      );
+      const response = await axios.get(`/shipping-config/shipping-pricing/buy`);
       const shippingPricing = response.data;
       setShippingPricing(shippingPricing);
       console.log("Shipping Pricing:", shippingPricing);
@@ -239,7 +235,7 @@ export default function CheckoutPage() {
       try {
         setIsPaymentLoading(true);
         const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          `/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
           {
             headers: {},
           },
@@ -290,7 +286,7 @@ export default function CheckoutPage() {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         {
           address: selectedAddress,
           productId: searchParams.get("productId"),
@@ -377,7 +373,7 @@ export default function CheckoutPage() {
       setLoadingText("Creating order...");
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/pay/cashfree/cart/buy${
+        `/pay/cashfree/cart/buy${
           appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
         }`,
         {
@@ -451,9 +447,7 @@ export default function CheckoutPage() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
-      );
+      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
       const couponData = response?.data;
 
       console.log("Coupon Data", couponData);
@@ -655,7 +649,7 @@ export default function CheckoutPage() {
   // const getPaymentGateways = async () => {
   //   try {
   //     const response = await axios.get(
-  //       `${process.env.NEXT_PUBLIC_SERVER_URL}/payment/gateways`
+  //       `/payment/gateways`
   //     );
   //     console.log(response.data.data);
   //     setPaymentGatewaysList(response.data.data);

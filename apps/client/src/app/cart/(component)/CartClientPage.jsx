@@ -122,9 +122,7 @@ export default function CartClientPage({ initialCartData }) {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/coupons/validate?code=${couponCode}`,
-      );
+      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
 
       if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");

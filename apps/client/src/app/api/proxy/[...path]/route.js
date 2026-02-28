@@ -31,7 +31,7 @@ async function handleRequest(req, params, method) {
 
   const url = `${process.env.NEXT_PUBLIC_SERVER_URL}/${path}${search}`;
 
-  console.log("What is the url", url)
+  console.log("What is the url", url);
 
   // Get cookies from client request
   const cookie = req.headers.get("cookie");

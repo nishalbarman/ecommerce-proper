@@ -62,7 +62,7 @@ export default function ProductDetails({
       matchedVariant: null,
       inStock: false,
       combinationExists: true,
-    }
+    },
   );
 
   // Update state when server action completes
@@ -87,7 +87,7 @@ export default function ProductDetails({
       product.isVariantAvailable &&
         selectedSize &&
         selectedColor &&
-        formRef.current
+        formRef.current,
     );
 
     if (
@@ -111,7 +111,7 @@ export default function ProductDetails({
         console.log(
           "Checking Product Stock",
           "Calling checkStock",
-          product._id
+          product._id,
         );
         const res = await checkStock(product._id);
         setInStock(res.inStock);
@@ -133,20 +133,17 @@ export default function ProductDetails({
       variantId,
     });
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/incart/${productId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": `application/json`,
-            Authorization: `Bearer ${jwtToken}`,
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            variant: !!variantId ? variantId : null,
-          }),
-        }
-      );
+      const response = await fetch(`/cart/incart/${productId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": `application/json`,
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          variant: !!variantId ? variantId : null,
+        }),
+      });
       const data = await response.json();
       console.log("Cart status response:", data);
       return data.incart;
@@ -248,7 +245,7 @@ export default function ProductDetails({
                       className="w-full h-full object-contain select-none"
                     />
                   </SwiperSlide>
-                )
+                ),
               )}
             </Swiper>
 
@@ -280,7 +277,7 @@ export default function ProductDetails({
                       className="w-full h-full !border shadow-lg border-primary  object-contain rounded-lg cursor-pointer select-none"
                     />
                   </SwiperSlide>
-                )
+                ),
               )}
             </Swiper>
 

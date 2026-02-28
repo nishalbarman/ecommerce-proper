@@ -45,10 +45,9 @@ export default function CategoryPage({
     {
       page: page - 1, // ✅ convert UI → server
       limit,
-     
+
       sort: "popularity",
       category: categoryId,
-      
     },
     {
       selectFromResult: (result) => ({
@@ -73,7 +72,7 @@ export default function CategoryPage({
 
   //       // Fetch category details
   //       const categoryRes = await fetch(
-  //         `${process.env.NEXT_PUBLIC_SERVER_URL}/categories/view/${categoryId}`,
+  //         `/categories/view/${categoryId}`,
   //       );
   //       const categoryData = await categoryRes.json();
 
@@ -83,7 +82,7 @@ export default function CategoryPage({
 
   //       // Fetch products for this category
   //       const productsRes = await fetch(
-  //         `${process.env.NEXT_PUBLIC_SERVER_URL}/products?page=${page - 1}&limit=${limit}&category=${categoryId}`,
+  //         `/products?page=${page - 1}&limit=${limit}&category=${categoryId}`,
   //       );
   //       const productsData = await productsRes.json();
 

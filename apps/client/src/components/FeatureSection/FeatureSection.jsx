@@ -13,14 +13,11 @@ const fetchFeatures = async (page, limit) => {
     // });
 
     const cookieStore = await cookies();
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/features?page=${page}&limit=${limit}`,
-      {
-        headers: {
-          Cookie: cookieStore,
-        },
-      }
-    );
+    const response = await fetch(`/features?page=${page}&limit=${limit}`, {
+      headers: {
+        Cookie: cookieStore,
+      },
+    });
     const data = await response.json();
     return data.features;
   } catch (error) {

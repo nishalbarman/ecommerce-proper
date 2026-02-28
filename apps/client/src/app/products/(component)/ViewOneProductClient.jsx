@@ -179,7 +179,7 @@ export default function ViewOneProductClient({ initialProductData }) {
 
         // Check stock availability for the matched variant
         const stockResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productSlug}`,
+          `/products/instock/${productSlug}`,
           { variant: matchedVariant._id },
           {
             headers: {
@@ -220,7 +220,7 @@ export default function ViewOneProductClient({ initialProductData }) {
       } else if (!product?.isVariantAvailable) {
         // For individual products without variants
         const stockResponse = await axios.post(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productSlug}`,
+          `/products/instock/${productSlug}`,
           { variant: null },
           {
             withCredentials: true,
@@ -260,20 +260,17 @@ export default function ViewOneProductClient({ initialProductData }) {
 
   const checkCartStatus = useCallback(async (productSlug, variantId) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/cart/incart/${productSlug}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": `application/json`,
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            variant: !!variantId ? variantId : null,
-          }),
+      const response = await fetch(`/cart/incart/${productSlug}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": `application/json`,
+          Authorization: `Bearer ${token}`,
         },
-      );
+        credentials: "include",
+        body: JSON.stringify({
+          variant: !!variantId ? variantId : null,
+        }),
+      });
       const data = await response.json();
       console.log("Cart status response:", data);
       return data.incart;

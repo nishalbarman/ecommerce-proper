@@ -9,9 +9,7 @@ export default async function ContactUsRoute(props) {
 
   let webData = {};
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/web-config`,
-    );
+    const response = await fetch(`/api/web-config`);
     webData = await response.json();
     console.log("fetch web config:", webData);
   } catch (error) {

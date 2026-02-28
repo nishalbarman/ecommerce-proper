@@ -20,24 +20,21 @@ const OrderHistoryPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(10); // Items per page
 
-  console.log(orders)
+  console.log(orders);
 
   const fetchOrders = async (page = 1) => {
     try {
       setIsLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/orders/l/${productType}`,
-        {
-          params: {
-            page: page - 1, // Your API uses 0-based index
-            limit: limit,
-          },
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const response = await axios.get(`/orders/l/${productType}`, {
+        params: {
+          page: page - 1, // Your API uses 0-based index
+          limit: limit,
         },
-      );
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setOrders(response.data.data);
       setTotalPages(response.data.totalPage);
@@ -98,7 +95,9 @@ const OrderHistoryPage = () => {
           <h1 className="mt-2 text-2xl sm:text-3xl font-bold text-gray-900">
             Order History
           </h1>
-          <p className="text-gray-500 text-sm">View your recent orders and their status</p>
+          <p className="text-gray-500 text-sm">
+            View your recent orders and their status
+          </p>
         </div>
 
         <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -147,7 +146,10 @@ const OrderHistoryPage = () => {
                       orders.map((order) => (
                         <tr key={order._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <img src={order.previewImage} className="w-10 h-10 rounded-full" />
+                            <img
+                              src={order.previewImage}
+                              className="w-10 h-10 rounded-full"
+                            />
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             {order.orderGroupID || order._id}
