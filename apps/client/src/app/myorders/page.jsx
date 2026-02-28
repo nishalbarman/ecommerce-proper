@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { redirect, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import Loading from "../../components/LoadingComponent/Loading";
+import Loading from "../../components/Loading";
 import { useGetOrderGroupListQuery } from "@/redux/apis/orderApi";
 
 export default function page() {

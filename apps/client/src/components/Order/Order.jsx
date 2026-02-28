@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import Loading from "../LoadingComponent/Loading";
+import Loading from "../Loading";
 
 const OrderHistoryPage = () => {
   const router = useRouter();

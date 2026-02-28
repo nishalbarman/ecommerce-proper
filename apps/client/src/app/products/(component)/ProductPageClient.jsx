@@ -7,7 +7,6 @@ import Link from "next/link";
 import { MdErrorOutline } from "react-icons/md";
 import { ProductApi, CategoryApi } from "@/redux";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
-import Loading from "@/components/LoadingComponent/Loading";
 
 const BRAND = { primary: "#DA4445" };
 

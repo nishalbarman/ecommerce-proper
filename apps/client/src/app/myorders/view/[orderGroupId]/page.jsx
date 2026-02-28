@@ -14,7 +14,7 @@ import {
   FaCreditCard,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import Loading from "@/components/LoadingComponent/Loading";
+import Loading from "@/components/Loading";
 import { MdCancel } from "react-icons/md";
 import {
   useCancelOrderItemMutation,
