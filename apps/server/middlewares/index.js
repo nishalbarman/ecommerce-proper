@@ -22,7 +22,7 @@ const checkRole = (...allowedRoles) => {
             sameSite: "none",
             domain:
               process.env.NODE_ENV === "production"
-                ? ".jharna-mehendi.vercel.app"
+                ? ".cartshopping.in"
                 : undefined,
           })
           .status(401)
@@ -43,7 +43,7 @@ const checkRole = (...allowedRoles) => {
             sameSite: "none",
             domain:
               process.env.NODE_ENV === "production"
-                ? ".jharna-mehendi.vercel.app"
+                ? ".cartshopping.in"
                 : undefined,
           })
           .status(401)
