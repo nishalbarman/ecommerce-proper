@@ -112,7 +112,7 @@ const ViewProduct = () => {
       }
 
       const response = await cAxios.post(
-        `${process.env.VITE_APP_API_URL}/products/variant/instock/${productId}`,
+        `${process.env.VITE_APP_API_URL}/products/instock/${productId}`,
         {
           variant: variantId,
           productType: product?.productType,

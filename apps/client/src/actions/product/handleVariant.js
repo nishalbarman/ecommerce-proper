@@ -50,7 +50,7 @@ async function handleVariantSelection(formData, product) {
           JSON.stringify({ variant: matchedVariant._id })
         );
         const stockResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productId}`,
           {
             method: "POST",
             headers: {
@@ -78,7 +78,7 @@ async function handleVariantSelection(formData, product) {
       };
     } else {
       const stockResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/variant/instock/${productId}`,
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/products/instock/${productId}`,
         {
           method: "POST",
           headers: {
