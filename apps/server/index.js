@@ -34,6 +34,8 @@ const allowedOrigins = {
   "https://www.cartshopping.in": true,
 };
 
+const maxAge = (24 * 60 * 60 * 1000) * 15; // 15 days
+
 const corsOptions = {
   origin: function (origin, callback) {
     // allow requests without origin (Postman, mobile apps)
@@ -54,7 +56,7 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   exposedHeaders: ["Set-Cookie"],
-  // maxAge: 86400, // 24 hours
+  maxAge: maxAge,
 };
 
 const app = express();

@@ -309,7 +309,7 @@ export default function ViewOneProductClient({ initialProductData }) {
       setIsAddToCartLoading(true);
 
       const cartObject = {
-        productSlug: product?._id,
+        productId: product?._id,
         quantity,
         productType: product?.productType,
       };

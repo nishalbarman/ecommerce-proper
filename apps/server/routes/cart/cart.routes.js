@@ -85,6 +85,7 @@ router.post("/", checkRole(0, 1, 2), async (req, res) => {
     }
 
     const productInfo = req.body;
+    const productSlug = productInfo.productSlug;
 
     // maybe these all mongo operations can be done using one aggregate pipeline
     const cartCount = await Cart.countDocuments({
@@ -93,7 +94,7 @@ router.post("/", checkRole(0, 1, 2), async (req, res) => {
       productType: productInfo.productType,
     });
 
-    if (cartCount >= 45) {
+    if (cartCount >= 50) {
       return res.status(400).json({
         message: "Only maximum 50 Cart items allowed!",
       });
