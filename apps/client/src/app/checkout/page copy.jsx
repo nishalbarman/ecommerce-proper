@@ -191,7 +191,7 @@ export default function CheckoutPage() {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
-        `/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddress },
         {
           withCredentials: true,
@@ -288,7 +288,7 @@ export default function CheckoutPage() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`);
 
       if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");

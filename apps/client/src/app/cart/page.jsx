@@ -6,7 +6,7 @@ export default async function Page() {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
-  const response = await fetch(`/cart?productType=buy`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/cart?productType=buy`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

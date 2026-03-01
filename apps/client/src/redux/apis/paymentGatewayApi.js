@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `/api/proxy/payment/`;
+const SERVER_URL = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/payment/`;
 
 export const pgApi = createApi({
   reducerPath: "paymentGatewayApi",

@@ -1,9 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+const SERVER_URL = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/`;
+
 export const productApi = createApi({
   reducerPath: "productApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_SERVER_URL,
+    baseUrl: SERVER_URL,
     prepareHeaders: (headers, { getState }) => {
       // const token = getState().auth.jwtToken;
       // if (token) {

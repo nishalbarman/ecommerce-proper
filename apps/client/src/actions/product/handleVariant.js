@@ -14,7 +14,7 @@ async function handleVariantSelection(formData, product) {
 
   try {
     // Fetch the product and its variants
-    const response = await fetch(`/products/view/${productId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/products/view/${productId}`, {
       method: "POST",
     });
 

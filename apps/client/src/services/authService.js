@@ -2,11 +2,22 @@ import axiosInstance from "./axiosInstance";
 import { store } from "../redux/store";
 import { setUserAuth, clearToken } from "../redux/slices/authSlice";
 
+const SERVER_URL = `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy`;
+
 const authService = {
   login: async (credentials) => {
     try {
-      const response = await axiosInstance.post("/auth/login", credentials);
-      const { token, user } = response.data;
+      const response = await fetch(`${SERVER_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(credentials),
+      });
+
+      const data = await response.json();
+      const { token, user } = data;
 
       // Store token in Redux (will be persisted automatically)
       store.dispatch(
@@ -15,10 +26,10 @@ const authService = {
           email: user.email,
           mobileNo: user.mobileNo,
           jwtToken: token,
-        })
+        }),
       );
 
-      return response.data;
+      return data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
@@ -26,8 +37,18 @@ const authService = {
 
   register: async (userData) => {
     try {
-      const response = await axiosInstance.post("/auth/signup", userData);
-      const { token, user } = response.data;
+      // const response = await axiosInstance.post("/auth/signup", userData);
+      const response = await fetch(`${SERVER_URL}/auth/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+      const { token, user } = data;
 
       // Store token in Redux (will be persisted automatically)
       store.dispatch(
@@ -36,29 +57,40 @@ const authService = {
           email: user.email,
           mobileNo: user.mobileNo,
           jwtToken: token,
-        })
+        }),
       );
 
-      return response.data;
+      return data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  logout: async () => {
+  logout: async (token) => {
     try {
-      const token = store.getState().auth.jwtToken;
+      // const token = cookieStore.get("token");
+
+      // const token = store.getState().auth.jwtToken;
+
       if (token) {
-        await axiosInstance.post(
-          "/auth/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        // await axiosInstance.post(
+        //   "/auth/logout",
+        //   {},
+        //   {
+        //     headers: {
+        //       Authorization: `Bearer ${token}`,
+        //     },
+        //   },
+        // );
+        await fetch(`${SERVER_URL}/auth/logout`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+        });
       }
+
       // Clear token from Redux (will be cleared from persistence automatically)
       store.dispatch(clearToken());
     } catch (error) {
@@ -80,7 +112,7 @@ const authService = {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.data.token) {

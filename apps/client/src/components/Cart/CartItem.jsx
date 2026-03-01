@@ -91,7 +91,7 @@ function CartItem({ item }) {
   const fetchProductVariants = async () => {
     try {
       setLoadingVariants(true);
-      const response = await fetch(`/products/view/${product?._id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${product?._id}`, {
         method: "POST",
       });
       const data = await response.json();
@@ -135,7 +135,7 @@ function CartItem({ item }) {
                 selectedVariant?.previewImage?.bgColor ||
                 product?.previewImage?.bgColor,
             }}
-            className="w-full md:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+            className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
             <Link href={`/products/view/${product?._id}`}>
               <img
                 className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"

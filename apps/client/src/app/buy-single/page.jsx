@@ -155,7 +155,7 @@ export default function CheckoutPage() {
 
       let response = null;
       if (productVariantId) {
-        response = await fetch(`/products/view-variant/${productVariantId}`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view-variant/${productVariantId}`, {
           headers: {
             "Contect-Type": "application/json",
           },
@@ -164,7 +164,7 @@ export default function CheckoutPage() {
         const data = await response.json();
         setProductData(data?.variant);
       } else {
-        response = await fetch(`/products/view/${productId}`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${productId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -183,7 +183,7 @@ export default function CheckoutPage() {
 
   const getShippingPricing = async () => {
     try {
-      const response = await axios.get(`/shipping-config/shipping-pricing/buy`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/shipping-config/shipping-pricing/buy`);
       const shippingPricing = response.data;
       setShippingPricing(shippingPricing);
       console.log("Shipping Pricing:", shippingPricing);
@@ -286,7 +286,7 @@ export default function CheckoutPage() {
     try {
       setIsPaymentLoading(true);
       const response = await axios.post(
-        `/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         {
           address: selectedAddress,
           productId: searchParams.get("productId"),
@@ -447,7 +447,7 @@ export default function CheckoutPage() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(`/coupons/validate?code=${couponCode}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`);
       const couponData = response?.data;
 
       console.log("Coupon Data", couponData);

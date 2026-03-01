@@ -6,8 +6,8 @@ import CategoryLink from "../SliderTopLinks/CategoryLink";
 
 const getBanners = async () => {
   try {
-    // const backendUrl = getBackendUrl();
-    const response = await axios.get(`/banners`);
+    const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
+    const response = await axios.get(`${backendUrl}/api/proxy/banners`);
     console.log("Array Data:", response.data);
     return response.data.banners;
     // const items = [

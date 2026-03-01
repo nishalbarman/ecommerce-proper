@@ -179,7 +179,7 @@ export default function ViewOneProductClient({ initialProductData }) {
 
         // Check stock availability for the matched variant
         const stockResponse = await axios.post(
-          `/products/instock/${productSlug}`,
+          `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/instock/${productSlug}`,
           { variant: matchedVariant._id },
           {
             headers: {
@@ -220,7 +220,7 @@ export default function ViewOneProductClient({ initialProductData }) {
       } else if (!product?.isVariantAvailable) {
         // For individual products without variants
         const stockResponse = await axios.post(
-          `/products/instock/${productSlug}`,
+          `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/instock/${productSlug}`,
           { variant: null },
           {
             withCredentials: true,
@@ -260,7 +260,7 @@ export default function ViewOneProductClient({ initialProductData }) {
 
   const checkCartStatus = useCallback(async (productSlug, variantId) => {
     try {
-      const response = await fetch(`/cart/incart/${productSlug}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/cart/incart/${productSlug}`, {
         method: "POST",
         headers: {
           "Content-Type": `application/json`,

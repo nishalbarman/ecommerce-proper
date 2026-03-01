@@ -210,7 +210,7 @@ export default function CheckoutPage() {
 
       setLoadingText("Creating order...");
       const response = await axios.post(
-        `/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddressDetails },
         {
           withCredentials: true,

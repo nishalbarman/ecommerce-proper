@@ -16,7 +16,7 @@ function page() {
     try {
       axios.defaults.withCredentials = true;
       dispatch(clearLoginSession());
-      await fetch(`/auth/logout`, {
+      await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/auth/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

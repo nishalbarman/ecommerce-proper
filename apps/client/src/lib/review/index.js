@@ -8,7 +8,7 @@ export const fetchReviews = async (
 ) => {
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/feedbacks/list/${productId}?page=${page}&limit=${limit}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/proxy/feedbacks/list/${productId}?page=${page}&limit=${limit}`,
       { productType }
     );
     return response.data;

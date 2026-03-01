@@ -31,8 +31,8 @@ import TopSliderSkeleton from "@/components/SliderTop/TopSliderSkel";
 
 const getSaleDetails = async () => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-    const response = await fetch(`${backendUrl}/sale-details`);
+    const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
+    const response = await fetch(`${backendUrl}/api/proxy/sale-details`);
     const data = await response.json();
     return data;
   } catch (error) {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { store } from "../redux/store";
 
-const API_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+const API_URL = process.env.NEXT_PUBLIC_DOMAIN_URL;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -24,6 +24,7 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
+// this needs to be enabled if requests are using token from redux (jwt based), now I am using cookie based auth so commenting.
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.jwtToken;

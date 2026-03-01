@@ -4,11 +4,13 @@ import Image from "next/image";
 import { cookies } from "next/headers";
 
 import tree_leaf from "../../../public/bg.png";
-import green_leaf_falling from "../../../public/green_leaf_falling.gif";
+// import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 
-const fetchHeroProduct = async (cookieStore) => {
+const fetchHeroProduct = async () => {
   try {
-    const response = await fetch(`/hero-products`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/hero-products`,
+    );
     const data = await response.json();
     return data[0];
   } catch (error) {

@@ -4,7 +4,7 @@ export default async function Page({ params }) {
   const p = await params;
   const { productSlug } = p;
 
-  const response = await fetch(`/products/view/${productSlug}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${productSlug}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

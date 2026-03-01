@@ -11,9 +11,14 @@ import axios from "axios";
 async function Footer() {
   let webData = {};
   try {
-    const response = await axios.get(`/api/web-config`);
-    webData = response.data;
-    console.log("fetch web config:", response.data);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/web-config`,
+      {
+        cache: "no-store",
+      },
+    );
+    webData = await response.json();
+    console.log("fetch web config:", webData);
   } catch (error) {
     console.log("Failed to fetch web config:", error);
     // Fallback data

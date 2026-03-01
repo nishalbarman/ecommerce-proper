@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function GET(req, { params, searchParams }) {
+export async function GET(req, { params }) {
   const p = await params;
   //   const sP = await searchParams;
   //   console.log("what are search params", sP)
