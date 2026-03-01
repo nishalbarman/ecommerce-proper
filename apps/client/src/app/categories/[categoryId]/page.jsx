@@ -9,11 +9,11 @@ export default async function Page({ params, searchParams }) {
   const limit = Number(sp.limit) || 12;
 
   const productRes = fetch(
-    `/products?page=${page - 1}&limit=${limit}&category=${p.categoryId}`,
+    `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products?page=${page - 1}&limit=${limit}&category=${p.categoryId}`,
     { cache: "no-store" },
   );
 
-  const res = fetch(`/categories/view/${p.categoryId}`, { cache: "no-store" });
+  const res = fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/categories/view/${p.categoryId}`, { cache: "no-store" });
 
   const response = await Promise.all([productRes, res]);
 

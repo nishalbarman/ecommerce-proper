@@ -82,7 +82,7 @@ export default function CategoryPage({
 
   //       // Fetch products for this category
   //       const productsRes = await fetch(
-  //         `/products?page=${page - 1}&limit=${limit}&category=${categoryId}`,
+  //         `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products?page=${page - 1}&limit=${limit}&category=${categoryId}`,
   //       );
   //       const productsData = await productsRes.json();
 

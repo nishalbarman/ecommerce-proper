@@ -12,9 +12,9 @@ export async function fetchProducts({
     //     res(true);
     //   }, 10000);
     // });
-    const backendUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+    const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
 
-    const url = new URL(`/products`, backendUrl);
+    const url = new URL(`/api/proxy/products`, backendUrl);
 
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);

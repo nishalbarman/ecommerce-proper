@@ -1,19 +1,28 @@
 import React from "react";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
-import { cookies } from "next/headers";
-import { fetchProducts } from "@/lib/product";
+
 // import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
 import Link from "next/link";
 import ProductSlider from "../ProductComps/ProductSliderTwo/ProductSlider";
 
 async function BestSelling() {
-  const cookieStore = await cookies();
+  const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
 
-  const productData = await fetchProducts({
-    page: 0,
-    limit: 10,
-    cookies: cookieStore,
+  const url = new URL(`/api/proxy/products`, backendUrl);
+
+  url.searchParams.append("page", 1);
+  url.searchParams.append("limit", 11);
+
+  url.searchParams.append("sort", "popularity");
+
+  const res = await fetch(url.href, {
+    credentials: "include",
+    headers: {
+      method: "GET",
+    },
+    cache: "no-store",
   });
+  const productData = await res.json();
 
   console.log("Product Data", productData);
 

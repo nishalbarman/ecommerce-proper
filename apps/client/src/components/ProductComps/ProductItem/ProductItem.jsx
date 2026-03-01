@@ -214,11 +214,11 @@ function ProductCard({
       </div>
 
       {/* Product Info Section */}
-      <div className="w-full flex flex-col gap-2 max-sm:gap-1 py-4 bg-white">
+      <div className="w-full flex flex-col gap-2 max-sm:gap-1 pt-2 bg-white">
         <div className="md:hidden">
           <button
             disabled={onCart}
-            className="w-full flex items-center justify-center h-12 w-5 max-sm:h-7 max-md:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center h-12 w-5 max-sm:h-8 max-md:h-9 rounded-lg bg-black text-white transition-all duration-200 hover:bg-gray-800 cursor-pointer disabled:cursor-not-allowed"
             onClick={handleAddCartButtonClicked}>
             {onCart ? (
               <FaCheck
@@ -237,7 +237,7 @@ function ProductCard({
         </div>
 
         <Link href={`/products/view/${productSlug}`} className="block group">
-          <div className="w-full rounded py-2 px-2">
+          <div className="w-full rounded pt-1 px-2">
             <h5 className="max-sm:text-sm text-lg font-semibold max-sm:line-clamp-2 line-clamp-1 transition-colors duration-200">
               {title}
             </h5>

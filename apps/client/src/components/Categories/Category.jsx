@@ -6,7 +6,10 @@ import CategorySlider from "./CategorySlider/CategorySlider";
 
 async function getCategories() {
   try {
-    const url = new URL(`/categories`, process.env.NEXT_PUBLIC_SERVER_URL);
+    const url = new URL(
+      `/api/proxy/categories`,
+      process.env.NEXT_PUBLIC_DOMAIN_URL,
+    );
 
     console.log(url.href);
 
@@ -25,7 +28,7 @@ async function getCategories() {
 export default async function Category() {
   const categories = await getCategories();
 
-  console.log(categories);
+  console.log("What are categories", categories);
 
   return (
     <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
@@ -43,3 +46,5 @@ export default async function Category() {
     </div>
   );
 }
+
+// the reason I am not using react slick because of the behavior, it does not respond to user cliks properly.

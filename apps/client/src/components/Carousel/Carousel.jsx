@@ -13,7 +13,7 @@ const CustomArrow = ({ direction, onClick }) => {
       onClick={onClick}
       className={`absolute top-1/2 ${
         direction === "prev" ? "left-3" : "right-3"
-      } transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white 
+      } transform -translate-y-1/2 bg-black/20 hover:bg-black/70 text-white 
       rounded-md p-3 cursor-pointer z-20 transition-all duration-300 shadow-lg`}>
       {direction === "prev" ? "‹" : "›"}
     </div>

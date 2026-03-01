@@ -48,9 +48,9 @@ export default async function Page() {
   return (
     <>
       {/* <BannerTop /> */}
-      <Suspense fallback={<HeroSkeleton />}>
+      {/* <Suspense fallback={<HeroSkeleton />}> */}
         <HeroProduct />
-      </Suspense>
+      {/* </Suspense> */}
 
       {/* <TopSliderSkeleton /> */}
       <Suspense fallback={<TopSliderSkeleton />}>
@@ -60,15 +60,15 @@ export default async function Page() {
       {isFlashSaleEnabled && <FlashSale saleEndTime={saleEndTime} />}
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
 
-      <Suspense fallback={<ProductSliderSkel />}>
+      {/* <Suspense fallback={<ProductSliderSkel />}> */}
         <Categories />
-      </Suspense>
+      {/* </Suspense> */}
 
       <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
 
-      <Suspense fallback={<ProductSliderSkel />}>
+      {/* <Suspense fallback={<ProductSliderSkel />}> */}
         <BestSelling />
-      </Suspense>
+      {/* </Suspense> */}
 
       <div className="hidden max-sm:block w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
 
