@@ -210,7 +210,7 @@ function NavbarPartNonLogged() {
               {/* search bar with icon */}
               <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-none outline-none border-black border-[1px] rounded-[4px] p-4 bg-transparent"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-gray-200 outline-none border-black border-[1px] rounded-[4px] p-4 bg-transparent"
                   type="text"
                   name="search-text"
                   placeholder="What are you looking for?"
