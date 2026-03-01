@@ -49,7 +49,7 @@ export default async function Page() {
     <>
       {/* <BannerTop /> */}
       {/* <Suspense fallback={<HeroSkeleton />}> */}
-        <HeroProduct />
+      <HeroProduct />
       {/* </Suspense> */}
 
       {/* <TopSliderSkeleton /> */}
@@ -61,18 +61,18 @@ export default async function Page() {
       {/* <div className="w-full h-[1px] bg-black opacity-[0.1] mt-[3.6rem]"></div> */}
 
       {/* <Suspense fallback={<ProductSliderSkel />}> */}
-        <Categories />
+      <Categories />
       {/* </Suspense> */}
 
-      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
+      <div className="w-full h-[1px] bg-black opacity-[0.1] mt-16 max-sm:mt-10"></div>
 
       {/* <Suspense fallback={<ProductSliderSkel />}> */}
-        <BestSelling />
+      <BestSelling />
       {/* </Suspense> */}
 
-      <div className="hidden max-sm:block w-full h-[1px] bg-black opacity-[0.1] mt-20 max-sm:mt-10"></div>
+      <div className="hidd w-full h-[1px] mt-16 max-sm:mt-10"></div>
 
-      <div className="w-full h-[1px] mt-20 max-sm:mt-5"></div>
+      {/* <div className="w-full h-[1px] mt-20 max-sm:mt-5"></div> */}
       <Suspense fallback={<TestimonialsSkeleton />}>
         <Testimonials />
       </Suspense>

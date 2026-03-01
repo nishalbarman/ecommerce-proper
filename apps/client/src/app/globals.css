@@ -23,6 +23,16 @@
   display: none !important;
 }
 
+.bestselling .swiper-button-next,
+.bestselling .swiper-button-prev {
+  top: 40% !important;
+}
+
+.swiper-button-disabled {
+  cursor: not-allowed !important;
+  background-color: #6c6c6c !important;
+}
+
 .swiper-button-next:after,
 .swiper-button-prev:after {
   width: 5px !important;

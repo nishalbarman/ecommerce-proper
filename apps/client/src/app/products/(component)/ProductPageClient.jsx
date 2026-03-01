@@ -156,6 +156,7 @@ export default function ProductList({ initialData, initialPage }) {
     }
 
     router.push(`/products?${params.toString()}`);
+    typeof window !== "undefined" && window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchSubmit = (e) => {
@@ -377,90 +378,90 @@ export default function ProductList({ initialData, initialPage }) {
     );
   }
 
-  if (isLoading)
-    return (
-      <div className="min-h-screen animate-pulse">
-        {/* Header */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="h-3 w-16 bg-gray-200 rounded mb-3"></div>
-          <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 w-60 bg-gray-200 rounded"></div>
-        </div>
+  // if (isLoading)
+  //   return (
+  //     <div className="min-h-screen animate-pulse">
+  //       {/* Header */}
+  //       <div className="container mx-auto px-4 py-8">
+  //         <div className="h-3 w-16 bg-gray-200 rounded mb-3"></div>
+  //         <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+  //         <div className="h-4 w-60 bg-gray-200 rounded"></div>
+  //       </div>
 
-        <div className="container mx-auto px-4 pb-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar Skeleton */}
-            <aside className="hidden md:block w-72">
-              <div className="bg-white rounded-2xl shadow-sm border p-5 space-y-4">
-                <div className="h-5 w-24 bg-gray-200 rounded"></div>
+  //       <div className="container mx-auto px-4 pb-8">
+  //         <div className="flex flex-col md:flex-row gap-6">
+  //           {/* Sidebar Skeleton */}
+  //           <aside className="hidden md:block w-72">
+  //             <div className="bg-white rounded-2xl shadow-sm border p-5 space-y-4">
+  //               <div className="h-5 w-24 bg-gray-200 rounded"></div>
 
-                {/* Category */}
-                <div className="space-y-2">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-4 w-full bg-gray-200 rounded"></div>
-                  ))}
-                </div>
+  //               {/* Category */}
+  //               <div className="space-y-2">
+  //                 {[...Array(6)].map((_, i) => (
+  //                   <div
+  //                     key={i}
+  //                     className="h-4 w-full bg-gray-200 rounded"></div>
+  //                 ))}
+  //               </div>
 
-                {/* Price */}
-                <div className="space-y-2">
-                  <div className="h-4 w-20 bg-gray-200 rounded"></div>
-                  <div className="h-2 w-full bg-gray-200 rounded"></div>
-                  <div className="h-2 w-full bg-gray-200 rounded"></div>
-                </div>
+  //               {/* Price */}
+  //               <div className="space-y-2">
+  //                 <div className="h-4 w-20 bg-gray-200 rounded"></div>
+  //                 <div className="h-2 w-full bg-gray-200 rounded"></div>
+  //                 <div className="h-2 w-full bg-gray-200 rounded"></div>
+  //               </div>
 
-                {/* Buttons */}
-                <div className="flex gap-2">
-                  <div className="h-9 w-20 bg-gray-200 rounded"></div>
-                  <div className="h-9 w-20 bg-gray-200 rounded"></div>
-                </div>
-              </div>
-            </aside>
+  //               {/* Buttons */}
+  //               <div className="flex gap-2">
+  //                 <div className="h-9 w-20 bg-gray-200 rounded"></div>
+  //                 <div className="h-9 w-20 bg-gray-200 rounded"></div>
+  //               </div>
+  //             </div>
+  //           </aside>
 
-            {/* Main */}
-            <section className="flex-1">
-              {/* Search + Sort */}
-              <div className="hidden md:flex items-center justify-between mb-6">
-                <div className="h-10 w-1/2 bg-gray-200 rounded"></div>
-                <div className="h-10 w-40 bg-gray-200 rounded"></div>
-              </div>
+  //           {/* Main */}
+  //           <section className="flex-1">
+  //             {/* Search + Sort */}
+  //             <div className="hidden md:flex items-center justify-between mb-6">
+  //               <div className="h-10 w-1/2 bg-gray-200 rounded"></div>
+  //               <div className="h-10 w-40 bg-gray-200 rounded"></div>
+  //             </div>
 
-              {/* Product Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-white rounded-xl shadow-md p-3 space-y-3">
-                    {/* Image */}
-                    <div className="w-full h-40 bg-gray-200 rounded"></div>
+  //             {/* Product Grid */}
+  //             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+  //               {[...Array(8)].map((_, i) => (
+  //                 <div
+  //                   key={i}
+  //                   className="bg-white rounded-xl shadow-md p-3 space-y-3">
+  //                   {/* Image */}
+  //                   <div className="w-full h-40 bg-gray-200 rounded"></div>
 
-                    {/* Title */}
-                    <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
+  //                   {/* Title */}
+  //                   <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
 
-                    {/* Price */}
-                    <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+  //                   {/* Price */}
+  //                   <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
 
-                    {/* Buttons */}
-                    <div className="flex gap-2">
-                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+  //                   {/* Buttons */}
+  //                   <div className="flex gap-2">
+  //                     <div className="h-8 w-8 bg-gray-200 rounded"></div>
+  //                     <div className="h-8 w-8 bg-gray-200 rounded"></div>
+  //                   </div>
+  //                 </div>
+  //               ))}
+  //             </div>
 
-              {/* Pagination */}
-              <div className="flex justify-center gap-2">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-10 w-10 bg-gray-200 rounded"></div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-    );
+  //             {/* Pagination */}
+  //             <div className="flex justify-center gap-2">
+  //               {[...Array(5)].map((_, i) => (
+  //                 <div key={i} className="h-10 w-10 bg-gray-200 rounded"></div>
+  //               ))}
+  //             </div>
+  //           </section>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
 
   return (
     <div className="min-h-screen ">

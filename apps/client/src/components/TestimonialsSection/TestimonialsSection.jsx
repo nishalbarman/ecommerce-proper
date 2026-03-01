@@ -37,12 +37,12 @@ const Testimonials = async () => {
   }
 
   return (
-    <div className="bg-primary py-20 max-sm:py-5 relative">
+    <div className="bg-primary py-20 max-sm:py-5 relative container bestselling mx-auto w-full h-fit max-md:px-2 px-4 max-sm:mt-8 max-md:mt-10 mt-15">
       <div className="h-full w-full absolute top-0 left-0">
         <Image
           className="select-none drag-none"
           src={tree_leaf}
-          alt=""
+          alt="tree leaf background"
           layout="fill"
           objectFit="cover"
           quality={100}

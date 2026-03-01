@@ -63,9 +63,9 @@ function NavbarPartNonLogged() {
             {pathname === "/products" || (
               <div
                 // href={"/products"}
-                className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-black border-1 ">
+                className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-gray-200 border-1 ">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none border-none outline-none"
                   type="text"
                   name="search-text"
                   onChange={(e) => setLocalSearch(e.target.value)}

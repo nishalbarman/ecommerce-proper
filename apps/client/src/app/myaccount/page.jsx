@@ -36,19 +36,21 @@ const MyAccountPage = () => {
   });
   const [errors, setErrors] = useState({});
 
-  const token = useSelector((state) => state.auth.jwtToken);
+  // const token = useSelector((state) => state.auth.jwtToken);
 
   const fetchUserData = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/user/me`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/user/me`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
       const data = await response.json();
       setUserData(data);
       setFormData({
@@ -169,9 +171,9 @@ const MyAccountPage = () => {
     }
   };
 
-  if (!token) {
-    redirect("/auth/login?redirect=myreviews");
-  }
+  // if (!token) {
+  //   redirect("/auth/login?redirect=myaccount");
+  // }
 
   if (isLoading) {
     return (
@@ -198,9 +200,9 @@ const MyAccountPage = () => {
 
         {/* Main Card */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             {/* Top strip */}
-            <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+            <div className="px-5 sm:px-6 py-4 bg-gray-50 flex items-center gap-2">
               <div className="h-5 w-5 bg-gray-300 rounded" />
               <div className="h-4 w-40 bg-gray-300 rounded" />
             </div>
@@ -225,8 +227,8 @@ const MyAccountPage = () => {
           {/* Secondary Sections */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Recent Orders */}
-            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-              <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-5 sm:px-6 py-4 bg-gray-50 flex items-center gap-2">
                 <div className="h-2 w-2 bg-gray-300 rounded-full" />
                 <div className="h-4 w-32 bg-gray-300 rounded" />
               </div>
@@ -238,8 +240,8 @@ const MyAccountPage = () => {
             </div>
 
             {/* Account Security */}
-            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-              <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="px-5 sm:px-6 py-4 bg-gray-50 flex items-center gap-2">
                 <div className="h-5 w-5 bg-gray-300 rounded" />
                 <div className="h-4 w-40 bg-gray-300 rounded" />
               </div>
@@ -291,7 +293,7 @@ const MyAccountPage = () => {
   }
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
       {/* Page header block */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <div className="flex items-center justify-between">
@@ -329,9 +331,9 @@ const MyAccountPage = () => {
 
       {/* Main card */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           {/* Top strip like your cards */}
-          <div className="px-5 sm:px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-5 sm:px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center gap-2 text-gray-700">
               <FaUser className="text-gray-500" />
               <span className="font-semibold">Profile Details</span>
@@ -367,7 +369,7 @@ const MyAccountPage = () => {
                 {isEditing ? (
                   <>
                     <div
-                      className={`flex items-center gap-2 rounded-lg border bg-white px-3 py-2 focus-within:ring-2 ${errors.name ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
+                      className={`flex items-center gap-2 rounded-lg border  bg-white px-3 py-2 focus-within:ring-2 ${errors.name ? "border-red-300 ring-red-100" : "border-gray-300 ring-blue-100"}`}>
                       <FaUser className="text-gray-400" />
                       <input
                         id="name"
@@ -384,7 +386,7 @@ const MyAccountPage = () => {
                     )}
                   </>
                 ) : (
-                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                  <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900">
                     {userData?.name || "—"}
                   </div>
                 )}
@@ -419,7 +421,7 @@ const MyAccountPage = () => {
                     )}
                   </>
                 ) : (
-                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                  <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900">
                     {userData?.email || "—"}
                   </div>
                 )}
@@ -454,7 +456,7 @@ const MyAccountPage = () => {
                     )}
                   </>
                 ) : (
-                  <div className="rounded-lg border bg-gray-50 px-3 py-2 text-gray-900">
+                  <div className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900">
                     {userData?.mobileNo || "—"}
                   </div>
                 )}
@@ -554,8 +556,8 @@ const MyAccountPage = () => {
         {/* Secondary sections */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Recent Orders */}
-          <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-            <div className="px-5 sm:px-6 py-4 border-b bg-gray-50">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-300 overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 border-b border-gray-300 bg-gray-50">
               <div className="flex items-center gap-2">
                 <span
                   className="inline-block h-2 w-2 rounded-full"

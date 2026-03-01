@@ -5,7 +5,7 @@ import { FiShoppingBag } from "react-icons/fi";
 import WishlistClientPage from "./(component)/WishlistClientPage";
 
 export default async function Page() {
-  const response = await fetch(`/wishlist`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/wishlist`, {
     method: "GET",
     credentials: "include",
     headers: { "Content-Type": "application/json" },

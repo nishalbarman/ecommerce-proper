@@ -34,21 +34,21 @@ async function Navbar({ title }) {
   console.log("Token from Navbar function", token);
 
   return (
-    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-white">
+    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-gradient-to-r from-[#FFFEE5] to-white">
       <div className="flex flex-row">
         <Link href={"/"} className="flex flex-center items-center w-fit">
           <img
             draggable={false}
             // src="/assets/logo/logo-horizontal.png"
             src="/assets/logo/new-logo.png"
-            className="max-md:hidden h-[90px] max-sm:h-[60px] p-2 select-none user-select-none"
+            className="max-md:hidden h-[90px] max-sm:h-[60px] p-2 select-none user-select-none mix-blend-multiply"
           />
 
           <img
             draggable={false}
             // src="/assets/logo/logo-horizontal.png"
             src="/assets/logo/new-logo.png"
-            className="md:hidden h-[70px] p-2 select-none user-select-none"
+            className="md:hidden h-[70px] p-2 select-none user-select-none mix-blend-multiply"
           />
           {/* <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden ml-4">
             <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">

@@ -29,7 +29,7 @@ const HeroProduct = async () => {
   if (!heroProduct) return null;
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFEE5] to-white py-24 max-md:pt-0">
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFEE5] to-white py-24 max-md:py-10">
       {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
         <Image
@@ -53,8 +53,8 @@ const HeroProduct = async () => {
         />
       </div> */}
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mt-10">
-        <div className="flex flex-col max-md:flex-col-reverse lg:flex-row items-center gap-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col-reverse min-lg:flex-row items-center gap-12">
           {/* Text content */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-6">
             <span className="inline-block py-2 bg-white/10 backdrop-blur-sm rounded-full text-primary text-sm font-bold border border-white/20">
@@ -83,7 +83,7 @@ const HeroProduct = async () => {
           </div>
 
           {/* Product image */}
-          <div className="max-md:w-50 max-md:h-60 lg:w-1/2 flex justify-center mt-10 max-md:mt-0 lg:mt-0">
+          <div className="max-md:w-50 max-md:h-60 lg:w-1/2 flex justify-center">
             <div className="relative w-full max-w-md aspect-square group">
               <div className="absolute inset-0 bg-red-100 rounded-3xl backdrop-blur-md transform rotate-6 scale-95 group-hover:rotate-3 group-hover:scale-100 transition-all duration-500"></div>
               {/* <div className="absolute inset-0 bg-transparent rounded-3xl backdrop-blur-md transform rotate-8 scale-100 group-hover:rotate-5 group-hover:scale-105 transition-all duration-500"></div> */}

@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
-import Loading from "@/app/cart/loading";
+import Loading from "@/app/cart/load";
 import TitleWithBar from "@/components/TitleWithBar/TitleWithBar";
 import Link from "next/link";
 import { useGetOneCategoryQuery } from "@/redux/apis/categoryApi";

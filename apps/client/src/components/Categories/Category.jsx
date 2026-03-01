@@ -31,15 +31,15 @@ export default async function Category() {
   console.log("What are categories", categories);
 
   return (
-    <div className="container mx-auto w-full h-fit mt-10 lg:mt-[3rem] max-md:px-2">
+    <div className="container bestselling mx-auto w-full h-fit max-md:px-2 px-4 max-sm:mt-8 max-md:mt-10 mt-15">
       <TitleWithBar title={"Browse By Category"} />
-      <div className="w-full flex justify-between items-center mb-12 max-[597px]:mb-6  max-sm:-mt-2">
-        <span className="text-2xl xl:text-3xl font-bold max-[597px]:text-[20px] text-nowrap max-sm:text-base">
+      <div className="w-full flex justify-between items-center max-sm:mb-4 max-md:mb-6 mb-8">
+        <span className="font-bold  max-sm:text-base max-md:text-md max-lg:text-2xl text-2xl text-nowrap ">
           See Our Categories
         </span>
       </div>
       {/* <CategorySlider items={categories || []} /> */}
-      <div className="mx-auto">
+      <div className="">
         {/* max-w-7xl  */}
         <CategorySlider categories={categories || []} />
       </div>

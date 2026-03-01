@@ -1,12 +1,10 @@
 "use server";
 
-import { getBackendUrl } from "@/helpter/utils";
+const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
 
 export async function fetchWishlist({ page = 0, limit = 50 } = {}) {
   try {
-    const backendUrl = getBackendUrl();
-
-    const url = new URL("/wishlist/list", backendUrl);
+    const url = new URL("/api/proxy/wishlist/list", backendUrl);
     url.searchParams.append("page", page);
     url.searchParams.append("limit", limit);
 
@@ -33,9 +31,7 @@ export const addProductToWishlist = async ({
   quantity = 1,
 }) => {
   try {
-    const backendUrl = getBackendUrl();
-
-    const url = new URL("/wishlist/create", backendUrl);
+    const url = new URL("/api/proxy/wishlist/create", backendUrl);
 
     await fetch(url.href, {
       headers: {
@@ -63,9 +59,7 @@ export const updateWishlistItem = async ({
   updatedItem = {},
 }) => {
   try {
-    const backendUrl = getBackendUrl();
-
-    const url = new URL(`/wishlist/update/${id}`, backendUrl);
+    const url = new URL(`/api/proxy/wishlist/update/${id}`, backendUrl);
 
     await fetch(url.href, {
       headers: {
@@ -84,9 +78,7 @@ export const updateWishlistItem = async ({
 
 export const deleteWishlistItem = async ({ id = undefined }) => {
   try {
-    const backendUrl = getBackendUrl();
-
-    const url = new URL(`/wishlist/delete/${id}`, backendUrl);
+    const url = new URL(`/api/proxy/wishlist/delete/${id}`, backendUrl);
 
     await fetch(url.href, {
       headers: {

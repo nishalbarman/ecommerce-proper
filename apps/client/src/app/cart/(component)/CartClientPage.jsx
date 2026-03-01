@@ -25,7 +25,7 @@ import AddressForm from "../../../components/AddressForm/AddressForm";
 import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
 import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
 import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
-import Loading from "../loading";
+import Loading from "../load";
 
 export default function CartClientPage({ initialCartData }) {
   const { useGetCartQuery } = CartApi;
@@ -122,7 +122,9 @@ export default function CartClientPage({ initialCartData }) {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`,
+      );
 
       if (!response.data.coupon) {
         return setCouponError(response.data.message || "Invalid coupon");
