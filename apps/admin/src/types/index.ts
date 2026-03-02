@@ -26,6 +26,7 @@ export type OrderAddress = {
 export type Image = {
   imageUrl: string;
   bgColor: string;
+  [key: string]: any;
 };
 
 export type Order = {

@@ -25,6 +25,7 @@ type MediaLibraryProps = {
   enablePagination?: boolean;
   itemsPerPage?: number;
   enableSearch?: boolean;
+  selectedItemIds?: string[]; // Add this prop to pass selected item IDs for pre-selection
 };
 
 const MediaLibrary: React.FC<MediaLibraryProps> = ({
@@ -36,6 +37,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
   enablePagination = true, // Enable by default for better experience
   itemsPerPage = 25,
   enableSearch = true, // Enable by default
+  selectedItemIds = [], // Default to empty array
 }) => {
   // State for server-side pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -166,6 +168,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
 
   return (
     <ReactMediaLibrary
+
       // Original props (exact same interface)
       isOpen={isOpen}
       onClose={() => setIsOpen((prev: boolean) => false)}
@@ -176,6 +179,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
       filesDeleteCallback={filesDeleteCallback}
       selectedItemsComponent={() => <FileLibrarySelectedItems />}
       // Enhanced features
+      defaultSelectedItemIds={selectedItemIds}
       enablePagination={enablePagination}
       itemsPerPage={pageLimit}
       enableSearch={enableSearch}

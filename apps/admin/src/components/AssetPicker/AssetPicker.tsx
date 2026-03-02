@@ -4,6 +4,7 @@ import MediaLibrary from "../NewMediaLibrary/MediaLibrary";
 import { FileLibraryListItem } from "react-media-library";
 
 type ImageManagementProps = {
+  ref?: React.Ref<HTMLDivElement> | null;
   iconClassX?: string;
   classX?: string;
   htmlFor?: string;
@@ -11,16 +12,19 @@ type ImageManagementProps = {
   // imageRequired: boolean;
   fileSelectCallback: ([key]: Array<FileLibraryListItem>) => void;
   multiSelect?: boolean;
+  selectedItemIds?: any[]; // Add this prop to pass selected images
 };
 
 const ImageManagement: React.FC<ImageManagementProps> = ({
   // htmlFor,
   // inputId,
   // imageRequired,
+  ref = null,
   iconClassX = "",
   classX = "",
   fileSelectCallback,
   multiSelect = false,
+  selectedItemIds = [],
   // isOpen,
   // setIsOpen,
 }) => {
@@ -31,6 +35,7 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
   return (
     <>
       <div
+        ref={ref}
         onClick={() => {
           setIsOpen(true);
         }}
@@ -56,6 +61,7 @@ const ImageManagement: React.FC<ImageManagementProps> = ({
         multiSelect={multiSelect}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        selectedItemIds={selectedItemIds || []} // Pass selected image IDs for pre-selection
       />
     </>
   );

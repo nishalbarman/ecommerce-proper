@@ -16,7 +16,7 @@ export default async function ({ params }) {
   return (
     <>
       <section className="text-gray-600 body-font">
-        <div className="container px-5 py-4 md:py-24 mx-auto flex flex-col">
+        <div className="container px-5 py-4 md:py-10 lg:15 mx-auto flex flex-col">
           <div className="lg:w-5/6 mx-auto">
             {pageContent?.cover && (
               <div

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -27,6 +28,7 @@ import "../../styles/swiper-style.css";
 
 import no_image from "../../assets/no-image.svg";
 import { FileLibraryListItem } from "react-media-library";
+import { MdDeleteOutline } from "react-icons/md";
 
 type ProductAddProps = {
   loading?: boolean | undefined;
@@ -459,14 +461,61 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     </label>
 
                     <div className="mt-1 flex items-center justify-end w-fit h-fit w-full">
-                      <div className="px-3">
+                      {!productData.previewImage?.imageUrl ? (
+                        <div className="px-3">
+                          <AssetPicker
+                            classX="h-5"
+                            htmlFor="productPreviewImage"
+                            fileSelectCallback={(
+                              imageItems: Array<FileLibraryListItem>,
+                            ) => {
+                              setProductData((prev) => {
+                                return {
+                                  ...prev,
+                                  previewImage: {
+                                    imageUrl: imageItems[0].imageLink,
+                                    bgColor: imageItems[0].bgColor,
+                                  },
+                                };
+                              });
+                            }}
+                            multiSelect={false}
+                          />
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setProductData((prev) => {
+                              return {
+                                ...prev,
+                                previewImage: null,
+                              };
+                            });
+                          }}
+                          type="button"
+                          className="w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 mr-5">
+                          {/* Remove */}
+                          <MdDeleteOutline size={20} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div
+                    className={`w-full h-[400px] bg-[${productData.previewImage?.bgColor}] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded`}>
+                    {productData.previewImage ? (
+                      <img
+                        className={`w-full h-full w-[200px] aspect-square object-contain bg-[${productData.previewImage?.bgColor}]`}
+                        src={productData?.previewImage?.imageUrl as string}
+                      />
+                    ) : (
+                      <div className="items-center flex justify-center h-full w-full cursor-pointer">
                         <AssetPicker
-                          classX="h-5"
+                          classX="h-full w-full border-1 rounded-sm border-gray-200 mt-0"
                           htmlFor="productPreviewImage"
                           fileSelectCallback={(
                             imageItems: Array<FileLibraryListItem>,
                           ) => {
-                            console.log("Selected Image Link-->", imageItems);
                             setProductData((prev) => {
                               return {
                                 ...prev,
@@ -479,20 +528,6 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                           }}
                           multiSelect={false}
                         />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`w-full h-[400px] bg-[${productData.previewImage?.bgColor}] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded`}>
-                    {productData.previewImage ? (
-                      <img
-                        className={`w-full h-full w-[200px] aspect-square object-contain bg-[${productData.previewImage?.bgColor}]`}
-                        src={productData?.previewImage?.imageUrl as string}
-                      />
-                    ) : (
-                      <div className="flex justify-center items-center w-full h-[400px]">
-                        <span>No Image Selected</span>
                       </div>
                     )}
                   </div>
@@ -557,14 +592,39 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         )}
                       </Swiper>
                     ) : (
-                      <div className="flex justify-center items-center w-full h-[400px]">
-                        <span>No Image Selected</span>
+                      <div className="items-center flex justify-center h-full w-full cursor-pointe">
+                        <AssetPicker
+                          classX="h-full w-full border-1 rounded-sm border-gray-200 mt-0"
+                          htmlFor="productSlideImage"
+                          fileSelectCallback={(
+                            imageItems: Array<FileLibraryListItem>,
+                          ) => {
+                            console.log("Selected Image Link-->", imageItems);
+                            setProductData((prev) => {
+                              return {
+                                ...prev,
+                                slideImages: imageItems.map((eachImage) => ({
+                                  imageUrl: eachImage.imageLink,
+                                  bgColor: eachImage.bgColor,
+                                  id: eachImage.id,
+                                })),
+                              };
+                            });
+                          }}
+                          selectedItemIds={
+                            productData.slideImages?.map((img) => img.id) || []
+                          }
+                          multiSelect={true}
+                        />
                       </div>
                     )}
                   </div>
                 </div>
               </div>
             </div>
+
+                          {JSON.stringify(productData.slideImages?.map((img) => img.id) || [])}
+
 
             <div className="bg-white p-4 rounded shadow-lg border">
               <h3 className="text-xl font-semibold mb-3">Product Pricing</h3>

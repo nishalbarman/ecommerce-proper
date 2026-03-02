@@ -13,6 +13,7 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import CustomCKE from "../CustomCKE/CustomCKE";
+import { MdDeleteOutline } from "react-icons/md";
 
 const DynamicPageAdd = () => {
   const [dynamicPageData, setDynamicPageData] = useState<DynamicPage>({
@@ -75,14 +76,14 @@ const DynamicPageAdd = () => {
     const isEverythingOk =
       !!dynamicPageData?.title &&
       dynamicPageData.title.length >= 3 &&
-      !!dynamicPageData?.shortDescription &&
-      dynamicPageData.shortDescription.length >= 10 &&
+      // !!dynamicPageData?.shortDescription &&
+      // dynamicPageData.shortDescription.length >= 10 &&
       !!dynamicPageData?.slug &&
       dynamicPageData.slug.length >= 3 &&
       !!dynamicPageData?.description &&
       dynamicPageData.description.length >= 10 &&
-      !!dynamicPageData?.avatar &&
-      !!dynamicPageData?.cover;
+      // !!dynamicPageData?.avatar &&
+      !!dynamicPageData?.cover.imageUrl;
     setIsSubmitDisabled(!isEverythingOk);
   }, [dynamicPageData]);
 
@@ -267,38 +268,50 @@ const DynamicPageAdd = () => {
 
                 <div className="flex w-full gap-10">
                   {/* Avatar */}
-                  <div className="mb-4 w-1/6">
+                  <div className="mb-4 w-1/5">
                     <label
                       htmlFor="avatar"
                       className="block font-semibold mb-2">
                       Avatar
                     </label>
-                    <AssetPicker
-                      htmlFor="avatar"
-                      fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>,
-                      ) => {
-                        setDynamicPageData({
-                          ...dynamicPageData,
-                          avatar: {
-                            imageUrl: imageItems[0].imageLink,
-                            bgColor: imageItems[0].bgColor,
-                          },
-                        });
-                      }}
-                      multiSelect={false}
-                    />
-                    <div className="w-full h-[300px] flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
-                      {dynamicPageData.avatar ? (
-                        <img
-                          className="w-full h-full aspect-square object-contain"
-                          src={dynamicPageData.avatar?.imageUrl}
+
+                    <div className="flex max-md:flex-col gap-4 h-80">
+                      {!dynamicPageData.avatar?.imageUrl ? (
+                        <AssetPicker
+                          classX="h-full"
+                          htmlFor="avatar"
+                          fileSelectCallback={(imageItems) => {
+                            setDynamicPageData((prev) => ({
+                              ...prev,
+                              avatar: {
+                                imageUrl: imageItems[0].imageLink,
+                                bgColor: imageItems[0].bgColor,
+                              },
+                            }));
+                          }}
+                          multiSelect={false}
                         />
                       ) : (
-                        <img
-                          className="w-full h-[200px] aspect-square object-contain"
-                          src={no_image}
-                        />
+                        <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
+                          <img
+                            className="w-full h-full w-[200px] aspect-square object-contain"
+                            src={dynamicPageData.avatar?.imageUrl as string}
+                          />
+                          <button
+                            onClick={() => {
+                              setDynamicPageData((prev) => {
+                                return {
+                                  ...prev,
+                                  avatar: null,
+                                };
+                              });
+                            }}
+                            type="button"
+                            className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            {/* Remove */}
+                            <MdDeleteOutline size={20} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -308,33 +321,44 @@ const DynamicPageAdd = () => {
                     <label htmlFor="cover" className="block font-semibold mb-2">
                       Cover
                     </label>
-                    <AssetPicker
-                      htmlFor="cover"
-                      fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>,
-                      ) => {
-                        console.log(imageItems[0]);
-                        setDynamicPageData({
-                          ...dynamicPageData,
-                          cover: {
-                            imageUrl: imageItems[0].imageLink,
-                            bgColor: imageItems[0].bgColor,
-                          },
-                        });
-                      }}
-                      multiSelect={false}
-                    />
-                    <div className="w-full h-[300px] flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
-                      {dynamicPageData.cover ? (
-                        <img
-                          className="w-full h-full aspect-square object-contain"
-                          src={dynamicPageData.cover?.imageUrl}
+
+                    <div className="flex max-md:flex-col gap-4 h-80">
+                      {!dynamicPageData.cover?.imageUrl ? (
+                        <AssetPicker
+                          classX="h-80"
+                          htmlFor="cover"
+                          fileSelectCallback={(imageItems) => {
+                            setDynamicPageData((prev) => ({
+                              ...prev,
+                              cover: {
+                                imageUrl: imageItems[0].imageLink,
+                                bgColor: imageItems[0].bgColor,
+                              },
+                            }));
+                          }}
+                          multiSelect={false}
                         />
                       ) : (
-                        <img
-                          className="w-full h-[200px] aspect-square object-contain"
-                          src={no_image}
-                        />
+                        <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
+                          <img
+                            className="w-full h-full w-[200px] aspect-square object-contain"
+                            src={dynamicPageData.cover?.imageUrl as string}
+                          />
+                          <button
+                            onClick={() => {
+                              setDynamicPageData((prev) => {
+                                return {
+                                  ...prev,
+                                  cover: null,
+                                };
+                              });
+                            }}
+                            type="button"
+                            className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                            {/* Remove */}
+                            <MdDeleteOutline size={20} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -429,12 +453,12 @@ const DynamicPageAdd = () => {
                                   description: item.description,
                                   shortDescription: item.shortDescription,
                                   avatar: {
-                                    imageUrl: item.imageUrl,
-                                    bgColor: item.bgColor,
+                                    imageUrl: item?.avatar?.imageUrl,
+                                    bgColor: item?.avatar?.bgColor,
                                   },
                                   cover: {
-                                    imageUrl: item.imageUrl,
-                                    bgColor: item.bgColor,
+                                    imageUrl: item?.cover?.imageUrl,
+                                    bgColor: item?.cover?.bgColor,
                                   },
                                   slug: item.slug,
                                 });
