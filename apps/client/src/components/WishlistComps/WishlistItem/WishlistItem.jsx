@@ -149,7 +149,7 @@ function WishlistItem({
         </button>
 
         {/* Action Icons */}
-        <div className="absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit">
+        <div className="absolute top-2 right-2 z-1 flex flex-col gap-2 items-center w-fit">
           {/* Remove from Wishlist Button */}
           <div
             className="flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-deletewishlist hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"

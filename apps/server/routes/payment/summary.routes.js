@@ -16,7 +16,8 @@ router.get("/:orderGroupId", checkRole(1, 2), async (req, res) => {
 
     const paymentTransaction = await PaymentTransModel.findOne({
       orderGroupID: orderGroupId,
-    }).select("paymentStatus subTotalPrice shippingPrice totalPrice");
+    });
+    // .select("paymentStatus ");
 
     console.log(paymentTransaction);
 

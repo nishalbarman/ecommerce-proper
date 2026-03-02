@@ -12,6 +12,7 @@ import {
   FaTruck,
   FaMoneyBillWave,
   FaCreditCard,
+  FaAddressCard,
 } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import Loading from "@/components/Loading";
@@ -52,8 +53,7 @@ const OrderViewPage = ({ params }) => {
     },
   );
 
-
-  // console.log("What is order data", orderDetails);
+  console.log("What is order data", orderData);
 
   const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
 
@@ -62,7 +62,7 @@ const OrderViewPage = ({ params }) => {
 
     try {
       await cancelOrder({
-        orderGroupId: orderGroup.orderGroupID,
+        orderGroupId: orderGroup?.orderGroupID,
       }).unwrap();
 
       toast.success("Order cancelled successfully");
@@ -145,7 +145,7 @@ const OrderViewPage = ({ params }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="container px-4 sm:px-6 lg:px-15 mx-auto">
         <div className="mb-6">
           <Link href="/myorders">
             <span className="inline-flex items-center text-black hover:text-black">
@@ -164,16 +164,16 @@ const OrderViewPage = ({ params }) => {
                     <h1 className="text-2xl font-semibold text-gray-900">
                       Order{" "}
                       <span className="max-sm:text-sm max-md:text-base max-md:block max-md:mt-2">
-                        #{orderGroup.orderGroupID}
+                        #{orderGroup?.orderGroupID}
                       </span>
                     </h1>
                     <p className="mt-1 text-sm text-gray-500">
-                      Placed on {formatDate(orderGroup.createdAt)}
+                      Placed on {formatDate(orderGroup?.createdAt)}
                     </p>
                   </div>
                   <span
-                    className={`text-nowrap px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(orderGroup.orderStatus)}`}>
-                    {orderGroup.orderStatus}
+                    className={`text-nowrap px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(orderGroup?.orderStatus)}`}>
+                    {orderGroup?.orderStatus}
                   </span>
                 </div>
               </div>
@@ -183,130 +183,148 @@ const OrderViewPage = ({ params }) => {
                   Order Details
                 </h2> */}
                 <div className="space-y-4">
-                 {/* <span>{JSON.stringify(orderDetails)}</span> */}
+                  {/* <span>{JSON.stringify(orderDetails)}</span> */}
                   {!!orderData?.data?.length &&
                     orderData?.data?.map((item, index) => (
-                      <div
-                        key={index}
-                        className="pb-4 border-b border-gray-200 last:border-0 last:pb-0">
-                        <div className="flex justify-between">
-                          <div>
-                            {/* <h3 className="text-sm font-medium text-gray-500">
-                            Product
-                          </h3> */}
-
-                            {item.orderStatus === "Cancelled" && (
-                              <p
-                                className={`mt-1 mb-2 bg-red-100 text-red-800 rounded-xl py-1 px-3 text-xs w-fit`}>
-                                Cancelled
-                              </p>
-                            )}
-                            <p className="mt-1 mb-2 max-sm:text-sm text-md text-gray-900 font-bold">
-                              {item.title}
-                            </p>
-                          </div>
-                          <div>
-                            {[
-                              "On Hold",
-                              "Pending",
-                              "On Progress",
-                              "Accepted",
-                            ].includes(item.orderStatus) && (
-                              <div className="">
-                                <button
-                                  onClick={() =>
-                                    handleCancelOrderItem(item._id)
-                                  }
-                                  title="Cancel"
-                                  disabled={cancellingItemId === item._id}
-                                  className={`w-full text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}>
-                                  <MdCancel
-                                    size={25}
-                                    className="text-red-500"
+                      <>
+                        <>
+                          {/* Main Cart Item */}
+                          <div className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
+                            <div className="flex flex-col md:flex-row p-4 gap-4">
+                              {/* Product Image */}
+                              <div
+                                style={{
+                                  backgroundColor: item?.previewImage?.bgColor,
+                                }}
+                                className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                                <Link
+                                  href={`/products/view/${item?.productSlug || item?.title?.toLowerCase().replace(/\s+/g, "-")}}`}>
+                                  <img
+                                    className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
+                                    src={item?.previewImage?.imageUrl}
+                                    alt={item?.title}
+                                    draggable={false}
                                   />
-                                </button>
+                                </Link>
                               </div>
-                            )}
-                          </div>
-                        </div>
 
-                        {item.previewImage && (
-                          <div className="">
-                            <img
-                              style={{
-                                backgroundColor: item.previewImage?.bgColor,
-                              }}
-                              src={item.previewImage?.imageUrl}
-                              alt={item.title}
-                              className="h-32 w-32 object-contain rounded-md"
-                            />
-                          </div>
-                        )}
+                              {/* Product Details */}
+                              <div className="flex-1 flex flex-col">
+                                <div className="flex justify-between items-start">
+                                  <Link
+                                    href={`/products/view/${item?._id}`}
+                                    className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors">
+                                    {item?.title}
+                                  </Link>
+                                  {/* <button
+                                    onClick={handleRemoveFromCart}
+                                    className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer">
+                                    <IoIosClose size={24} />
+                                  </button> */}
+                                </div>
 
-                        <div className="mt-4 flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-medium text-gray-500">
-                              Quantity:
-                            </h3>
-                            <p className="text-sm text-gray-900 font-bold">
-                              {item.quantity || 1}
-                            </p>
-                          </div>
-                          {item.color && (
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-medium text-gray-500">
-                                Color:
-                              </h3>
-                              <p className="text-sm text-gray-900 font-bold">
-                                {item.color}
-                              </p>
-                            </div>
-                          )}
-                          {item.size && (
-                            <div className="flex items-center gap-2">
-                              <h3 className="text-sm font-medium text-gray-500">
-                                Size:
-                              </h3>
-                              <p className="text-sm text-gray-900 font-bold">
-                                {item.size}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                                {/* Price Section */}
+                                <div className="mt-2">
+                                  <span className="text-xl font-bold text-gray-900">
+                                    ₹{item?.discountedPrice}
+                                  </span>
+                                  {!!item?.originalPrice && (
+                                    <>
+                                      <span className="text-gray-500 ml-2 line-through">
+                                        ₹{item?.originalPrice}
+                                      </span>
+                                      <span className="text-green-600 ml-2 text-sm">
+                                        Save ₹
+                                        {item?.originalPrice -
+                                          item?.discountedPrice}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
 
-                        {item.orderType === "rent" && (
-                          <>
-                            <div className="mt-4">
-                              <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                                <FaCalendarAlt className="mr-2" /> Rental Period
-                              </h3>
-                              <p className="mt-1 text-sm text-gray-900">
-                                {item.rentDays} days
-                              </p>
-                            </div>
-                            {item.pickupDate && (
-                              <div className="mt-4">
-                                <h3 className="text-sm font-medium text-gray-500">
-                                  Pickup Date
-                                </h3>
-                                <p className="mt-1 text-sm text-gray-900">
-                                  {formatDate(item.pickupDate)}
-                                </p>
+                                {/* Variant Info */}
+                                {item?.size && item?.color && (
+                                  <div className="mt-2 flex flex-wrap gap-2">
+                                    <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                                      <span className="text-gray-600">
+                                        Size:
+                                      </span>
+                                      <span className="font-medium ml-1">
+                                        {item.size}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                                      <span className="text-gray-600">
+                                        Color:
+                                      </span>
+                                      <span className="font-medium ml-1">
+                                        {item.color}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Actions */}
+                                <div className="mt-4 flex flex-wrap items-center gap-3">
+                                  {/* {(item.size && item.color) && (
+                                    <button
+                                      onClick={() =>
+                                        variantModalRef.current?.classList.remove(
+                                          "hidden",
+                                        )
+                                      }
+                                      className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm cursor-pointer h-full">
+                                      Change option
+                                      <FiChevronDown size={16} />
+                                    </button>
+                                  )} */}
+
+                                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                    {/* <button
+                                      onClick={() =>
+                                        handleQuantityChange(
+                                          Math.max(1, item.quantity - 1),
+                                        )
+                                      }
+                                      className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                                      disabled={item.quantity <= 1}>
+                                      -
+                                    </button> */}
+                                    <span className="px-4 py-2 text-center min-w-[40px]">
+                                      Quantity: {item?.quantity}
+                                    </span>
+                                    {/* <button
+                                      onClick={() =>
+                                        handleQuantityChange(
+                                          item.quantity + 1,
+                                        )
+                                      }
+                                      className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed">
+                                      +
+                                    </button> */}
+                                  </div>
+
+                                  {/* <button
+                                    onClick={handleAddToWishlist}
+                                    className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer">
+                                    <FiHeart
+                                      size={16}
+                                      className={
+                                        wishlistMappedItems?.hasOwnProperty(
+                                          product?._id,
+                                        )
+                                          ? "fill-pink-500 text-pink-500"
+                                          : ""
+                                      }
+                                    />
+                                    Move to wishlist
+                                  </button> */}
+                                </div>
                               </div>
-                            )}
-                            {item.rentReturnDueDate && (
-                              <div className="mt-4">
-                                <h3 className="text-sm font-medium text-gray-500">
-                                  Return Due Date
-                                </h3>
-                                <p className="mt-1 text-sm text-gray-900">
-                                  {formatDate(item.rentReturnDueDate)}
-                                </p>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                            </div>
+                          </div>
+                        </>
+                      </>
                     ))}
                 </div>
               </div>
@@ -325,7 +343,7 @@ const OrderViewPage = ({ params }) => {
                       <FaTruck className="mr-2" /> Shipping Method
                     </h3>
                     <p className="mt-1 text-sm text-gray-900 capitalize mb-3">
-                      {orderGroup.shipmentType?.replace("_", " ") ||
+                      {orderGroup?.shipmentType?.replace("_", " ") ||
                         "Standard"}
                     </p> */}
 
@@ -335,17 +353,26 @@ const OrderViewPage = ({ params }) => {
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <FaMapMarkerAlt className="mr-2" /> Shipping Address
                     </h3>
-                    {orderGroup.address ? (
+                    {orderGroup?.address ? (
                       <div className="mt-1 max-sm:text-sm text-md text-gray-900 border border-red-500 bg-red-50 rounded-md p-4 mt-3">
                         <p className="mb-1 font-bold">
-                          {orderGroup.address.physicalAddress?.fullName}
+                          {orderGroup?.address.physicalAddress?.fullName},{" "}
+                          <span className="font-normal">
+                            {orderGroup?.address.physicalAddress?.phone}
+                          </span>
                         </p>
-                        <p>
-                          {orderGroup.address.physicalAddress?.streetName},{" "}
-                          {orderGroup.address.physicalAddress?.city}
-                        </p>
-                        <p>{orderGroup.address.physicalAddress?.postalCode}</p>
-                        <p>{orderGroup.address.physicalAddress?.country}</p>
+                        <div>
+                          <p>
+                            {orderGroup?.address.physicalAddress?.streetName},{" "}
+                            {orderGroup?.address.physicalAddress?.city}
+                          </p>
+                          <p>
+                            {orderGroup?.address.physicalAddress?.postalCode}
+                          </p>
+                          <p>{orderGroup?.address.physicalAddress?.country}</p>
+                        </div>
+
+                        <p></p>
                       </div>
                     ) : (
                       <p className="mt-1 text-sm text-gray-500">
@@ -375,10 +402,10 @@ const OrderViewPage = ({ params }) => {
                           <FaMoneyBillWave className="mr-2" /> Payment Method:
                         </h3>
                         <p className="text-sm text-gray-900">
-                          {orderGroup.paymentMode},{" "}
+                          {orderGroup?.paymentMode},{" "}
                           <span
-                            className={`mt-1 text-sm ${orderGroup.paymentStatus === "Success" ? "text-green-600" : "text-yellow-600"}`}>
-                            ({orderGroup.paymentStatus})
+                            className={`mt-1 text-sm ${orderGroup?.paymentStatus === "Success" ? "text-green-600" : "text-yellow-600"}`}>
+                            ({orderGroup?.paymentStatus})
                           </span>
                         </p>
                       </div>
@@ -394,11 +421,54 @@ const OrderViewPage = ({ params }) => {
                           )}
                         </span>
                       </div>
+                      {orderGroup?.pricingDetails?.groupSaleDiscount > 0 && (
+                        <div className="flex justify-between py-2">
+                          <span className="text-sm text-gray-600 text-green-700">
+                            Discount
+                          </span>
+                          <span className="text-sm font-medium text-green-700">
+                            -₹
+                            {orderGroup?.pricingDetails?.groupSaleDiscount?.toFixed(
+                              2,
+                            )}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between py-2">
+                        <span className="text-sm text-gray-600">
+                          After Discount
+                        </span>
+                        <span className="text-sm font-medium">
+                          ₹
+                          {orderGroup?.pricingDetails?.groupDiscountedPrice?.toFixed(
+                            2,
+                          )}
+                        </span>
+                      </div>
+                      {orderGroup?.pricingDetails?.couponDiscountGiven > 0 && (
+                        <div className="flex justify-between py-2">
+                          <span className="text-sm text-gray-600 text-green-700">
+                            Coupon Discount
+                          </span>
+                          <span className="text-sm font-medium text-green-700">
+                            -₹
+                            {orderGroup?.pricingDetails?.couponDiscountGiven?.toFixed(
+                              2,
+                            )}
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex justify-between py-2">
                         <span className="text-sm text-gray-600">Shipping</span>
                         <span className="text-sm font-medium">
-                          ₹
-                          {orderGroup?.pricingDetails?.shippingPrice.toFixed(2)}
+                          {orderGroup?.pricingDetails?.shippingPrice > 0 ? (
+                            `₹${orderGroup?.pricingDetails?.shippingPrice.toFixed(
+                              2,
+                            )}`
+                          ) : (
+                            <span className="font-bold">FREE</span>
+                          )}
                         </span>
                       </div>
                       <div className="border-t border-gray-200 my-3"></div>
@@ -417,7 +487,7 @@ const OrderViewPage = ({ params }) => {
               </div>
 
               {["On Hold", "Pending", "On Progress", "Accepted"].includes(
-                orderGroup.orderStatus,
+                orderGroup?.orderStatus,
               ) && (
                 <div className="mt-4">
                   <button
@@ -429,10 +499,10 @@ const OrderViewPage = ({ params }) => {
                 </div>
               )}
 
-              {orderGroup.trackingLink && (
+              {orderGroup?.trackingLink && (
                 <div className="mt-5 w-full">
                   <a
-                    href={orderGroup.trackingLink}
+                    href={orderGroup?.trackingLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary rounded-md bg-red-50 border border-primary px-8 py-3 w-full">

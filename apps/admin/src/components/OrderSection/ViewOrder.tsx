@@ -117,9 +117,9 @@ function ViewSingleOrder() {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
-      setGroupOrderDetails(response.data);
+      setGroupOrderDetails(response.data.orderGroup);
     } catch (error: any) {
       toast.error(error.response?.message || error.message);
       console.error(error);
@@ -145,7 +145,7 @@ function ViewSingleOrder() {
             headers: {
               Authorization: `Bearer ${jwtToken}`,
             },
-          }
+          },
         );
         setSummary(response.data);
       } catch (error: any) {
@@ -184,7 +184,7 @@ function ViewSingleOrder() {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
 
       await fetchGroupOrderDetails();
@@ -205,6 +205,9 @@ function ViewSingleOrder() {
       console.error(error);
     }
   };
+
+  console.log("Group Order Details --> ", groupOrderDetails);
+  console.log("Payment Summary --> ", summary);
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
@@ -260,7 +263,7 @@ function ViewSingleOrder() {
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div>
                       <div className="grid grid-cols-1 gap-4">
-                        {groupOrderDetails.orders?.map((order) => (
+                        {groupOrderDetails?.orders?.map((order) => (
                           <div
                             key={order._id}
                             className="bg-white rounded-lg shadow-md overflow-hidden relative border">
@@ -289,7 +292,6 @@ function ViewSingleOrder() {
 
                             <div className="p-4">
                               <div className="flex gap-4">
-                              <span>{JSON.stringify(order.previewImage)}</span>
                                 <img
                                   src={(order.previewImage as Image)?.imageUrl}
                                   alt={order.title}
@@ -316,7 +318,7 @@ function ViewSingleOrder() {
                                       </div>
                                     )}
                                   </div>
-                                  <div className="text-lg mt-4">
+                                  {/* <div className="text-lg mt-4">
                                     Price:{" "}
                                     <span className="font-bold">
                                       ₹{order.price}{" "}
@@ -330,7 +332,7 @@ function ViewSingleOrder() {
                                         ? `₹${order.shippingPrice}`
                                         : "Not Applicable"}
                                     </span>
-                                  </div>
+                                  </div> */}
                                 </div>
                               </div>
                             </div>
@@ -384,9 +386,13 @@ function ViewSingleOrder() {
                                   )}
                                   <option value={"Accepted"}>Accept</option>
                                   <option value={"Rejected"}>Reject</option>
-                                  <option value={"On The Way"}>On The Way</option>
+                                  <option value={"On The Way"}>
+                                    On The Way
+                                  </option>
                                   {groupOrderDetails.orderType === "buy" && (
-                                    <option value={"Delivered"}>Delivered</option>
+                                    <option value={"Delivered"}>
+                                      Delivered
+                                    </option>
                                   )}
                                   {groupOrderDetails.orderType === "rent" && (
                                     <option value={"PickUp Ready"}>
@@ -459,7 +465,8 @@ function ViewSingleOrder() {
                                 <div className="flex justify-between">
                                   <span>
                                     Subtotal (
-                                    {groupOrderDetails.totalDocumentCount} items)
+                                    {groupOrderDetails?.orders?.length}{" "}
+                                    items)
                                   </span>
                                   <span>₹{summary.subTotalPrice}</span>
                                 </div>
@@ -478,7 +485,7 @@ function ViewSingleOrder() {
                                     <div className="flex justify-between font-bold">
                                       <span>Payment Status</span>
                                       <div className="flex flex-col justify-between">
-                                        {summary.paymentStatus === "Pending" && (
+                                        {/* {summary.paymentStatus === "Pending" && (
                                           <div className="bg-blue-100 border border-blue-400 text-blue-700 px-3 py-1 rounded-md text-center font-bold">
                                             Pending
                                           </div>
@@ -487,10 +494,10 @@ function ViewSingleOrder() {
                                           <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-1 rounded-md text-center font-bold">
                                             Paid
                                           </div>
-                                        )}
-                                        {summary.paymentStatus === "Failed" && (
+                                        )} */}
+                                        {summary?.paymentStatus && (
                                           <div className="bg-purple-100 border border-purple-400 text-purple-700 px-3 py-1 rounded-md text-center font-bold">
-                                            Failed
+                                            {summary.paymentStatus}
                                           </div>
                                         )}
                                       </div>
@@ -575,11 +582,11 @@ function ViewSingleOrder() {
                                     </p>
                                     <p>
                                       Landmark:{" "}
-                                      {
-                                        groupOrderDetails?.address
-                                          ?.physicalAddress?.landmark? groupOrderDetails?.address
-                                          ?.physicalAddress?.landmark : "N/A"
-                                      }
+                                      {groupOrderDetails?.address
+                                        ?.physicalAddress?.landmark
+                                        ? groupOrderDetails?.address
+                                            ?.physicalAddress?.landmark
+                                        : "N/A"}
                                     </p>
                                     <p>
                                       Postal Code:{" "}
@@ -627,4 +634,4 @@ function ViewSingleOrder() {
   );
 }
 
-export default ViewSingleOrder; 
+export default ViewSingleOrder;

@@ -27,6 +27,7 @@ import {
   clearCouponData,
   updateAppliedCoupon,
 } from "@/redux/slices/appliedCouponSlice";
+import { useCookies } from "next-client-cookies/dist";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -49,9 +50,6 @@ export default function CheckoutPage() {
   } = useGetCartQuery({
     productType: "buy",
   });
-  // const { data: userWishlistItems } = useGetWishlistQuery({
-  //   productType: "buy",
-  // });
 
   const { data: paymentGatewayList, isLoading: isPaymentGatewayLoading } =
     useGetAllPaymentGatewaysQuery();
@@ -62,42 +60,13 @@ export default function CheckoutPage() {
 
   console.log("What are payment gateways", paymentGatewayList);
 
-  // const { data: addresses, isLoading, refetch } = useGetAddressQuery();
-  // const [selectedAddress, setSelectedAddress] = useState(null);
-  // const [isAddingAddress, setIsAddingAddress] = useState(false);
-
-  // console.log(selectedAddress);
-
-  // const handleContinueToPayment = () => {
-  //   console.log(
-  //     "Is address selected then what is the value",
-  //     selectedAddressDetails,
-  //   );
-
-  //   if (!selectedAddressDetails) {
-  //     toast.error("Please select a delivery address");
-  //     return;
-  //   }
-
-  //   setIsPaymentLoading(true);
-  //   handlePayment();
-  // };
-
   const { Razorpay } = useRazorpay();
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  // const [gatewayOption, setGatewayOption] = useState(null);
-
-  // const [paymentGatewayList, setPaymentGatewaysList] = useState([]);
 
   const appliedCoupon = useSelector((state) => state.appliedCouponSlice);
 
   console.log("applied coupon from checkrout page", appliedCoupon);
-
-  const [subtotalPrice, setSubtotalPrice] = useState(0); // purchase price
-  const [totalDiscountPrice, setTotalDiscountPrice] = useState(0);
-  const [totalShippingPrice, setTotalShippingPrice] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0); // original price without the discounts
 
   const [orderStatus, setOrderStatus] = useState(true);
   const [orderStatusText, setOrderStatusText] = useState("");
@@ -116,7 +85,7 @@ export default function CheckoutPage() {
     form.method = "POST";
     // form.action = "https://test.payu.in/_payment"; // URL of your payment page
     form.action = "https://secure.payu.in/_payment"; // URL of your payment page
-    form.target = "CARFTER_PaymentPopup";
+    form.target = "NishalBarman_PaymentPopup";
 
     // Add each key-value pair from postData as a hidden input field
     for (const key in pay) {
@@ -150,9 +119,8 @@ export default function CheckoutPage() {
     const isAddressAvailble = true || localStorage.getItem("isAddressAvailble");
     if (isAddressAvailble) {
       try {
-        setIsPaymentLoading(true);
         const response = await axios.get(
-          `/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
+          `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/payment/payu/cart-hash${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
           {
             headers: {},
           },
@@ -190,8 +158,6 @@ export default function CheckoutPage() {
         document.addEventListener("paymentResponseData", handlePopupEvent);
       } catch (err) {
         console.log(err);
-      } finally {
-        setIsPaymentLoading(false);
       }
     } else {
       navigation.push("/billing?redirect=payment-cart");
@@ -206,17 +172,15 @@ export default function CheckoutPage() {
   // razor pay checkouts
   const handleRazorPayContinue = useCallback(async () => {
     try {
-      setIsPaymentLoading(true);
-
       setLoadingText("Creating order...");
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/razorpay/cart/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         { address: selectedAddressDetails },
         {
           withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
         },
       ); // generate razor pay order id and also apply coupon if applicable
 
@@ -309,8 +273,6 @@ export default function CheckoutPage() {
         "Payment failed, please try again if the issue persists please contact us.",
       );
       redirect("/cart");
-    } finally {
-      setIsPaymentLoading(false);
     }
   }, [Razorpay, appliedCoupon, selectedPaymentMethod, selectedAddressDetails]);
 
@@ -320,7 +282,7 @@ export default function CheckoutPage() {
       setLoadingText("Creating order...");
 
       const response = await axios.post(
-        `/pay/cashfree/cart/buy${
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/cashfree/cart/buy${
           appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
         }`,
         {
@@ -328,9 +290,9 @@ export default function CheckoutPage() {
         },
         {
           withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          // },
         },
       );
 
@@ -360,7 +322,7 @@ export default function CheckoutPage() {
     } finally {
       setIsPaymentLoading(false);
     }
-  }, [appliedCoupon, selectedAddressDetails, token]);
+  }, [appliedCoupon, selectedAddressDetails]);
 
   const handlePayment = useCallback(() => {
     switch (selectedPaymentMethod) {
@@ -404,126 +366,15 @@ export default function CheckoutPage() {
     };
   }, [selectedAddressDetails]);
 
-  // const couponModalRef = useRef();
-  // const couponSuccessModalRef = useRef();
   const paymentLoadingModalRef = useRef();
   const paymentStatusModalRef = useRef();
 
-  // useEffect(() => {
-  //   if (paymentGatewayList?.data?.length > 0) {
-  //     setGatewayOption(paymentGatewayList.data[0].code);
-  //   }
-  // }, [paymentGatewayList]);
-
-  // const [couponCode, setCouponCode] = useState("");
-  // const [couponError, setCouponError] = useState("");
-  // const [couponSubmitLoading, setCouponSubmitLoading] = useState(false);
-
-  // const [MRP, setMRP] = useState(0);
-  // const [purchasablePrice, setPurchasablePrice] = useState(0);
-  // const [
-  //   totalDiscountPrice_OrignalPriceMinusPurchasablePrice,
-  //   setDiscountPrice_OrignalPriceMinusPurchasablePrice,
-  // ] = useState(0);
-  // const [finalPrice, setFinalPrice] = useState(0);
-
-  // const [couponDiscountPrice, setCouponDiscountPrice] = useState(0); // discount of the applied coupon/if any
-
-  // const [isShippingApplied, setIsShippingApplied] = useState(true);
-
-  // useEffect(() => {
-  //   let MRP = 0;
-  //   let purchasablePrice = 0;
-  //   let totalDiscount_OriginalMinusPurchasable = 0;
-
-  //   userCartItems?.forEach((item) => {
-  //     if (!item.product) return;
-
-  //     if (item.variant) {
-  //       MRP +=
-  //         (item.variant.originalPrice || item.variant.discountedPrice) *
-  //         (item.quantity || 1);
-
-  //       purchasablePrice += item.variant.discountedPrice * (item.quantity || 1);
-
-  //       totalDiscount_OriginalMinusPurchasable += item.variant.originalPrice
-  //         ? (item.quantity || 1) *
-  //           (item.variant.originalPrice - item.variant.discountedPrice)
-  //         : 0;
-  //     } else {
-  //       MRP +=
-  //         (item.product.originalPrice || item.product.discountedPrice) *
-  //         (item.quantity || 1);
-
-  //       purchasablePrice += item.product.discountedPrice * (item.quantity || 1);
-
-  //       totalDiscount_OriginalMinusPurchasable += item.product.originalPrice
-  //         ? (item.quantity || 1) *
-  //           (item.product.originalPrice - item.product.discountedPrice)
-  //         : 0;
-  //     }
-  //   });
-
-  //   setMRP(MRP);
-  //   setPurchasablePrice(purchasablePrice);
-  //   setDiscountPrice_OrignalPriceMinusPurchasablePrice(
-  //     totalDiscount_OriginalMinusPurchasable,
-  //   );
-
-  //   const isFreeDeliveryAvailable =
-  //     requiredMinimumAmountForFreeDelivery > 0 &&
-  //     purchasablePrice >= requiredMinimumAmountForFreeDelivery;
-
-  //   let finalPrice = purchasablePrice;
-  //   setIsShippingApplied(false);
-  //   setFinalPrice(purchasablePrice);
-
-  //   if (!isFreeDeliveryAvailable) {
-  //     setIsShippingApplied(true);
-  //     setFinalPrice(purchasablePrice + shippingPrice);
-  //     finalPrice += shippingPrice;
-  //   }
-
-  //   if (!!appliedCoupon && appliedCoupon?._id) {
-  //     const couponDiscountPrice = appliedCoupon.isPercentage
-  //       ? (finalPrice / 100) * (parseInt(appliedCoupon.off) || 0)
-  //       : finalPrice > appliedCoupon.minPurchasePrice
-  //         ? appliedCoupon.off
-  //         : 0;
-
-  //     setCouponDiscountPrice(couponDiscountPrice.toFixed(2));
-
-  //     setFinalPrice(finalPrice - (couponDiscountPrice || 0));
-  //   }
-  // }, [userCartItems, appliedCoupon]);
-
-  // const getPaymentGateways = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `/payment/gateways`
-  //     );
-  //     console.log(response.data.data);
-  //     setPaymentGatewaysList(response.data.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   console.log(paymentGatewayList);
-  //   setGatewayOption(
-  //     paymentGatewayList.length > 0 ? paymentGatewayList[0].title : null
-  //   );
-  // }, [paymentGatewayList]);
-
-  // useEffect(() => {
-  //   getPaymentGateways();
-  // }, []);
-
   const [loadingText, setLoadingText] = useState("Initializing payment...");
 
-  if (!token) {
-    redirect("/auth/login?redirect=myreviews");
+  const cookies = useCookies();
+
+  if (!cookies.get("token")) {
+    redirect("/auth/login?redirect=cart");
   }
 
   return (

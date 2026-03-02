@@ -70,15 +70,39 @@ export type OrderGroup = {
   orderType: string;
   images?: Image[] | null;
   paymentStatus: string;
-  orders: Order[];
+  // orders: Order[];
   paymentTransactionId: string;
   totalDocumentCount: number;
   totalPrice: number;
-  user: User;
+  user: string | User;
+
+  appliedCoupon: string;
+
+  orderStatus: string;
+
+  orders: [{ [key: string]: any }];
+  paymentMode: string;
+  paymentTransactionID: string;
+  previewImages: [{ imageUrl: string, bgColor: string,[key: string]: any }];
+  pricingDetails: {
+    couponDiscountGiven: number;
+    groupDiscountedPrice: number;
+    groupFinalOrderPrice: number;
+    groupOriginalPrice: number;
+    groupSaleDiscount: number;
+    shippingPrice: number;
+  };
+  shipmentType: string;
+  shippingApplied: boolean;
+  store: any;
+  trackingLink: any;
+
+  _id: string;
+  [key: string]: any;
 };
 
 export type PaymentSummary = {
-  paymentStatus: string;
+  // paymentStatus: string;
   shippingPrice: number;
   subTotalPrice: number;
   totalPrice: number;
@@ -87,6 +111,27 @@ export type PaymentSummary = {
   discount: number;
   couponDiscount: number;
   finalPrice: number;
+
+  orderGroupID: string;
+  paymentTransactionID: string;
+  orders: any;
+  user: string | User;
+
+  paymentStatus: ["Pending", "Paid", "Failed", "COC"];
+
+  gateway: string;
+
+  pricingDetails: {
+    originalPrice: number;
+    discountedPrice: number;
+    saleDiscount: number;
+    couponDiscountGiven: number;
+    shippingPrice: number;
+    finalOrderPrice: number;
+  };
+
+  appliedCoupon: string | any;
+  shippingApplied: boolean;
 };
 
 export type Base64StringWithType = {

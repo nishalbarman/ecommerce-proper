@@ -73,7 +73,7 @@ export default function WishlistClientPage({ initialWishlistData }) {
           )}
 
           {wishlistData?.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl-grid-cols-5 gap-5 items-center space-x-4 max-sm:my-1 w-full z-1">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl-grid-cols-5 gap-5 items-center space-x-4 max-sm:my-1 w-full z-1">
               {wishlistData?.map((item) => {
                 return (
                   <div key={item._id || index} className="w-full h-full">

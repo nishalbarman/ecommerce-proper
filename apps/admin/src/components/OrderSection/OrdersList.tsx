@@ -70,15 +70,15 @@ const OrderList = () => {
 
     try {
       const res: {
-        data: { groupedOrders: OrderGroup[]; globalTotalDocumentCount: number };
+        data: { groupOrderData: OrderGroup[]; pagination: any };
       } = await cAxios.get(url.href, {
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },
       });
 
-      setData(res.data?.groupedOrders || []);
-      setRowCount(res.data?.globalTotalDocumentCount || 0);
+      setData(res.data?.groupOrderData || []);
+      setRowCount(res.data?.pagination?.totalItems || 0);
     } catch (error) {
       setIsError(true);
       console.error(error);
@@ -97,73 +97,42 @@ const OrderList = () => {
     orderStatusFilter,
   ]);
 
+  console.log("Fetched Order Data: ", data);
+
   const columns = useMemo<MRT_ColumnDef<OrderGroup>[]>(
     () => [
       {
-        id: "payment_info",
-        header: "Payment Info",
-        columns: [
-          {
-            header: "Transaction ID",
-            accessorKey: "paymentTransactionId",
-            enableClickToCopy: true,
-            size: 200,
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span">
-                {renderedCellValue || "Not Applicable"}
-              </Box>
-            ),
-          },
-          {
-            header: "Payment Status",
-            accessorKey: "paymentStatus",
-            size: 150,
-            Cell: ({ renderedCellValue }) => {
-              let color = "";
-              let text = "";
+        header: "Preview",
+        accessorKey: "previewImages",
+        size: 100,
+        Cell: ({ cell }) => {
+          const value = cell.getValue() || [];
 
-              switch (renderedCellValue) {
-                case "Pending":
-                  color = "orange";
-                  text = "Pending";
-                  break;
-                case "Success":
-                  color = "green";
-                  text = "Completed";
-                  break;
-                case "Failed":
-                  color = "red";
-                  text = "Failed";
-                  break;
-                default:
-                  color = "gray";
-                  text = "N/A";
-              }
+          // Safe extraction of image URLs
+          const images = Array.isArray(value)
+            ? value.map((item) => item?.imageUrl).filter((url) => !!url)
+            : [];
 
-              return (
-                <Chip
-                  label={text}
-                  sx={{
-                    color: "white",
-                    backgroundColor: color,
-                    fontWeight: "bold",
-                    minWidth: 100,
-                  }}
-                />
-              );
-            },
-          },
-          {
-            header: "Amount",
-            accessorKey: "totalPrice",
-            size: 120,
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span" sx={{ fontWeight: "bold" }}>
-                ₹{renderedCellValue?.toLocaleString() || "0"}
+          if (images.length === 0) {
+            return (
+              <Box component="span" sx={{ fontSize: "12px", color: "gray" }}>
+                No Image
               </Box>
-            ),
-          },
-        ],
+            );
+          }
+
+          return (
+            <Box
+              component="span"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+              <ImageCollage images={images} />
+            </Box>
+          );
+        },
       },
       {
         id: "order_info",
@@ -172,10 +141,11 @@ const OrderList = () => {
           {
             header: "Order Group ID",
             accessorKey: "orderGroupID",
+            enableClickToCopy: true,
             size: 200,
             Cell: ({ renderedCellValue }) => (
               <Box component="span" sx={{ fontFamily: "monospace" }}>
-                {renderedCellValue}
+                {renderedCellValue.toString().toUpperCase()}
               </Box>
             ),
           },
@@ -204,37 +174,128 @@ const OrderList = () => {
                 <Chip
                   label={text}
                   sx={{
-                    color: "white",
-                    backgroundColor: color,
+                    color: "black",
+                    backgroundColor:
+                      color === "red"
+                        ? "#ea9191"
+                        : color === "orange"
+                          ? "#edb58d"
+                          : color === "green"
+                            ? "#9dedba"
+                            : "#9ebef3",
+                    border:
+                      color === "red"
+                        ? "1px solid #f38e8e"
+                        : color === "orange"
+                          ? "1px solid #fbbf24"
+                          : color === "green"
+                            ? "1px solid #34d399"
+                            : "1px solid #3b82f6",
                     fontWeight: "bold",
-                    minWidth: 120,
+                    // minWidth: 120,
+                  }}
+                />
+              );
+            },
+          },
+
+          // {
+          //   header: "Type",
+          //   accessorKey: "orderType",
+          //   size: 100,
+          //   Cell: ({ renderedCellValue }) => (
+          //     <Box component="span" sx={{ textTransform: "capitalize" }}>
+          //       {renderedCellValue}
+          //     </Box>
+          //   ),
+          // },
+        ],
+      },
+      {
+        id: "payment_info",
+        header: "Payment Info",
+        columns: [
+          // {
+          //   header: "Transaction ID",
+          //   accessorKey: "paymentTransactionID",
+          //   enableClickToCopy: true,
+          //   size: 200,
+          //   Cell: ({ renderedCellValue }) => {
+          //     return (
+          //       <Box component="span" sx={{ fontFamily: "monospace" }}>
+          //         {renderedCellValue || "N/A"}
+          //       </Box>
+          //     );
+          //   },
+          // },
+
+          {
+            header: "Payment Status",
+            accessorKey: "paymentStatus",
+            size: 150,
+            Cell: ({ renderedCellValue }) => {
+              let color = "";
+              let text = "";
+
+              switch (renderedCellValue) {
+                case "Pending":
+                  color = "orange";
+                  text = "Pending";
+                  break;
+                case "Paid":
+                  color = "green";
+                  text = "Paid";
+                  break;
+                case "Failed":
+                  color = "red";
+                  text = "Failed";
+                  break;
+                default:
+                  color = "gray";
+                  text = "N/A";
+              }
+
+              return (
+                <Chip
+                  label={text}
+                  sx={{
+                    color: "black",
+                    backgroundColor:
+                      color === "red"
+                        ? "#ea9191"
+                        : color === "orange"
+                          ? "#edb58d"
+                          : color === "green"
+                            ? "#9dedba"
+                            : "#9ebef3",
+                    border:
+                      color === "red"
+                        ? "1px solid #f87171"
+                        : color === "orange"
+                          ? "1px solid #fbbf24"
+                          : color === "green"
+                            ? "1px solid #34d399"
+                            : "1px solid #3b82f6",
+                    fontWeight: "bold",
+                    minWidth: 100,
                   }}
                 />
               );
             },
           },
           {
-            header: "Items",
-            accessorKey: "totalDocumentCount",
-            size: 100,
+            header: "Amount",
+            accessorKey: "pricingDetails.groupFinalOrderPrice",
+            size: 120,
             Cell: ({ renderedCellValue }) => (
-              <Box component="span">
-                <strong>{renderedCellValue}</strong>
-              </Box>
-            ),
-          },
-          {
-            header: "Type",
-            accessorKey: "orderType",
-            size: 100,
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span" sx={{ textTransform: "capitalize" }}>
-                {renderedCellValue}
+              <Box component="span" sx={{ fontWeight: "bold" }}>
+                ₹{renderedCellValue?.toLocaleString() || "0"}
               </Box>
             ),
           },
         ],
       },
+
       {
         id: "Date",
         header: "Date",
@@ -246,8 +307,20 @@ const OrderList = () => {
             enableColumnFilter: false,
             Cell: ({ renderedCellValue }: { renderedCellValue: any }) => (
               <Box>
-                {new Date(renderedCellValue).toLocaleDateString()}
-                <Box sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                <Box
+                  sx={{
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    color: "text.secondary",
+                  }}>
+                  {new Date(renderedCellValue).toLocaleDateString()}
+                </Box>
+                <Box
+                  sx={{
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    color: "text.secondary",
+                  }}>
                   {new Date(renderedCellValue).toLocaleTimeString()}
                 </Box>
               </Box>
@@ -256,7 +329,7 @@ const OrderList = () => {
         ],
       },
     ],
-    []
+    [],
   );
 
   const table = useMaterialReactTable({
@@ -295,19 +368,45 @@ const OrderList = () => {
       showAlertBanner: isError,
       showProgressBars: isRefetching,
     },
-    renderRowActionMenuItems: ({ row, closeMenu }) => [
-      <MenuItem
-        key={0}
-        onClick={() => {
-          navigate(
-            `/orders/view?groupId=${encodeURI(row.original.orderGroupID)}`
-          );
-          closeMenu();
-        }}
-        sx={{ m: 0 }}>
-        <FaEye style={{ marginRight: "8px" }} />
-        View Order Details
-      </MenuItem>,
+    // renderRowActionMenuItems: ({ row, closeMenu }) => [
+    //   <MenuItem
+    //     key={0}
+    //     onClick={() => {
+    //       navigate(
+    //         `/orders/view?groupId=${encodeURI(row.original.orderGroupID)}`,
+    //       );
+    //       closeMenu();
+    //     }}
+    //     sx={{ m: 0 }}>
+    //     <FaEye style={{ marginRight: "8px" }} />
+    //     View Order Details
+    //   </MenuItem>,
+    // ],
+
+    renderRowActions: ({ row }) => [
+      <Box sx={{ display: "flex", gap: "8px" }}>
+        <Box
+          onClick={() =>
+            navigate(`/orders/view?groupId=${row.original.orderGroupID}`)
+          }
+          sx={{
+            padding: "6px 10px",
+            backgroundColor: "#df7919",
+            color: "white",
+            borderRadius: "6px",
+            fontSize: "12px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            "&:hover": {
+              backgroundColor: "#bf6613",
+            },
+          }}>
+          <FaEye size={12} />
+          View
+        </Box>
+      </Box>,
     ],
   });
 
@@ -370,7 +469,7 @@ const OrderList = () => {
               }>
               <MenuItem value="all">All Payments</MenuItem>
               <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Success">Success</MenuItem>
+              <MenuItem value="Paid">Success</MenuItem>
               <MenuItem value="Failed">Failed</MenuItem>
             </Select>
           </FormControl>
@@ -387,3 +486,95 @@ const OrderList = () => {
 };
 
 export default OrderList;
+
+const ImageCollage = ({ images = [] }) => {
+  if (!images || images.length === 0) return null;
+
+  const displayImages = images.slice(0, 4);
+  const extraCount = images.length - 4;
+
+  const getGridStyle = () => {
+    switch (displayImages.length) {
+      case 1:
+        return {
+          gridTemplateColumns: "1fr",
+          gridTemplateRows: "1fr",
+        };
+      case 2:
+        return {
+          gridTemplateColumns: "1fr 1fr",
+          gridTemplateRows: "1fr",
+        };
+      case 3:
+        return {
+          gridTemplateColumns: "1fr 1fr",
+          gridTemplateRows: "1fr 1fr",
+        };
+      default:
+        return {
+          gridTemplateColumns: "1fr 1fr",
+          gridTemplateRows: "1fr 1fr",
+        };
+    }
+  };
+
+  return (
+    <Box
+      component="span"
+      sx={{
+        display: "grid",
+        gap: "4px",
+        width: 60,
+        height: 60,
+        ...getGridStyle(),
+      }}>
+      {displayImages.map((img, index) => {
+        // Special layout for 3 images (first one big)
+        const isThreeLayout = displayImages.length === 3 && index === 0;
+
+        return (
+          <Box
+            key={index}
+            sx={{
+              position: "relative",
+              gridColumn: isThreeLayout ? "span 2" : "auto",
+            }}>
+            <Box
+              component="img"
+              src={img}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "6px",
+              }}
+            />
+
+            {/* Overlay for extra images */}
+            {index === 3 && extraCount > 0 && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  borderRadius: "6px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#fff", fontWeight: "bold" }}>
+                  +{extraCount}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+};

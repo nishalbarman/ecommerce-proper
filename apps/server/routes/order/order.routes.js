@@ -11,6 +11,141 @@ const OrderGroup = require("../../models/orderGroup.model");
 
 //! ORDER LISTING ROUTE FOR ADMIN AND CENTER
 // Update the /list route to support payment status filtering
+// router.get("/list", checkRole(1, 2), async (req, res) => {
+//   try {
+//     const searchQuery = req.query;
+
+//     const PAGE = +searchQuery.page || 0;
+//     const LIMIT = +searchQuery.limit || 20;
+//     const SKIP = +PAGE * LIMIT;
+
+//     const orderStatus = searchQuery?.orderStatus;
+//     const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+
+//     const role = req?.jwt?.role;
+
+//     const filterQuery = {
+//       orderGroupID: { $exists: true, $ne: null },
+//       // ...(orderStatus && { orderStatus }), // Existing order status filter
+//       ...(role === 2 && { center: req.jwt?.center }),
+//     };
+
+//     // Add payment status filter if provided
+//     if (paymentStatus && paymentStatus !== "all") {
+//       filterQuery.paymentStatus = paymentStatus;
+//     }
+
+//     if (orderStatus && orderStatus !== "all") {
+//       filterQuery.orderStatus = orderStatus;
+//     }
+
+//     const pipeline = [
+//       {
+//         $match: filterQuery, // Use the updated filter query
+//       },
+//       {
+//         $group: {
+//           _id: "$orderGroupID",
+//           totalDocumentCount: { $sum: 1 },
+//           totalPrice: { $sum: "$price" },
+//           paymentTransactionId: { $push: "$paymentTxnId" },
+//           paymentStatus: { $first: "$paymentStatus" }, // Include payment status
+//           orderStatus: { $first: "$orderStatus" }, // Include payment status
+//           orderType: { $push: "$orderType" },
+//           orders: { $push: "$$ROOT" },
+//           createdAt: { $first: "$createdAt" },
+//         },
+//       },
+//       {
+//         $addFields: {
+//           createdAt: "$createdAt",
+//         },
+//       },
+//       {
+//         $sort: { createdAt: -1 },
+//       },
+//       {
+//         $group: {
+//           _id: null,
+//           globalTotalDocumentCount: { $sum: 1 },
+//           address: { $first: "$orders.address" },
+//           user: { $first: "$orders.user" },
+//           groupedOrders: { $push: "$$ROOT" },
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "user",
+//           foreignField: "_id",
+//           pipeline: [
+//             { $match: {} },
+//             {
+//               $project: {
+//                 _id: 1,
+//                 name: 1,
+//                 email: 1,
+//                 mobileNo: 1,
+//                 isMobileNoVerifed: 1,
+//               },
+//             },
+//           ],
+//           as: "user",
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           globalTotalDocumentCount: 1,
+//           groupedOrders: {
+//             $slice: [
+//               {
+//                 $map: {
+//                   input: "$groupedOrders",
+//                   as: "group",
+//                   in: {
+//                     orderGroupID: "$$group._id",
+//                     totalDocumentCount: "$$group.totalDocumentCount",
+//                     paymentTransactionId: {
+//                       $arrayElemAt: ["$$group.paymentTransactionId", 0],
+//                     },
+//                     paymentStatus: "$$group.paymentStatus", // Include payment status
+//                     orderStatus: "$$group.orderStatus", // Include payment status
+//                     orderType: {
+//                       $arrayElemAt: ["$$group.orderType", 0],
+//                     },
+//                     totalPrice: "$$group.totalPrice",
+//                     address: {
+//                       $arrayElemAt: ["$address", 0],
+//                     },
+//                     user: { $arrayElemAt: ["$user", 0] },
+//                     orders: "$$group.orders",
+//                     createdAt: "$$group.createdAt",
+//                   },
+//                 },
+//               },
+//               SKIP,
+//               LIMIT,
+//             ],
+//           },
+//         },
+//       },
+//     ];
+
+//     const orderDetails = await Order.aggregate(pipeline);
+
+//     return res.json(
+//       orderDetails[0] || { globalTotalDocumentCount: 0, groupedOrders: [] },
+//     );
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({
+//       status: false,
+//       message: "Internal server error!",
+//     });
+//   }
+// });
+
 router.get("/list", checkRole(1, 2), async (req, res) => {
   try {
     const searchQuery = req.query;
@@ -21,6 +156,16 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
 
     const orderStatus = searchQuery?.orderStatus;
     const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+
+    if (!req.user._id) {
+      return res.status(401).json({
+        status: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // const orderStatus = searchQuery?.orderStatus;
+    // const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
 
     const role = req?.jwt?.role;
 
@@ -39,104 +184,30 @@ router.get("/list", checkRole(1, 2), async (req, res) => {
       filterQuery.orderStatus = orderStatus;
     }
 
-    const pipeline = [
-      {
-        $match: filterQuery, // Use the updated filter query
-      },
-      {
-        $group: {
-          _id: "$orderGroupID",
-          totalDocumentCount: { $sum: 1 },
-          totalPrice: { $sum: "$price" },
-          paymentTransactionId: { $push: "$paymentTxnId" },
-          paymentStatus: { $first: "$paymentStatus" }, // Include payment status
-          orderStatus: { $first: "$orderStatus" }, // Include payment status
-          orderType: { $push: "$orderType" },
-          orders: { $push: "$$ROOT" },
-          createdAt: { $first: "$createdAt" },
-        },
-      },
-      {
-        $addFields: {
-          createdAt: "$createdAt",
-        },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
-      {
-        $group: {
-          _id: null,
-          globalTotalDocumentCount: { $sum: 1 },
-          address: { $first: "$orders.address" },
-          user: { $first: "$orders.user" },
-          groupedOrders: { $push: "$$ROOT" },
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "user",
-          foreignField: "_id",
-          pipeline: [
-            { $match: {} },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                email: 1,
-                mobileNo: 1,
-                isMobileNoVerifed: 1,
-              },
-            },
-          ],
-          as: "user",
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          globalTotalDocumentCount: 1,
-          groupedOrders: {
-            $slice: [
-              {
-                $map: {
-                  input: "$groupedOrders",
-                  as: "group",
-                  in: {
-                    orderGroupID: "$$group._id",
-                    totalDocumentCount: "$$group.totalDocumentCount",
-                    paymentTransactionId: {
-                      $arrayElemAt: ["$$group.paymentTransactionId", 0],
-                    },
-                    paymentStatus: "$$group.paymentStatus", // Include payment status
-                    orderStatus: "$$group.orderStatus", // Include payment status
-                    orderType: {
-                      $arrayElemAt: ["$$group.orderType", 0],
-                    },
-                    totalPrice: "$$group.totalPrice",
-                    address: {
-                      $arrayElemAt: ["$address", 0],
-                    },
-                    user: { $arrayElemAt: ["$user", 0] },
-                    orders: "$$group.orders",
-                    createdAt: "$$group.createdAt",
-                  },
-                },
-              },
-              SKIP,
-              LIMIT,
-            ],
-          },
-        },
-      },
-    ];
+    const totalItems = await OrderGroup.countDocuments(filterQuery);
 
-    const orderDetails = await Order.aggregate(pipeline);
+    const orderDetails = await OrderGroup.find(filterQuery)
+      .populate("orders")
+      .sort({ createdAt: "desc" })
+      .skip(SKIP)
+      .limit(LIMIT);
 
-    return res.json(
-      orderDetails[0] || { globalTotalDocumentCount: 0, groupedOrders: [] },
-    );
+    const totalPages = Math.ceil(totalItems / LIMIT);
+
+    const pagination = {
+      totalItems,
+      totalPages,
+      currentPage: PAGE + 1,
+      limit: LIMIT,
+
+      hasNextPage: PAGE + 1 < totalPages,
+      hasPrevPage: PAGE + 1 > 1,
+
+      nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
+      prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
+    };
+
+    return res.json({ groupOrderData: orderDetails, pagination });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -217,95 +288,14 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 
     const role = req.jwt?.role;
 
-    const pipeline = [
-      {
-        $match: {
-          orderGroupID: orderGroupID,
-          ...(role === 2 && { center: req.jwt?.center || "_blank" }),
-        },
-      },
-      {
-        $group: {
-          _id: "$orderGroupID",
-          totalDocumentCount: { $sum: 1 },
-          totalPrice: { $sum: "$price" },
-          paymentTransactionId: { $push: "$paymentTxnId" },
-          orderType: { $push: "$orderType" },
-          orders: { $push: "$$ROOT" },
-          createdAt: { $first: "$createdAt" }, // Extract createdAt from the first order in each group
-        },
-      },
-      {
-        $addFields: {
-          createdAt: "$createdAt", // Add createdAt field to the grouped document
-        },
-      },
-
-      {
-        $group: {
-          _id: null,
-          globalTotalDocumentCount: { $sum: 1 },
-          address: { $first: "$orders.address" },
-          user: { $first: "$orders.user" },
-          groupedOrders: { $push: "$$ROOT" },
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "user",
-          foreignField: "_id",
-          pipeline: [
-            { $match: {} },
-            {
-              $project: {
-                _id: 1,
-                name: 1,
-                email: 1,
-                mobileNo: 1,
-                isMobileNoVerifed: 1,
-              },
-            },
-          ],
-          as: "user",
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          globalTotalDocumentCount: 1,
-          groupedOrders: {
-            $map: {
-              input: "$groupedOrders",
-              as: "group",
-              in: {
-                orderGroupID: "$$group._id",
-                totalDocumentCount: "$$group.totalDocumentCount",
-                paymentTransactionId: {
-                  $arrayElemAt: ["$$group.paymentTransactionId", 0],
-                },
-                orderType: {
-                  $arrayElemAt: ["$$group.orderType", 0],
-                },
-                totalPrice: "$$group.totalPrice",
-                address: {
-                  $arrayElemAt: ["$address", 0],
-                },
-                user: { $arrayElemAt: ["$user", 0] },
-                orders: "$$group.orders",
-                createdAt: "$$group.createdAt", // Include createdAt field
-              },
-            },
-          },
-        },
-      },
-    ];
-
-    const orderDetails = await Order.aggregate(pipeline);
+    const orderDetails = await OrderGroup.find({
+      orderGroupID: orderGroupID,
+      ...(role === 2 && { center: req.jwt?.center }),
+    }).populate("orders");
 
     console.log("Order Details --> ", orderDetails);
 
-    return res.json(orderDetails[0].groupedOrders[0]);
+    return res.json({ orderGroup: orderDetails });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -315,7 +305,112 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
   }
 });
 
+// router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
+//   try {
+//     const orderGroupID = req.params?.orderGroupID;
+
+//     const role = req.jwt?.role;
+
+//     const pipeline = [
+//       {
+//         $match: {
+//           orderGroupID: orderGroupID,
+//           ...(role === 2 && { center: req.jwt?.center || "_blank" }),
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: "$orderGroupID",
+//           totalDocumentCount: { $sum: 1 },
+//           totalPrice: { $sum: "$price" },
+//           paymentTransactionId: { $push: "$paymentTxnId" },
+//           orderType: { $push: "$orderType" },
+//           orders: { $push: "$$ROOT" },
+//           createdAt: { $first: "$createdAt" }, // Extract createdAt from the first order in each group
+//         },
+//       },
+//       {
+//         $addFields: {
+//           createdAt: "$createdAt", // Add createdAt field to the grouped document
+//         },
+//       },
+
+//       {
+//         $group: {
+//           _id: null,
+//           globalTotalDocumentCount: { $sum: 1 },
+//           address: { $first: "$orders.address" },
+//           user: { $first: "$orders.user" },
+//           groupedOrders: { $push: "$$ROOT" },
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "user",
+//           foreignField: "_id",
+//           pipeline: [
+//             { $match: {} },
+//             {
+//               $project: {
+//                 _id: 1,
+//                 name: 1,
+//                 email: 1,
+//                 mobileNo: 1,
+//                 isMobileNoVerifed: 1,
+//               },
+//             },
+//           ],
+//           as: "user",
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           globalTotalDocumentCount: 1,
+//           groupedOrders: {
+//             $map: {
+//               input: "$groupedOrders",
+//               as: "group",
+//               in: {
+//                 orderGroupID: "$$group._id",
+//                 totalDocumentCount: "$$group.totalDocumentCount",
+//                 paymentTransactionId: {
+//                   $arrayElemAt: ["$$group.paymentTransactionId", 0],
+//                 },
+//                 orderType: {
+//                   $arrayElemAt: ["$$group.orderType", 0],
+//                 },
+//                 totalPrice: "$$group.totalPrice",
+//                 address: {
+//                   $arrayElemAt: ["$address", 0],
+//                 },
+//                 user: { $arrayElemAt: ["$user", 0] },
+//                 orders: "$$group.orders",
+//                 createdAt: "$$group.createdAt", // Include createdAt field
+//               },
+//             },
+//           },
+//         },
+//       },
+//     ];
+
+//     const orderDetails = await Order.aggregate(pipeline);
+
+//     console.log("Order Details --> ", orderDetails);
+
+//     return res.json(orderDetails[0].groupedOrders[0]);
+//   } catch (error) {
+//     console.log(error);
+//     return res.status(500).json({
+//       status: false,
+//       message: "Internal server error!",
+//     });
+//   }
+// });
+
 //! Order details for normal user, orders can be viewed with the transaction id
+
 router.get(
   "/view/:paymentTransactionId",
   checkRole(0, 1, 2),

@@ -9,6 +9,7 @@ const orderSchema = new mongoose.Schema(
     user: { type: mongoose.Types.ObjectId, ref: "users" },
 
     product: { type: mongoose.Types.ObjectId, ref: "products" },
+    productSlug: { type: String, required: true },
 
     previewImage: {
       imageUrl: { type: String, required: true },
@@ -27,7 +28,6 @@ const orderSchema = new mongoose.Schema(
 
     originalPrice: { type: Number, required: true },
     discountedPrice: { type: Number, required: true },
-
 
     address: {
       physicalAddress: {

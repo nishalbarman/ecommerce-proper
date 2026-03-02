@@ -36,6 +36,7 @@ const createOrderWithTransaction = async ({
           ...item,
 
           product: item.product._id,
+          productSlug: item.product.slug,
           user: userId,
 
           originalPrice:

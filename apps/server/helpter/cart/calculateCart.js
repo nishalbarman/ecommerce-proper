@@ -81,7 +81,7 @@ const calculateCart = async ({
   // ✅ HANDLE SINGLE PRODUCT (Cashfree case)
   // =========================
   if (singleProduct) {
-    const title = singleProduct?.product?.title || singleProduct.title;
+    const title = singleProduct?.title;
     productNames.push(title);
 
     if (productType === "buy") {
