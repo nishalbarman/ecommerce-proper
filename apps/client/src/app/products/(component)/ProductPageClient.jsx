@@ -24,6 +24,7 @@ export default function ProductList({ initialData, initialPage }) {
       const categoryParam = searchParams.get("category");
       const minPrice = searchParams.get("minPrice");
       const maxPrice = searchParams.get("maxPrice");
+      const sort = searchParams.get("sort") || "popularity";
       return {
         category: categoryParam ? categoryParam.split(",") : [],
         color: [],
@@ -32,9 +33,16 @@ export default function ProductList({ initialData, initialPage }) {
           maxPrice ? parseInt(maxPrice) : 10000,
         ],
         rating: 0,
+        sort: sort,
       };
-    } catch {
-      return { category: [], color: [], price: [0, 200], rating: 0 };
+    } catch (err) {
+      return {
+        category: [],
+        color: [],
+        price: [0, 200],
+        rating: 0,
+        sort: "popularity",
+      };
     }
   };
 
@@ -46,7 +54,7 @@ export default function ProductList({ initialData, initialPage }) {
   );
   const [appliedSearch, setAppliedSearch] = useState(localSearch);
   const [localSort, setLocalSort] = useState(
-    searchParams.get("sort") || "newest",
+    searchParams.get("sort") || "popularity",
   );
   const [appliedSort, setAppliedSort] = useState(localSort);
   const [showFilters, setShowFilters] = useState(false);
@@ -64,7 +72,7 @@ export default function ProductList({ initialData, initialPage }) {
     params.set("page", page); // UI page (1-based)
 
     if (appliedSearch) params.set("query", appliedSearch);
-    if (appliedSort !== "newest") params.set("sort", appliedSort);
+    if (appliedSort) params.set("sort", appliedSort);
 
     if (appliedFilters.category.length > 0) {
       params.set("category", appliedFilters.category.join(","));
@@ -91,7 +99,7 @@ export default function ProductList({ initialData, initialPage }) {
       page: page - 1, // ✅ convert UI → server
       limit,
       query: appliedSearch || undefined,
-      sort: appliedSort !== "newest" ? appliedSort : undefined,
+      sort: appliedSort,
       category:
         appliedFilters.category.length > 0
           ? appliedFilters.category.join(",")
@@ -156,7 +164,8 @@ export default function ProductList({ initialData, initialPage }) {
     }
 
     router.push(`/products?${params.toString()}`);
-    typeof window !== "undefined" && window.scrollTo({ top: 0, behavior: "smooth" });
+    typeof window !== "undefined" &&
+      window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchSubmit = (e) => {

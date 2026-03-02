@@ -4,7 +4,7 @@ const fetchInitialData = async (searchParams) => {
   try {
     const page = Number(searchParams.page) || 1;
     const query = searchParams.query || "";
-    const sort = searchParams.sort || "newest";
+    const sort = searchParams.sort || "popularity";
     const category = searchParams.category || "";
     const minPrice = searchParams.minPrice || "";
     const maxPrice = searchParams.maxPrice || "";
@@ -18,7 +18,7 @@ const fetchInitialData = async (searchParams) => {
     url.searchParams.set("limit", 12);
 
     if (query) url.searchParams.set("query", query);
-    if (sort !== "newest") url.searchParams.set("sort", sort);
+    if (sort) url.searchParams.set("sort", sort);
     if (category) url.searchParams.set("category", category);
     if (minPrice) url.searchParams.set("minPrice", minPrice);
     if (maxPrice) url.searchParams.set("maxPrice", maxPrice);
@@ -40,5 +40,5 @@ export default async function Page({ searchParams }) {
   const data = await fetchInitialData(sP);
   const page = Number(sP.page) || 1;
 
-  return <ProductPageClient initialData={data} initialPage={page} />;
+  return <ProductPageClient initialData={data} initialPage={page - 1} />;
 }

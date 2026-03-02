@@ -166,6 +166,8 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
     );
   }, [paginatedResponse]);
 
+  console.log("MediaLibrary Render: ", selectedItemIds)
+
   return (
     <ReactMediaLibrary
 

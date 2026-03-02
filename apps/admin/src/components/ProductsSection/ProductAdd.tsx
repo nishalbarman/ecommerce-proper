@@ -286,6 +286,8 @@ const ProductAdd: React.FC<ProductAddProps> = ({
     return map;
   }, [categoryList]);
 
+  console.log("Product Data in Render", productData);
+
   return (
     <div
       className={`flex flex-col flex-1 bg-gray-100 ${
@@ -558,11 +560,17 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                 slideImages: imageItems.map((eachImage) => ({
                                   imageUrl: eachImage.imageLink,
                                   bgColor: eachImage.bgColor,
+                                  _id: eachImage._id,
                                 })),
                               };
                             });
                           }}
                           multiSelect={true}
+                          selectedItemIds={productData?.slideImages?.map(
+                            (eachItem) => {
+                              return eachItem?._id;
+                            },
+                          )}
                         />
                       </div>
                     </div>
@@ -606,13 +614,13 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                 slideImages: imageItems.map((eachImage) => ({
                                   imageUrl: eachImage.imageLink,
                                   bgColor: eachImage.bgColor,
-                                  id: eachImage.id,
+                                  _id: eachImage._id,
                                 })),
                               };
                             });
                           }}
                           selectedItemIds={
-                            productData.slideImages?.map((img) => img.id) || []
+                            productData.slideImages?.map((img) => img._id) || []
                           }
                           multiSelect={true}
                         />
@@ -623,8 +631,9 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               </div>
             </div>
 
-                          {JSON.stringify(productData.slideImages?.map((img) => img.id) || [])}
-
+            {JSON.stringify(
+              productData.slideImages?.map((img) => img.id) || [],
+            )}
 
             <div className="bg-white p-4 rounded shadow-lg border">
               <h3 className="text-xl font-semibold mb-3">Product Pricing</h3>

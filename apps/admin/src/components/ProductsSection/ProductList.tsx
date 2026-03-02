@@ -39,7 +39,8 @@ const ListProduct = () => {
     {
       page: pagination.pageIndex,
       limit: pagination.pageSize,
-    }
+      sort: "newest",
+    },
   );
 
   const [deleteProducts] = useDeleteProductsMutation();
@@ -105,7 +106,9 @@ const ListProduct = () => {
               <Box
                 className="cursor-pointer"
                 onClick={() => {
-                  setProductImageModal((cell.getValue() as any)?.imageUrl as string);
+                  setProductImageModal(
+                    (cell.getValue() as any)?.imageUrl as string,
+                  );
                 }}
                 sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                 <img
@@ -144,7 +147,7 @@ const ListProduct = () => {
         ],
       },
     ],
-    []
+    [],
   );
 
   const table = useMaterialReactTable({
@@ -241,7 +244,7 @@ const ListProduct = () => {
               setDeleteProductId(
                 table
                   .getSelectedRowModel()
-                  .flatRows.map((row) => row.original._id as string)
+                  .flatRows.map((row) => row.original._id as string),
               )
             }
             variant="contained">

@@ -90,15 +90,32 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
     ? paginatedData!.totalCount
     : fileLibraryList.length;
 
+  const [selectedItemsMap, setSelectedItemsMap] = useState<
+    Map<string, FileLibraryListItem>
+  >(new Map());
+
+  console.log("ReactMediaLibrary Props - selectedItemsMap: ", selectedItemsMap);
+
   // Initialize selected items with defaults
   useEffect(() => {
     if (defaultSelectedItemIds.length > 0) {
-      const defaultSelected = displayData.filter((item) =>
-        defaultSelectedItemIds.includes(item._id),
-      );
-      setSelectedItems(defaultSelected);
+      // const defaultSelected = displayData.filter((item) =>
+      //   defaultSelectedItemIds.includes(item._id),
+      // );
+      let defaultSelectedMap = new Map<string, FileLibraryListItem>();
+      displayData.forEach((item) => {
+        if (defaultSelectedItemIds.includes(item._id)) {
+          defaultSelectedMap.set(item._id, item);
+        }
+      });
+      setSelectedItemsMap(defaultSelectedMap);
     }
   }, [defaultSelectedItemIds, displayData]);
+
+  console.log(
+    "ReactMediaLibrary Props - defaultSelectedItemIds: ",
+    selectedItems,
+  );
 
   // Reset when modal opens/closes
   useEffect(() => {
@@ -167,16 +184,20 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
   // Handle item selection
   const handleItemSelect = useCallback(
     (item: FileLibraryListItem) => {
-      setSelectedItems((prev) => {
+      setSelectedItemsMap((prev) => {
         if (multiSelect) {
-          const isSelected = prev.some((selected) => selected._id === item._id);
+          // is previously selected, remove it; otherwise add it.
+          const isSelected = prev.has(item._id);
+          const newSelectedMap = new Map(prev);
           if (isSelected) {
-            return prev.filter((selected) => selected._id !== item._id);
+            // remove it
+            newSelectedMap.delete(item._id);
+            return newSelectedMap;
           } else {
-            return [...prev, item];
+            return newSelectedMap.set(item._id, item);
           }
         } else {
-          return [item];
+          return new Map([[item._id, item]]);
         }
       });
     },
@@ -267,15 +288,15 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
 
   // Handle selection confirmation
   const handleConfirmSelection = useCallback(() => {
-    filesSelectCallback(selectedItems);
-  }, [selectedItems, filesSelectCallback]);
+    filesSelectCallback(selectedItemsMap.size > 0 ? Array.from(selectedItemsMap.values()) : []);
+  }, [selectedItemsMap, filesSelectCallback]);
 
   // Handle deletion
   const handleDelete = useCallback(() => {
-    if (filesDeleteCallback && selectedItems.length > 0) {
-      filesDeleteCallback(selectedItems);
+    if (filesDeleteCallback && selectedItemsMap.size > 0) {
+      filesDeleteCallback(Array.from(selectedItemsMap.values()));
     }
-  }, [filesDeleteCallback, selectedItems]);
+  }, [filesDeleteCallback, selectedItemsMap]);
 
   // Handle search with debouncing
   const handleSearch = useCallback((term: string) => {
@@ -376,9 +397,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
                   {finalDisplayData.length > 0 ? (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                       {finalDisplayData.map((item) => {
-                        const isSelected = selectedItems.some(
-                          (selected) => selected._id === item._id,
-                        );
+                        const isSelected = selectedItemsMap.has(item._id);
 
                         return (
                           <div
@@ -587,11 +606,11 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
         {/* Footer */}
         <div className="flex justify-between items-center p-4 md:p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex items-center space-x-3">
-            {selectedItems.length > 0 && (
+            {selectedItemsMap.size > 0 && (
               <>
                 <span className="text-sm font-medium text-gray-600">
-                  {selectedItems.length} item
-                  {selectedItems.length !== 1 ? "s" : ""} selected
+                  {selectedItemsMap.size} item
+                  {selectedItemsMap.size !== 1 ? "s" : ""} selected
                 </span>
                 {selectedItemsComponent && selectedItemsComponent()}
               </>
@@ -599,7 +618,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
           </div>
 
           <div className="flex items-center space-x-3">
-            {selectedItems.length > 0 && filesDeleteCallback && (
+            {selectedItemsMap.size > 0 && filesDeleteCallback && (
               <button
                 type="button"
                 onClick={handleDelete}
@@ -618,10 +637,10 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
             <button
               type="button"
               onClick={handleConfirmSelection}
-              disabled={selectedItems.length === 0}
+              disabled={selectedItemsMap.size === 0}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 font-medium text-sm">
               Select
-              {selectedItems.length > 0 ? ` (${selectedItems.length})` : ""}
+              {selectedItemsMap.size > 0 ? ` (${selectedItemsMap.size})` : ""}
             </button>
           </div>
         </div>

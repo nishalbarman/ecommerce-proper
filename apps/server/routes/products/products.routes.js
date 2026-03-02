@@ -394,6 +394,8 @@ router.get("/", async (req, res) => {
     const SORT = searchQuery["sort"] || "popularity";
     const QUERY = searchQuery["query"];
 
+    console.log("What is the search query", searchQuery);
+
     // Initialize filter object
     const filter = {};
 
@@ -436,7 +438,10 @@ router.get("/", async (req, res) => {
       delete sortObject.createdAt;
       switch (SORT) {
         case "popularity":
-          sortObject.totalOrders = "desc";
+          sortObject = {
+            buyTotalOrders: -1,
+            _id: 1,
+          };
           break;
         case "low-to-hight-price":
           sortObject.discountedPrice = "asc";
@@ -625,9 +630,12 @@ router.post("/", checkRole(1, 2), async (req, res) => {
 
     console.log(productData);
 
-    const imageColors = await getImageColors(categoryData.imageUrl, {
-      count: 5,
-    });
+    const imageColors = await getImageColors(
+      productData.previewImage.imageUrl,
+      {
+        count: 5,
+      },
+    );
 
     const [first, second, third] = imageColors[0]._rgb;
 
