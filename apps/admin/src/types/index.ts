@@ -1,19 +1,14 @@
 export type Address = {
-  [key: string]: any;
-  user?: string;
-  city: string;
-  country: string;
-  locality: string;
+  fullName: string;
+  phone: string;
+  landmark: string;
   postalCode: string;
-  prefix: string;
-  state: string;
+  country: string;
   streetName: string;
+  city: string;
+  state: string;
 
-  longitude?: number;
-  latitude?: number;
-
-  createdAt?: string;
-  updatedAt?: string;
+  [key: string]: any;
 };
 
 export type User = {
@@ -24,8 +19,8 @@ export type User = {
 };
 
 export type OrderAddress = {
-  physicalAddress: Address;
-  location: [number, number];
+  fullAddress: Address;
+  coordinates: [number, number];
 };
 
 export type Image = {
@@ -83,7 +78,7 @@ export type OrderGroup = {
   orders: [{ [key: string]: any }];
   paymentMode: string;
   paymentTransactionID: string;
-  previewImages: [{ imageUrl: string, bgColor: string,[key: string]: any }];
+  previewImages: [{ imageUrl: string; bgColor: string; [key: string]: any }];
   pricingDetails: {
     couponDiscountGiven: number;
     groupDiscountedPrice: number;

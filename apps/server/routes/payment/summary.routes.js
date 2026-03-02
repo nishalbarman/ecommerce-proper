@@ -22,10 +22,7 @@ router.get("/:orderGroupId", checkRole(1, 2), async (req, res) => {
     console.log(paymentTransaction);
 
     return res.status(200).json({
-      paymentStatus: paymentTransaction.paymentStatus,
-      subTotalPrice: paymentTransaction.subTotalPrice,
-      shippingPrice: paymentTransaction.shippingPrice,
-      totalPrice: paymentTransaction.totalPrice,
+      paymentTransaction: paymentTransaction,
     });
   } catch (error) {
     globalErrorHandler(res, error);

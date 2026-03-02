@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import {
   FaUserCircle,
   FaUser,
@@ -14,17 +14,16 @@ import {
 } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-
-const brand = {
-  primary: "#DA4445",
-};
+import { useCookies } from "next-client-cookies";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const token = useSelector((state) => state.auth.jwtToken);
+  const cookies = useCookies();
+  // const token = useSelector((state) => state.auth.jwtToken);
+  const token = cookies.get("token");
 
   // Optional: preload user to greet on profile
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function ProfilePage() {
   // }
 
   if (!token) {
-    redirect("/auth/login?redirect=myreviews");
+    redirect("/auth/login?redirect=profile");
   }
 
   return (
@@ -217,7 +216,7 @@ export default function ProfilePage() {
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-2xl shadow-sm border p-5 space-y-3">
+                className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
                 <div className="h-8 w-8 bg-gray-300 rounded-md" />
                 <div className="h-4 w-28 bg-gray-300 rounded" />
                 <div className="h-3 w-40 bg-gray-300 rounded" />
@@ -228,7 +227,7 @@ export default function ProfilePage() {
           {/* Secondary sections */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Account Security */}
-            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               {/* Header */}
               <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
                 <div className="h-5 w-5 bg-gray-300 rounded" />
@@ -251,7 +250,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Quick Access */}
-            <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
               {/* Header */}
               <div className="px-5 sm:px-6 py-4 border-b bg-gray-50 flex items-center gap-2">
                 <div className="h-5 w-5 bg-gray-300 rounded" />
@@ -268,7 +267,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Orders CTA strip */}
-          <div className="mt-8 bg-white rounded-2xl shadow-sm border p-5 sm:p-6 flex items-center justify-between max-sm:flex-col max-sm:items-start gap-3">
+          <div className="mt-8 bg-white rounded-2xl shadow-sm p-5 sm:p-6 flex items-center justify-between max-sm:flex-col max-sm:items-start gap-3">
             <div className="space-y-2">
               <div className="h-5 w-40 bg-gray-300 rounded" />
               <div className="h-3 w-52 bg-gray-300 rounded" />

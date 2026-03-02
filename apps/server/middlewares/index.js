@@ -19,7 +19,7 @@ const checkRole = (...allowedRoles) => {
       if (!token) {
         return res
           .clearCookie("token", {
-            httpOnly: true,
+            httpOnly: process.env.NODE_ENV === 'production' ? true : false,
             secure: true,
             sameSite: "none",
             // process.env.NODE_ENV === "production"
@@ -40,7 +40,7 @@ const checkRole = (...allowedRoles) => {
         console.log("Token Expired");
         return res
           .clearCookie("token", {
-            httpOnly: true,
+            httpOnly: process.env.NODE_ENV === 'production' ? true : false,
             secure: true,
             sameSite: "none",
             // process.env.NODE_ENV === "production"

@@ -19,15 +19,17 @@ import {
 import { IoMdSearch } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
 
 function NavbarPartNonLogged() {
   // const token = useSelector((state) => state.auth.jwtToken);
-  // console.log("Token from NavbarPartNonLogged: ", token);
   const cookies = useCookies();
+  console.log("Cookies from NavbarPartNonLogged: ", cookies);
   const token = cookies.get("token");
+
+  console.log("Token from NavbarPartNonLogged: ", JSON.stringify(token));
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -208,9 +210,9 @@ function NavbarPartNonLogged() {
           <>
             <div className="flex items-center justify-center gap-5 h-[100%]">
               {/* search bar with icon */}
-              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white">
+              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-md bg-white border border-gray-200 ">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-gray-200 outline-none border-black border-[1px] rounded-[4px] p-4 bg-transparent"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full outline-none border-none p-4 bg-transparent"
                   type="text"
                   name="search-text"
                   placeholder="What are you looking for?"

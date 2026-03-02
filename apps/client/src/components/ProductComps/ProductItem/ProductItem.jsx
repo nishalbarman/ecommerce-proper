@@ -159,8 +159,8 @@ function ProductCard({
       {/* Image Section */}
       <div className="relative md:max-h-[400px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)] w-full">
         {!!originalPrice && (
-          <div className="z-[999] absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[#DB4444] flex items-center justify-center max-sm:p-1 p-1.5">
-            <span className="text-white text-sm max-sm:text-[12px] font-medium">
+          <div className="z-1 absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[rgb(65,162,72)] flex items-center justify-center max-sm:p-1 p-1.5">
+            <span className="text-white text-sm max-sm:text-xs font-medium">
               {discount?.current || 0}%
             </span>
           </div>
@@ -169,7 +169,7 @@ function ProductCard({
         {/* Add to cart button */}
         <button
           disabled={onCart}
-          className="w-full justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition-all duration-300 ease-in-out md:group-hover/product_item:flex md:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] h-12 flex items-center justify-center rounded-b bg-[rgba(0,0,0,0.8)] text-white hover:bg-black"
+          className="w-full justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition-all duration-300 ease-in-out md:group-hover/product_item:flex md:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] h-12 flex items-center justify-center rounded-b bg-[rgba(0,0,0,0.8)] text-white hover:bg-black max-sm:hidden"
           onClick={handleAddCartButtonClicked}>
           {onCart ? (
             <FaCheck size={20} color="white" fill="white" />
@@ -179,7 +179,8 @@ function ProductCard({
         </button>
 
         {/* Action Icons */}
-        <div className={`absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit bg-[${previewImage?.bgColor}]`}>
+        <div
+          className={`absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit bg-[${previewImage?.bgColor}]`}>
           {/* Toogle Wishlist Button */}
           <div
             className={`max-sm:w-auto max-sm:h-auto max-sm:p-1 flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${
@@ -204,9 +205,9 @@ function ProductCard({
 
         {/* Product Image */}
         <img
-        style={{
-          backgroundColor: previewImage?.bgColor,
-        }}
+          style={{
+            backgroundColor: previewImage?.bgColor,
+          }}
           className={`absolute inset-0 object-contain mix-blend-multiply w-full h-full rounded-lg`}
           src={previewImage?.imageUrl}
           alt={title}

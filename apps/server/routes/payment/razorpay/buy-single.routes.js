@@ -87,7 +87,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     // const paymentTxnId = uuidv4();
     // const orderGroupID = uuidv4();
-    const paymentTxnId = generateUniqueId("ot");
+    const paymentTxnId = generateUniqueId("pt");
     const orderGroupID = generateUniqueId("od");
 
     // create one razor pay order with the amount

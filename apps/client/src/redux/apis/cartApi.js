@@ -18,8 +18,8 @@ export const cartApi = createApi({
     getCart: builder.query({
       query: ({ productType }) => `cart?productType=${productType || "buy"}`,
       providesTags: ["Cart"],
-      // transformResponse: (res: any, meta, arg) => res.cart,
-      transformErrorResponse: (res, meta, arg) => res.message,
+      transformResponse: (res, meta, arg) => res.data,
+      // transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
     addOneToCart: builder.mutation({

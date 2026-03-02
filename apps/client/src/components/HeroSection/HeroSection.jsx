@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
 
-import tree_leaf from "../../../public/bg.png";
+import tree_leaf from "../../../public/bb_bg.png";
 // import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 
 const fetchHeroProduct = async () => {
@@ -30,16 +30,15 @@ const HeroProduct = async () => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#FFFEE5] to-white py-24 max-md:py-10">
-      {/* Background elements */}
-      <div className="absolute inset-0 opacity-20">
+      {/* Tree leaf image with pointer-events: none; */}
+      <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
         <Image
+          className="select-none drag-none opacity-7"
           src={tree_leaf}
-          alt="Decorative leaf background"
+          alt="Tree Leaf"
           layout="fill"
           objectFit="cover"
           quality={100}
-          draggable="none"
-          className="select-none pointer-events-none"
         />
       </div>
 

@@ -332,14 +332,14 @@ export default function CartClientPage({ initialCartData }) {
                 </p>
                 <Link
                   href="/products"
-                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 max-sm:px-3 max-sm:py-2 max-sm:text-sm rounded-lg transition-colors">
                   Continue Shopping
                 </Link>
               </div>
             )}
 
             {/* Cart with Items */}
-            {
+            {userCartItems?.length > 0 && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Cart Items Section */}
                 <div className="lg:col-span-2">
@@ -739,7 +739,7 @@ export default function CartClientPage({ initialCartData }) {
                   </div>
                 </div>
               </div>
-            }
+            )}
 
             {/* Coupon Modal */}
             <div

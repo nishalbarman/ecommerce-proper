@@ -34,7 +34,7 @@ const MediaLibrary: React.FC<MediaLibraryProps> = ({
   isOpen = false,
   setIsOpen,
   enablePagination = true, // Enable by default for better experience
-  itemsPerPage = 18,
+  itemsPerPage = 25,
   enableSearch = true, // Enable by default
 }) => {
   // State for server-side pagination

@@ -5,14 +5,23 @@ import { FiShoppingBag } from "react-icons/fi";
 import WishlistClientPage from "./(component)/WishlistClientPage";
 
 export default async function Page() {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/wishlist`, {
-    method: "GET",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-  });
+  let wishlistData = [];
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/wishlist`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      },
+    );
 
-  const wishlistData = await response.json();
+    wishlistData = await response.json();
+  } catch (error) {
+    wishlistData = [];
+    console.error("Wishlist fetch error from server component: ", error);
+  }
 
   return (
     <>

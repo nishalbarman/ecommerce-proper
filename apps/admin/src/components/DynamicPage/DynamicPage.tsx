@@ -114,15 +114,15 @@ const DynamicPageAdd = () => {
       }
 
       //   // Reset form after successful submission
-      //   setDynamicPageData({
-      //     title: "",
-      //     description: "",
-      //     shortDescription: "",
-      //     avatar: "",
-      //     cover: "",
-      //     slug: "",
-      //   });
-      //   setUpdateDynamicPageId(undefined);
+      setDynamicPageData({
+        title: "",
+        description: "",
+        shortDescription: "",
+        avatar: null,
+        cover: null,
+        slug: "",
+      });
+      setUpdateDynamicPageId(undefined);
       getDynamicPages();
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message);
@@ -280,7 +280,10 @@ const DynamicPageAdd = () => {
                       ) => {
                         setDynamicPageData({
                           ...dynamicPageData,
-                          avatar: imageItems[0].imageLink,
+                          avatar: {
+                            imageUrl: imageItems[0].imageLink,
+                            bgColor: imageItems[0].bgColor,
+                          },
                         });
                       }}
                       multiSelect={false}
@@ -310,9 +313,13 @@ const DynamicPageAdd = () => {
                       fileSelectCallback={(
                         imageItems: Array<FileLibraryListItem>,
                       ) => {
+                        console.log(imageItems[0]);
                         setDynamicPageData({
                           ...dynamicPageData,
-                          cover: imageItems[0].imageLink,
+                          cover: {
+                            imageUrl: imageItems[0].imageLink,
+                            bgColor: imageItems[0].bgColor,
+                          },
                         });
                       }}
                       multiSelect={false}

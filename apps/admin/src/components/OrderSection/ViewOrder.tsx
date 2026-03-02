@@ -147,7 +147,7 @@ function ViewSingleOrder() {
             },
           },
         );
-        setSummary(response.data);
+        setSummary(response.data?.paymentTransaction);
       } catch (error: any) {
         toast.error(error.response?.message || error.message);
         console.error(error);
@@ -463,20 +463,58 @@ function ViewSingleOrder() {
                             {summary !== undefined && (
                               <div className="mt-2">
                                 <div className="flex justify-between">
+                                  <span>MRP</span>
                                   <span>
-                                    Subtotal (
-                                    {groupOrderDetails?.orders?.length}{" "}
-                                    items)
+                                    ₹
+                                    {
+                                      summary?.pricingDetails?.originalPrice
+                                    }
                                   </span>
-                                  <span>₹{summary.subTotalPrice}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                  <span>Delivery</span>
-                                  <span>₹{summary.shippingPrice}</span>
+                                  <span>Discount</span>
+                                  <span>
+                                    ₹
+                                    {
+                                      summary?.pricingDetails?.saleDiscount
+                                    }
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>After Discount</span>
+                                  <span>
+                                    ₹
+                                    {
+                                      summary?.pricingDetails?.discountedPrice
+                                    }
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Coupon Discount</span>
+                                  <span>
+                                    ₹
+                                    {
+                                      summary?.pricingDetails?.couponDiscountGiven
+                                    }
+                                  </span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Shipping Price</span>
+                                  <span>
+                                    ₹
+                                    {summary?.pricingDetails?.shippingPrice
+                                      ? summary?.pricingDetails?.shippingPrice
+                                      : "FREE"}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between font-bold">
                                   <span>Total</span>
-                                  <span>₹{summary.totalPrice}</span>
+                                  <span>
+                                    ₹
+                                    {
+                                      summary?.pricingDetails?.finalOrderPrice
+                                    }
+                                  </span>
                                 </div>
 
                                 {groupOrderDetails.orderType === "buy" && (
@@ -532,24 +570,33 @@ function ViewSingleOrder() {
                               <div className="mt-2 flex items-center">
                                 <i className="fas fa-user text-gray-500"></i>
                                 <span className="ml-2">
-                                  {groupOrderDetails?.user?.name}
+                                  {
+                                    groupOrderDetails?.address?.fullAddress
+                                      ?.fullName
+                                  }
                                 </span>
                               </div>
                               <div className="flex items-center">
                                 <i className="fas fa-envelope text-gray-500"></i>
                                 <span className="ml-2">
-                                  {groupOrderDetails?.user?.email}
+                                  {
+                                    groupOrderDetails?.address?.fullAddress
+                                      ?.email
+                                  }
                                 </span>
                               </div>
                               <div className="flex items-center">
                                 <i className="fas fa-phone text-gray-500"></i>
                                 <span className="ml-2">
-                                  {groupOrderDetails?.user?.mobileNo}
+                                  {
+                                    groupOrderDetails?.address?.fullAddress
+                                      ?.mobileNo
+                                  }
                                 </span>
                               </div>
                             </div>
 
-                            {!!groupOrderDetails.address && (
+                            {!!groupOrderDetails.fullAddress && (
                               <>
                                 <div className="h-px bg-gray-300 my-4"></div>
                                 <div>
@@ -558,55 +605,55 @@ function ViewSingleOrder() {
                                     <p>
                                       Full Name:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.physicalAddress?.fullName}`}
+                                        {`${groupOrderDetails?.address?.fullAddress?.fullName}`}
                                       </span>
                                     </p>
                                     <p>
                                       Contact Number:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.physicalAddress?.phone}`}
+                                        {`${groupOrderDetails?.address?.fullAddress?.mobileNo}`}
                                       </span>
                                     </p>
                                     <p>
                                       Full Address:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.physicalAddress?.streetName}, ${groupOrderDetails?.address?.physicalAddress?.landmark}, ${groupOrderDetails?.address?.physicalAddress?.city}, ${groupOrderDetails?.address?.physicalAddress?.postalCode}, ${groupOrderDetails?.address?.physicalAddress?.state},  ${groupOrderDetails?.address?.physicalAddress?.country}`}
+                                        {`${groupOrderDetails?.address?.fullAddress?.streetName}, ${groupOrderDetails?.address?.fullAddress?.landmark}, ${groupOrderDetails?.address?.fullAddress?.city}, ${groupOrderDetails?.address?.fullAddress?.postalCode}, ${groupOrderDetails?.address?.fullAddress?.state},  ${groupOrderDetails?.address?.fullAddress?.country}`}
                                       </span>
                                     </p>
                                     <p>
                                       Road:{" "}
                                       {
-                                        groupOrderDetails?.address
-                                          ?.physicalAddress?.streetName
+                                        groupOrderDetails?.address?.fullAddress
+                                          ?.streetName
                                       }
                                     </p>
                                     <p>
                                       Landmark:{" "}
-                                      {groupOrderDetails?.address
-                                        ?.physicalAddress?.landmark
+                                      {groupOrderDetails?.address?.fullAddress
+                                        ?.landmark
                                         ? groupOrderDetails?.address
-                                            ?.physicalAddress?.landmark
+                                            ?.fullAddress?.landmark
                                         : "N/A"}
                                     </p>
                                     <p>
                                       Postal Code:{" "}
                                       {
-                                        groupOrderDetails?.address
-                                          ?.physicalAddress?.postalCode
+                                        groupOrderDetails?.address?.fullAddress
+                                          ?.postalCode
                                       }
                                     </p>
                                     <p>
                                       City:{" "}
                                       {
-                                        groupOrderDetails?.address
-                                          ?.physicalAddress?.city
+                                        groupOrderDetails?.address?.fullAddress
+                                          ?.city
                                       }
                                     </p>
                                     <p>
                                       State:{" "}
                                       {
-                                        groupOrderDetails?.address
-                                          ?.physicalAddress?.state
+                                        groupOrderDetails?.address?.fullAddress
+                                          ?.state
                                       }
                                     </p>
                                   </div>

@@ -9,13 +9,14 @@ import Link from "next/link";
 import { FiShoppingBag } from "react-icons/fi";
 import Loading from "../../../components/LoadingScreen/LoadingScreen";
 import WishlistItem from "@/components/WishlistComps/WishlistItem/WishlistItem";
+import { redirect } from "next/navigation";
 
 export default function WishlistClientPage({ initialWishlistData }) {
   const { useDeleteWishlistMutation, useGetWishlistQuery } = WishlistApi;
   const { useAddOneToCartMutation } = CartApi;
 
   const {
-    data: wishlistData,
+    data: { wishlists: wishlistData },
     isLoading: isWishlistLoading,
     error: wishlistRtkError,
   } = useGetWishlistQuery(undefined, {
@@ -37,27 +38,53 @@ export default function WishlistClientPage({ initialWishlistData }) {
   const [addOneToCart, { isLoading: isCartLoading, isError: isCartError }] =
     useAddOneToCartMutation();
 
+  // if (wishlistRtkError) {
+  //   console.error("Error fetching wishlist data:", wishlistRtkError);
+  //   switch (wishlistRtkError.status) {
+  //     case 401:
+  //       return redirect("/auth/login?redirect=wishlist");
+  //     default:
+  //       return (
+  //         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+  //           <h2 className="text-2xl font-bold text-gray-800 mb-2">
+  //             An error occurred while fetching your wishlist
+  //           </h2>
+  //           <p className="text-gray-600 mb-6">
+  //             Please try again later or contact support if the issue persists.
+  //           </p>
+  //           <Link
+  //             href="/products"
+  //             className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 max-sm:px-3 max-sm:py-2 max-sm:text-sm  rounded-lg transition-colors">
+  //             Continue Shopping
+  //           </Link>
+  //         </div>
+  //       );
+  //   }
+  // }
+
   // if (isWishlistLoading) return <Loading />;
+
+  console.error("wishlist data", wishlistData);
 
   return (
     <>
       <main className="min-h-[100vh] container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <>
           {/* empty wishlist display */}
-          {wishlistData?.length <= 0 && (
+          {!wishlistData?.length && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
               <div className="bg-gray-100 p-6 rounded-full mb-6">
                 <FiShoppingBag className="w-12 h-12 text-gray-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Your wihslist is empty
+                Your wishlist is empty
               </h2>
               <p className="text-gray-600 mb-6">
                 Looks like you haven't added anything to your wishlist yet
               </p>
               <Link
                 href="/products"
-                className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                className="bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-8 max-sm:px-3 max-sm:py-2 max-sm:text-sm  rounded-lg transition-colors">
                 Continue Shopping
               </Link>
             </div>

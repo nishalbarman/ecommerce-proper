@@ -7,7 +7,7 @@ export async function setLoginCookies(token) {
   cookieStore.set("token", token, {
     sameSite: "none",
     secure: true,
-    httpOnly: true,
+    httpOnly: process.env.NODE_ENV === "production" ? true : false,
     maxAge: 60 * 60, // 1 hour
   });
 }

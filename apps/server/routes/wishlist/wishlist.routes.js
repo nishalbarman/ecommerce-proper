@@ -32,7 +32,7 @@ router.get("/", checkRole(0, 1, 2), async (req, res) => {
     console.log("Wishlist data -->", wishlistDetails);
 
     return res.json({
-      data: wishlistDetails,
+      wishlists: wishlistDetails,
     });
   } catch (error) {
     console.log(error);
@@ -107,7 +107,7 @@ router.post("/", checkRole(0, 1, 2), async (req, res) => {
         status: false,
         message: "Internal server error!",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 });

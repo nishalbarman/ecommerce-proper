@@ -1,8 +1,12 @@
 import React from "react";
 import Link from "next/link";
+
 import { cookies } from "next/headers";
 
 import NavbarPartNonLogged from "./NavbarPartNonLogged";
+import Image from "next/image";
+
+import tree_leaf from "../../../public/bg.png";
 
 async function Navbar({ title }) {
   const links = [
@@ -34,7 +38,19 @@ async function Navbar({ title }) {
   console.log("Token from Navbar function", token);
 
   return (
-    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-gradient-to-r from-[#FFFEE5] to-white">
+    <div className="flex w-full border-[rgb(0,0,0,0.1)] border-b-[1px] justify-between h-[80px] max-md:h-[66px] lg:pl-[10%] lg:pr-[10%] pl-[3%] pr-[3%] bg-gradient-to-r from-[#FFFEE5] to-white relative">
+      {/* Tree leaf image with pointer-events: none; */}
+      <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
+        <Image
+          className="select-none drag-none"
+          src={tree_leaf}
+          alt="Tree Leaf"
+          layout="fill"
+          objectFit="cover"
+          quality={100}
+        />
+      </div>
+
       <div className="flex flex-row">
         <Link href={"/"} className="flex flex-center items-center w-fit">
           <img
@@ -50,23 +66,10 @@ async function Navbar({ title }) {
             src="/assets/logo/new-logo.png"
             className="md:hidden h-[70px] p-2 select-none user-select-none mix-blend-multiply"
           />
-          {/* <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black max-md:hidden ml-4">
-            <span className="max-sm:font-inconsolata font-marker text-2xl uppercase font-bold text-black">
-              Petal Perfection
-            </span>
-          </span> */}
         </Link>
       </div>
-      {/* <div className="hidden min-[1168px]:flex flex-center gap-5 items-center">
-          {links.map((item, index) => {
-            return (
-              <Link key={index} className="text-xl font-marker" href={item.path}>
-                {item.title}
-              </Link>
-            );
-          })}
-        </div> */}
-      <NavbarPartNonLogged />
+
+      <NavbarPartNonLogged token={token} />
     </div>
   );
 }

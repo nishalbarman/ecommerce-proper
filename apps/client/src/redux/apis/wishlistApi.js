@@ -20,7 +20,7 @@ export const wishlistApi = createApi({
         url: `wishlist`,
         method: "GET",
       }),
-      transformResponse: (response, meta, arg) => response.data,
+      // transformResponse: (response, meta, arg) => response.wishlists,
       // transformErrorResponse: (response, meta, arg) => response.message,
       providesTags: ["Wishlist"],
     }),

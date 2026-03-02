@@ -82,7 +82,7 @@ router.post("/admin-login", async (req, res) => {
 
     return res
       .cookie("token", jwtToken, {
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production" ? true : false,
         secure: true,
         sameSite: "none",
       })
@@ -159,12 +159,12 @@ router.post("/login", async (req, res) => {
       // { expiresIn: 1 + "h" }
     );
 
-     const cookieAge = (24 * 60 * 60 * 1000) * 15 // 15 days
+    const cookieAge = 24 * 60 * 60 * 1000 * 15; // 15 days
 
     return res
       .cookie("token", jwtToken, {
         maxAge: cookieAge,
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production" ? true : false,
         secure: true,
         sameSite: "none",
       })
@@ -283,12 +283,12 @@ router.post("/signup", async (req, res) => {
 
     console.log("User Created");
 
-    const cookieAge = (24 * 60 * 60 * 1000) * 15 // 15 days
+    const cookieAge = 24 * 60 * 60 * 1000 * 15; // 15 days
 
     return res
       .cookie("token", jwtToken, {
         maxAge: cookieAge,
-        httpOnly: true,
+        httpOnly: process.env.NODE_ENV === "production" ? true : false,
         secure: true,
         sameSite: "none",
       })
@@ -325,7 +325,7 @@ router.post("/signup", async (req, res) => {
 router.post("/logout", async (req, res) => {
   return res
     .clearCookie("token", {
-      httpOnly: true,
+      httpOnly: process.env.NODE_ENV === "production" ? true : false,
       secure: true,
       sameSite: "none",
     })

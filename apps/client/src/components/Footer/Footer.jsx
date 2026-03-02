@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { PiFacebookLogoBold } from "react-icons/pi";
 
-import tree_leaf from "../../../public/bg.png";
+import tree_leaf from "../../../public/bb_image.jpg";
 // import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 import axios from "axios";
 
@@ -40,7 +40,7 @@ async function Footer() {
       {/* Tree leaf image with pointer-events: none; */}
       <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
         <Image
-          className="select-none drag-none"
+          className="select-none drag-none opacity-10"
           src={tree_leaf}
           alt=""
           layout="fill"
@@ -121,10 +121,7 @@ async function Footer() {
 
           <div className="flex flex-col gap-2">
             <p className="text-white max-sm:text-sm">{webData.address}</p>
-            {/* <p className="text-white">
-              Vill./P.O. :- Bongsar Chariali/Sualkuchi, District :- Kamrup,
-              Assam, 781***
-            </p> */}
+
             <p className="text-white max-sm:text-sm">
               <a
                 href={`mailto:${webData.BrandEmail}`}
@@ -303,8 +300,8 @@ async function Footer() {
               title="Nishal Barman"
               href="https://nisha-char.web.app/"
               target="_blank"
-              className="underline hover:no-underline">
-              Nishachar
+              className="underline hover:no-underline font-bold underline">
+              TechNira.In
             </a>
           </div>
         </div>
