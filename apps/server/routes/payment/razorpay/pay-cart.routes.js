@@ -57,10 +57,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       return res.status(400).json({ message: "Cart is empty" });
     }
 
-
     // TODO: Still NEED to handle out of stock products
-
-   
 
     const {
       cartIds,
@@ -77,7 +74,6 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       productType,
       couponId: appliedCouponID,
     });
-
 
     const addressDocument = await UserAddress.findById(address);
 
@@ -118,7 +114,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     console.log(razorpayOrder);
 
-     const orders = await createOrderWithTransaction({
+    const orders = await createOrderWithTransaction({
       cartItemsForUser,
 
       userId: userDetails._id,
@@ -139,7 +135,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
       appliedCouponID,
       orderType: "buy",
-      gateway: "Razorpay"
+      gateway: "Razorpay",
     });
 
     return res.status(200).json({

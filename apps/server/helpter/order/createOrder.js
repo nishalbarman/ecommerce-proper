@@ -55,7 +55,7 @@ const createOrderWithTransaction = async ({
           orderType: "buy",
 
           address: {
-            physicalAddress: addressDocument,
+            fullAddress: addressDocument,
           },
           // center: centerAddresses[0]._id,
           center: null,
@@ -152,7 +152,7 @@ const createOrderWithTransaction = async ({
             shippingApplied: pricingDetails.shippingApplied,
 
             address: {
-              physicalAddress: addressDocument,
+              fullAddress: addressDocument,
               location: null,
             },
 

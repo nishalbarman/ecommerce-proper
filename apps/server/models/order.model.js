@@ -30,7 +30,7 @@ const orderSchema = new mongoose.Schema(
     discountedPrice: { type: Number, required: true },
 
     address: {
-      physicalAddress: {
+      fullAddress: {
         fullName: { type: String, required: true },
         phone: { type: String, required: true },
         landmark: { type: String, required: false },
@@ -40,7 +40,7 @@ const orderSchema = new mongoose.Schema(
         city: { type: String, required: true },
         state: { type: String, required: true },
       },
-      location: {
+      coordinates: {
         type: [Number, Number], // Array of [longitude, latitude]
         required: false,
       },

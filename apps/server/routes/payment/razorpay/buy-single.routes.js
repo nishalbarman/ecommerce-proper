@@ -114,7 +114,7 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
       },
     });
 
-    console.log(razorpayOrder);
+    console.log("Payment gateway response: ", razorpayOrder);
 
     const cartItem = {
       quantity,
@@ -156,6 +156,8 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
 
     return res.status(200).json({
       razorpayOrderId: razorpayOrder.id,
+      order_id: orderGroupID,
+      gatewayOrderId: razorpayOrder?.receipt,
       amount: razorpayOrder.amount,
       name: userDetails.name,
       email: userDetails.email,
