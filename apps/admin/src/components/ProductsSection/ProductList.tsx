@@ -1,303 +1,355 @@
-import { useMemo, useState } from "react";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-  MRT_GlobalFilterTextField,
-  MRT_ToggleFiltersButton,
-  MRT_ColumnDef,
-} from "material-react-table";
-
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
-import { LuPencilLine } from "react-icons/lu";
-import { MdOutlineDelete } from "react-icons/md";
-
-import { Box, Button, MenuItem, lighten } from "@mui/material";
-
-import { toast } from "react-toastify";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import { LuPencilLine } from "react-icons/lu";
+import { FiMoreVertical } from "react-icons/fi";
+
 import ConfirmModal from "../ConfirmModal";
 import ProductUpdateModal from "./ProductUpdateModal";
-import { Product } from "../../types";
-import { FaRegCopy, FaRegEye } from "react-icons/fa";
+import ViewImage from "../ViewImage/ViewImage";
+
 import {
   useGetProductsQuery,
   useDeleteProductsMutation,
   useDuplicateProductMutation,
 } from "../../redux/apis/productApi";
-import ViewImage from "../ViewImage/ViewImage";
+import { FaRegCopy, FaRegEye } from "react-icons/fa";
+import { MdOutlineDelete } from "react-icons/md";
 
 const ListProduct = () => {
   const navigate = useNavigate();
 
-  // RTK Query hooks
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
-  const { data, isError, isLoading, isFetching, refetch } = useGetProductsQuery(
-    {
-      page: pagination.pageIndex,
-      limit: pagination.pageSize,
-      sort: "newest",
-    },
-  );
+  // Pagination
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const [searchTerm, setSearchTerms] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const { data, isLoading, isFetching, refetch } = useGetProductsQuery({
+    page: pagination.pageIndex,
+    limit: pagination.pageSize,
+    sort: "newest",
+    query: !!debouncedSearch ? debouncedSearch : undefined,
+  });
+
+  const debouncedSearchTimer = useRef(null);
+
+  useEffect(() => {
+    if (debouncedSearchTimer.current) {
+      clearTimeout(debouncedSearchTimer.current);
+    }
+    debouncedSearchTimer.current = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPagination((prev) => ({
+        ...prev,
+        pageIndex: 0, // reset page when searching
+      }));
+    }, 500); // Debounce for 500ms
+  }, [searchTerm]);
+
+  const totalCount = data?.totalProductCount || 0;
+  const totalPages = Math.ceil(totalCount / pagination.pageSize);
 
   const [deleteProducts] = useDeleteProductsMutation();
-  const [duplicateProudctId] = useDuplicateProductMutation();
+  const [duplicateProduct] = useDuplicateProductMutation();
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleteProductId, setDeleteProductId] = useState<string[] | null>(null);
-  const [deleteButtonLoading, setDeleteButtonLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
+  const [productImageModal, setProductImageModal] = useState("");
+  const [productImageModalBg, setProductImageModalBg] = useState("");
+
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handler = (e: any) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setActiveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Select All
+  const handleSelectAll = () => {
+    if (!data?.data) return;
+
+    if (selectedIds.length === data.data.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(data.data.map((p: any) => p._id));
+    }
+  };
+
+  const handleSelect = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((i) => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
 
   const handleDeleteProduct = async () => {
     if (!deleteProductId) return;
 
     try {
-      setDeleteButtonLoading(true);
+      setDeleteLoading(true);
       await deleteProducts(deleteProductId).unwrap();
       toast.success("Product(s) deleted successfully");
       setDeleteProductId(null);
-      refetch(); // Refetch data after deletion
+      setSelectedIds([]);
+      refetch();
     } catch (error: any) {
-      toast.error(error.data?.message || "Failed to delete product(s)");
+      toast.error(error?.data?.message || "Delete failed");
     } finally {
-      setDeleteButtonLoading(false);
+      setDeleteLoading(false);
     }
   };
 
-  const handleProductDuplicate = async (productId: string) => {
-    let toastId = null;
+  const handleDuplicate = async (id: string) => {
+    const toastId = toast.loading("Creating duplicate...");
     try {
-      toastId = toast.loading("Creating duplicate product, Please wait...");
-      await duplicateProudctId({ productId: productId }).unwrap();
+      await duplicateProduct({ productId: id }).unwrap();
       toast.update(toastId, {
-        render: "Duplicate product created",
+        render: "Duplicate created",
         type: "success",
         isLoading: false,
       });
-    } catch (error: any) {
-      console.error(error);
+      refetch();
+    } catch {
       toast.update(toastId, {
-        render: "Failed to duplicate product(s)",
+        render: "Failed to duplicate",
         type: "error",
         isLoading: false,
-        autoClose: 3000,
-        closeButton: null,
       });
-    } finally {
-      // setDeleteButtonLoading(false);
     }
   };
 
-  const [produtImageModal, setProductImageModal] = useState<string>("");
-
-  const columns = useMemo<MRT_ColumnDef<Product>[]>(
-    () => [
-      {
-        id: "product_info",
-        header: "Product Information",
-        columns: [
-          {
-            accessorKey: "previewImage",
-            header: "Preview Image",
-            size: 50,
-            enableColumnFilter: false,
-            Cell: ({ cell }) => (
-              <Box
-                className="cursor-pointer"
-                onClick={() => {
-                  setProductImageModal(
-                    (cell.getValue() as any)?.imageUrl as string,
-                  );
-                }}
-                sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <img
-                  className="object-contain rounded-md select-none"
-                  alt="avatar"
-                  height={30}
-                  src={(cell.getValue() as any)?.imageUrl as string}
-                  loading="lazy"
-                  style={{ width: 50, height: 50 }}
-                />
-              </Box>
-            ),
-          },
-          {
-            accessorFn: (row) => row.title,
-            id: "title",
-            header: "Title",
-            size: 250,
-            Cell: ({ renderedCellValue }) => (
-              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <span className="">{renderedCellValue}</span>
-              </Box>
-            ),
-          },
-          {
-            accessorKey: "category.categoryName",
-            filterVariant: "autocomplete",
-            header: "Category",
-            size: 300,
-            Cell: ({ renderedCellValue }) => (
-              <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <span className="">{renderedCellValue || "NA"}</span>
-              </Box>
-            ),
-          },
-        ],
-      },
-    ],
-    [],
-  );
-
-  const table = useMaterialReactTable({
-    columns,
-    data: data?.data || [],
-    enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableGrouping: true,
-    enableColumnPinning: false,
-    enableFacetedValues: true,
-    enableRowActions: true,
-    enableRowSelection: true,
-    getRowId: (row) => row._id as string,
-    initialState: {
-      showColumnFilters: false,
-      showGlobalFilter: true,
-      columnPinning: {
-        left: ["mrt-row-expand", "mrt-row-select"],
-        right: ["mrt-row-actions"],
-      },
-    },
-    manualPagination: true,
-    onPaginationChange: setPagination,
-    rowCount: data?.totalProductCount || 0,
-    state: {
-      isLoading,
-      pagination,
-      showAlertBanner: isError,
-      showProgressBars: isFetching,
-    },
-    renderRowActionMenuItems: ({ row, closeMenu }) => [
-      <MenuItem
-        key={0}
-        onClick={() => {
-          navigate(`/product/view?productId=${row.original._id}`);
-          closeMenu();
-        }}
-        sx={{ m: 0 }}>
-        <FaRegEye />
-        <span style={{ marginLeft: "9px" }}>View</span>
-      </MenuItem>,
-      <MenuItem
-        key={1}
-        onClick={() => {
-          sessionStorage.setItem("productId", row.original._id as string);
-          setUpdateModalVisible(true);
-          closeMenu();
-        }}
-        sx={{ m: 0 }}>
-        <LuPencilLine />
-        <span style={{ marginLeft: "9px" }}>Update</span>
-      </MenuItem>,
-      <MenuItem
-        key={3}
-        onClick={() => {
-          handleProductDuplicate(row.original._id as string);
-          // sessionStorage.setItem("productId", row.original._id as string);
-          // setUpdateModalVisible(true);
-          closeMenu();
-        }}
-        sx={{ m: 0 }}>
-        <FaRegCopy />
-        <span style={{ marginLeft: "9px" }}>Duplicate</span>
-      </MenuItem>,
-      <MenuItem
-        key={2}
-        onClick={() => {
-          setDeleteProductId([row.original._id as string]);
-          closeMenu();
-        }}
-        sx={{ m: 0 }}>
-        <MdOutlineDelete />
-        <span style={{ marginLeft: "9px" }}>Delete</span>
-      </MenuItem>,
-    ],
-    renderTopToolbar: ({ table }) => (
-      <Box
-        sx={(theme) => ({
-          backgroundColor: lighten(theme.palette.background.default, 0.05),
-          display: "flex",
-          gap: "0.5rem",
-          p: "8px",
-          justifyContent: "space-between",
-        })}>
-        <Box sx={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <MRT_GlobalFilterTextField table={table} />
-          <MRT_ToggleFiltersButton table={table} />
-        </Box>
-        <Box>
-          <Button
-            color="error"
-            disabled={!table.getIsSomeRowsSelected()}
-            onClick={() =>
-              setDeleteProductId(
-                table
-                  .getSelectedRowModel()
-                  .flatRows.map((row) => row.original._id as string),
-              )
-            }
-            variant="contained">
-            Delete
-          </Button>
-        </Box>
-      </Box>
-    ),
-  });
-
-  const [updateModalVisible, setUpdateModalVisible] = useState(false);
-
   return (
-    <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
-      <div className="grid grid-cols-1 mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">Product</h1>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              List of products
-            </h2>
+    <div className="flex flex-col flex-1 p-4 md:p-6 bg-gray-100 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Product</h1>
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow-md w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
+        {/* Header */}
+        <div className="min-w-[600px]">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-semibold">List of Products</h1>
           </div>
-          <div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <MaterialReactTable table={table} />
-            </LocalizationProvider>
+          <div className="flex justify-between items-center mb-6 w-full">
+            <div className="flex flex-col justify-between mb-3 w-full">
+              <label className="text-md font-semibold mb-1">Search</label>
+              <input
+                onChange={(e) => {
+                  setSearchTerms(e.target.value);
+                }}
+                type="text"
+                className="border px-3 py-2 rounded w-1/3"
+                placeholder="Search by ..."
+              />
+            </div>
+
+            {selectedIds.length > 0 && (
+              <button
+                onClick={() => setDeleteProductId(selectedIds)}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-nowrap">
+                Delete Selected
+              </button>
+            )}
+          </div>
+
+          {/* Table */}
+          <div className={`overflow-x-auto ${isFetching && "animate-pulse"}`}>
+            <table className="min-w-full border border-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-3 border">
+                    <input
+                      type="checkbox"
+                      checked={
+                        data?.data?.length > 0 &&
+                        selectedIds.length === data.data.length
+                      }
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  <th className="p-3 border text-left">Image</th>
+                  <th className="p-3 border text-left">Title</th>
+                  <th className="p-3 border text-left">Category</th>
+                  <th className="p-3 border text-left">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} className="text-center p-6">
+                      <ClipLoader />
+                    </td>
+                  </tr>
+                ) : (
+                  data?.data?.map((product: any) => (
+                    <tr key={product._id} className="hover:bg-gray-50">
+                      <td className="p-3 border text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(product._id)}
+                          onChange={() => handleSelect(product._id)}
+                        />
+                      </td>
+
+                      <td className="p-3 border rounded-md">
+                        <div
+                          style={{
+                            backgroundColor: product.previewImage?.bgColor,
+                          }}
+                          className="w-16 border rounded-md">
+                          <img
+                            src={product.previewImage?.imageUrl}
+                            alt=""
+                            className="w-16 h-16 object-contain cursor-pointer"
+                            onClick={() => {
+                              setProductImageModal(
+                                product.previewImage?.imageUrl,
+                              );
+                              setProductImageModalBg(
+                                product.previewImage?.bgColor,
+                              );
+                            }}
+                          />
+                        </div>
+                      </td>
+
+                      <td className="p-3 border">{product.title}</td>
+
+                      <td className="p-3 border">
+                        {product.category?.categoryName || "NA"}
+                      </td>
+
+                      <td className="p-3 border space-x-2">
+                        <button
+                          onClick={() =>
+                            setActiveMenuId(
+                              activeMenuId === product._id ? null : product._id,
+                            )
+                          }
+                          className="p-2 rounded-full hover:bg-gray-200 transition">
+                          <FiMoreVertical size={18} />
+                        </button>
+
+                        {activeMenuId === product._id && (
+                          <div
+                            ref={menuRef}
+                            className="absolute right-4 mt-2 w-44 bg-white border rounded-lg shadow-xl z-50 animate-fadeIn">
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/product/view?productId=${product._id}`,
+                                )
+                              }
+                              className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-sm">
+                              <FaRegEye className="mr-2" /> View
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                sessionStorage.setItem(
+                                  "productId",
+                                  product._id,
+                                );
+                                setUpdateModalVisible(true);
+                              }}
+                              className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-sm">
+                              <LuPencilLine className="mr-2" /> Update
+                            </button>
+
+                            <button
+                              onClick={() => handleDuplicate(product._id)}
+                              className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-sm">
+                              <FaRegCopy className="mr-2" /> Duplicate
+                            </button>
+
+                            <button
+                              onClick={() => setDeleteProductId([product._id])}
+                              className="flex items-center w-full px-4 py-2 hover:bg-red-50 text-red-600 text-sm">
+                              <MdOutlineDelete className="mr-2" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-between items-center mt-6">
+            <button
+              disabled={pagination.pageIndex === 0}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageIndex: prev.pageIndex - 1,
+                }))
+              }
+              className="px-4 py-2 bg-[#101826] text-white rounded disabled:opacity-50">
+              Previous
+            </button>
+
+            <span>
+              Page {pagination.pageIndex + 1} of {totalPages}
+            </span>
+
+            <button
+              disabled={pagination.pageIndex + 1 >= totalPages}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageIndex: prev.pageIndex + 1,
+                }))
+              }
+              className="px-4 py-2 bg-[#101826] text-white rounded disabled:opacity-50">
+              Next
+            </button>
           </div>
         </div>
       </div>
 
-      {!!deleteProductId && !!deleteProductId.length && (
+      {/* Confirm Modal */}
+      {!!deleteProductId && (
         <ConfirmModal
-          title={"Are you sure about that?"}
+          title="Are you sure?"
           closeModal={() => setDeleteProductId(null)}>
           <>
             <div className="w-full">
               <strong className="text-red-400">
                 Warning: Permanent Deletion of Product Information
               </strong>
-              <p>
+              <p className="mt-1 text-base">
                 Deleting this product will permanently remove all associated
                 information from the server and erase any related data from the
                 database, including variants.
               </p>
             </div>
-            <div className="border-t mt-3 pt-3">
+
+            <div className="mt-4 flex justify-end">
               <button
-                className="inline-flex justify-center rounded-md border border-transparent bg-red-400 py-2 px-4 text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 hover:bg-red-500"
-                disabled={deleteButtonLoading}
-                onClick={handleDeleteProduct}>
-                {deleteButtonLoading ? (
+                disabled={deleteLoading}
+                onClick={handleDeleteProduct}
+                className="bg-red-500 text-white px-4 py-2 rounded">
+                {deleteLoading ? (
                   <ClipLoader color="white" size={15} />
                 ) : (
                   "Delete"
@@ -308,6 +360,7 @@ const ListProduct = () => {
         </ConfirmModal>
       )}
 
+      {/* Update Modal */}
       {updateModalVisible && (
         <ProductUpdateModal
           visible={updateModalVisible}
@@ -316,12 +369,12 @@ const ListProduct = () => {
         />
       )}
 
-      {produtImageModal && (
+      {/* Image Modal */}
+      {productImageModal && (
         <ViewImage
-          imageUrl={produtImageModal}
-          clearItem={() => {
-            setProductImageModal("");
-          }}
+          imageUrl={productImageModal}
+          bgColor={productImageModalBg || "rgba(0,0,0,0.8)"}
+          clearItem={() => setProductImageModal("")}
         />
       )}
     </div>

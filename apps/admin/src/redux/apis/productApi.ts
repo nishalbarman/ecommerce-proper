@@ -19,7 +19,7 @@ export const productApi = createApi({
   endpoints: (builder) => ({
     // Fetch all products with pagination
     getProducts: builder.query({
-      query: ({ page, limit, sort }) => `products?page=${page}&limit=${limit}&sort=${sort}`,
+      query: ({ query, page, limit, sort }) => `products?page=${page}&limit=${limit}&sort=${sort}${query ? `&query=${query}` : ""}`,
       providesTags: ["Product"],
       transformResponse: (res: any) => ({
         data: res.data, // List of products

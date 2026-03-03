@@ -158,7 +158,7 @@ function ProductCard({
     <div className="w-full group/product_item ">
       {/* Image Section */}
       <div className="relative md:max-h-[400px] aspect-square rounded-lg overflow-hidden bg-[rgb(244,244,245)] w-full">
-        {!!originalPrice && (
+        {!!originalPrice && originalPrice != discountedPrice && (
           <div className="z-1 absolute top-2 left-2 max-sm:w-13 w-[60px] rounded bg-[rgb(65,162,72)] flex items-center justify-center max-sm:p-1 p-1.5">
             <span className="text-white text-sm max-sm:text-xs font-medium">
               {discount?.current || 0}%
@@ -247,13 +247,13 @@ function ProductCard({
                 <span className="text-black text-xl md:text-lg max-sm:text-base font-bold">
                   &#8377;{discountedPrice}
                 </span>
-                {!!originalPrice && (
+                {!!originalPrice && originalPrice != discountedPrice && (
                   <span className="line-through text-gray-400 text-sm md:text-base max-sm:tex-sm ">
                     &#8377;{originalPrice}
                   </span>
                 )}
               </div>
-              {!!originalPrice && (
+              {!!originalPrice && originalPrice != discountedPrice && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">You save</span>
                   <span className="text-green-600 text-sm font-medium">

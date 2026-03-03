@@ -38,7 +38,7 @@ type ProductAddProps = {
 };
 
 const ProductAdd: React.FC<ProductAddProps> = ({
-  // loading = undefined,
+  loading = undefined,
   setIsUpdateLoading = undefined,
   fetchProductData: refetchProducts = undefined,
   setVisible = undefined,
@@ -290,17 +290,15 @@ const ProductAdd: React.FC<ProductAddProps> = ({
 
   return (
     <div
-      className={`flex flex-col flex-1 bg-gray-100 ${
-        !updateProductId && "p-3 md:p-6 "
-      } ""`}>
+      className={`flex flex-col flex-1 ${!updateProductId && "p-3 md:p-6 "}`}>
       {!updateProductId && (
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">Product</h1>
         </div>
       )}
 
-      {isUpdateProductFetching ? (
-        <div className="flex justify-center min-h-[70vh] items-center">
+      {loading ? (
+        <div className="flex justify-center min-h-[70vh] items-center bg-white">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       ) : (
@@ -309,7 +307,34 @@ const ProductAdd: React.FC<ProductAddProps> = ({
             !updateProductId && "p-3 md:p-6 shadow-md"
           }`}>
           {!updateProductId && (
-            <h2 className="text-lg font-bold mb-4">Add Product</h2>
+            <div className="flex justify-between">
+              <h2 className="text-lg font-bold mb-4">Add Product</h2>
+              <div className="flex">
+                <button
+                  type="submit"
+                  className="cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-200 h-fit"
+                  disabled={
+                    !(
+                      updateProductId ||
+                      (!isSubmitDisabled && !isFormSubmitting)
+                    )
+                  }>
+                  {updateProductId ? "Update Product" : "Submit form"}
+                </button>
+              </div>
+            </div>
+          )}
+          {!!updateProductId && (
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="cursor-pointer inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:bg-indigo-200 h-fit"
+                disabled={
+                  !(updateProductId || (!isSubmitDisabled && !isFormSubmitting))
+                }>
+                {updateProductId ? "Update Product" : "Submit form"}
+              </button>
+            </div>
           )}
           <form onSubmit={handleProductSubmit} className="space-y-6">
             <div className="bg-white rounded ">
@@ -466,7 +491,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       {!productData.previewImage?.imageUrl ? (
                         <div className="px-3">
                           <AssetPicker
-                            classX="h-5"
+                            classX="h-5 mt-0"
                             htmlFor="productPreviewImage"
                             fileSelectCallback={(
                               imageItems: Array<FileLibraryListItem>,
@@ -507,13 +532,16 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                     className={`w-full h-[400px] bg-[${productData.previewImage?.bgColor}] flex justify-center aspect-square overflow-hidden mt-1 border-2 rounded`}>
                     {productData.previewImage ? (
                       <img
-                        className={`w-full h-full w-[200px] aspect-square object-contain bg-[${productData.previewImage?.bgColor}]`}
+                        style={{
+                          backgroundColor: productData.previewImage?.bgColor,
+                        }}
+                        className={`w-full h-full w-[200px] aspect-square object-contain `}
                         src={productData?.previewImage?.imageUrl as string}
                       />
                     ) : (
-                      <div className="items-center flex justify-center h-full w-full cursor-pointer">
+                      <div className="items-center pb-1 flex justify-center h-full w-full">
                         <AssetPicker
-                          classX="h-full w-full border-1 rounded-sm border-gray-200 mt-0"
+                          classX="h-full w-full border-1 rounded-sm border-gray-200 m-0! p-0!"
                           htmlFor="productPreviewImage"
                           fileSelectCallback={(
                             imageItems: Array<FileLibraryListItem>,
@@ -600,7 +628,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         )}
                       </Swiper>
                     ) : (
-                      <div className="items-center flex justify-center h-full w-full cursor-pointe">
+                      <div className="items-center pb-1 flex justify-center h-full w-full cursor-pointe">
                         <AssetPicker
                           classX="h-full w-full border-1 rounded-sm border-gray-200 mt-0"
                           htmlFor="productSlideImage"
@@ -631,14 +659,10 @@ const ProductAdd: React.FC<ProductAddProps> = ({
               </div>
             </div>
 
-            {JSON.stringify(
-              productData.slideImages?.map((img) => img.id) || [],
-            )}
-
             <div className="bg-white p-4 rounded shadow-lg border">
               <h3 className="text-xl font-semibold mb-3">Product Pricing</h3>
 
-              <div className="mb-4 bg-green-200 p-3 rounded-md">
+              <div className="mb-4 bg-yellow-200 p-3 rounded-md">
                 <p className="text-body-secondary small mb-1">
                   <strong>
                     Below are the instructions how to fill the pricing fields.
@@ -823,7 +847,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                   Variant Information
                 </h3>
 
-                <div className="mb-2 bg-green-200 p-3 rounded-md">
+                <div className="mb-2 bg-yellow-200 p-3 rounded-md">
                   <p className="text-body-secondary mb-1">
                     <strong>
                       Product variants are different product sizes and colors.

@@ -83,7 +83,7 @@ const DynamicPageAdd = () => {
       !!dynamicPageData?.description &&
       dynamicPageData.description.length >= 10 &&
       // !!dynamicPageData?.avatar &&
-      !!dynamicPageData?.cover.imageUrl;
+      !!dynamicPageData?.cover?.imageUrl;
     setIsSubmitDisabled(!isEverythingOk);
   }, [dynamicPageData]);
 
@@ -342,7 +342,7 @@ const DynamicPageAdd = () => {
                         <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                           <img
                             className="w-full h-full w-[200px] aspect-square object-contain"
-                            src={dynamicPageData.cover?.imageUrl as string}
+                            src={dynamicPageData?.cover?.imageUrl as string}
                           />
                           <button
                             onClick={() => {
