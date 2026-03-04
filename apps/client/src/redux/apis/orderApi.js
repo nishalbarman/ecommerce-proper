@@ -72,10 +72,10 @@ export const orderApi = createApi({
 
     // ✅ CANCEL SINGLE ITEM
     cancelOrderItem: builder.mutation({
-      query: ({ orderItemId }) => ({
+      query: ({ orderItemId, orderGroupID }) => ({
         url: "cancel-item",
         method: "PATCH",
-        body: { orderItemId },
+        body: { orderItemId, orderGroupID },
       }),
 
       invalidatesTags: ["Order"],

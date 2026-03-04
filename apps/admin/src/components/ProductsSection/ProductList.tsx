@@ -254,7 +254,7 @@ const ListProduct = () => {
                             <button
                               onClick={() =>
                                 navigate(
-                                  `/product/view?productId=${product._id}`,
+                                  `/product/view?productSlug=${product.slug}`,
                                 )
                               }
                               className="flex items-center w-full px-4 py-2 hover:bg-gray-100 text-sm">

@@ -567,7 +567,19 @@ router.get("/admin-view/:productId", checkRole(1, 2), async (req, res) => {
         .json({ redirect: "/products", message: "Product ID missing!" });
     }
 
-    const product = await Product.findOne({ _id: productId }).populate([
+    let isSlug = true;
+    if (mongoose.Types.ObjectId.isValid(productId)) {
+      isSlug = false;
+    }
+
+    const findFilter = {};
+    if (isSlug) {
+      findFilter.slug = productId;
+    } else {
+      findFilter._id = productId;
+    }
+
+    const product = await Product.findOne(findFilter).populate([
       "category",
       "productVariant",
     ]);

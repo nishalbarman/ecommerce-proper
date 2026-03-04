@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setUserAuthData } from "../slices/authSlice";
 
-const SERVER_URL = `${process.env.EXPO_PUBLIC_API_URL}/`;
+const SERVER_URL = `${process.env.VITE_APP_API_URL}/`;
 
 // type User = {
 //   name: string;

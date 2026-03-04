@@ -95,6 +95,35 @@ const orderGroupSchema = new mongoose.Schema(
 
 orderGroupSchema.index({ "$**": "text" });
 
+// 1️⃣ Search by orderGroupID (very common)
+orderGroupSchema.index({ orderGroupID: 1 });
+
+orderGroupSchema.index({ orderGroupID: 1, orderStatus: 1 });
+
+// 2️⃣ Search by paymentTransactionID
+orderGroupSchema.index({ paymentTransactionID: 1 });
+
+// 3️⃣ User order listing (VERY IMPORTANT)
+orderGroupSchema.index({ user: 1, createdAt: -1 });
+
+// 4️⃣ Filter by orderStatus
+orderGroupSchema.index({ orderStatus: 1 });
+
+// 5️⃣ Filter by paymentStatus
+orderGroupSchema.index({ paymentStatus: 1 });
+
+// 6️⃣ Admin panel filtering (status + payment)
+orderGroupSchema.index({ orderStatus: 1, paymentStatus: 1 });
+
+// 7️⃣ Store wise orders
+orderGroupSchema.index({ store: 1, createdAt: -1 });
+
+// 8️⃣ Order type filtering (buy / rent)
+orderGroupSchema.index({ orderType: 1 });
+
+// 9️⃣ If you frequently filter by both orderStatus + createdAt
+orderGroupSchema.index({ orderStatus: 1, createdAt: -1 });
+
 const OrderGroup =
   mongoose.models.order_group ||
   mongoose.model("order_group", orderGroupSchema);

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const SERVER_URL = `${process.env.EXPO_PUBLIC_API_URL}/payment/`;
+const SERVER_URL = `${process.env.VITE_APP_API_URL}/payment/`;
 console.log(SERVER_URL);
 
 export const pgApi = createApi({

@@ -27,7 +27,7 @@ import {
   clearCouponData,
   updateAppliedCoupon,
 } from "@/redux/slices/appliedCouponSlice";
-import { useCookies } from "next-client-cookies/dist";
+import { useCookies } from "next-client-cookies";
 
 export default function CheckoutPage() {
   const router = useRouter();

@@ -136,6 +136,8 @@ export type Base64StringWithType = {
 };
 
 export type ProductVariant = {
+_id: string,
+
   product: string;
 
   previewImage: Image | null;
@@ -150,6 +152,9 @@ export type ProductVariant = {
   rentingPrice: number;
   discountedPrice: number;
   originalPrice: number;
+
+  
+
 
   [key: string]: any;
 };
@@ -202,6 +207,7 @@ export type Product = {
   categorySlug: string;
   slideImages: Image[] | null;
   description: string;
+  slug: string;
 
   stars?: string | number;
   totalFeedbacks?: string | number;

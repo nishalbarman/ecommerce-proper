@@ -76,13 +76,13 @@ const OrderViewPage = ({ params }) => {
   const [cancelOrderItem] = useCancelOrderItemMutation();
   const [cancellingItemId, setCancellingItemId] = useState(null);
 
-  const handleCancelOrderItem = async (itemId) => {
+  const handleCancelOrderItem = async (itemId, orderGroupID) => {
     if (!window.confirm("Are you sure you want to cancel this item?")) return;
 
     try {
       setCancellingItemId(itemId);
 
-      await cancelOrderItem({ orderItemId: itemId }).unwrap();
+      await cancelOrderItem({ orderItemId: itemId, orderGroupID }).unwrap();
 
       toast.success("Order item cancelled successfully");
 
@@ -135,8 +135,8 @@ const OrderViewPage = ({ params }) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Order not found</h1>
-          <Link href="/orders">
-            <a className="text-blue-600 hover:underline">Back to orders</a>
+          <Link className="text-blue-600 hover:underline" href="/orders">
+            Back to orders
           </Link>
         </div>
       </div>
@@ -144,8 +144,8 @@ const OrderViewPage = ({ params }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="container px-4 sm:px-6 lg:px-15 mx-auto">
+    <div className="min-h-screen bg-gray-50 py-8 max-sm:px-3 max-md:px-5 lg:px-70">
+      <div className="container mx-auto">
         <div className="mb-6">
           <Link href="/myorders">
             <span className="inline-flex items-center text-black hover:text-black">
@@ -154,7 +154,7 @@ const OrderViewPage = ({ params }) => {
           </Link>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 max-sm:gap-1">
           {/* Left Column - Order Details */}
           <div className="flex-1">
             <div className="bg-white shadow rounded-lg overflow-hidden mb-6">
@@ -164,7 +164,7 @@ const OrderViewPage = ({ params }) => {
                     <h1 className="text-2xl font-semibold text-gray-900">
                       Order{" "}
                       <span className="max-sm:text-sm max-md:text-base max-md:block max-md:mt-2">
-                        #{orderGroup?.orderGroupID}
+                        #{orderGroup?.orderGroupID?.toUpperCase()}
                       </span>
                     </h1>
                     <p className="mt-1 text-sm text-gray-500">
@@ -178,7 +178,7 @@ const OrderViewPage = ({ params }) => {
                 </div>
               </div>
 
-              <div className="px-6 py-5">
+              <div className="px-6 py-5 max-sm:px-2 max-sm:py-4">
                 {/* <h2 className="text-lg font-medium text-gray-900 mb-3">
                   Order Details
                 </h2> */}
@@ -186,87 +186,108 @@ const OrderViewPage = ({ params }) => {
                   {/* <span>{JSON.stringify(orderDetails)}</span> */}
                   {!!orderData?.data?.length &&
                     orderData?.data?.map((item, index) => (
-                      <>
-                        <>
-                          {/* Main Cart Item */}
-                          <div className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
-                            <div className="flex flex-col md:flex-row p-4 gap-4">
-                              {/* Product Image */}
-                              <div
-                                style={{
-                                  backgroundColor: item?.previewImage?.bgColor,
-                                }}
-                                className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
-                                <Link
-                                  href={`/products/view/${item?.productSlug || item?.title?.toLowerCase().replace(/\s+/g, "-")}}`}>
-                                  <img
-                                    className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
-                                    src={item?.previewImage?.imageUrl}
-                                    alt={item?.title}
-                                    draggable={false}
-                                  />
-                                </Link>
-                              </div>
+                      <div
+                        key={item._id || index}
+                        className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
+                        <div>
+                          {[
+                            "On Hold",
+                            "Pending",
+                            "On Progress",
+                            "Accepted",
+                          ].includes(item.orderStatus) && (
+                            <div className="">
+                              <button
+                                onClick={() => handleCancelOrderItem(item._id, item.orderGroupID)}
+                                title="Cancel"
+                                disabled={cancellingItemId === item._id}
+                                className={`absolute top-1 right-1 w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}>
+                                <MdCancel size={25} className="text-red-500" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
 
-                              {/* Product Details */}
-                              <div className="flex-1 flex flex-col">
-                                <div className="flex justify-between items-start">
-                                  <Link
-                                    href={`/products/view/${item?._id}`}
-                                    className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors">
-                                    {item?.title}
-                                  </Link>
-                                  {/* <button
+                        {/* Main Cart Item */}
+                        <div className="flex flex-col md:flex-row p-4 gap-4">
+                          {/* Product Image */}
+                          <div
+                            style={{
+                              backgroundColor: item?.previewImage?.bgColor,
+                            }}
+                            className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+                            <Link
+                              href={`/products/view/${item?.productSlug || item?.title?.toLowerCase().replace(/\s+/g, "-")}}`}>
+                              <img
+                                className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
+                                src={item?.previewImage?.imageUrl}
+                                alt={item?.title}
+                                draggable={false}
+                              />
+                            </Link>
+                          </div>
+
+                          {/* Product Details */}
+                          <div className="flex-1 flex flex-col">
+                            {item.orderStatus === "Cancelled" && (
+                              <p
+                                className={`absolute top-1 right-1 mt-1 mb-2 bg-red-100 text-red-800 rounded-xl py-1 px-3 text-xs w-fit`}>
+                                Cancelled
+                              </p>
+                            )}
+                            <div className="flex justify-between items-start">
+                              <Link
+                                href={`/products/view/${item?._id}`}
+                                className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors">
+                                {item?.title}
+                              </Link>
+                              {/* <button
                                     onClick={handleRemoveFromCart}
                                     className="text-gray-400 hover:text-red-500 transition-colors p-1 cursor-pointer">
                                     <IoIosClose size={24} />
                                   </button> */}
-                                </div>
+                            </div>
 
-                                {/* Price Section */}
-                                <div className="mt-2">
-                                  <span className="text-xl font-bold text-gray-900">
-                                    ₹{item?.discountedPrice}
+                            {/* Price Section */}
+                            <div className="mt-2">
+                              <span className="text-xl font-bold text-gray-900">
+                                ₹{item?.discountedPrice}
+                              </span>
+                              {!!item?.originalPrice && (
+                                <>
+                                  <span className="text-gray-500 ml-2 line-through">
+                                    ₹{item?.originalPrice}
                                   </span>
-                                  {!!item?.originalPrice && (
-                                    <>
-                                      <span className="text-gray-500 ml-2 line-through">
-                                        ₹{item?.originalPrice}
-                                      </span>
-                                      <span className="text-green-600 ml-2 text-sm">
-                                        Save ₹
-                                        {item?.originalPrice -
-                                          item?.discountedPrice}
-                                      </span>
-                                    </>
-                                  )}
+                                  <span className="text-green-600 ml-2 text-sm">
+                                    Save ₹
+                                    {item?.originalPrice -
+                                      item?.discountedPrice}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Variant Info */}
+                            {item?.size && item?.color && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                                  <span className="text-gray-600">Size:</span>
+                                  <span className="font-medium ml-1">
+                                    {item.size}
+                                  </span>
                                 </div>
+                                <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
+                                  <span className="text-gray-600">Color:</span>
+                                  <span className="font-medium ml-1">
+                                    {item.color}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
 
-                                {/* Variant Info */}
-                                {item?.size && item?.color && (
-                                  <div className="mt-2 flex flex-wrap gap-2">
-                                    <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                                      <span className="text-gray-600">
-                                        Size:
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {item.size}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center bg-gray-100 rounded-full px-3 py-1 text-sm">
-                                      <span className="text-gray-600">
-                                        Color:
-                                      </span>
-                                      <span className="font-medium ml-1">
-                                        {item.color}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Actions */}
-                                <div className="mt-4 flex flex-wrap items-center gap-3">
-                                  {/* {(item.size && item.color) && (
+                            {/* Actions */}
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              {/* {(item.size && item.color) && (
                                     <button
                                       onClick={() =>
                                         variantModalRef.current?.classList.remove(
@@ -279,8 +300,8 @@ const OrderViewPage = ({ params }) => {
                                     </button>
                                   )} */}
 
-                                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                                    {/* <button
+                              <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                                {/* <button
                                       onClick={() =>
                                         handleQuantityChange(
                                           Math.max(1, item.quantity - 1),
@@ -290,10 +311,10 @@ const OrderViewPage = ({ params }) => {
                                       disabled={item.quantity <= 1}>
                                       -
                                     </button> */}
-                                    <span className="px-4 py-2 text-center min-w-[40px]">
-                                      Quantity: {item?.quantity}
-                                    </span>
-                                    {/* <button
+                                <span className="px-4 py-2 text-center min-w-[40px]">
+                                  Quantity: {item?.quantity}
+                                </span>
+                                {/* <button
                                       onClick={() =>
                                         handleQuantityChange(
                                           item.quantity + 1,
@@ -302,9 +323,9 @@ const OrderViewPage = ({ params }) => {
                                       className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed">
                                       +
                                     </button> */}
-                                  </div>
+                              </div>
 
-                                  {/* <button
+                              {/* <button
                                     onClick={handleAddToWishlist}
                                     className="ml-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer">
                                     <FiHeart
@@ -319,27 +340,29 @@ const OrderViewPage = ({ params }) => {
                                     />
                                     Move to wishlist
                                   </button> */}
-                                </div>
-                              </div>
                             </div>
                           </div>
-                        </>
-                      </>
+                        </div>
+                      </div>
                     ))}
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h2 className="text-lg font-medium text-gray-900">
-                  Shipping Details
-                </h2>
-              </div>
-              <div className="px-6 py-4 pb-5">
-                <div className="">
-                  {/* <div> */}
-                  {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
+          {/* Right Column - Sticky Payment Summary */}
+          <div className="lg:w-100 flex-shrink-0">
+            <div className="sticky top-6">
+              <div className="bg-white shadow rounded-lg overflow-hidden mb-4">
+                <div className="px-6 py-4 max-sm:px-3 border-b border-gray-200">
+                  <h2 className="text-lg font-medium text-gray-900">
+                    Shipping Details
+                  </h2>
+                </div>
+                <div className="px-6 max-sm:px-3 py-4 pb-5">
+                  <div className="">
+                    {/* <div> */}
+                    {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <FaTruck className="mr-2" /> Shipping Method
                     </h3>
                     <p className="mt-1 text-sm text-gray-900 capitalize mb-3">
@@ -347,49 +370,43 @@ const OrderViewPage = ({ params }) => {
                         "Standard"}
                     </p> */}
 
-                  {/* </div> */}
+                    {/* </div> */}
 
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <FaMapMarkerAlt className="mr-2" /> Shipping Address
-                    </h3>
-                    {orderGroup?.address ? (
-                      <div className="mt-1 max-sm:text-sm text-md text-gray-900 border border-red-500 bg-red-50 rounded-md p-4 mt-3">
-                        <p className="mb-1 font-bold">
-                          {orderGroup?.address.physicalAddress?.fullName},{" "}
-                          <span className="font-normal">
-                            {orderGroup?.address.physicalAddress?.phone}
-                          </span>
-                        </p>
-                        <div>
-                          <p>
-                            {orderGroup?.address.physicalAddress?.streetName},{" "}
-                            {orderGroup?.address.physicalAddress?.city}
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 flex items-center">
+                        <FaMapMarkerAlt className="mr-2" /> Shipping Address
+                      </h3>
+                      {orderGroup?.address ? (
+                        <div className="mt-1 max-sm:text-sm text-md text-gray-900 border border-red-500 bg-red-50 rounded-md p-4 mt-3">
+                          <p className="mb-1 font-bold">
+                            {orderGroup?.address.fullAddress?.fullName},{" "}
+                            <span className="font-normal">
+                              {orderGroup?.address.fullAddress?.phone}
+                            </span>
                           </p>
-                          <p>
-                            {orderGroup?.address.physicalAddress?.postalCode}
-                          </p>
-                          <p>{orderGroup?.address.physicalAddress?.country}</p>
+                          <div>
+                            <p>
+                              {orderGroup?.address.fullAddress?.streetName},{" "}
+                              {orderGroup?.address.fullAddress?.city}
+                            </p>
+                            <p>{orderGroup?.address.fullAddress?.postalCode}</p>
+                            <p>{orderGroup?.address.fullAddress?.country}</p>
+                          </div>
+
+                          <p></p>
                         </div>
-
-                        <p></p>
-                      </div>
-                    ) : (
-                      <p className="mt-1 text-sm text-gray-500">
-                        No address provided
-                      </p>
-                    )}
+                      ) : (
+                        <p className="mt-1 text-sm text-gray-500">
+                          No address provided
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Right Column - Sticky Payment Summary */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="sticky top-6">
               <div className="bg-white shadow rounded-lg overflow-hidden">
-                <div className="px-6 py-5 border-b border-gray-200">
+                <div className="px-6 max-sm:px-3 py-4 border-b border-gray-200">
                   <h2 className="text-lg font-medium text-gray-900">
                     Payment Summary
                   </h2>

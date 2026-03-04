@@ -288,7 +288,7 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 
     const role = req.jwt?.role;
 
-    const orderDetails = await OrderGroup.find({
+    const orderDetails = await OrderGroup.findOne({
       orderGroupID: orderGroupID,
       ...(role === 2 && { center: req.jwt?.center }),
     }).populate("orders");
@@ -588,95 +588,190 @@ router.patch("/update-status", checkRole(1, 2), async (req, res) => {
 
 //! ORDER CANCELLATION ROUTE CAN BE USED BY ADMIN AND NORMAL USERS
 router.patch("/cancel", checkRole(1, 0), async (req, res) => {
-  try {
-    const userDetails = req.user;
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    const orderGroupId = req.body?.orderGroupId;
+  try {
+    const { orderGroupId } = req.body;
+    const user = req.user;
 
     if (!orderGroupId) {
-      return res.status(400).json({ message: "Order ID is missing!" });
+      return res.status(400).json({
+        status: false,
+        message: "Order Group ID is required!",
+      });
     }
-    // order can only be cancelled when the order state is among these three states
+
+    // Base filter
     const orderFilter = {
       orderGroupID: orderGroupId,
     };
 
-    if (userDetails.role === 0) {
-      orderFilter.user = userDetails._id;
-      orderFilter.orderStatus = { $in: ["On Hold", "On Progress", "Accepted"] };
-    } else if (userDetails.role === 2) {
-      // const center = await Center.findOne({ user: userDetails._id });
-      const center = userDetails?.center;
-      if (!center) {
-        return res
-          .status(400)
-          .json({ message: "No center available for given user ID" });
-      }
-      orderFilter.center = center;
+    // Role based filtering
+    if (user.role === 0) {
+      // Normal user
+      orderFilter.user = user._id;
+      orderFilter.orderStatus = {
+        $in: ["On Hold", "On Progress", "Accepted"],
+      };
     }
 
-    // return res.json(orderFilter);
+    if (user.role === 2) {
+      // Center
+      if (!user.center) {
+        return res.status(400).json({
+          status: false,
+          message: "No center assigned to this user",
+        });
+      }
 
-    const order = await Order.updateMany(orderFilter, {
-      $set: {
-        orderStatus: "Cancelled",
-      },
-    });
+      orderFilter.center = user.center;
+      orderFilter.orderStatus = {
+        $ne: "Cancelled",
+      };
+    }
 
-    if (!order) {
-      return res.json({
-        message: "Cancellation Failed",
+    // Check if order exists
+    const existingOrder = await Order.findOne(orderFilter)
+      .session(session)
+      .select("_id");
+
+    if (!existingOrder) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(404).json({
+        status: false,
+        message: "Order not found or cannot be cancelled",
       });
     }
+
+    // Update Orders
+    await Order.updateMany(
+      orderFilter,
+      { $set: { orderStatus: "Cancelled" } },
+      { session }
+    );
+
+    // Update OrderGroup
+    await OrderGroup.updateOne(
+      { orderGroupID: orderGroupId },
+      { $set: { orderStatus: "Cancelled" } },
+      { session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
     return res.json({
-      message: "Order Cancelled",
+      status: true,
+      message: "Order Cancelled Successfully",
     });
   } catch (error) {
-    console.log(error);
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error(error);
     return res.status(500).json({
       status: false,
-      message: "Internal server error!",
+      message: "Internal server error",
     });
   }
 });
 
 //! CANCEL INDIVIDUAL ORDER ITEM ROUTE
 router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
-    const userDetails = req.user;
-    const orderItemId = req.body?.orderItemId;
+    const { orderItemId, orderGroupID } = req.body;
+    const user = req.user;
 
-    if (!orderItemId) {
-      return res.status(400).json({ message: "Order item ID is missing!" });
+    if (!orderItemId || !orderGroupID) {
+      return res.status(400).json({
+        status: false,
+        message: "Order Item ID and Order Group ID are required!",
+      });
     }
 
-    const orderFilter = { _id: orderItemId };
-
-    if (userDetails.role === 0) {
-      orderFilter.user = userDetails._id;
-      orderFilter.orderStatus = { $in: ["On Hold", "On Progress", "Accepted"] };
-    } else if (userDetails.role === 2) {
-      const center = userDetails?.center;
-      if (!center) {
-        return res
-          .status(400)
-          .json({ message: "No center available for given user ID" });
-      }
-      orderFilter.center = center;
+    if (user.role === 2 && !user.center) {
+      return res.status(400).json({
+        status: false,
+        message: "No center assigned to this user",
+      });
     }
 
-    const order = await Order.findOneAndUpdate(
+    // Build filter
+    const orderFilter = {
+      _id: orderItemId,
+      orderGroupID: orderGroupID,
+      orderStatus: {
+        $in: ["On Hold", "On Progress", "Accepted"],
+      },
+    };
+
+    if (user.role === 0) {
+      orderFilter.user = user._id;
+    }
+
+    if (user.role === 2) {
+      orderFilter.center = user.center;
+    }
+
+    // Cancel single item
+    const updateResult = await Order.updateOne(
       orderFilter,
       { $set: { orderStatus: "Cancelled" } },
-      { new: true },
+      { session }
     );
 
-    if (!order) {
-      return res.json({ message: "Cancellation Failed" });
+    if (updateResult.modifiedCount === 0) {
+      await session.abortTransaction();
+      session.endSession();
+
+      return res.status(400).json({
+        status: false,
+        message: "Order cannot be cancelled or not found",
+      });
     }
-    return res.json({ message: "Order Item Cancelled" });
+
+    // Count total items in group
+    const totalItems = await Order.countDocuments(
+      { orderGroupID: orderGroupID },
+      { session }
+    );
+
+    // Count cancelled items
+    const cancelledItems = await Order.countDocuments(
+      {
+        orderGroupID: orderGroupID,
+        orderStatus: "Cancelled",
+      },
+      { session }
+    );
+
+    // If all items cancelled → cancel group
+    if (totalItems === cancelledItems) {
+      await OrderGroup.updateOne(
+        { orderGroupID: orderGroupID },
+        { $set: { orderStatus: "Cancelled" } },
+        { session }
+      );
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.json({
+      status: true,
+      message: "Order Item Cancelled Successfully",
+    });
   } catch (error) {
-    console.log(error);
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Internal server error: ", error);
     return res.status(500).json({
       status: false,
       message: "Internal server error!",

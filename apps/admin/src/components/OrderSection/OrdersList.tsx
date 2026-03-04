@@ -1,91 +1,71 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-  MRT_ColumnDef,
-} from "material-react-table";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import {
-  Box,
-  MenuItem,
-  Tab,
-  Tabs,
-  Paper,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-} from "@mui/material";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../redux/index";
 import { OrderGroup } from "../../types";
 import cAxios from "../../axios/cutom-axios";
 import { FaEye } from "react-icons/fa";
 
-type PaymentStatus = "all" | "pending" | "completed" | "failed";
-type OrderStatusFilter = "all" | "processed" | "unprocessed" | "cancelled";
+type PaymentStatus = "all" | "Pending" | "Paid" | "Failed";
+type OrderStatusFilter =
+  | "all"
+  | "Pending"
+  | "Accepted"
+  | "On Progress"
+  | "On Hold"
+  | "On The Way"
+  | "Delivered"
+  | "Rejected"
+  | "Cancelled"
+  | "PickUp Ready";
 
 const OrderList = () => {
   const navigate = useNavigate();
   const { jwtToken } = useAppSelector((state) => state.auth);
 
-  // State for tab selections
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("all");
+  const [paymentStatus, setPaymentStatus] =
+    useState<PaymentStatus>("all");
   const [orderStatusFilter, setOrderStatusFilter] =
     useState<OrderStatusFilter>("all");
 
-  // Data and fetching state
   const [data, setData] = useState<OrderGroup[]>([]);
-  const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
 
-  // Table state
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
+  const totalPages = Math.ceil(rowCount / pagination.pageSize);
+
   const fetchOrderData = async () => {
-    if (!data.length) {
-      setIsLoading(true);
-    } else {
-      setIsRefetching(true);
-    }
+    setIsLoading(true);
 
     const url = new URL("/orders/list", process.env.VITE_APP_API_URL);
 
     url.searchParams.set("page", `${pagination.pageIndex}`);
     url.searchParams.set("limit", `${pagination.pageSize}`);
 
-    // Add filters if not 'all'
-    if (paymentStatus !== "all") {
+    if (paymentStatus !== "all")
       url.searchParams.set("paymentStatus", paymentStatus);
-    }
-    if (orderStatusFilter !== "all") {
+
+    if (orderStatusFilter !== "all")
       url.searchParams.set("orderStatus", orderStatusFilter);
-    }
 
     try {
       const res: {
         data: { groupOrderData: OrderGroup[]; pagination: any };
       } = await cAxios.get(url.href, {
-        headers: {
-          Authorization: `Bearer ${jwtToken}`,
-        },
+        headers: { Authorization: `Bearer ${jwtToken}` },
       });
 
       setData(res.data?.groupOrderData || []);
       setRowCount(res.data?.pagination?.totalItems || 0);
     } catch (error) {
-      setIsError(true);
       console.error(error);
     }
-    setIsError(false);
+
     setIsLoading(false);
-    setIsRefetching(false);
   };
 
   useEffect(() => {
@@ -97,484 +77,209 @@ const OrderList = () => {
     orderStatusFilter,
   ]);
 
-  console.log("Fetched Order Data: ", data);
-
-  const columns = useMemo<MRT_ColumnDef<OrderGroup>[]>(
-    () => [
-      {
-        header: "Preview",
-        accessorKey: "previewImages",
-        size: 100,
-        Cell: ({ cell }) => {
-          const value = cell.getValue() || [];
-
-          // Safe extraction of image URLs
-          const images = Array.isArray(value)
-            ? value.map((item) => item?.imageUrl).filter((url) => !!url)
-            : [];
-
-          if (images.length === 0) {
-            return (
-              <Box component="span" sx={{ fontSize: "12px", color: "gray" }}>
-                No Image
-              </Box>
-            );
-          }
-
-          return (
-            <Box
-              component="span"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-              <ImageCollage images={images} />
-            </Box>
-          );
-        },
-      },
-      {
-        id: "order_info",
-        header: "Order Info",
-        columns: [
-          {
-            header: "Order Group ID",
-            accessorKey: "orderGroupID",
-            enableClickToCopy: true,
-            size: 200,
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span" sx={{ fontFamily: "monospace" }}>
-                {renderedCellValue.toString().toUpperCase()}
-              </Box>
-            ),
-          },
-          {
-            header: "Status",
-            accessorKey: "orderStatus",
-            size: 150,
-            Cell: ({ renderedCellValue }) => {
-              let color = "";
-              let text = (renderedCellValue || "N/A") as string;
-
-              // Color coding based on order status
-              if (["Delivered", "Completed", "PickUp Ready"].includes(text)) {
-                color = "green";
-              } else if (
-                ["On Hold", "Pending", "On Progress", "Accepted"].includes(text)
-              ) {
-                color = "orange";
-              } else if (["Cancelled", "Rejected"].includes(text)) {
-                color = "red";
-              } else {
-                color = "blue";
-              }
-
-              return (
-                <Chip
-                  label={text}
-                  sx={{
-                    color: "black",
-                    backgroundColor:
-                      color === "red"
-                        ? "#ea9191"
-                        : color === "orange"
-                          ? "#edb58d"
-                          : color === "green"
-                            ? "#9dedba"
-                            : "#9ebef3",
-                    border:
-                      color === "red"
-                        ? "1px solid #f38e8e"
-                        : color === "orange"
-                          ? "1px solid #fbbf24"
-                          : color === "green"
-                            ? "1px solid #34d399"
-                            : "1px solid #3b82f6",
-                    fontWeight: "bold",
-                    // minWidth: 120,
-                  }}
-                />
-              );
-            },
-          },
-
-          // {
-          //   header: "Type",
-          //   accessorKey: "orderType",
-          //   size: 100,
-          //   Cell: ({ renderedCellValue }) => (
-          //     <Box component="span" sx={{ textTransform: "capitalize" }}>
-          //       {renderedCellValue}
-          //     </Box>
-          //   ),
-          // },
-        ],
-      },
-      {
-        id: "payment_info",
-        header: "Payment Info",
-        columns: [
-          // {
-          //   header: "Transaction ID",
-          //   accessorKey: "paymentTransactionID",
-          //   enableClickToCopy: true,
-          //   size: 200,
-          //   Cell: ({ renderedCellValue }) => {
-          //     return (
-          //       <Box component="span" sx={{ fontFamily: "monospace" }}>
-          //         {renderedCellValue || "N/A"}
-          //       </Box>
-          //     );
-          //   },
-          // },
-
-          {
-            header: "Payment Status",
-            accessorKey: "paymentStatus",
-            size: 150,
-            Cell: ({ renderedCellValue }) => {
-              let color = "";
-              let text = "";
-
-              switch (renderedCellValue) {
-                case "Pending":
-                  color = "orange";
-                  text = "Pending";
-                  break;
-                case "Paid":
-                  color = "green";
-                  text = "Paid";
-                  break;
-                case "Failed":
-                  color = "red";
-                  text = "Failed";
-                  break;
-                default:
-                  color = "gray";
-                  text = "N/A";
-              }
-
-              return (
-                <Chip
-                  label={text}
-                  sx={{
-                    color: "black",
-                    backgroundColor:
-                      color === "red"
-                        ? "#ea9191"
-                        : color === "orange"
-                          ? "#edb58d"
-                          : color === "green"
-                            ? "#9dedba"
-                            : "#9ebef3",
-                    border:
-                      color === "red"
-                        ? "1px solid #f87171"
-                        : color === "orange"
-                          ? "1px solid #fbbf24"
-                          : color === "green"
-                            ? "1px solid #34d399"
-                            : "1px solid #3b82f6",
-                    fontWeight: "bold",
-                    minWidth: 100,
-                  }}
-                />
-              );
-            },
-          },
-          {
-            header: "Amount",
-            accessorKey: "pricingDetails.groupFinalOrderPrice",
-            size: 120,
-            Cell: ({ renderedCellValue }) => (
-              <Box component="span" sx={{ fontWeight: "bold" }}>
-                ₹{renderedCellValue?.toLocaleString() || "0"}
-              </Box>
-            ),
-          },
-        ],
-      },
-
-      {
-        id: "Date",
-        header: "Date",
-        columns: [
-          {
-            accessorKey: "createdAt",
-            header: "Order Date",
-            size: 150,
-            enableColumnFilter: false,
-            Cell: ({ renderedCellValue }: { renderedCellValue: any }) => (
-              <Box>
-                <Box
-                  sx={{
-                    fontSize: "1rem",
-                    fontWeight: "bold",
-                    color: "text.secondary",
-                  }}>
-                  {new Date(renderedCellValue).toLocaleDateString()}
-                </Box>
-                <Box
-                  sx={{
-                    fontSize: "1rem",
-                    fontWeight: "bold",
-                    color: "text.secondary",
-                  }}>
-                  {new Date(renderedCellValue).toLocaleTimeString()}
-                </Box>
-              </Box>
-            ),
-          },
-        ],
-      },
-    ],
-    [],
-  );
-
-  const table = useMaterialReactTable({
-    columns,
-    data,
-    enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableGrouping: true,
-    enableColumnPinning: false,
-    enableFacetedValues: true,
-    enableRowActions: true,
-    enableRowSelection: false,
-    getRowId: (row) => row.orderGroupID,
-    initialState: {
-      showColumnFilters: true,
-      showGlobalFilter: true,
-      columnPinning: {
-        left: ["mrt-row-expand"],
-        right: ["mrt-row-actions"],
-      },
-    },
-    manualFiltering: false,
-    manualPagination: true,
-    manualSorting: false,
-    muiToolbarAlertBannerProps: isError
-      ? {
-          color: "error",
-          children: "Error loading data",
-        }
-      : undefined,
-    onPaginationChange: setPagination,
-    rowCount,
-    state: {
-      isLoading,
-      pagination,
-      showAlertBanner: isError,
-      showProgressBars: isRefetching,
-    },
-    // renderRowActionMenuItems: ({ row, closeMenu }) => [
-    //   <MenuItem
-    //     key={0}
-    //     onClick={() => {
-    //       navigate(
-    //         `/orders/view?groupId=${encodeURI(row.original.orderGroupID)}`,
-    //       );
-    //       closeMenu();
-    //     }}
-    //     sx={{ m: 0 }}>
-    //     <FaEye style={{ marginRight: "8px" }} />
-    //     View Order Details
-    //   </MenuItem>,
-    // ],
-
-    renderRowActions: ({ row }) => [
-      <Box sx={{ display: "flex", gap: "8px" }}>
-        <Box
-          onClick={() =>
-            navigate(`/orders/view?groupId=${row.original.orderGroupID}`)
-          }
-          sx={{
-            padding: "6px 10px",
-            backgroundColor: "#df7919",
-            color: "white",
-            borderRadius: "6px",
-            fontSize: "12px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            "&:hover": {
-              backgroundColor: "#bf6613",
-            },
-          }}>
-          <FaEye size={12} />
-          View
-        </Box>
-      </Box>,
-    ],
-  });
-
-  const handlePaymentStatusChange = (event: any, newValue: PaymentStatus) => {
-    setPaymentStatus(newValue);
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-  };
-
-  const handleOrderStatusChange = (event: any, newValue: OrderStatusFilter) => {
-    setOrderStatusFilter(newValue);
-    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  const getBadgeStyle = (text: string) => {
+    if (["Delivered", "Completed", "PickUp Ready", "Paid"].includes(text))
+      return "bg-green-200 border border-green-400";
+    if (
+      ["Pending", "On Progress", "Accepted", "On Hold"].includes(text)
+    )
+      return "bg-orange-200 border border-orange-400";
+    if (["Cancelled", "Rejected", "Failed"].includes(text))
+      return "bg-red-200 border border-red-400";
+    return "bg-blue-200 border border-blue-400";
   };
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
-      <div className="grid grid-cols-1 mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Orders Management
-          </h1>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">All Orders</h2>
-          </div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
 
-          {/* Order Status Tabs */}
-          <FormControl fullWidth sx={{ mb: 2 }} size="medium">
-            <InputLabel id="order-status-label">Order Status</InputLabel>
-            <Select
-              value={orderStatusFilter}
-              onChange={(e) => {
-                handleOrderStatusChange(e, e.target.value as OrderStatusFilter);
-              }}
-              aria-label="order status select"
-              label="Payment Status">
-              <MenuItem value="all">All Orders</MenuItem>
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Accepted">Accepted</MenuItem>
-              <MenuItem value="On Progress">On Progress</MenuItem>
-              <MenuItem value="On Hold">On Hold</MenuItem>
-              <MenuItem value="On The Way">On The Way</MenuItem>
-              <MenuItem value="Delivered">Delivered</MenuItem>
-              <MenuItem value="Rejected">Rejected</MenuItem>
-              <MenuItem value="Cancelled">Cancelled</MenuItem>
-              <MenuItem value="PickUp Ready">PickUp Ready</MenuItem>
-            </Select>
-          </FormControl>
+        <h1 className="text-2xl font-semibold mb-6">
+          Orders Management
+        </h1>
 
-          {/* Payment Status Tabs */}
-          <FormControl fullWidth sx={{ mb: 2 }} size="medium">
-            <InputLabel id="payment-status-label">Payment Status</InputLabel>
-            <Select
-              labelId="payment-status-label"
-              id="payment-status-select"
-              value={paymentStatus}
-              label="Payment Status"
-              onChange={(e) =>
-                handlePaymentStatusChange(e, e.target.value as PaymentStatus)
-              }>
-              <MenuItem value="all">All Payments</MenuItem>
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Paid">Success</MenuItem>
-              <MenuItem value="Failed">Failed</MenuItem>
-            </Select>
-          </FormControl>
+        {/* Filters */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
 
           <div>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <MaterialReactTable table={table} />
-            </LocalizationProvider>
+            <label className="block text-sm font-medium mb-2">
+              Order Status
+            </label>
+            <select
+              value={orderStatusFilter}
+              onChange={(e) =>
+                setOrderStatusFilter(
+                  e.target.value as OrderStatusFilter
+                )
+              }
+              className="w-full border rounded-md p-2">
+              <option value="all">All Orders</option>
+              <option value="Pending">Pending</option>
+              <option value="Accepted">Accepted</option>
+              <option value="On Progress">On Progress</option>
+              <option value="On Hold">On Hold</option>
+              <option value="On The Way">On The Way</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="PickUp Ready">PickUp Ready</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Payment Status
+            </label>
+            <select
+              value={paymentStatus}
+              onChange={(e) =>
+                setPaymentStatus(e.target.value as PaymentStatus)
+              }
+              className="w-full border rounded-md p-2">
+              <option value="all">All Payments</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Success</option>
+              <option value="Failed">Failed</option>
+            </select>
           </div>
         </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Order ID
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Order Status
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Payment Status
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Amount
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Date
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="text-center py-6 text-gray-500">
+                    Loading...
+                  </td>
+                </tr>
+              ) : data.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="text-center py-6 text-gray-500">
+                    No Orders Found
+                  </td>
+                </tr>
+              ) : (
+                data.map((order) => (
+                  <tr
+                    key={order.orderGroupID}
+                    className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-3 font-mono">
+                      {order.orderGroupID.toUpperCase()}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-3 py-1 rounded-md text-sm font-bold ${getBadgeStyle(
+                          order.orderStatus
+                        )}`}>
+                        {order.orderStatus}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-3 py-1 rounded-md text-sm font-bold ${getBadgeStyle(
+                          order.paymentStatus
+                        )}`}>
+                        {order.paymentStatus}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3 font-semibold">
+                      ₹
+                      {order.pricingDetails?.groupFinalOrderPrice?.toLocaleString() ||
+                        "0"}
+                    </td>
+
+                    <td className="px-4 py-3 text-sm">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                      <br />
+                      <span className="text-xs text-gray-500">
+                        {new Date(order.createdAt).toLocaleTimeString()}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/orders/view?groupId=${order.orderGroupID}`
+                          )
+                        }
+                        className="flex items-center gap-2 px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md">
+                        <FaEye size={12} />
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
+          <button
+            disabled={pagination.pageIndex === 0}
+            onClick={() =>
+              setPagination((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex - 1,
+              }))
+            }
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+            Previous
+          </button>
+
+          <span className="text-sm font-medium">
+            Page {pagination.pageIndex + 1} of {totalPages || 1}
+          </span>
+
+          <button
+            disabled={pagination.pageIndex + 1 >= totalPages}
+            onClick={() =>
+              setPagination((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex + 1,
+              }))
+            }
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+            Next
+          </button>
+        </div>
+
       </div>
     </div>
   );
 };
 
 export default OrderList;
-
-const ImageCollage = ({ images = [] }) => {
-  if (!images || images.length === 0) return null;
-
-  const displayImages = images.slice(0, 4);
-  const extraCount = images.length - 4;
-
-  const getGridStyle = () => {
-    switch (displayImages.length) {
-      case 1:
-        return {
-          gridTemplateColumns: "1fr",
-          gridTemplateRows: "1fr",
-        };
-      case 2:
-        return {
-          gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr",
-        };
-      case 3:
-        return {
-          gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr 1fr",
-        };
-      default:
-        return {
-          gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr 1fr",
-        };
-    }
-  };
-
-  return (
-    <Box
-      component="span"
-      sx={{
-        display: "grid",
-        gap: "4px",
-        width: 60,
-        height: 60,
-        ...getGridStyle(),
-      }}>
-      {displayImages.map((img, index) => {
-        // Special layout for 3 images (first one big)
-        const isThreeLayout = displayImages.length === 3 && index === 0;
-
-        return (
-          <Box
-            key={index}
-            sx={{
-              position: "relative",
-              gridColumn: isThreeLayout ? "span 2" : "auto",
-            }}>
-            <Box
-              component="img"
-              src={img}
-              sx={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "6px",
-              }}
-            />
-
-            {/* Overlay for extra images */}
-            {index === 3 && extraCount > 0 && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  borderRadius: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "#fff", fontWeight: "bold" }}>
-                  +{extraCount}
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        );
-      })}
-    </Box>
-  );
-};

@@ -108,7 +108,7 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
           defaultSelectedMap.set(item._id, item);
         }
       });
-      setSelectedItemsMap(defaultSelectedMap);
+      setSelectedItemsMap((prev) => new Map([...prev, ...defaultSelectedMap]));
     }
   }, [defaultSelectedItemIds, displayData]);
 
@@ -288,7 +288,9 @@ const ReactMediaLibrary: React.FC<ReactMediaLibraryProps> = ({
 
   // Handle selection confirmation
   const handleConfirmSelection = useCallback(() => {
-    filesSelectCallback(selectedItemsMap.size > 0 ? Array.from(selectedItemsMap.values()) : []);
+    filesSelectCallback(
+      selectedItemsMap.size > 0 ? Array.from(selectedItemsMap.values()) : [],
+    );
   }, [selectedItemsMap, filesSelectCallback]);
 
   // Handle deletion

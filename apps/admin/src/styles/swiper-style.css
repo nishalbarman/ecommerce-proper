@@ -17,9 +17,14 @@
   color: rgba(3, 47, 3, 0.8) !important;
 }
 
+.my-swiper .swiper-button-next:disabled,
+.my-swiper .swiper-button-prev:disabled {
+  cursor: not-allowed;
+}
+
 .my-swiper .swiper-button-next::after,
 .my-swiper .swiper-button-prev::after {
-  font-size: 24px;
+  font-size: 10px;
   font-weight: bold;
 }
 
