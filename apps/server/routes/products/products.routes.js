@@ -483,16 +483,16 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/view/:productId", async (req, res) => {
+router.post("/view/:product", async (req, res) => {
   try {
     const params = req.params;
     const productType = req.body?.productType || "buy";
-    const productId = params?.productId;
+    const product = params?.product;
 
     let isSlug = false;
     if (
-      !mongoose.Types.ObjectId.isValid(productId) ||
-      String(new mongoose.Types.ObjectId(productId)) !== productId
+      !mongoose.Types.ObjectId.isValid(product) ||
+      String(new mongoose.Types.ObjectId(product)) !== product
     ) {
       isSlug = true;
     }
@@ -506,7 +506,7 @@ router.post("/view/:productId", async (req, res) => {
     console.log("What are params", params);
 
     // check whether we have the product id or not
-    if (!params?.productId) {
+    if (!params?.product) {
       return res
         .status(400)
         .json({ redirect: "/products", message: "Product ID missing!" });
@@ -514,40 +514,40 @@ router.post("/view/:productId", async (req, res) => {
 
     const filter = {};
     if (isSlug) {
-      filter.slug = productId;
+      filter.slug = product;
     } else {
-      filter._id = productId;
+      filter._id = product;
     }
 
-    const product = await Product.findOne({ ...filter }).populate([
+    const productData = await Product.findOne({ ...filter }).populate([
       "category",
       "productVariant",
     ]);
 
-    console.log("What is the product", params?.productId, product);
+    console.log("What is the product", params?.product, product);
 
     let hasUserBoughtThisProduct = false;
     if (user && user.userDetails && user.userDetails._id) {
       hasUserBoughtThisProduct = await Order.countDocuments({
-        product: product.productId,
+        product: productData.product,
         user: user?.userDetails?._id,
         orderType: productType,
         orderStatus: "Delivered",
       });
       console.log("has user bought", {
-        product: product.productId,
+        product: productData.product,
         user: user?.userDetails?._id || undefined,
         orderType: productType,
         orderStatus: "Delivered",
       });
     }
 
-    if (!product) {
+    if (!productData) {
       return res.status(404).json({ message: "No such product found." });
     }
 
     return res.status(200).json({
-      product,
+      product: productData,
       hasUserBoughtThisProduct: !!hasUserBoughtThisProduct,
     });
   } catch (error) {
@@ -556,357 +556,377 @@ router.post("/view/:productId", async (req, res) => {
   }
 });
 
-router.get("/admin-view/:productId", checkRole(1, 2), async (req, res) => {
-  try {
-    const productId = req.params?.productId;
+router.get(
+  "/admin-view/:productId",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productId = req.params?.productId;
 
-    // check whether we have the product id or not
-    if (!productId) {
-      return res
-        .status(400)
-        .json({ redirect: "/products", message: "Product ID missing!" });
+      // check whether we have the product id or not
+      if (!productId) {
+        return res
+          .status(400)
+          .json({ redirect: "/products", message: "Product ID missing!" });
+      }
+
+      let isSlug = true;
+      if (mongoose.Types.ObjectId.isValid(productId)) {
+        isSlug = false;
+      }
+
+      const findFilter = {};
+      if (isSlug) {
+        findFilter.slug = productId;
+      } else {
+        findFilter._id = productId;
+      }
+
+      const product = await Product.findOne(findFilter).populate([
+        "category",
+        "productVariant",
+      ]);
+
+      if (!product) {
+        return res.status(404).json({ message: "No such product found." });
+      }
+
+      return res.status(200).json({
+        product,
+      });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
     }
-
-    let isSlug = true;
-    if (mongoose.Types.ObjectId.isValid(productId)) {
-      isSlug = false;
-    }
-
-    const findFilter = {};
-    if (isSlug) {
-      findFilter.slug = productId;
-    } else {
-      findFilter._id = productId;
-    }
-
-    const product = await Product.findOne(findFilter).populate([
-      "category",
-      "productVariant",
-    ]);
-
-    if (!product) {
-      return res.status(404).json({ message: "No such product found." });
-    }
-
-    return res.status(200).json({
-      product,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+  },
+);
 
 // ADMIN ROUTE : Product create route
-router.post("/", checkRole(1, 2), async (req, res) => {
-  try {
-    const productData = req.body?.productData;
+router.post(
+  "/",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productData = req.body?.productData;
 
-    if (!productData) {
-      return res.status(400).json({ message: "Product Data Not Found" });
-    }
+      if (!productData) {
+        return res.status(400).json({ message: "Product Data Not Found" });
+      }
 
-    if (!productData.originalPrice) {
-      productData.originalPrice = productData.discountedPrice;
-    }
+      if (!productData.originalPrice) {
+        productData.originalPrice = productData.discountedPrice;
+      }
 
-    productData.productVariant = Object.values(productData.productVariant);
+      productData.productVariant = Object.values(productData.productVariant);
 
-    if (Array.isArray(productData?.productVariant)) {
-      const new_Variant_With_Size_Included = [];
+      if (Array.isArray(productData?.productVariant)) {
+        const new_Variant_With_Size_Included = [];
 
-      productData.productVariant.forEach((variant) => {
-        if (!variant.originalPrice) {
-          variant.originalPrice = variant.discountedPrice;
-        }
+        productData.productVariant.forEach((variant) => {
+          if (!variant.originalPrice) {
+            variant.originalPrice = variant.discountedPrice;
+          }
 
-        const sizes = variant?.size;
-        // ?.replace(/ /g, "");
-        if (!!sizes) {
-          sizes.split(",")?.forEach((eachSize) => {
-            new_Variant_With_Size_Included.push({ ...variant, size: eachSize });
-          });
-        }
+          const sizes = variant?.size;
+          // ?.replace(/ /g, "");
+          if (!!sizes) {
+            sizes.split(",")?.forEach((eachSize) => {
+              new_Variant_With_Size_Included.push({
+                ...variant,
+                size: eachSize,
+              });
+            });
+          }
+        });
+
+        productData.productVariant = new_Variant_With_Size_Included;
+      }
+
+      const error = checkProductHasError(productData);
+
+      if (error.length > 0) {
+        return res.status(400).json({ message: error.join(", ") });
+      }
+
+      // Now we are going to save the product to our database
+
+      console.log(productData);
+
+      const imageColors = await getImageColors(
+        productData.previewImage.imageUrl,
+        {
+          count: 5,
+        },
+      );
+
+      const [first, second, third] = imageColors[0]._rgb;
+
+      const averageColor = `rgba(${first},${second},${third},0.8)`;
+
+      // Create a new product document
+      const newProduct = new Product({
+        slug: slugify(productData.title, { lower: true }),
+        previewImage: productData.previewImage,
+        title: productData.title,
+        category: productData.category,
+        categorySlug: productData.categorySlug,
+        slideImages: productData.slideImages,
+        description: productData.description,
+        // productType: productData.productType,
+        productType: "buy", // hardcoded to buy cause this project is only for buy
+        shippingPrice: +productData.shippingPrice,
+        availableStocks: +productData.availableStocks,
+        rentingPrice: !!productData.variant
+          ? +productData.variant[0].rentingPrice
+          : +productData.rentingPrice,
+        discountedPrice: !!productData.variant
+          ? +productData.variant[0].discountedPrice
+          : +productData.discountedPrice,
+        originalPrice: !!productData.variant
+          ? +productData.variant[0].originalPrice
+          : +productData.originalPrice,
+        isVariantAvailable: !!productData.isVariantAvailable,
       });
 
-      productData.productVariant = new_Variant_With_Size_Included;
+      if (productData?.isVariantAvailable) {
+        // variants structure ==> [{key: value},{...}, {...}]
+        const variantPromises = Object.entries(productData.productVariant).map(
+          async ([key, value]) => {
+            const variantData = {
+              product: newProduct._id,
+
+              previewImage: value.previewImage,
+              slideImages: value.slideImages,
+
+              size: value.size,
+              color: value.color,
+              availableStocks: +value.availableStocks,
+              shippingPrice: +value.shippingPrice,
+              rentingPrice: +value.rentingPrice,
+              discountedPrice: +value.discountedPrice,
+              originalPrice: +value.originalPrice,
+            };
+
+            return ProductVariant.create(variantData);
+          },
+        );
+        const variants = await Promise.all(variantPromises);
+        newProduct.productVariant = variants.map((variant) => variant._id);
+      }
+
+      console.log(newProduct);
+
+      await newProduct.save();
+
+      return res.status(200).json({
+        message: `Product created`,
+        data: productData,
+      });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
     }
+  },
+);
 
-    const error = checkProductHasError(productData);
+router.patch(
+  "/update/:productId",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productId = req.params?.productId;
+      const productData = req.body?.productData;
 
-    if (error.length > 0) {
-      return res.status(400).json({ message: error.join(", ") });
-    }
+      if (!productId) {
+        return res.status(400).json({ message: "Product ID Not Found" });
+      }
 
-    // Now we are going to save the product to our database
+      if (!productData) {
+        return res.status(400).json({ message: "Product Data Not Found" });
+      }
 
-    console.log(productData);
+      // TODO: Need to validate the incoming key values so that it fits the required formate
 
-    const imageColors = await getImageColors(
-      productData.previewImage.imageUrl,
-      {
-        count: 5,
-      },
-    );
+      // productData.productVariant = Object.values(productData.productVariant)?.map(
+      //   (variant) => {
+      //     return {
+      //       product: productId,
+      //       size: variant.size,
+      //       color: variant.color,
+      //       previewImage: variant.previewImage,
+      //       slideImages: variant.slideImages,
+      //       availableStocks: variant.availableStocks,
+      //       shippingPrice: variant.shippingPrice || 0,
+      //       rentingPrice: variant.rentingPrice || 0,
+      //       discountedPrice: variant.discountedPrice,
+      //       originalPrice: variant.originalPrice,
+      //     };
+      //   },
+      // );
 
-    const [first, second, third] = imageColors[0]._rgb;
+      console.log(
+        "What is product variant, I guess it would be the ids of variant thats why product checkupdate is failed because it does not have the keys (it only has variant ids))",
+        productData.productVariant,
+      );
 
-    const averageColor = `rgba(${first},${second},${third},0.8)`;
+      const error = checkUpdatedProductHasError(productData);
 
-    // Create a new product document
-    const newProduct = new Product({
-      slug: slugify(productData.title, { lower: true }),
-      previewImage: productData.previewImage,
-      title: productData.title,
-      category: productData.category,
-      categorySlug: productData.categorySlug,
-      slideImages: productData.slideImages,
-      description: productData.description,
-      // productType: productData.productType,
-      productType: "buy", // hardcoded to buy cause this project is only for buy
-      shippingPrice: +productData.shippingPrice,
-      availableStocks: +productData.availableStocks,
-      rentingPrice: !!productData.variant
-        ? +productData.variant[0].rentingPrice
-        : +productData.rentingPrice,
-      discountedPrice: !!productData.variant
-        ? +productData.variant[0].discountedPrice
-        : +productData.discountedPrice,
-      originalPrice: !!productData.variant
-        ? +productData.variant[0].originalPrice
-        : +productData.originalPrice,
-      isVariantAvailable: !!productData.isVariantAvailable,
-    });
+      if (error.length > 0) {
+        return res.status(400).json({ message: error.join(", ") });
+      }
 
-    if (productData?.isVariantAvailable) {
-      // variants structure ==> [{key: value},{...}, {...}]
-      const variantPromises = Object.entries(productData.productVariant).map(
-        async ([key, value]) => {
+      const productUpdatedData = {
+        slug: slugify(productData.title, { lower: true }),
+        title: productData.title,
+        category: productData.category,
+        categorySlug: productData.categorySlug,
+        description: productData.description,
+        productType: productData.productType,
+        shippingPrice: +productData.shippingPrice,
+        availableStocks: +productData.availableStocks,
+        rentingPrice: +productData.rentingPrice,
+        discountedPrice: +productData.discountedPrice,
+        originalPrice: +productData.originalPrice,
+        isVariantAvailable: !!productData.isVariantAvailable,
+      };
+
+      if (productData.previewImage) {
+        productUpdatedData.previewImage = productData.previewImage;
+      }
+
+      if (productData.slideImages.length > 0) {
+        productUpdatedData.slideImages = productData.slideImages;
+      }
+
+      if (productData?.isVariantAvailable) {
+        // variants structure ==> [{key: value},{...}, {...}]
+
+        const existingVariants = [];
+        const newVariants = [];
+
+        // this is for final merge, we will collect all the ids for existing variant for faster merge. Later on creating new variant we add push the new ids here.
+        const variantIds = [];
+
+        Object.values(productData.productVariant)?.forEach((variant) => {
+          if (!!variant?._id) {
+            existingVariants.push(variant);
+            variantIds.push(variant._id);
+          } else {
+            newVariants.push({
+              product: productId,
+              size: variant.size,
+              color: variant.color,
+              previewImage: variant.previewImage,
+              slideImages: variant.slideImages,
+              availableStocks: +variant.availableStocks,
+              shippingPrice: +variant.shippingPrice || 0,
+              rentingPrice: +variant.rentingPrice || 0,
+              discountedPrice: +variant.discountedPrice,
+              originalPrice: +variant.originalPrice,
+            });
+          }
+        });
+
+        // update process of existing variants
+        const variantPromises = existingVariants.map(async (value) => {
           const variantData = {
-            product: newProduct._id,
-
-            previewImage: value.previewImage,
-            slideImages: value.slideImages,
-
             size: value.size,
             color: value.color,
             availableStocks: +value.availableStocks,
-            shippingPrice: +value.shippingPrice,
-            rentingPrice: +value.rentingPrice,
+            shippingPrice: +value.shippingPrice || 0,
+            rentingPrice: +value.rentingPrice || 0,
             discountedPrice: +value.discountedPrice,
             originalPrice: +value.originalPrice,
           };
 
-          return ProductVariant.create(variantData);
-        },
-      );
-      const variants = await Promise.all(variantPromises);
-      newProduct.productVariant = variants.map((variant) => variant._id);
-    }
+          if (value.previewImage) {
+            variantData.previewImage = value.previewImage;
+          }
 
-    console.log(newProduct);
+          if (value.slideImages.length) {
+            variantData.slideImages = value.slideImages;
+          }
 
-    await newProduct.save();
+          return ProductVariant.findByIdAndUpdate(value._id, variantData);
+        });
+        await Promise.all(variantPromises);
 
-    return res.status(200).json({
-      message: `Product created`,
-      data: productData,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
-
-router.patch("/update/:productId", checkRole(1, 2), async (req, res) => {
-  try {
-    const productId = req.params?.productId;
-    const productData = req.body?.productData;
-
-    if (!productId) {
-      return res.status(400).json({ message: "Product ID Not Found" });
-    }
-
-    if (!productData) {
-      return res.status(400).json({ message: "Product Data Not Found" });
-    }
-
-    // TODO: Need to validate the incoming key values so that it fits the required formate
-
-    // productData.productVariant = Object.values(productData.productVariant)?.map(
-    //   (variant) => {
-    //     return {
-    //       product: productId,
-    //       size: variant.size,
-    //       color: variant.color,
-    //       previewImage: variant.previewImage,
-    //       slideImages: variant.slideImages,
-    //       availableStocks: variant.availableStocks,
-    //       shippingPrice: variant.shippingPrice || 0,
-    //       rentingPrice: variant.rentingPrice || 0,
-    //       discountedPrice: variant.discountedPrice,
-    //       originalPrice: variant.originalPrice,
-    //     };
-    //   },
-    // );
-
-    console.log(
-      "What is product variant, I guess it would be the ids of variant thats why product checkupdate is failed because it does not have the keys (it only has variant ids))",
-      productData.productVariant,
-    );
-
-    const error = checkUpdatedProductHasError(productData);
-
-    if (error.length > 0) {
-      return res.status(400).json({ message: error.join(", ") });
-    }
-
-    const productUpdatedData = {
-      slug: slugify(productData.title, { lower: true }),
-      title: productData.title,
-      category: productData.category,
-      categorySlug: productData.categorySlug,
-      description: productData.description,
-      productType: productData.productType,
-      shippingPrice: +productData.shippingPrice,
-      availableStocks: +productData.availableStocks,
-      rentingPrice: +productData.rentingPrice,
-      discountedPrice: +productData.discountedPrice,
-      originalPrice: +productData.originalPrice,
-      isVariantAvailable: !!productData.isVariantAvailable,
-    };
-
-    if (productData.previewImage) {
-      productUpdatedData.previewImage = productData.previewImage;
-    }
-
-    if (productData.slideImages.length > 0) {
-      productUpdatedData.slideImages = productData.slideImages;
-    }
-
-    if (productData?.isVariantAvailable) {
-      // variants structure ==> [{key: value},{...}, {...}]
-
-      const existingVariants = [];
-      const newVariants = [];
-
-      // this is for final merge, we will collect all the ids for existing variant for faster merge. Later on creating new variant we add push the new ids here.
-      const variantIds = [];
-
-      Object.values(productData.productVariant)?.forEach((variant) => {
-        if (!!variant?._id) {
-          existingVariants.push(variant);
-          variantIds.push(variant._id);
-        } else {
-          newVariants.push({
-            product: productId,
-            size: variant.size,
-            color: variant.color,
-            previewImage: variant.previewImage,
-            slideImages: variant.slideImages,
-            availableStocks: +variant.availableStocks,
-            shippingPrice: +variant.shippingPrice || 0,
-            rentingPrice: +variant.rentingPrice || 0,
-            discountedPrice: +variant.discountedPrice,
-            originalPrice: +variant.originalPrice,
+        // addition process of existing variants
+        if (newVariants.length > 0) {
+          const newVariantPromises = newVariants.map(async (variantData) => {
+            return ProductVariant.create(variantData);
+          });
+          const newVariantPromiseResponse =
+            await Promise.all(newVariantPromises);
+          newVariantPromiseResponse.forEach((variant) => {
+            variantIds.push(variant._id);
           });
         }
-      });
 
-      // update process of existing variants
-      const variantPromises = existingVariants.map(async (value) => {
-        const variantData = {
-          size: value.size,
-          color: value.color,
-          availableStocks: +value.availableStocks,
-          shippingPrice: +value.shippingPrice || 0,
-          rentingPrice: +value.rentingPrice || 0,
-          discountedPrice: +value.discountedPrice,
-          originalPrice: +value.originalPrice,
-        };
-
-        if (value.previewImage) {
-          variantData.previewImage = value.previewImage;
-        }
-
-        if (value.slideImages.length) {
-          variantData.slideImages = value.slideImages;
-        }
-
-        return ProductVariant.findByIdAndUpdate(value._id, variantData);
-      });
-      await Promise.all(variantPromises);
-
-      // addition process of existing variants
-      if (newVariants.length > 0) {
-        const newVariantPromises = newVariants.map(async (variantData) => {
-          return ProductVariant.create(variantData);
-        });
-        const newVariantPromiseResponse = await Promise.all(newVariantPromises);
-        newVariantPromiseResponse.forEach((variant) => {
-          variantIds.push(variant._id);
+        productUpdatedData.productVariant = variantIds || [];
+        await Product.findByIdAndUpdate(productId, productUpdatedData);
+        return res.status(200).json({
+          message: `Product Updated`,
         });
       }
 
-      productUpdatedData.productVariant = variantIds || [];
       await Product.findByIdAndUpdate(productId, productUpdatedData);
+
       return res.status(200).json({
         message: `Product Updated`,
       });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
     }
+  },
+);
 
-    await Product.findByIdAndUpdate(productId, productUpdatedData);
+router.post(
+  "/duplicate",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productId = req.body.productId;
+      const productData = await Product.findOne({ _id: productId });
+      // delete product._id;
+      // const response = await Product.create(product);
 
-    return res.status(200).json({
-      message: `Product Updated`,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+      // Create a new product document
+      const newProduct = new Product({
+        previewImage: productData.previewImage,
+        title: productData.title,
+        category: productData.category,
+        slideImages: productData.slideImages,
+        description: productData.description,
+        // productType: productData.productType,
+        productType: "buy", // hardcoded to buy cause this project is only for buy
+        shippingPrice: +productData.shippingPrice,
+        availableStocks: +productData.availableStocks,
+        rentingPrice: !!productData.variant
+          ? +productData.variant[0].rentingPrice
+          : +productData.rentingPrice,
+        discountedPrice: !!productData.variant
+          ? +productData.variant[0].discountedPrice
+          : +productData.discountedPrice,
+        originalPrice: !!productData.variant
+          ? +productData.variant[0].originalPrice
+          : +productData.originalPrice,
+        isVariantAvailable: !!productData.isVariantAvailable,
+      });
+      await newProduct.save();
+      console.log(newProduct);
 
-router.post("/duplicate", checkRole(1, 2), async (req, res) => {
-  try {
-    const productId = req.body.productId;
-    const productData = await Product.findOne({ _id: productId });
-    // delete product._id;
-    // const response = await Product.create(product);
-
-    // Create a new product document
-    const newProduct = new Product({
-      previewImage: productData.previewImage,
-      title: productData.title,
-      category: productData.category,
-      slideImages: productData.slideImages,
-      description: productData.description,
-      // productType: productData.productType,
-      productType: "buy", // hardcoded to buy cause this project is only for buy
-      shippingPrice: +productData.shippingPrice,
-      availableStocks: +productData.availableStocks,
-      rentingPrice: !!productData.variant
-        ? +productData.variant[0].rentingPrice
-        : +productData.rentingPrice,
-      discountedPrice: !!productData.variant
-        ? +productData.variant[0].discountedPrice
-        : +productData.discountedPrice,
-      originalPrice: !!productData.variant
-        ? +productData.variant[0].originalPrice
-        : +productData.originalPrice,
-      isVariantAvailable: !!productData.isVariantAvailable,
-    });
-    await newProduct.save();
-    console.log(newProduct);
-
-    return res.status(200).json({
-      message: `Duplicate product created`,
-    });
-    // return res.status(400).json({ message: "Failed to create" });
-  } catch (err) {
-    console.error(TAG, err);
-    return res.status(500).json({ message: err.message });
-  }
-});
+      return res.status(200).json({
+        message: `Duplicate product created`,
+      });
+      // return res.status(400).json({ message: "Failed to create" });
+    } catch (err) {
+      console.error(TAG, err);
+      return res.status(500).json({ message: err.message });
+    }
+  },
+);
 
 /// product instock check
 router.post("/instock/:productId", async (req, res) => {
@@ -1006,37 +1026,41 @@ router.post("/view-variant/:productVariantId", async (req, res) => {
 });
 
 // ADMIN ROUTE : Product delete route -- maybe delete method does not allow request body
-router.post("/delete", checkRole(1, 2), async (req, res) => {
-  try {
-    const deletableProductIds = req.body?.deletableProductIds;
+router.post(
+  "/delete",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const deletableProductIds = req.body?.deletableProductIds;
 
-    if (!Array.isArray(deletableProductIds)) {
-      return res.status(400).json({ message: "Product ID(s) Not Found" });
-    }
+      if (!Array.isArray(deletableProductIds)) {
+        return res.status(400).json({ message: "Product ID(s) Not Found" });
+      }
 
-    const deletePromises = deletableProductIds.map(async (productId) => {
-      const product = await Product.findById(productId);
-      console.log(product);
-      await ProductVariant.deleteMany({
-        _id: { $in: product?.productVariant?.map((variant) => variant._id) },
+      const deletePromises = deletableProductIds.map(async (productId) => {
+        const product = await Product.findById(productId);
+        console.log(product);
+        await ProductVariant.deleteMany({
+          _id: { $in: product?.productVariant?.map((variant) => variant._id) },
+        });
+        await Cart.deleteMany({ product: product._id });
+        await Wishlist.deleteMany({ product: product._id });
+        await Product.findByIdAndDelete(productId);
       });
-      await Cart.deleteMany({ product: product._id });
-      await Wishlist.deleteMany({ product: product._id });
-      await Product.findByIdAndDelete(productId);
-    });
 
-    await Promise.all(deletePromises);
+      await Promise.all(deletePromises);
 
-    // if (!product)
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Product not found with given ID." });
+      // if (!product)
+      //   return res
+      //     .status(400)
+      //     .json({ message: "Product not found with given ID." });
 
-    return res.json({ message: "Product(s) deleted." });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+      return res.json({ message: "Product(s) deleted." });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
+    }
+  },
+);
 
 module.exports = router;

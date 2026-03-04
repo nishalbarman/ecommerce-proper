@@ -1,7 +1,12 @@
 // app/checkout/page.tsx
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 
@@ -40,8 +45,9 @@ import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
 
 export default function CheckoutPage() {
   const router = useRouter();
-
   const token = useSelector((state) => state.auth.jwtToken);
+
+  const params = useParams();
 
   const dispatch = useDispatch();
 
@@ -149,27 +155,33 @@ export default function CheckoutPage() {
 
   const getProductInfo = async () => {
     try {
-      const productId = searchParams.get("productId");
+      const productSlug = params.productSlug;
       const productVariantId = searchParams.get("productVariantId");
       const quantity = searchParams.get("quantity");
 
       let response = null;
       if (productVariantId) {
-        response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view-variant/${productVariantId}`, {
-          headers: {
-            "Contect-Type": "application/json",
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view-variant/${productVariantId}`,
+          {
+            headers: {
+              "Contect-Type": "application/json",
+            },
+            method: "POST",
           },
-          method: "POST",
-        });
+        );
         const data = await response.json();
         setProductData(data?.variant);
       } else {
-        response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${productId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+        response = await fetch(
+          `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${productSlug}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
         const data = await response.json();
         setProductData(data?.product);
       }
@@ -183,7 +195,9 @@ export default function CheckoutPage() {
 
   const getShippingPricing = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/shipping-config/shipping-pricing/buy`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/shipping-config/shipping-pricing/buy`,
+      );
       const shippingPricing = response.data;
       setShippingPricing(shippingPricing);
       console.log("Shipping Pricing:", shippingPricing);
@@ -289,7 +303,7 @@ export default function CheckoutPage() {
         `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/razorpay/single/buy${!!appliedCoupon && appliedCoupon._id ? "?coupon=" + appliedCoupon._id : ""}`,
         {
           address: selectedAddress,
-          productId: searchParams.get("productId"),
+          product: params?.productSlug || null,
           productVariantId: searchParams.get("productVariantId"),
           quantity: searchParams.get("quantity"),
           coupon: appliedCoupon._id,
@@ -365,7 +379,7 @@ export default function CheckoutPage() {
     } finally {
       setIsPaymentLoading(false);
     }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress, searchParams]);
+  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress, searchParams, params]);
 
   const handleCashfreePayment = useCallback(async () => {
     try {
@@ -373,11 +387,15 @@ export default function CheckoutPage() {
       setLoadingText("Creating order...");
 
       const response = await axios.post(
-        `/pay/cashfree/cart/buy${
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/pay/cashfree/single-buy${
           appliedCoupon?._id ? "?coupon=" + appliedCoupon._id : ""
         }`,
         {
           address: selectedAddress,
+          product: params?.productSlug || null,
+          productVariantId: searchParams.get("productVariantId"),
+          quantity: searchParams.get("quantity"),
+          coupon: appliedCoupon._id,
         },
         {
           withCredentials: true,
@@ -413,7 +431,7 @@ export default function CheckoutPage() {
     } finally {
       setIsPaymentLoading(false);
     }
-  }, [appliedCoupon, selectedAddress, token]);
+  }, [appliedCoupon, selectedAddress, token, params, searchParams]);
 
   const handlePayment = () => {
     switch (gatewayOption) {
@@ -447,7 +465,9 @@ export default function CheckoutPage() {
         return setCouponError("Coupon already applied");
       }
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`);
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/coupons/validate?code=${couponCode}`,
+      );
       const couponData = response?.data;
 
       console.log("Coupon Data", couponData);

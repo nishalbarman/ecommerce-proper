@@ -5,21 +5,25 @@ const { FirebaseUtils } = require("../../utils/firebase-utils");
 
 // Store firebase messaging token to firestore
 
-router.post("/save-messaging-token", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const firebaseMessagingToken = req.body?.firebaseMessagingToken;
-    const userId = req.user?._id;
+router.post(
+  "/save-messaging-token",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const firebaseMessagingToken = req.body?.firebaseMessagingToken;
+      const userId = req.user?._id;
 
-    await FirebaseUtils.saveFirebaseTokenToDatabase({
-      userId,
-      firebaseMessagingToken,
-    });
+      await FirebaseUtils.saveFirebaseTokenToDatabase({
+        userId,
+        firebaseMessagingToken,
+      });
 
-    return res.status(200).json({ message: "Token Saved" });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: error?.message });
-  }
-});
+      return res.status(200).json({ message: "Token Saved" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: error?.message });
+    }
+  },
+);
 
 module.exports = router;

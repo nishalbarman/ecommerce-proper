@@ -18,54 +18,58 @@ router.get("/", async (req, res) => {
 });
 
 // Create or update web config (admin only)
-router.post("/", checkRole(1, 2), async (req, res) => {
-  try {
-    const configData = req.body;
+router.post(
+  "/",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const configData = req.body;
 
-    console.log(configData);
+      console.log(configData);
 
-    // Validate required fields
-    if (
-      !configData.brandName ||
-      !configData.brandEmail ||
-      !configData.address ||
-      !configData.websiteUrl
-    ) {
-      return res.status(400).json({ message: "Missing required fields" });
+      // Validate required fields
+      if (
+        !configData.brandName ||
+        !configData.brandEmail ||
+        !configData.address ||
+        !configData.websiteUrl
+      ) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Find the latest config
+      let config = await WebConfig.findOne().sort({ createdAt: -1 });
+
+      if (config) {
+        // Update existing config
+        config = await WebConfig.findByIdAndUpdate(
+          config._id,
+          {
+            $set: configData,
+            updatedAt: Date.now(),
+          },
+          { new: true },
+        );
+      } else {
+        // Create new config
+        config = new WebConfig(configData);
+        await config.save();
+      }
+
+      return res.json(config);
+    } catch (error) {
+      console.error(error);
+      if (error instanceof mongoose.Error) {
+        const errArray = Object.values(error.errors).map(
+          (properties) => properties.message,
+        );
+        return res.status(400).json({
+          message: errArray.join(", "),
+        });
+      }
+      return res.status(500).json({ message: "Internal server error" });
     }
-
-    // Find the latest config
-    let config = await WebConfig.findOne().sort({ createdAt: -1 });
-
-    if (config) {
-      // Update existing config
-      config = await WebConfig.findByIdAndUpdate(
-        config._id,
-        {
-          $set: configData,
-          updatedAt: Date.now(),
-        },
-        { new: true }
-      );
-    } else {
-      // Create new config
-      config = new WebConfig(configData);
-      await config.save();
-    }
-
-    return res.json(config);
-  } catch (error) {
-    console.error(error);
-    if (error instanceof mongoose.Error) {
-      const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
-      );
-      return res.status(400).json({
-        message: errArray.join(", "),
-      });
-    }
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
+  },
+);
 
 module.exports = router;

@@ -47,7 +47,9 @@ router.post("/admin-login", async (req, res) => {
     if (
       !(
         user &&
-        (user.role?.roleKey === "admin" || user.role?.roleKey === "super-admin")
+        (user.role?.roleSlug === "admin" ||
+          user.role?.roleSlug === "super-admin" ||
+          user.role?.roleSlug === "store")
       )
     ) {
       return res.status(400).json({
@@ -73,7 +75,7 @@ router.post("/admin-login", async (req, res) => {
         name: user.name,
         roleName: user.role.roleName,
         roleNumber: user.role.roleNumber,
-        roleKey: user.role.roleKey,
+        roleSlug: user.role.roleSlug,
         email: user.email,
         mobileNo: user.mobileNo,
       },
@@ -94,7 +96,7 @@ router.post("/admin-login", async (req, res) => {
           email: user.email,
           roleName: user.role.roleName,
           roleNumber: user.role.roleNumber,
-          roleKey: user.role.roleKey,
+          roleSlug: user.role.roleSlug,
           mobileNo: user.mobileNo,
           jwtToken: jwtToken,
         },
@@ -150,7 +152,7 @@ router.post("/login", async (req, res) => {
         name: user.name,
         roleName: user.role.roleName,
         roleNumber: user.role.roleNumber,
-        roleKey: user.role.roleKey,
+        roleSlug: user.role.roleSlug,
         email: user.email,
         mobileNo: user.mobileNo,
         center: user?.center,
@@ -272,7 +274,7 @@ router.post("/signup", async (req, res) => {
         _id: userObject._id,
         name: userObject.name,
         roleName: "user",
-        roleKey: "user",
+        roleSlug: "user",
         roleNumber: 0, //! Default role for user is 0
         email: userObject.email,
         mobileNo: userObject.mobileNo,

@@ -58,7 +58,7 @@ const orderSchema = new mongoose.Schema(
         "On Progress",
         "Accepted",
         "Processing",
-        "Rejected",
+        "Unable To Fulfill",
         "Cancelled",
         "Shipped",
         "PickUp Ready",
@@ -94,7 +94,7 @@ const orderSchema = new mongoose.Schema(
     rentReturnDueDate: { type: Date, default: null },
 
     // tracking link for the order track
-    trackingLink: { type: String, default: "" },
+    trackingUrl: { type: String, default: "" },
   },
   {
     timestamps: true,

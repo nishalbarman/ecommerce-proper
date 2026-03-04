@@ -57,7 +57,7 @@ const orderGroupSchema = new mongoose.Schema(
         "On Progress",
         "Accepted",
         "Processing",
-        "Rejected",
+        "Unable To Fulfill",
         "Cancelled",
         "On The Way",
         "PickUp Ready",
@@ -86,7 +86,13 @@ const orderGroupSchema = new mongoose.Schema(
     store: { type: mongoose.Types.ObjectId, required: false, default: null },
 
     // tracking link for the order track
-    trackingLink: { type: String, default: "" },
+    trackingUrl: { type: String, default: "" },
+
+    refundStatus: {
+      type: String,
+      enums: ["No Refund", "Refund Requested", "Refunded"],
+      default: "No Refund",
+    },
   },
   {
     timestamps: true,

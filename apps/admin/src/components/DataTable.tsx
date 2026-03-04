@@ -70,11 +70,11 @@ const DataTable = ({ data, type, loading, onDateChange }: DataTableProps) => {
         ),
       },
       {
-        accessorKey: "totalPrice",
+        accessorKey: "pricingDetails.finalOrderPrice",
         header: "Amount",
         size: 100,
         Cell: ({ cell }) => (
-          <span>Rs. {cell.getValue<number>().toLocaleString()}</span>
+          <span>Rs. {cell.getValue<number>()?.toLocaleString()}</span>
         ),
       },
       // {
@@ -103,7 +103,7 @@ const DataTable = ({ data, type, loading, onDateChange }: DataTableProps) => {
         ),
       },
     ],
-    []
+    [],
   );
 
   // Columns for users
@@ -144,7 +144,7 @@ const DataTable = ({ data, type, loading, onDateChange }: DataTableProps) => {
         ),
       },
     ],
-    []
+    [],
   );
 
   const table = useMaterialReactTable<any>({

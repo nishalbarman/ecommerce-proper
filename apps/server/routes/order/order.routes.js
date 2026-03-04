@@ -11,7 +11,7 @@ const OrderGroup = require("../../models/orderGroup.model");
 
 //! ORDER LISTING ROUTE FOR ADMIN AND CENTER
 // Update the /list route to support payment status filtering
-// router.get("/list", checkRole(1, 2), async (req, res) => {
+// router.get("/list", checkRole("admin", "super-admin", "store"), async (req, res) => {
 //   try {
 //     const searchQuery = req.query;
 
@@ -146,166 +146,178 @@ const OrderGroup = require("../../models/orderGroup.model");
 //   }
 // });
 
-router.get("/list", checkRole(1, 2), async (req, res) => {
-  try {
-    const searchQuery = req.query;
+router.get(
+  "/list",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const searchQuery = req.query;
 
-    const PAGE = +searchQuery.page || 0;
-    const LIMIT = +searchQuery.limit || 20;
-    const SKIP = +PAGE * LIMIT;
+      const PAGE = +searchQuery.page || 0;
+      const LIMIT = +searchQuery.limit || 20;
+      const SKIP = +PAGE * LIMIT;
 
-    const orderStatus = searchQuery?.orderStatus;
-    const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+      const orderStatus = searchQuery?.orderStatus;
+      const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
 
-    if (!req.user._id) {
-      return res.status(401).json({
+      if (!req.user._id) {
+        return res.status(401).json({
+          status: false,
+          message: "Unauthorized",
+        });
+      }
+
+      // const orderStatus = searchQuery?.orderStatus;
+      // const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+
+      const role = req?.jwt?.role;
+
+      const filterQuery = {
+        orderGroupID: { $exists: true, $ne: null },
+        // ...(orderStatus && { orderStatus }), // Existing order status filter
+        ...(role === 2 && { center: req.jwt?.center }),
+      };
+
+      // Add payment status filter if provided
+      if (paymentStatus && paymentStatus !== "all") {
+        filterQuery.paymentStatus = paymentStatus;
+      }
+
+      if (orderStatus && orderStatus !== "all") {
+        filterQuery.orderStatus = orderStatus;
+      }
+
+      const totalItems = await OrderGroup.countDocuments(filterQuery);
+
+      const orderDetails = await OrderGroup.find(filterQuery)
+        .populate("orders")
+        .sort({ createdAt: "desc" })
+        .skip(SKIP)
+        .limit(LIMIT);
+
+      const totalPages = Math.ceil(totalItems / LIMIT);
+
+      const pagination = {
+        totalItems,
+        totalPages,
+        currentPage: PAGE + 1,
+        limit: LIMIT,
+
+        hasNextPage: PAGE + 1 < totalPages,
+        hasPrevPage: PAGE + 1 > 1,
+
+        nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
+        prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
+      };
+
+      return res.json({ groupOrderData: orderDetails, pagination });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
         status: false,
-        message: "Unauthorized",
+        message: "Internal server error!",
       });
     }
+  },
+);
 
-    // const orderStatus = searchQuery?.orderStatus;
-    // const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
+router.get(
+  "/list-group/:productType",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const searchQuery = req.query;
 
-    const role = req?.jwt?.role;
+      const PAGE = +searchQuery.page || 0;
+      const LIMIT = +searchQuery.limit || 20;
+      const SKIP = +PAGE * LIMIT;
 
-    const filterQuery = {
-      orderGroupID: { $exists: true, $ne: null },
-      // ...(orderStatus && { orderStatus }), // Existing order status filter
-      ...(role === 2 && { center: req.jwt?.center }),
-    };
+      const orderStatus = searchQuery?.orderStatus;
+      const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
 
-    // Add payment status filter if provided
-    if (paymentStatus && paymentStatus !== "all") {
-      filterQuery.paymentStatus = paymentStatus;
-    }
+      if (!req.user._id) {
+        return res.status(401).json({
+          status: false,
+          message: "Unauthorized",
+        });
+      }
 
-    if (orderStatus && orderStatus !== "all") {
-      filterQuery.orderStatus = orderStatus;
-    }
+      const filterQuery = {
+        orderGroupID: { $exists: true, $ne: null },
+        user: req.user._id,
+      };
 
-    const totalItems = await OrderGroup.countDocuments(filterQuery);
+      // Add payment status filter if provided
+      if (paymentStatus && paymentStatus !== "all") {
+        filterQuery.paymentStatus = paymentStatus;
+      }
 
-    const orderDetails = await OrderGroup.find(filterQuery)
-      .populate("orders")
-      .sort({ createdAt: "desc" })
-      .skip(SKIP)
-      .limit(LIMIT);
+      if (orderStatus && orderStatus !== "all") {
+        filterQuery.orderStatus = orderStatus;
+      }
 
-    const totalPages = Math.ceil(totalItems / LIMIT);
+      const totalItems = await OrderGroup.countDocuments(filterQuery);
 
-    const pagination = {
-      totalItems,
-      totalPages,
-      currentPage: PAGE + 1,
-      limit: LIMIT,
+      const orderDetails = await OrderGroup.find(filterQuery)
+        .populate("orders")
+        .sort({ createdAt: "desc" })
+        .skip(SKIP)
+        .limit(LIMIT);
 
-      hasNextPage: PAGE + 1 < totalPages,
-      hasPrevPage: PAGE + 1 > 1,
+      const totalPages = Math.ceil(totalItems / LIMIT);
 
-      nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
-      prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
-    };
+      const pagination = {
+        totalItems,
+        totalPages,
+        currentPage: PAGE + 1,
+        limit: LIMIT,
 
-    return res.json({ groupOrderData: orderDetails, pagination });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
+        hasNextPage: PAGE + 1 < totalPages,
+        hasPrevPage: PAGE + 1 > 1,
 
-router.get("/list-group/:productType", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const searchQuery = req.query;
+        nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
+        prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
+      };
 
-    const PAGE = +searchQuery.page || 0;
-    const LIMIT = +searchQuery.limit || 20;
-    const SKIP = +PAGE * LIMIT;
-
-    const orderStatus = searchQuery?.orderStatus;
-    const paymentStatus = searchQuery?.paymentStatus; // Add payment status filter
-
-    if (!req.user._id) {
-      return res.status(401).json({
+      return res.json({ data: orderDetails, pagination });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
         status: false,
-        message: "Unauthorized",
+        message: "Internal server error!",
       });
     }
+  },
+);
 
-    const filterQuery = {
-      orderGroupID: { $exists: true, $ne: null },
-      user: req.user._id,
-    };
+router.get(
+  "/details/:orderGroupID",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const orderGroupID = req.params?.orderGroupID;
 
-    // Add payment status filter if provided
-    if (paymentStatus && paymentStatus !== "all") {
-      filterQuery.paymentStatus = paymentStatus;
+      const role = req.jwt?.role;
+
+      const orderDetails = await OrderGroup.findOne({
+        orderGroupID: orderGroupID,
+        ...(role === 2 && { center: req.jwt?.center }),
+      }).populate("orders");
+
+      console.log("Order Details --> ", orderDetails);
+
+      return res.json({ orderGroup: orderDetails });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
     }
+  },
+);
 
-    if (orderStatus && orderStatus !== "all") {
-      filterQuery.orderStatus = orderStatus;
-    }
-
-    const totalItems = await OrderGroup.countDocuments(filterQuery);
-
-    const orderDetails = await OrderGroup.find(filterQuery)
-      .populate("orders")
-      .sort({ createdAt: "desc" })
-      .skip(SKIP)
-      .limit(LIMIT);
-
-    const totalPages = Math.ceil(totalItems / LIMIT);
-
-    const pagination = {
-      totalItems,
-      totalPages,
-      currentPage: PAGE + 1,
-      limit: LIMIT,
-
-      hasNextPage: PAGE + 1 < totalPages,
-      hasPrevPage: PAGE + 1 > 1,
-
-      nextPage: PAGE + 1 < totalPages ? PAGE + 1 + 1 : null,
-      prevPage: PAGE + 1 > 1 ? PAGE + 1 - 1 : null,
-    };
-
-    return res.json({ data: orderDetails, pagination });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
-
-router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
-  try {
-    const orderGroupID = req.params?.orderGroupID;
-
-    const role = req.jwt?.role;
-
-    const orderDetails = await OrderGroup.findOne({
-      orderGroupID: orderGroupID,
-      ...(role === 2 && { center: req.jwt?.center }),
-    }).populate("orders");
-
-    console.log("Order Details --> ", orderDetails);
-
-    return res.json({ orderGroup: orderDetails });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
-
-// router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
+// router.get("/details/:orderGroupID", checkRole("admin", "super-admin", "store"), async (req, res) => {
 //   try {
 //     const orderGroupID = req.params?.orderGroupID;
 
@@ -413,7 +425,7 @@ router.get("/details/:orderGroupID", checkRole(1, 2), async (req, res) => {
 
 router.get(
   "/view/:paymentTransactionId",
-  checkRole(0, 1, 2),
+  checkRole("user", "admin", "super-admin", "store"),
   async (req, res) => {
     try {
       const paymentTransactionId = req.params?.paymentTransactionId;
@@ -436,7 +448,7 @@ router.get(
 //! Order details for normal user, orders can be viewed with the transaction id
 router.get(
   "/view-orders/:orderGroupId",
-  checkRole(0, 1, 2),
+  checkRole("user", "admin", "super-admin", "store"),
   async (req, res) => {
     try {
       const orderGroupId = req.params?.orderGroupId;
@@ -459,7 +471,7 @@ router.get(
 //! Order details for normal user, orders can be viewed with the transaction id
 router.get(
   "/view-group-order/:orderGroupId",
-  checkRole(0, 1, 2),
+  checkRole("user", "admin", "super-admin", "store"),
   async (req, res) => {
     try {
       const orderGroupId = req.params?.orderGroupId;
@@ -480,111 +492,129 @@ router.get(
 );
 
 //! ORDER LISTING ROUTE FOR NORMAL USERS
-router.get("/l/:productType", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const searchQuery = req.query;
+router.get(
+  "/l/:productType",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const searchQuery = req.query;
 
-    const productType = req.params?.productType;
+      const productType = req.params?.productType;
 
-    console.log(productType);
+      console.log(productType);
 
-    const QUERY = searchQuery.q;
-    const PAGE = searchQuery.page || 0;
-    const LIMIT = searchQuery.limit || 20;
-    const SKIP = PAGE * LIMIT;
+      const QUERY = searchQuery.q;
+      const PAGE = searchQuery.page || 0;
+      const LIMIT = searchQuery.limit || 20;
+      const SKIP = PAGE * LIMIT;
 
-    let orderDetails = undefined;
-    let totalPages = 0;
+      let orderDetails = undefined;
+      let totalPages = 0;
 
-    const filterQuery = {
-      user: req.user._id,
-      orderType: productType,
-    };
+      const filterQuery = {
+        user: req.user._id,
+        orderType: productType,
+      };
 
-    if (!!QUERY) {
-      filterQuery["$text"] = { $search: QUERY };
+      if (!!QUERY) {
+        filterQuery["$text"] = { $search: QUERY };
+      }
+
+      let countDocuments = await Order.countDocuments(filterQuery);
+
+      if (productType === "buy") {
+        orderDetails = await Order.find(filterQuery)
+          .sort({ createdAt: "desc" })
+          .skip(SKIP)
+          .limit(LIMIT)
+          .populate("orderGroupID");
+      } else {
+        orderDetails = await Order.find(filterQuery)
+          .sort({ createdAt: "desc" })
+          .skip(SKIP)
+          .limit(LIMIT);
+      }
+
+      totalPages = Math.ceil(countDocuments / LIMIT);
+
+      return res.json({
+        data: orderDetails,
+        totalPage: totalPages,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error!",
+      });
     }
-
-    let countDocuments = await Order.countDocuments(filterQuery);
-
-    if (productType === "buy") {
-      orderDetails = await Order.find(filterQuery)
-        .sort({ createdAt: "desc" })
-        .skip(SKIP)
-        .limit(LIMIT)
-        .populate("orderGroupID");
-    } else {
-      orderDetails = await Order.find(filterQuery)
-        .sort({ createdAt: "desc" })
-        .skip(SKIP)
-        .limit(LIMIT);
-    }
-
-    totalPages = Math.ceil(countDocuments / LIMIT);
-
-    return res.json({
-      data: orderDetails,
-      totalPage: totalPages,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Internal server error!",
-    });
-  }
-});
+  },
+);
 
 //! ORDER STATUS UPDATING ROUTE CAN BE USED BY ADMIN AND CENTER
-router.patch("/update-status", checkRole(1, 2), async (req, res) => {
-  try {
-    const order = req.body?.order;
-    const orderStatus = req.body?.orderStatus;
-    const trackingLink = req.body?.trackingLink;
+router.patch(
+  "/update-status",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const order = req.body?.order;
+      const orderStatus = req.body?.orderStatus;
+      const trackingUrl = req.body?.trackingUrl;
 
-    if (!order || !orderStatus) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const role = req?.jwt?.role;
-    const center = req?.jwt?.center;
-
-    let orderFilter = {};
-
-    //! FROM admin panel we can get an array or signle group id. if admin selects multiple orders updation will happen based on order _id otherwise it will happen based on orderGroupID
-
-    if (Array.isArray(order)) {
-      orderFilter = { _id: { $in: order } };
-    } else {
-      orderFilter = { orderGroupID: order };
-    }
-
-    orderFilter.orderStatus = { $ne: "Cancelled" };
-
-    if (role === 2) {
-      // center
-      if (!center) {
-        return res
-          .status(400)
-          .json({ message: "No center available for given user ID" });
+      if (!order || !orderStatus) {
+        return res.status(400).json({ message: "Missing required fields" });
       }
-      orderFilter.center = center;
+
+      console.log("Order tracking id: ", trackingUrl);
+
+      const role = req?.jwt?.role;
+      const center = req?.jwt?.center;
+
+      let orderFilter = {};
+
+      //! FROM admin panel we can get an array or signle group id. if admin selects multiple orders updation will happen based on order _id otherwise it will happen based on orderGroupID
+
+      if (Array.isArray(order)) {
+        orderFilter = { _id: { $in: order } };
+      } else {
+        orderFilter = { orderGroupID: order };
+      }
+
+      orderFilter.orderStatus = { $ne: "Cancelled" };
+
+      if (role === 2) {
+        // center
+        if (!center) {
+          return res
+            .status(400)
+            .json({ message: "No center available for given user ID" });
+        }
+        orderFilter.center = center;
+      }
+
+      const status = await Order.updateMany(orderFilter, {
+        $set: { orderStatus, trackingUrl: trackingUrl || "" },
+      });
+
+      const groupStatus = await OrderGroup.findOneAndUpdate(
+        { orderGroupID: order },
+        { $set: { orderStatus: orderStatus, trackingUrl: trackingUrl || "" } },
+        { new: true },
+      );
+
+      return res.json({
+        message: "Order status updated",
+        modifiedCount: status.modifiedCount,
+        groupStatus,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
     }
-
-    await Order.updateMany(orderFilter, {
-      $set: { orderStatus, trackingLink: trackingLink || "" },
-    });
-
-    return res.json({
-      message: "Order status updated",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
+  },
+);
 
 //! ORDER CANCELLATION ROUTE CAN BE USED BY ADMIN AND NORMAL USERS
 router.patch("/cancel", checkRole(1, 0), async (req, res) => {
@@ -650,14 +680,14 @@ router.patch("/cancel", checkRole(1, 0), async (req, res) => {
     await Order.updateMany(
       orderFilter,
       { $set: { orderStatus: "Cancelled" } },
-      { session }
+      { session },
     );
 
     // Update OrderGroup
     await OrderGroup.updateOne(
       { orderGroupID: orderGroupId },
       { $set: { orderStatus: "Cancelled" } },
-      { session }
+      { session },
     );
 
     await session.commitTransaction();
@@ -723,7 +753,7 @@ router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
     const updateResult = await Order.updateOne(
       orderFilter,
       { $set: { orderStatus: "Cancelled" } },
-      { session }
+      { session },
     );
 
     if (updateResult.modifiedCount === 0) {
@@ -739,7 +769,7 @@ router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
     // Count total items in group
     const totalItems = await Order.countDocuments(
       { orderGroupID: orderGroupID },
-      { session }
+      { session },
     );
 
     // Count cancelled items
@@ -748,7 +778,7 @@ router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
         orderGroupID: orderGroupID,
         orderStatus: "Cancelled",
       },
-      { session }
+      { session },
     );
 
     // If all items cancelled → cancel group
@@ -756,7 +786,7 @@ router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
       await OrderGroup.updateOne(
         { orderGroupID: orderGroupID },
         { $set: { orderStatus: "Cancelled" } },
-        { session }
+        { session },
       );
     }
 
@@ -894,6 +924,90 @@ router.get("/get-order-chart-data", checkRole(1), async (req, res) => {
     });
   }
 });
+
+router.get(
+  "/admin/reset-order",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const { orderGroupID } = req.body;
+      const user = req.user;
+
+      if (!orderGroupID) {
+        return res.status(400).json({
+          status: false,
+          message: "Order Group ID are required!",
+        });
+      }
+
+      if (user.role === 2 && !user.center) {
+        return res.status(400).json({
+          status: false,
+          message: "No center assigned to this user",
+        });
+      }
+
+      // Build filter
+      const orderFilter = {
+        orderGroupID: orderGroupID,
+        orderStatus: {
+          $in: ["Cancelled", "Unable to Fulfill"],
+        },
+      };
+
+      if (user.role === 0) {
+        orderFilter.user = user._id;
+      }
+
+      if (user.role === 2) {
+        orderFilter.center = user.center;
+      }
+
+      // Cancel single item
+      const updateResult = await OrderGroup.findOneAndUpdate(
+        orderFilter,
+        { $set: { orderStatus: "Accepted" } },
+        { session },
+      );
+
+      const result = await Order.updateMany(
+        orderFilter,
+        { $set: { orderStatus: "Accepted" } },
+        { session },
+      );
+
+      if (updateResult.modifiedCount === 0 || result.modifiedCount === 0) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          status: false,
+          message: "Order cannot be reset, please try again.",
+        });
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.json({
+        status: true,
+        message: "Order Group Reset Successful",
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      console.error("Internal server error: ", error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
+    }
+  },
+);
 
 //! RENT ORDER PLACING ROUTE FOR USER
 router.use("/renting", require("./rent-order.routes"));

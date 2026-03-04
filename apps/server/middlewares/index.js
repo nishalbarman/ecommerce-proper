@@ -19,7 +19,7 @@ const checkRole = (...allowedRoles) => {
       if (!token) {
         return res
           .clearCookie("token", {
-            httpOnly: process.env.NODE_ENV === 'production' ? true : false,
+            httpOnly: process.env.NODE_ENV === "production" ? true : false,
             secure: true,
             sameSite: "none",
             // process.env.NODE_ENV === "production"
@@ -40,7 +40,7 @@ const checkRole = (...allowedRoles) => {
         console.log("Token Expired");
         return res
           .clearCookie("token", {
-            httpOnly: process.env.NODE_ENV === 'production' ? true : false,
+            httpOnly: process.env.NODE_ENV === "production" ? true : false,
             secure: true,
             sameSite: "none",
             // process.env.NODE_ENV === "production"
@@ -65,9 +65,11 @@ const checkRole = (...allowedRoles) => {
       console.log("User Details", JSON.stringify(userDetails));
       console.log("Allowed Roles", allowedRoles);
       console.log("User Role", userDetails.roleNumber);
+      console.log("User Role Slug", userDetails.roleSlug);
 
-      if (allowedRoles.includes(userDetails.roleNumber)) {
+      if (allowedRoles.includes(userDetails.roleSlug)) {
         req.jwt.role = userDetails?.roleNumber;
+        req.jwt.roleSlug = userDetails?.roleSlug;
         req.jwt.center = userDetails?.center;
         return next();
       }

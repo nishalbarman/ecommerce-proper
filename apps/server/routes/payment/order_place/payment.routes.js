@@ -6,7 +6,7 @@ const checkRole = require("../../../middlewares");
 // Route to initiate payment
 router.post(
   "/:productType/:paymentGateway",
-  checkRole(0, 1, 2),
+  checkRole("user", "admin", "super-admin", "store"),
   async (req, res) => {
     try {
       const { productType, paymentGateway } = req.params;
@@ -45,24 +45,28 @@ router.post(
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-  }
+  },
 );
 
 // Route to verify payment
-router.post("/verify/:paymentGateway", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const { paymentGateway } = req.params;
-    const paymentData = req.body;
+router.post(
+  "/verify/:paymentGateway",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const { paymentGateway } = req.params;
+      const paymentData = req.body;
 
-    const verificationResult = await PaymentService.verifyPayment(
-      paymentGateway,
-      paymentData
-    );
+      const verificationResult = await PaymentService.verifyPayment(
+        paymentGateway,
+        paymentData,
+      );
 
-    res.json(verificationResult);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+      res.json(verificationResult);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+);
 
 module.exports = router;

@@ -145,37 +145,12 @@ export default function page() {
                               <tr key={order._id} className="hover:bg-gray-50">
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                   <div className="w-24 h-24">
-                                    <div className="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
-                                      {order.previewImages
-                                        ?.slice(0, 4)
-                                        .map((item, index) => {
-                                          const totalImages =
-                                            order.previewImages.length;
-                                          const extraCount = totalImages - 4;
-
-                                          const isLastVisible = index === 3;
-                                          const showOverlay =
-                                            isLastVisible && extraCount > 0;
-
-                                          return (
-                                            <div
-                                              key={index}
-                                              className="relative w-full h-full">
-                                              <img
-                                                src={item.imageUrl}
-                                                className="w-full h-full object-cover rounded"
-                                              />
-
-                                              {showOverlay && (
-                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
-                                                  <span className="text-white text-xs font-bold">
-                                                    +{extraCount}
-                                                  </span>
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
+                                    <div className="relative w-full h-full">
+                                      <ShowPreviewImage
+                                        previewImages={
+                                          order?.previewImages || []
+                                        }
+                                      />
                                     </div>
                                   </div>
                                 </td>
@@ -337,3 +312,110 @@ export default function page() {
     </>
   );
 }
+
+const ShowPreviewImage = ({ previewImages }) => {
+  const length = previewImages?.length || 0;
+  switch (length) {
+    case 1:
+      return (
+        <div className="grid grid-cols-1 grid-rows-1 gap-1 w-full h-full">
+          <img
+            src={previewImages?.[0]?.imageUrl}
+            className="w-full h-full object-cover rounded"
+          />
+        </div>
+      );
+    case 2:
+      return (
+        <div className="grid grid-cols-2 grid-rows-1 gap-1 w-full h-full">
+          {previewImages?.slice(0, 2).map((item, index) => {
+            return (
+              <img
+                key={index}
+                src={item.imageUrl}
+                className="w-full h-full object-cover rounded"
+              />
+            );
+          })}
+        </div>
+      );
+    case 3:
+      return (
+        <div className="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+          {previewImages?.slice(0, 3).map((item, index) => (
+            <img
+              key={index}
+              src={item.imageUrl}
+              className="w-full h-full object-cover rounded"
+            />
+          ))}
+          <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+            {previewImages?.slice(0, 3).map((item, index) => (
+              <img
+                key={index}
+                src={item.imageUrl}
+                className="w-full h-full object-cover rounded"
+              />
+            ))}
+            <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+              {previewImages?.slice(0, 3).map((item, index) => (
+                <img
+                  key={index}
+                  src={item.imageUrl}
+                  className="w-full h-full object-cover rounded"
+                />
+              ))}
+              <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+                {previewImages?.slice(0, 3).map((item, index) => (
+                  <img
+                    key={index}
+                    src={item.imageUrl}
+                    className="w-full h-full object-cover rounded"
+                  />
+                ))}
+                <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+                  {previewImages?.slice(0, 3).map((item, index) => (
+                    <img
+                      key={index}
+                      src={item.imageUrl}
+                      className="w-full h-full object-cover rounded"
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
+    default:
+      return (
+        <div className="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
+          {previewImages?.slice(0, 4).map((item, index) => {
+            const totalImages = previewImages.length;
+            const extraCount = totalImages - 4;
+
+            const isLastVisible = index === 3;
+            const showOverlay = isLastVisible && extraCount > 0;
+
+            return (
+              <div key={index} className="relative w-full h-full">
+                <img
+                  src={item.imageUrl}
+                  className="w-full h-full object-cover rounded"
+                />
+
+                {showOverlay && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
+                    <span className="text-white text-xs font-bold">
+                      +{extraCount}
+                    </span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+  }
+};

@@ -59,7 +59,7 @@ router.patch("/update", async (req, res) => {
     if (password) {
       if (!validatePass.validate(password)) {
         error.push(
-          "Password should be of minimum 8 digits containing uppercase and lowercase characters"
+          "Password should be of minimum 8 digits containing uppercase and lowercase characters",
         );
       }
       const salt = bcrypt.genSaltSync(10);
@@ -75,7 +75,7 @@ router.patch("/update", async (req, res) => {
       { _id: userDetails._id },
       {
         $set: updateObject,
-      }
+      },
     ).populate("role");
 
     const jwtToken = jwt.sign(
@@ -84,11 +84,11 @@ router.patch("/update", async (req, res) => {
         name: update.name,
         roleName: update.role.roleName,
         roleNumber: update.role.roleNumber,
-        roleKey: update.role.roleKey,
+        roleSlug: update.role.roleSlug,
         email: update.email,
         mobileNo: update.mobileNo,
       },
-      secret
+      secret,
     );
 
     return res.status(200).json({
@@ -104,7 +104,7 @@ router.patch("/update", async (req, res) => {
     console.log(error);
     if (error instanceof mongoose.Error && error?.errors) {
       const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
+        (properties) => properties.message,
       );
 
       return res.status(400).json({
@@ -119,92 +119,96 @@ router.patch("/update", async (req, res) => {
   }
 });
 
-router.get("/get-user-chart-data", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const year = parseInt(req.query?.year);
-    const month = parseInt(req.query?.month);
+router.get(
+  "/get-user-chart-data",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const year = parseInt(req.query?.year);
+      const month = parseInt(req.query?.month);
 
-    const pipeline = [
-      // Stage 1: Match users created within the specified date range
-      {
-        $match: {
-          createdAt: {
-            $gte: new Date(year, month - 1, 1), // Start of the month
-            $lt: new Date(year, month, 1), // Start of the next month
+      const pipeline = [
+        // Stage 1: Match users created within the specified date range
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(year, month - 1, 1), // Start of the month
+              $lt: new Date(year, month, 1), // Start of the next month
+            },
           },
         },
-      },
-      // Stage 2: Group by date and count users
-      {
-        $group: {
-          _id: {
-            year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" },
-            day: { $dayOfMonth: "$createdAt" },
+        // Stage 2: Group by date and count users
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+              day: { $dayOfMonth: "$createdAt" },
+            },
+            count: { $sum: 1 }, // Count users
           },
-          count: { $sum: 1 }, // Count users
         },
-      },
-      // Stage 3: Project to format date and rename fields
-      {
-        $project: {
-          _id: 0,
-          date: {
-            $dateToString: {
-              format: "%B %d, %Y",
-              date: {
-                $dateFromParts: {
-                  year: "$_id.year",
-                  month: "$_id.month",
-                  day: "$_id.day",
+        // Stage 3: Project to format date and rename fields
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateToString: {
+                format: "%B %d, %Y",
+                date: {
+                  $dateFromParts: {
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    day: "$_id.day",
+                  },
                 },
               },
             },
+            count: 1,
           },
-          count: 1,
         },
-      },
-      // Stage 4: Sort by date
-      {
-        $sort: { date: 1 },
-      },
-      // Stage 5: Group to calculate total users
-      {
-        $group: {
-          _id: null,
-          totalUsers: { $sum: "$count" },
-          chartData: { $push: "$$ROOT" },
+        // Stage 4: Sort by date
+        {
+          $sort: { date: 1 },
         },
-      },
-      // Stage 6: Project to reshape output
-      {
-        $project: {
-          _id: 0,
-          totalUsers: 1,
-          chartData: 1,
+        // Stage 5: Group to calculate total users
+        {
+          $group: {
+            _id: null,
+            totalUsers: { $sum: "$count" },
+            chartData: { $push: "$$ROOT" },
+          },
         },
-      },
-    ];
+        // Stage 6: Project to reshape output
+        {
+          $project: {
+            _id: 0,
+            totalUsers: 1,
+            chartData: 1,
+          },
+        },
+      ];
 
-    // Replace "createdAt" with the appropriate timestamp field if you're using a different field
-    // Execute the pipeline using the aggregate function on your User model
-    const chartData = await User.aggregate(pipeline);
-    return res.status(200).json(chartData[0]);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof mongoose.Error && error?.errors) {
-      const errArray = Object.values(error.errors).map(
-        (properties) => properties.message
-      );
+      // Replace "createdAt" with the appropriate timestamp field if you're using a different field
+      // Execute the pipeline using the aggregate function on your User model
+      const chartData = await User.aggregate(pipeline);
+      return res.status(200).json(chartData[0]);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof mongoose.Error && error?.errors) {
+        const errArray = Object.values(error.errors).map(
+          (properties) => properties.message,
+        );
 
-      return res.status(400).json({
-        message: errArray.join(", "),
+        return res.status(400).json({
+          message: errArray.join(", "),
+        });
+      }
+      return res.status(500).json({
+        message: "Internal server error",
       });
     }
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-});
+  },
+);
 
 module.exports = router;

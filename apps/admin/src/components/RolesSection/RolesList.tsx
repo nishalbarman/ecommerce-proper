@@ -86,7 +86,7 @@ const RoleList = () => {
   };
 
   const [updateRoleId, setUpdateRoleId] = useState<undefined | string>(
-    undefined
+    undefined,
   );
 
   const handleUpdateRole = async () => {
@@ -266,7 +266,10 @@ const RoleList = () => {
                         Name
                       </th>
                       <th className="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Key
+                        Slug
+                      </th>
+                      <th className="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        RoleNumber
                       </th>
                       <th className="px-6 py-3 bg-gray-100 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Dates
@@ -286,7 +289,10 @@ const RoleList = () => {
                           {item.roleName}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {item.roleKey}
+                          {item.roleSlug}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {item.roleNumber}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           <div>Created: {item.createdAt}</div>
@@ -339,7 +345,7 @@ const RoleList = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, rolesData?.totalPages || 0)
+                          Math.min(prev + 1, rolesData?.totalPages || 0),
                         )
                       }
                       disabled={paginationPage === (rolesData?.totalPages || 0)}

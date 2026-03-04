@@ -30,104 +30,122 @@ router.get("/list", async (req, res) => {
 });
 
 // Create new coupon
-router.post("/", checkRole(1, 2), async (req, res) => {
-  try {
-    const { code, off, minPurchasePrice, isPercentage, description } = req.body;
+router.post(
+  "/",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const { code, off, minPurchasePrice, isPercentage, description } =
+        req.body;
 
-    // Validate input
-    if (!code || !description || off <= 0) {
-      return res.status(400).json({ message: "Invalid coupon data" });
-    }
+      // Validate input
+      if (!code || !description || off <= 0) {
+        return res.status(400).json({ message: "Invalid coupon data" });
+      }
 
-    // Check if coupon code already exists
-    const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
-    if (existingCoupon) {
-      return res.status(400).json({ message: "Coupon code already exists" });
-    }
-
-    const newCoupon = new Coupon({
-      code: code.toUpperCase(),
-      off,
-      minPurchasePrice,
-      isPercentage,
-      description,
-    });
-
-    await newCoupon.save();
-
-    return res.json({
-      success: true,
-      message: "Coupon created successfully",
-      coupon: newCoupon,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
-
-// Update coupon
-router.put("/:id", checkRole(1, 2), async (req, res) => {
-  try {
-    const { code, off, minPurchasePrice, isPercentage, description } = req.body;
-    const couponId = req.params.id;
-
-    // Validate input
-    if (!code || !description || off <= 0) {
-      return res.status(400).json({ message: "Invalid coupon data" });
-    }
-
-    const coupon = await Coupon.findById(couponId);
-    if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
-    }
-
-    // Check if new code conflicts with other coupons
-    if (code.toUpperCase() !== coupon.code) {
+      // Check if coupon code already exists
       const existingCoupon = await Coupon.findOne({ code: code.toUpperCase() });
       if (existingCoupon) {
         return res.status(400).json({ message: "Coupon code already exists" });
       }
+
+      const newCoupon = new Coupon({
+        code: code.toUpperCase(),
+        off,
+        minPurchasePrice,
+        isPercentage,
+        description,
+      });
+
+      await newCoupon.save();
+
+      return res.json({
+        success: true,
+        message: "Coupon created successfully",
+        coupon: newCoupon,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
     }
+  },
+);
 
-    coupon.code = code.toUpperCase();
-    coupon.off = off;
-    coupon.minPurchasePrice = minPurchasePrice;
-    coupon.isPercentage = isPercentage;
-    coupon.description = description;
+// Update coupon
+router.put(
+  "/:id",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const { code, off, minPurchasePrice, isPercentage, description } =
+        req.body;
+      const couponId = req.params.id;
 
-    await coupon.save();
+      // Validate input
+      if (!code || !description || off <= 0) {
+        return res.status(400).json({ message: "Invalid coupon data" });
+      }
 
-    return res.json({
-      success: true,
-      message: "Coupon updated successfully",
-      coupon,
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
+      const coupon = await Coupon.findById(couponId);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+
+      // Check if new code conflicts with other coupons
+      if (code.toUpperCase() !== coupon.code) {
+        const existingCoupon = await Coupon.findOne({
+          code: code.toUpperCase(),
+        });
+        if (existingCoupon) {
+          return res
+            .status(400)
+            .json({ message: "Coupon code already exists" });
+        }
+      }
+
+      coupon.code = code.toUpperCase();
+      coupon.off = off;
+      coupon.minPurchasePrice = minPurchasePrice;
+      coupon.isPercentage = isPercentage;
+      coupon.description = description;
+
+      await coupon.save();
+
+      return res.json({
+        success: true,
+        message: "Coupon updated successfully",
+        coupon,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
+);
 
 // Delete coupon
-router.delete("/:id", checkRole(1, 2), async (req, res) => {
-  try {
-    const couponId = req.params.id;
+router.delete(
+  "/:id",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const couponId = req.params.id;
 
-    const coupon = await Coupon.findByIdAndDelete(couponId);
-    if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
+      const coupon = await Coupon.findByIdAndDelete(couponId);
+      if (!coupon) {
+        return res.status(404).json({ message: "Coupon not found" });
+      }
+
+      return res.json({
+        success: true,
+        message: "Coupon deleted successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Server error" });
     }
-
-    return res.json({
-      success: true,
-      message: "Coupon deleted successfully",
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error" });
-  }
-});
+  },
+);
 
 // Validate coupon (existing route)
 router.get("/validate", async (req, res) => {

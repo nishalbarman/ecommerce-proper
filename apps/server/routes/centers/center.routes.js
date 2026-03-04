@@ -13,7 +13,7 @@ const { ImageUploadHelper } = require("../../helpter/imgUploadhelpter");
 
 router.get(
   "/list",
-  checkRole(1, 2) /* required admin role */,
+  checkRole("admin", "super-admin", "store") /* required admin role */,
   async (req, res) => {
     try {
       const searchParams = req.query;
@@ -42,7 +42,7 @@ router.get(
         message: "Internal server error!",
       });
     }
-  }
+  },
 );
 
 // This is an user route no special role required | Get all the centers available nearby for the given user address id.. This will list all the centers and will calculate addresses based on user address
@@ -143,143 +143,147 @@ router.get("/addresses/:userAddressID", checkRole(0), async (req, res) => {
   }
 });
 
-router.post("/add", checkRole(1, 2), async (req, res) => {
-  try {
-    const centerData = req.body?.centerData;
-
-    if (!centerData) {
-      return res.status(400).json({ message: "Center Data not found" });
-    }
-
-    //! User details
-    const userName = centerData?.name;
-    const email = centerData?.email;
-    const mobileNo = centerData?.mobileNo;
-    let password = centerData?.password;
-
-    //! Center details
-    const centerName = centerData?.centerName;
-    const streetName = centerData?.streetName;
-    const locality = centerData?.locality;
-    const postalCode = centerData?.postalCode;
-    const city = centerData?.city;
-    const country = centerData?.country;
-    const longitude = centerData?.longitude;
-    const latitude = centerData?.latitude;
-
-    //! Images to upload
-    let addressProof = centerData?.addressProof;
-    let identityProof = centerData?.identityProof;
-    let centerImages = centerData?.centerImages;
-
-    // TODO: Validate all those fields before saving in database
-
-    centerImages = await ImageUploadHelper.uploadBulkImages(centerImages);
-    addressProof = await ImageUploadHelper.uploadBulkImages(addressProof);
-    identityProof = await ImageUploadHelper.uploadBulkImages(identityProof);
-
-    const salt = bcrypt.genSaltSync(10);
-    password = bcrypt.hashSync(password, salt);
-
-    let user;
+router.post(
+  "/add",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
     try {
-      user = await User.create({
-        name: userName,
-        email,
-        mobileNo,
-        password,
-        isEmailVerified: false,
-        isMobileNoVerified: true, // ? As admin creating this center so making mobile no verified for that reason I am out.
-        role: "65f1c3e4dd964b2b01a2ee66",
-      });
-    } catch (error) {
-      console.log(error);
-      if (error instanceof mongoose.Error && error?.errors) {
-        const errArray = Object.values(error.errors).map(
-          (properties) => properties.message
-        );
+      const centerData = req.body?.centerData;
 
-        return res.status(400).json({
-          message: errArray.join(", "),
-        });
+      if (!centerData) {
+        return res.status(400).json({ message: "Center Data not found" });
       }
 
-      return res.status(400).json({ message: "User creation failed!" });
-    }
+      //! User details
+      const userName = centerData?.name;
+      const email = centerData?.email;
+      const mobileNo = centerData?.mobileNo;
+      let password = centerData?.password;
 
-    const location = { type: "Point", coordinates: [longitude, latitude] };
+      //! Center details
+      const centerName = centerData?.centerName;
+      const streetName = centerData?.streetName;
+      const locality = centerData?.locality;
+      const postalCode = centerData?.postalCode;
+      const city = centerData?.city;
+      const country = centerData?.country;
+      const longitude = centerData?.longitude;
+      const latitude = centerData?.latitude;
 
-    let address;
-    try {
-      address = await Address.create({
-        user: user._id,
-        name: "_",
-        locality,
-        city,
-        postalCode,
-        country,
-        streetName,
-        longitude,
-        latitude,
-        location,
-      });
-    } catch (error) {
-      console.log(error);
+      //! Images to upload
+      let addressProof = centerData?.addressProof;
+      let identityProof = centerData?.identityProof;
+      let centerImages = centerData?.centerImages;
 
-      User.findByIdAndDelete(user?._id);
+      // TODO: Validate all those fields before saving in database
 
-      if (error instanceof mongoose.Error && error?.errors) {
-        const errArray = Object.values(error.errors).map(
-          (properties) => properties.message
-        );
+      centerImages = await ImageUploadHelper.uploadBulkImages(centerImages);
+      addressProof = await ImageUploadHelper.uploadBulkImages(addressProof);
+      identityProof = await ImageUploadHelper.uploadBulkImages(identityProof);
 
-        return res.status(400).json({
-          message: errArray.join(", "),
+      const salt = bcrypt.genSaltSync(10);
+      password = bcrypt.hashSync(password, salt);
+
+      let user;
+      try {
+        user = await User.create({
+          name: userName,
+          email,
+          mobileNo,
+          password,
+          isEmailVerified: false,
+          isMobileNoVerified: true, // ? As admin creating this center so making mobile no verified for that reason I am out.
+          role: "65f1c3e4dd964b2b01a2ee66",
         });
+      } catch (error) {
+        console.log(error);
+        if (error instanceof mongoose.Error && error?.errors) {
+          const errArray = Object.values(error.errors).map(
+            (properties) => properties.message,
+          );
+
+          return res.status(400).json({
+            message: errArray.join(", "),
+          });
+        }
+
+        return res.status(400).json({ message: "User creation failed!" });
       }
 
-      return res.status(400).json({ message: "Address creation failed!" });
-    }
+      const location = { type: "Point", coordinates: [longitude, latitude] };
 
-    let center;
-    try {
-      center = await Center.create({
-        user: user._id,
-        address: address._id,
-        centerName,
-        centerImage: centerImages[0],
-        addressProofImage: addressProof[0],
-        idProofImage: identityProof[0],
-        location,
-        approvedStatus: "approved",
-      });
-    } catch (error) {
-      User.findByIdAndDelete(user?._id);
-      Address.findByIdAndDelete(address?._id);
-
-      if (error instanceof mongoose.Error && error?.errors) {
-        const errArray = Object.values(error.errors).map(
-          (properties) => properties.message
-        );
-
-        return res.status(400).json({
-          message: errArray.join(", "),
+      let address;
+      try {
+        address = await Address.create({
+          user: user._id,
+          name: "_",
+          locality,
+          city,
+          postalCode,
+          country,
+          streetName,
+          longitude,
+          latitude,
+          location,
         });
+      } catch (error) {
+        console.log(error);
+
+        User.findByIdAndDelete(user?._id);
+
+        if (error instanceof mongoose.Error && error?.errors) {
+          const errArray = Object.values(error.errors).map(
+            (properties) => properties.message,
+          );
+
+          return res.status(400).json({
+            message: errArray.join(", "),
+          });
+        }
+
+        return res.status(400).json({ message: "Address creation failed!" });
       }
 
-      return res.status(400).json({ message: "Center creation failed!" });
-    }
+      let center;
+      try {
+        center = await Center.create({
+          user: user._id,
+          address: address._id,
+          centerName,
+          centerImage: centerImages[0],
+          addressProofImage: addressProof[0],
+          idProofImage: identityProof[0],
+          location,
+          approvedStatus: "approved",
+        });
+      } catch (error) {
+        User.findByIdAndDelete(user?._id);
+        Address.findByIdAndDelete(address?._id);
 
-    return res.send({ message: "Center created." });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+        if (error instanceof mongoose.Error && error?.errors) {
+          const errArray = Object.values(error.errors).map(
+            (properties) => properties.message,
+          );
+
+          return res.status(400).json({
+            message: errArray.join(", "),
+          });
+        }
+
+        return res.status(400).json({ message: "Center creation failed!" });
+      }
+
+      return res.send({ message: "Center created." });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: error.message });
+    }
+  },
+);
 
 router.post(
   "/delete",
-  checkRole(1, 2) /* required admin role */,
+  checkRole("admin", "super-admin", "store") /* required admin role */,
   async (req, res) => {
     try {
       const centerIds = req.body?.centerIds;
@@ -296,12 +300,12 @@ router.post(
         message: "Internal server error!",
       });
     }
-  }
+  },
 );
 
 router.patch(
   "/update/status",
-  checkRole(1, 2) /* required admin role */,
+  checkRole("admin", "super-admin", "store") /* required admin role */,
   async (req, res) => {
     try {
       const centerIds = req.body?.centerIds;
@@ -321,7 +325,7 @@ router.patch(
           $set: {
             approvedStatus,
           },
-        }
+        },
       );
 
       return res.json({ message: "Approved Successfully" });
@@ -331,7 +335,7 @@ router.patch(
         message: "Internal server error!",
       });
     }
-  }
+  },
 );
 
 router.get("/:centerId", async (req, res) => {
@@ -446,7 +450,7 @@ router.patch("/:centerId", async (req, res) => {
       },
       {
         $set: req.body,
-      }
+      },
     );
 
     if (!address) {

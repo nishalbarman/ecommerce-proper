@@ -6,245 +6,270 @@ const mongoose = require("mongoose");
 
 const checkRole = require("../../middlewares");
 
-router.get("/", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
+router.get(
+  "/",
+  checkRole("user", "super-admin", "admin", "store"),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
 
-    if (!userDetails) {
-      return res.status(400).json({
-        status: false,
-        message: "Token validation failed",
+      if (!userDetails) {
+        return res.status(400).json({
+          status: false,
+          message: "Token validation failed",
+        });
+      }
+
+      const address = await UserAddress.find({
+        user: userDetails._id,
+      })
+        .sort({ createdAt: "desc" })
+        .select("-user");
+
+      return res.json({
+        data: address,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error!",
       });
     }
+  },
+);
 
-    const address = await UserAddress.find({
-      user: userDetails._id,
-    })
-      .sort({ createdAt: "desc" })
-      .select("-user");
+router.post(
+  "/",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const fullName = req.body?.fullName;
+      const phone = req.body?.phone;
+      const streetName = req.body?.streetName;
+      const city = req.body?.city;
+      const state = req.body?.state;
+      const postalCode = req.body?.postalCode;
+      const landmark = req.body?.landmark;
+      const country = req.body?.country;
+      const isDefault = req.body?.isDefault;
 
-    return res.json({
-      data: address,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Internal server error!",
-    });
-  }
-});
+      const userDetails = req.user;
 
-router.post("/", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const fullName = req.body?.fullName;
-    const phone = req.body?.phone;
-    const streetName = req.body?.streetName;
-    const city = req.body?.city;
-    const state = req.body?.state;
-    const postalCode = req.body?.postalCode;
-    const landmark = req.body?.landmark;
-    const country = req.body?.country;
-    const isDefault = req.body?.isDefault;
+      const oldAddressCount = await UserAddress.countDocuments({
+        user: userDetails._id,
+      });
 
-    const userDetails = req.user;
+      if (oldAddressCount >= 5) {
+        return res.status(400).json({
+          status: false,
+          message:
+            "UserAddress limit reached, you can only add upto 5 addresses",
+        });
+      }
 
-    const oldAddressCount = await UserAddress.countDocuments({
-      user: userDetails._id,
-    });
+      const newAddress = new UserAddress({
+        user: userDetails._id,
+        fullName,
+        phone,
+        streetName,
+        city,
+        state,
+        postalCode,
+        landmark,
+        country,
+      });
+      await newAddress.save();
 
-    if (oldAddressCount >= 5) {
-      return res.status(400).json({
-        status: false,
-        message: "UserAddress limit reached, you can only add upto 5 addresses",
+      if (isDefault) {
+        await User.findByIdAndUpdate(userDetails._id, {
+          $set: {
+            defaultAddress: newAddress._id,
+          },
+        });
+      }
+
+      return res.json({
+        message: "Address added.",
+      });
+    } catch (err) {
+      console.log(err);
+      if (err instanceof mongoose.Error) {
+        /* I added custom validator functions in mongoose models, so the code is to chcek whether the errors are from mongoose or not */
+        const errArray = [];
+        for (let key in err.errors) {
+          errArray.push(err.errors[key].properties.message);
+        }
+
+        return res
+          .status(400)
+          .json({ message: errArray.join(", ").replaceAll(" Path", "") });
+      }
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+router.get(
+  "/get-default-address",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
+
+      const user = await User.findOne({ _id: userDetails._id }).populate(
+        "defaultAddress",
+      );
+      console.log("User Default Address", user);
+
+      return res.json({
+        defaultAddress: user?.defaultAddress || null,
+      });
+    } catch (error) {
+      console.log("default address error", error);
+      return res.status(500).json({
+        message: "Internal server error!",
       });
     }
+  },
+);
 
-    const newAddress = new UserAddress({
-      user: userDetails._id,
-      fullName,
-      phone,
-      streetName,
-      city,
-      state,
-      postalCode,
-      landmark,
-      country,
-    });
-    await newAddress.save();
+router.post(
+  "/update-default-address",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const reqBody = req.body;
+      const userDetails = req.user;
 
-    if (isDefault) {
-      await User.findByIdAndUpdate(userDetails._id, {
+      if (reqBody.addressId) {
+        return res.status(400).json({ message: "Invalid request" });
+      }
+
+      const addressDetail = await UserAddress.finedOne(reqBody.addressId);
+
+      if (!addressDetail) {
+        return res.status(400).json({ message: "Invalid Adress Id" });
+      }
+
+      const updatedAddress = await User.findByIdAndUpdate(userDetails._id, {
         $set: {
-          defaultAddress: newAddress._id,
+          defaultAddress: addressDetail._id,
         },
       });
-    }
 
-    return res.json({
-      message: "Address added.",
-    });
-  } catch (err) {
-    console.log(err);
-    if (err instanceof mongoose.Error) {
-      /* I added custom validator functions in mongoose models, so the code is to chcek whether the errors are from mongoose or not */
-      const errArray = [];
-      for (let key in err.errors) {
-        errArray.push(err.errors[key].properties.message);
+      return res.json({
+        message: "Default Address Updated.",
+      });
+    } catch (err) {
+      console.log(err);
+      if (err instanceof mongoose.Error) {
+        /* I added custom validator functions in mongoose models, so the code is to chcek whether the errors are from mongoose or not */
+        const errArray = [];
+        for (let key in err.errors) {
+          errArray.push(err.errors[key].properties.message);
+        }
+
+        return res
+          .status(400)
+          .json({ message: errArray.join(", ").replaceAll(" Path", "") });
+      }
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  },
+);
+
+router.patch(
+  "/:address_item_id",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
+
+      const { address_item_id } = req.params;
+
+      if (!req?.body) {
+        return res.status(400).json({
+          message: "expected some values to update, no values found",
+        });
       }
 
-      return res
-        .status(400)
-        .json({ message: errArray.join(", ").replaceAll(" Path", "") });
-    }
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
+      const updatedAddress = {};
+      Object.keys(req?.body).map((key) => {
+        if (!!req?.body[key]) updatedAddress[key] = req.body[key];
+      });
 
-router.get("/get-default-address", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
-
-    const user = await User.findOne({ _id: userDetails._id }).populate(
-      "defaultAddress",
-    );
-    console.log("User Default Address", user);
-
-    return res.json({
-      defaultAddress: user?.defaultAddress || null,
-    });
-  } catch (error) {
-    console.log("default address error", error);
-    return res.status(500).json({
-      message: "Internal server error!",
-    });
-  }
-});
-
-router.post("/update-default-address", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const reqBody = req.body;
-    const userDetails = req.user;
-
-    if (reqBody.addressId) {
-      return res.status(400).json({ message: "Invalid request" });
-    }
-
-    const addressDetail = await UserAddress.finedOne(reqBody.addressId);
-
-    if (!addressDetail) {
-      return res.status(400).json({ message: "Invalid Adress Id" });
-    }
-
-    const updatedAddress = await User.findByIdAndUpdate(userDetails._id, {
-      $set: {
-        defaultAddress: addressDetail._id,
-      },
-    });
-
-    return res.json({
-      message: "Default Address Updated.",
-    });
-  } catch (err) {
-    console.log(err);
-    if (err instanceof mongoose.Error) {
-      /* I added custom validator functions in mongoose models, so the code is to chcek whether the errors are from mongoose or not */
-      const errArray = [];
-      for (let key in err.errors) {
-        errArray.push(err.errors[key].properties.message);
+      if (!updatedAddress) {
+        return res.status(400).json({
+          message: "expected some values to update, no values found",
+        });
       }
 
-      return res
-        .status(400)
-        .json({ message: errArray.join(", ").replaceAll(" Path", "") });
-    }
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
+      const address = await UserAddress.findOneAndUpdate(
+        {
+          user: userDetails._id,
+          _id: address_item_id,
+        },
+        {
+          $set: req.body,
+        },
+      );
 
-router.patch("/:address_item_id", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
+      if (!address) {
+        return res.status(400).json({ message: "Address update failed" });
+      }
 
-    const { address_item_id } = req.params;
-
-    if (!req?.body) {
-      return res.status(400).json({
-        message: "expected some values to update, no values found",
+      return res.json({
+        message: "Address updated.",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error",
       });
     }
+  },
+);
 
-    const updatedAddress = {};
-    Object.keys(req?.body).map((key) => {
-      if (!!req?.body[key]) updatedAddress[key] = req.body[key];
-    });
+router.delete(
+  "/:address_item_id",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
 
-    if (!updatedAddress) {
-      return res.status(400).json({
-        message: "expected some values to update, no values found",
-      });
-    }
+      if (!userDetails) {
+        return res.status(400).json({
+          message: "Token validation failed",
+        });
+      }
 
-    const address = await UserAddress.findOneAndUpdate(
-      {
-        user: userDetails._id,
+      const { address_item_id } = req.params;
+
+      console.log("address_item_id", address_item_id);
+
+      const addressDetails = await UserAddress.findOneAndDelete({
         _id: address_item_id,
-      },
-      {
-        $set: req.body,
-      },
-    );
+        user: userDetails._id,
+      });
 
-    if (!address) {
-      return res.status(400).json({ message: "Address update failed" });
-    }
+      if (!addressDetails) {
+        return res.status(400).json({
+          message: "No address found with provided id!",
+        });
+      }
 
-    return res.json({
-      message: "Address updated.",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-});
-
-router.delete("/:address_item_id", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
-
-    if (!userDetails) {
-      return res.status(400).json({
-        message: "Token validation failed",
+      return res.json({
+        status: true,
+        message: "Address deleted",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        status: false,
+        message: error.message,
       });
     }
-
-    const { address_item_id } = req.params;
-
-    console.log("address_item_id", address_item_id);
-
-    const addressDetails = await UserAddress.findOneAndDelete({
-      _id: address_item_id,
-      user: userDetails._id,
-    });
-
-    if (!addressDetails) {
-      return res.status(400).json({
-        message: "No address found with provided id!",
-      });
-    }
-
-    return res.json({
-      status: true,
-      message: "Address deleted",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      status: false,
-      message: error.message,
-    });
-  }
-});
+  },
+);
 
 module.exports = router;

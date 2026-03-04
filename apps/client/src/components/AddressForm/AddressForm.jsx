@@ -5,7 +5,11 @@ import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useAddAddressMutation } from "@/redux/apis/addressApi";
 
-export default function AddressForm({ onSuccess, onCancel }) {
+export default function AddressForm({
+  onSuccess,
+  onCancel,
+  fromOtherRoute = false,
+}) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     fullName: "",
@@ -34,14 +38,15 @@ export default function AddressForm({ onSuccess, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     try {
       const response = await addAddress({ address: formData }).unwrap();
 
       toast.success("Address added successfully");
       onSuccess?.();
-      router.push("/profile/address");
+      if (fromOtherRoute) {
+        router.push("/profile/address");
+      }
     } catch (error) {
       console.error("Failed to add address", error);
       toast.error(error.response?.data?.message || "Failed to add address");

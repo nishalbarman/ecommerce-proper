@@ -61,214 +61,217 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const productType = req.params?.productType;
+router.post(
+  "/:productType",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productType = req.params?.productType;
 
-    if (!productType) {
-      return res.status(400).json({ message: "Product Type Not Found" });
-    }
-
-    const centerId = req.query?.centerId;
-
-    if (!centerId) {
-      return res.status(400).json({ message: "Center not selected" });
-    }
-
-    // TODO: May be usefull in future time
-    // const address = req.body?.address;
-
-    // if (!address) {
-    //   return res.status(400).json({ message: "Address missing" });
-    // }
-
-    // const appliedCouponID = req?.query?.coupon;
-
-    const cartItemsForUser = await Cart.find({
-      user: req.user._id,
-      productType: productType,
-    }).populate([
-      {
-        path: "product",
-        select: "-productVariant",
-      },
-      {
-        path: "variant",
-        select: "-product",
-      },
-    ]);
-
-    if (!cartItemsForUser) {
-      return res.status(400).json({ message: "No items on cart" });
-    }
-
-    let shippingPrice = 0;
-
-    // TODO: Still NEED to handle out of stock products
-
-    const paymentObject = cartItemsForUser.reduce(
-      (pay, cartItem) => {
-        let totalPrice; // price for one cart item
-        const Title = cartItem.product.title;
-
-        // if type is buy and product have variants (diffent color different size etc etc)
-        if (productType === "buy" && !!cartItem.variant) {
-          const Price = cartItem.variant.discountedPrice;
-          const Quantity = cartItem.quantity;
-          totalPrice = Price * Quantity;
-
-          shippingPrice += cartItem.variant.shippingPrice;
-        }
-        // else if type is buy and product does not have variants (diffent color different size etc etc)
-        else if (productType === "buy" && !cartItem.variant) {
-          const Price = cartItem.product.discountedPrice;
-          const Quantity = cartItem.quantity;
-          totalPrice = Price * Quantity;
-
-          shippingPrice += cartItem.product.shippingPrice;
-        }
-        // else if type is rent and product does not have variants (diffent color different size etc etc)
-        else if (productType === "rent" && !!cartItem.variant) {
-          const Price = cartItem.variant.rentingPrice;
-          const Quantity = cartItem.quantity;
-          const RentDays = cartItem.rentDays;
-          totalPrice = Price * Quantity * RentDays;
-
-          shippingPrice += cartItem.variant.shippingPrice;
-        }
-        // else if type is rent and product does not have variants (diffent color different size etc etc)
-        else if (productType === "rent" && !cartItem.variant) {
-          const Price = cartItem.product.rentingPrice;
-          const Quantity = cartItem.quantity;
-          const RentDays = cartItem.rentDays;
-          totalPrice = Price * Quantity * RentDays;
-
-          shippingPrice += cartItem.product.shippingPrice;
-        }
-
-        return {
-          amount: pay.amount + totalPrice,
-          productinfo: [...pay.productinfo, Title],
-        };
-      },
-      { amount: 0, productinfo: [] }
-    );
-
-    // if (!!appliedCouponID) {
-    //   const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
-
-    //   if (!!appliedCoupon) {
-    //     const discountedPrice = appliedCoupon?.isPercentage
-    //       ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
-    //       : paymentObject.amount >
-    //           (appliedCoupon.minimumPayAmount || paymentObject.amount + 100)
-    //         ? appliedCoupon.off
-    //         : 0;
-
-    //     paymentObject.amount -= discountedPrice;
-    //   }
-    // }
-
-    const freeDeliveryAboveMinimumPurchase = true;
-    const freeDeliveryMinimumAmount = 500;
-    let shippingApplied = false;
-
-    if (
-      !(
-        freeDeliveryAboveMinimumPurchase &&
-        paymentObject.amount >= freeDeliveryMinimumAmount
-      )
-    ) {
-      paymentObject.amount += shippingPrice;
-      shippingApplied = true;
-    }
-
-    const paymentTransactionID = "R_" + uuidv4();
-
-    const orderGroupID = uuidv4();
-
-    let txnAndOrderIdInsertedCartItems;
-
-    txnAndOrderIdInsertedCartItems = cartItemsForUser.map((item) => {
-      const createdOrder = {
-        ...item,
-
-        product: item.product._id,
-        user: req.user._id,
-
-        // order related
-        orderGroupID: orderGroupID,
-        paymentTxnId: paymentTransactionID,
-
-        // product details
-        title: item.product.title,
-
-        quantity: item.quantity,
-        rentDays: item.rentDays,
-        orderType: "rent",
-
-        address: null, // TODO: Maybe later on we can add the address as well for now its not needed
-
-        center: centerId,
-
-        orderStatus: "On Hold",
-        paymentMode: "COC",
-        shipmentType: "self_pickup",
-      };
-
-      if (!!item.variant) {
-        createdOrder.previewImage = item.variant.previewImage;
-        createdOrder.price =
-          item.variant.rentingPrice * item.rentDays * item.quantity;
-        // createdOrder.shippingPrice = item.variant.shippingPrice;
-
-        createdOrder.color = item.variant.color;
-        createdOrder.size = item.variant.size;
-      } else {
-        createdOrder.previewImage = item.product.previewImage;
-        createdOrder.price =
-          item.product.rentingPrice * item.rentDays * item.quantity;
-        // createdOrder.shippingPrice = item.product.shippingPrice;
-
-        createdOrder.color = null;
-        createdOrder.size = null;
+      if (!productType) {
+        return res.status(400).json({ message: "Product Type Not Found" });
       }
 
-      return createdOrder;
-    });
+      const centerId = req.query?.centerId;
 
-    // insert order for user
-    const orders = await Order.insertMany(txnAndOrderIdInsertedCartItems);
-    if (!!orders) {
-      // const cartRemoved = await Cart.deleteMany({
-      //   user: userDetails._id,
-      //   productType: productType,
-      // });
+      if (!centerId) {
+        return res.status(400).json({ message: "Center not selected" });
+      }
 
-      await PaymentTransModel.create({
-        orderGroupID,
-        paymentTransactionID: paymentTransactionID,
+      // TODO: May be usefull in future time
+      // const address = req.body?.address;
+
+      // if (!address) {
+      //   return res.status(400).json({ message: "Address missing" });
+      // }
+
+      // const appliedCouponID = req?.query?.coupon;
+
+      const cartItemsForUser = await Cart.find({
         user: req.user._id,
-        order: orders.map((item) => item._id),
+        productType: productType,
+      }).populate([
+        {
+          path: "product",
+          select: "-productVariant",
+        },
+        {
+          path: "variant",
+          select: "-product",
+        },
+      ]);
 
-        //! Status of Payment
-        paymentStatus: "COC",
+      if (!cartItemsForUser) {
+        return res.status(400).json({ message: "No items on cart" });
+      }
 
-        //! PRICE related keys
-        shippingPrice: !!shippingApplied ? shippingPrice : 0,
-        subTotalPrice:
-          paymentObject.amount - (!!shippingApplied ? shippingPrice : 0),
-        totalPrice: paymentObject.amount,
+      let shippingPrice = 0;
+
+      // TODO: Still NEED to handle out of stock products
+
+      const paymentObject = cartItemsForUser.reduce(
+        (pay, cartItem) => {
+          let totalPrice; // price for one cart item
+          const Title = cartItem.product.title;
+
+          // if type is buy and product have variants (diffent color different size etc etc)
+          if (productType === "buy" && !!cartItem.variant) {
+            const Price = cartItem.variant.discountedPrice;
+            const Quantity = cartItem.quantity;
+            totalPrice = Price * Quantity;
+
+            shippingPrice += cartItem.variant.shippingPrice;
+          }
+          // else if type is buy and product does not have variants (diffent color different size etc etc)
+          else if (productType === "buy" && !cartItem.variant) {
+            const Price = cartItem.product.discountedPrice;
+            const Quantity = cartItem.quantity;
+            totalPrice = Price * Quantity;
+
+            shippingPrice += cartItem.product.shippingPrice;
+          }
+          // else if type is rent and product does not have variants (diffent color different size etc etc)
+          else if (productType === "rent" && !!cartItem.variant) {
+            const Price = cartItem.variant.rentingPrice;
+            const Quantity = cartItem.quantity;
+            const RentDays = cartItem.rentDays;
+            totalPrice = Price * Quantity * RentDays;
+
+            shippingPrice += cartItem.variant.shippingPrice;
+          }
+          // else if type is rent and product does not have variants (diffent color different size etc etc)
+          else if (productType === "rent" && !cartItem.variant) {
+            const Price = cartItem.product.rentingPrice;
+            const Quantity = cartItem.quantity;
+            const RentDays = cartItem.rentDays;
+            totalPrice = Price * Quantity * RentDays;
+
+            shippingPrice += cartItem.product.shippingPrice;
+          }
+
+          return {
+            amount: pay.amount + totalPrice,
+            productinfo: [...pay.productinfo, Title],
+          };
+        },
+        { amount: 0, productinfo: [] },
+      );
+
+      // if (!!appliedCouponID) {
+      //   const appliedCoupon = await Coupon.findOne({ _id: appliedCouponID });
+
+      //   if (!!appliedCoupon) {
+      //     const discountedPrice = appliedCoupon?.isPercentage
+      //       ? (paymentObject.amount / 100) * parseInt(appliedCoupon.off) || 0
+      //       : paymentObject.amount >
+      //           (appliedCoupon.minimumPayAmount || paymentObject.amount + 100)
+      //         ? appliedCoupon.off
+      //         : 0;
+
+      //     paymentObject.amount -= discountedPrice;
+      //   }
+      // }
+
+      const freeDeliveryAboveMinimumPurchase = true;
+      const freeDeliveryMinimumAmount = 500;
+      let shippingApplied = false;
+
+      if (
+        !(
+          freeDeliveryAboveMinimumPurchase &&
+          paymentObject.amount >= freeDeliveryMinimumAmount
+        )
+      ) {
+        paymentObject.amount += shippingPrice;
+        shippingApplied = true;
+      }
+
+      const paymentTransactionID = "R_" + uuidv4();
+
+      const orderGroupID = uuidv4();
+
+      let txnAndOrderIdInsertedCartItems;
+
+      txnAndOrderIdInsertedCartItems = cartItemsForUser.map((item) => {
+        const createdOrder = {
+          ...item,
+
+          product: item.product._id,
+          user: req.user._id,
+
+          // order related
+          orderGroupID: orderGroupID,
+          paymentTxnId: paymentTransactionID,
+
+          // product details
+          title: item.product.title,
+
+          quantity: item.quantity,
+          rentDays: item.rentDays,
+          orderType: "rent",
+
+          address: null, // TODO: Maybe later on we can add the address as well for now its not needed
+
+          center: centerId,
+
+          orderStatus: "On Hold",
+          paymentMode: "COC",
+          shipmentType: "self_pickup",
+        };
+
+        if (!!item.variant) {
+          createdOrder.previewImage = item.variant.previewImage;
+          createdOrder.price =
+            item.variant.rentingPrice * item.rentDays * item.quantity;
+          // createdOrder.shippingPrice = item.variant.shippingPrice;
+
+          createdOrder.color = item.variant.color;
+          createdOrder.size = item.variant.size;
+        } else {
+          createdOrder.previewImage = item.product.previewImage;
+          createdOrder.price =
+            item.product.rentingPrice * item.rentDays * item.quantity;
+          // createdOrder.shippingPrice = item.product.shippingPrice;
+
+          createdOrder.color = null;
+          createdOrder.size = null;
+        }
+
+        return createdOrder;
       });
 
-      const center = await Center.findById(centerId).populate("user");
+      // insert order for user
+      const orders = await Order.insertMany(txnAndOrderIdInsertedCartItems);
+      if (!!orders) {
+        // const cartRemoved = await Cart.deleteMany({
+        //   user: userDetails._id,
+        //   productType: productType,
+        // });
 
-      await sendMail({
-        from: `"Savero" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
-        to: center.user?.email, // list of receivers
-        // bcc: "nishalbarman@gmail.com", // can be the admin email address
-        subject: "Savero: New Rent Order Recieved", // Subject line
-        html: `<html>
+        await PaymentTransModel.create({
+          orderGroupID,
+          paymentTransactionID: paymentTransactionID,
+          user: req.user._id,
+          order: orders.map((item) => item._id),
+
+          //! Status of Payment
+          paymentStatus: "COC",
+
+          //! PRICE related keys
+          shippingPrice: !!shippingApplied ? shippingPrice : 0,
+          subTotalPrice:
+            paymentObject.amount - (!!shippingApplied ? shippingPrice : 0),
+          totalPrice: paymentObject.amount,
+        });
+
+        const center = await Center.findById(centerId).populate("user");
+
+        await sendMail({
+          from: `"Savero" <${process.env.SENDER_EMAIL_ADDRESS}>`, // sender address
+          to: center.user?.email, // list of receivers
+          // bcc: "nishalbarman@gmail.com", // can be the admin email address
+          subject: "Savero: New Rent Order Recieved", // Subject line
+          html: `<html>
                 <body>
                   <div style="width: 100%; padding: 5px 0px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid rgb(0,0,0,0.3)">
                     <h2>New Rent Order: <span style="font-size: 18px; font-weight: normal">${orderGroupID}</span></h2>
@@ -279,30 +282,31 @@ router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
                   </div>
                 </body>
               </html>`, // html body
-      });
+        });
 
-      const orderedProductIds = orders.map((order) => order.product);
-      await Product.updateMany(
-        {
-          _id: { $in: orderedProductIds },
-        },
-        {
-          $inc: { rentTotalOrders: 1 },
-        }
-      );
+        const orderedProductIds = orders.map((order) => order.product);
+        await Product.updateMany(
+          {
+            _id: { $in: orderedProductIds },
+          },
+          {
+            $inc: { rentTotalOrders: 1 },
+          },
+        );
 
-      return res.status(200).json({
-        paymentTransactionId: paymentTransactionID,
-        message: "Order Placed!",
-      });
+        return res.status(200).json({
+          paymentTransactionId: paymentTransactionID,
+          message: "Order Placed!",
+        });
+      }
+
+      return res.status(200).json({ message: "Order Could Not Be Placed!" });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status: false, message: error.message });
     }
-
-    return res.status(200).json({ message: "Order Could Not Be Placed!" });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status: false, message: error.message });
-  }
-});
+  },
+);
 
 //! CURRENTLY NOT IN USE
 router.patch("/", async (req, res) => {

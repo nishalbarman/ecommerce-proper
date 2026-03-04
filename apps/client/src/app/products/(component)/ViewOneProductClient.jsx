@@ -356,7 +356,7 @@ export default function ViewOneProductClient({ initialProductData }) {
     setIsBying(true);
 
     const queryParams = new URLSearchParams();
-    queryParams.set("productSlug", product?._id);
+    // queryParams.set("productSlug", product?._id);
     queryParams.set("quantity", quantity.toString());
     queryParams.set("productType", product?.type || "buy");
 
@@ -367,7 +367,7 @@ export default function ViewOneProductClient({ initialProductData }) {
     //   queryParams.set("rentDays", rentDays.toString());
     // }
 
-    navigate.push(`/buy-single?${queryParams.toString()}`);
+    navigate.push(`/buy-single/${product?.slug}?${queryParams.toString()}`);
   };
 
   const images = (() => {

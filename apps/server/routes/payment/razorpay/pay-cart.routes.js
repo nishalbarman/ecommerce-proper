@@ -25,131 +25,137 @@ const razorpayInstance = new RazorPay({
   key_secret: RAZORPAY_SECRET,
 });
 
-router.post("/:productType", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const productType = req.params?.productType || "buy";
-    const address = req.body?.address;
+router.post(
+  "/:productType",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productType = req.params?.productType || "buy";
+      const address = req.body?.address;
 
-    const userDetails = req.user;
+      const userDetails = req.user;
 
-    if (!productType || !address) {
-      return res.status(403).json({ message: "Bad Request" });
-    }
+      if (!productType || !address) {
+        return res.status(403).json({ message: "Bad Request" });
+      }
 
-    const appliedCouponID = req.query.coupon || null;
-    console.log("Applied coupon id is: : ", appliedCouponID);
+      const appliedCouponID = req.query.coupon || null;
+      console.log("Applied coupon id is: : ", appliedCouponID);
 
-    const cartItemsForUser = await Cart.find({
-      user: userDetails._id,
-      productType: productType,
-    }).populate([
-      {
-        path: "product",
-        select: "-productVariant",
-      },
-      {
-        path: "variant",
-        select: "-product",
-      },
-    ]);
+      const cartItemsForUser = await Cart.find({
+        user: userDetails._id,
+        productType: productType,
+      }).populate([
+        {
+          path: "product",
+          select: "-productVariant",
+        },
+        {
+          path: "variant",
+          select: "-product",
+        },
+      ]);
 
-    if (!cartItemsForUser) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
+      if (!cartItemsForUser) {
+        return res.status(400).json({ message: "Cart is empty" });
+      }
 
-    // TODO: Still NEED to handle out of stock products
+      // TODO: Still NEED to handle out of stock products
 
-    const {
-      cartIds,
-      productNames,
-      MRP,
-      saleDiscountedPrice,
-      totalSaleDiscount,
-      shippingPrice,
-      shippingApplied,
-      couponDiscount,
-      finalOrderPrice,
-    } = await calculateCart({
-      cartItems: cartItemsForUser,
-      productType,
-      couponId: appliedCouponID,
-    });
+      const {
+        cartIds,
+        productNames,
+        MRP,
+        saleDiscountedPrice,
+        totalSaleDiscount,
+        shippingPrice,
+        shippingApplied,
+        couponDiscount,
+        finalOrderPrice,
+      } = await calculateCart({
+        cartItems: cartItemsForUser,
+        productType,
+        couponId: appliedCouponID,
+      });
 
-    const addressDocument = await UserAddress.findById(address);
+      const addressDocument = await UserAddress.findById(address);
 
-    const user = await User.findById(userDetails._id);
+      const user = await User.findById(userDetails._id);
 
-    // const paymentTxnId = uuidv4();
-    // const orderGroupID = uuidv4();
-    const paymentTxnId = generateUniqueId("pt");
-    const orderGroupID = generateUniqueId("od");
+      // const paymentTxnId = uuidv4();
+      // const orderGroupID = uuidv4();
+      const paymentTxnId = generateUniqueId("pt");
+      const orderGroupID = generateUniqueId("od");
 
-    console.log("What is the payment final amount", +finalOrderPrice);
+      console.log("What is the payment final amount", +finalOrderPrice);
 
-    // create one razor pay order with the amount
-    const razorpayOrder = await razorpayInstance.orders.create({
-      amount: parseInt(finalOrderPrice * 100),
-      currency: "INR",
-      receipt: paymentTxnId,
-      partial_payment: false,
-      notes: {
+      // create one razor pay order with the amount
+      const razorpayOrder = await razorpayInstance.orders.create({
+        amount: parseInt(finalOrderPrice * 100),
+        currency: "INR",
+        receipt: paymentTxnId,
+        partial_payment: false,
+        notes: {
+          orderGroupID,
+          user: `${userDetails._id.toString()}, ${user.name.toString()}`,
+          phoneNumber: user.mobileNo.toString(),
+          email: user.email.toString(),
+          address: address.toString(),
+          cartProductIds: cartIds.join(","),
+          productIds: cartItemsForUser
+            .map((item) => item.product._id)
+            .join(","),
+          description: productNames,
+          paymentTxnId: paymentTxnId,
+          MRP,
+          saleDiscountedPrice,
+          totalSaleDiscount,
+          shippingPrice,
+          shippingApplied,
+          couponDiscount,
+          finalOrderPrice,
+        },
+      });
+
+      console.log(razorpayOrder);
+
+      const orders = await createOrderWithTransaction({
+        cartItemsForUser,
+
+        userId: userDetails._id,
+        addressDocument,
+
         orderGroupID,
-        user: `${userDetails._id.toString()}, ${user.name.toString()}`,
-        phoneNumber: user.mobileNo.toString(),
-        email: user.email.toString(),
-        address: address.toString(),
-        cartProductIds: cartIds.join(","),
-        productIds: cartItemsForUser.map((item) => item.product._id).join(","),
-        description: productNames,
-        paymentTxnId: paymentTxnId,
-        MRP,
-        saleDiscountedPrice,
-        totalSaleDiscount,
-        shippingPrice,
-        shippingApplied,
-        couponDiscount,
-        finalOrderPrice,
-      },
-    });
+        paymentTxnId,
 
-    console.log(razorpayOrder);
+        pricingDetails: {
+          MRP,
+          saleDiscountedPrice,
+          totalSaleDiscount,
+          shippingPrice,
+          shippingApplied,
+          couponDiscount,
+          finalOrderPrice,
+        },
 
-    const orders = await createOrderWithTransaction({
-      cartItemsForUser,
+        appliedCouponID,
+        orderType: "buy",
+        gateway: "Razorpay",
+      });
 
-      userId: userDetails._id,
-      addressDocument,
-
-      orderGroupID,
-      paymentTxnId,
-
-      pricingDetails: {
-        MRP,
-        saleDiscountedPrice,
-        totalSaleDiscount,
-        shippingPrice,
-        shippingApplied,
-        couponDiscount,
-        finalOrderPrice,
-      },
-
-      appliedCouponID,
-      orderType: "buy",
-      gateway: "Razorpay",
-    });
-
-    return res.status(200).json({
-      razorpayOrderId: razorpayOrder.id,
-      amount: razorpayOrder.amount,
-      name: userDetails.name,
-      email: userDetails.email,
-      mobileNo: userDetails.mobileNo,
-      productinfo: productNames,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ status: false, message: error.message });
-  }
-});
+      return res.status(200).json({
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        name: userDetails.name,
+        email: userDetails.email,
+        mobileNo: userDetails.mobileNo,
+        productinfo: productNames,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ status: false, message: error.message });
+    }
+  },
+);
 
 module.exports = router;

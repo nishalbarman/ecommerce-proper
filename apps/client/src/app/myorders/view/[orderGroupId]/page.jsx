@@ -109,20 +109,21 @@ const OrderViewPage = ({ params }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case "Delivered":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 border border-green-300";
       case "Cancelled":
+      case "UnableToFulfill":
       case "Rejected":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 border border-red-300";
       case "On Hold":
       case "Pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 border border-yellow-300";
       case "On Progress":
       case "Accepted":
       case "On The Way":
       case "PickUp Ready":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 border border-blue-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border border-gray-300";
     }
   };
 
@@ -171,10 +172,28 @@ const OrderViewPage = ({ params }) => {
                       Placed on {formatDate(orderGroup?.createdAt)}
                     </p>
                   </div>
-                  <span
-                    className={`text-nowrap px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(orderGroup?.orderStatus)}`}>
-                    {orderGroup?.orderStatus}
-                  </span>
+                  <div className="flex flex-row items-center gap-2">
+                    {orderGroup?.orderStatus === "On The Way" &&
+                      orderGroup?.trackingUrl && (
+                        <div className="w-full">
+                          <Link
+                            href={orderGroup?.trackingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-nowrap text-xs px-3 py-1 text-sm text-primary rounded-full bg-red-50 border border-red-300 w-full"
+                            title="Track you order by clicking on this link.">
+                            Track Your Order
+                          </Link>
+                        </div>
+                      )}
+
+                    <span
+                      className={`text-nowrap px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(orderGroup?.orderStatus)}`}>
+                      {orderGroup?.orderStatus === "UnableToFulfill"
+                        ? "Unable To Fulfill"
+                        : orderGroup?.orderStatus}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -188,7 +207,7 @@ const OrderViewPage = ({ params }) => {
                     orderData?.data?.map((item, index) => (
                       <div
                         key={item._id || index}
-                        className="relative bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
+                        className="relative bg-white rounded-xl border border-gray-200 transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
                         <div>
                           {[
                             "On Hold",
@@ -198,7 +217,12 @@ const OrderViewPage = ({ params }) => {
                           ].includes(item.orderStatus) && (
                             <div className="">
                               <button
-                                onClick={() => handleCancelOrderItem(item._id, item.orderGroupID)}
+                                onClick={() =>
+                                  handleCancelOrderItem(
+                                    item._id,
+                                    item.orderGroupID,
+                                  )
+                                }
                                 title="Cancel"
                                 disabled={cancellingItemId === item._id}
                                 className={`absolute top-1 right-1 w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}>
@@ -233,6 +257,12 @@ const OrderViewPage = ({ params }) => {
                               <p
                                 className={`absolute top-1 right-1 mt-1 mb-2 bg-red-100 text-red-800 rounded-xl py-1 px-3 text-xs w-fit`}>
                                 Cancelled
+                              </p>
+                            )}
+                            {item.orderStatus === "UnableToFulfill" && (
+                              <p
+                                className={`absolute top-1 right-1 mt-1 mb-2 bg-red-100 text-red-800 rounded-xl py-1 px-3 text-xs w-fit`}>
+                                Unable To Fulfill
                               </p>
                             )}
                             <div className="flex justify-between items-start">
@@ -353,6 +383,18 @@ const OrderViewPage = ({ params }) => {
           {/* Right Column - Sticky Payment Summary */}
           <div className="lg:w-100 flex-shrink-0">
             <div className="sticky top-6">
+              {/* {orderGroup?.trackingUrl && (
+                <div className="mt-5 w-full mb-4">
+                  <Link
+                    href={orderGroup?.trackingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary rounded-md bg-red-50 border border-primary px-8 py-3 w-full">
+                    Track Order
+                  </Link>
+                </div>
+              )} */}
+
               <div className="bg-white shadow rounded-lg overflow-hidden mb-4">
                 <div className="px-6 py-4 max-sm:px-3 border-b border-gray-200">
                   <h2 className="text-lg font-medium text-gray-900">
@@ -377,10 +419,10 @@ const OrderViewPage = ({ params }) => {
                         <FaMapMarkerAlt className="mr-2" /> Shipping Address
                       </h3>
                       {orderGroup?.address ? (
-                        <div className="mt-1 max-sm:text-sm text-md text-gray-900 border border-red-500 bg-red-50 rounded-md p-4 mt-3">
-                          <p className="mb-1 font-bold">
+                        <div className="mt-1 max-sm:text-sm text-md text-gray-900 border border-gray-300 rounded-md p-4 mt-3">
+                          <p className="mb-1">
                             {orderGroup?.address.fullAddress?.fullName},{" "}
-                            <span className="font-normal">
+                            <span>
                               {orderGroup?.address.fullAddress?.phone}
                             </span>
                           </p>
@@ -516,15 +558,15 @@ const OrderViewPage = ({ params }) => {
                 </div>
               )}
 
-              {orderGroup?.trackingLink && (
+              {orderGroup?.trackingUrl && (
                 <div className="mt-5 w-full">
-                  <a
-                    href={orderGroup?.trackingLink}
+                  <Link
+                    href={orderGroup?.trackingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary rounded-md bg-red-50 border border-primary px-8 py-3 w-full">
                     Track Order
-                  </a>
+                  </Link>
                 </div>
               )}
             </div>

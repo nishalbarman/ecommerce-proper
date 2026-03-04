@@ -99,7 +99,7 @@ const TransactionsTable = () => {
         size: 150,
       },
     ],
-    []
+    [],
   );
 
   const [value, setValue] = React.useState<Dayjs | null>(dayjs(Date.now()));
@@ -107,7 +107,7 @@ const TransactionsTable = () => {
   const table = useMaterialReactTable({
     columns,
     data, //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
-
+    height: "100%",
     enableHiding: false,
 
     renderTopToolbarCustomActions: () => (

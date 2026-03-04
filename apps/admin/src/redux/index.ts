@@ -18,6 +18,7 @@ export * from "./apis/roleApi";
 export * from "./apis/productApi";
 export * from "./apis/newArrivalApi";
 export * from "./apis/couponApi";
+export * from "./apis/orderApi";
 
 export * from "./hooks";
 export * from "./store";

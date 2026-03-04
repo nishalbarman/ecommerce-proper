@@ -8,7 +8,7 @@ const {
 
 const productSchema = new mongoose.Schema(
   {
-    slug: { type: String, unique: true, required: true },
+    slug: { type: String, unique: true, required: true, index: true },
 
     previewImage: {
       imageUrl: { type: String, required: true },
@@ -83,6 +83,7 @@ productSchema.index({ "$**": "text" });
 
 const productVariantSchema = new mongoose.Schema(
   {
+    slug: { type: String, required: true, unique: true, index: true },
     product: { type: mongoose.Types.ObjectId, ref: "products" },
 
     previewImage: {
@@ -110,6 +111,14 @@ const productVariantSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+// productSchema.index({ "$**": "text" });
+// productSchema.index({ slug: 1 });
+productVariantSchema.index({ "$**": "text" });
+productVariantSchema.index({ product: 1, size: 1, color: 1 }, { unique: true });
+productVariantSchema.index({ product: 1 });
+// productVariantSchema.index({ size: 1 });
+// productVariantSchema.index({ color: 1 });
 
 const Product =
   mongoose.models.products || mongoose.model("products", productSchema);

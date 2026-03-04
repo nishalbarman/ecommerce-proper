@@ -91,7 +91,7 @@ export type OrderGroup = {
   shipmentType: string;
   shippingApplied: boolean;
   store: any;
-  trackingLink: any;
+  trackingUrl: any;
 
   _id: string;
   [key: string]: any;
@@ -194,10 +194,10 @@ export type Role = {
   _id?: string;
   roleName: string;
   roleNumber: string;
+  roleSlug?: string;
   createdAt?: string;
   updatedAt?: string;
   __v?: number | undefined;
-  roleKey?: string;
 };
 
 export type Product = {

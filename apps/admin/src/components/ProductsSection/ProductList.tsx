@@ -308,7 +308,7 @@ const ListProduct = () => {
               Previous
             </button>
 
-            <span>
+            <span className="font-bold text-sm">
               Page {pagination.pageIndex + 1} of {totalPages}
             </span>
 

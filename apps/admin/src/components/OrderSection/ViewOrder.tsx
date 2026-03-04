@@ -1,13 +1,23 @@
 import { BaseSyntheticEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
-import { useAppSelector } from "../../redux/index";
+import { useAppDispatch, useAppSelector } from "../../redux/index";
 import { Image, OrderGroup, PaymentSummary } from "../../types";
 import stopSign from "../../assets/stop-sign.png";
 import cAxios from "../../axios/cutom-axios";
 import { Link } from "react-router-dom";
 import { MdCancel } from "react-icons/md";
-import { useCancelOrderItemMutation } from "@/redux/apis/orderApi";
+import { GiStopSign } from "react-icons/gi";
+import { BsCash } from "react-icons/bs";
+import { TbMail, TbNotes, TbPhone, TbRefresh, TbUser } from "react-icons/tb";
+
+import {
+  orderApi,
+  useCancelOrderItemMutation,
+  useGetOrderGroupDetailsQuery,
+} from "@/redux";
+
+import { FaIndianRupeeSign } from "react-icons/fa6";
 
 type StatusStyleValue = {
   backgroundColor: string;
@@ -56,7 +66,7 @@ const statusStyles: { [key: string]: StatusStyleValue } = {
     border: "1px solid #2AAABF",
     color: "#2AAABF",
   },
-  Rejected: {
+  ["Unable To Fulfill"]: {
     backgroundColor: "#f7eae9",
     border: "1px solid #db3125",
     color: "#a11b12",
@@ -69,25 +79,21 @@ interface OrderStatusProps {
 
 const OrderStatus: React.FC<OrderStatusProps> = ({ status }) => {
   const style: StatusStyleValue =
-    statusStyles[status.replace(/\s+/g, "")] || statusStyles.Rejected;
+    statusStyles[status.replace(/\s+/g, "")] ||
+    statusStyles["Unable To Fulfill"];
 
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        padding: "3px 7px",
-        borderRadius: "4px",
         backgroundColor: style.backgroundColor,
         border: style.border,
-      }}>
+      }}
+      className="flex justify-center px-2 py-1 rounded-md">
       <span
         style={{
           color: style.color,
-          fontSize: "16px",
-          fontWeight: "bold",
-        }}>
+        }}
+        className="text-xs font-bold">
         {status}
       </span>
     </div>
@@ -98,44 +104,65 @@ function ViewSingleOrder() {
   const { jwtToken } = useAppSelector((state) => state.auth);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [groupOrderId, setGroupOrderId] = useState<string | null>();
 
   const [isLoading, setIsOrderLoading] = useState(true);
 
-  useEffect(() => {
-    if (!!searchParams.get("groupId"))
-      setGroupOrderId(searchParams.get("groupId"));
-  }, [searchParams]);
+  const dispatch = useAppDispatch();
+
+  // useEffect(() => {
+  //   if (!!searchParams.get("groupId"))
+  //     setGroupOrderId(searchParams.get("groupId"));
+  // }, [searchParams]);
 
   const [isGroupOrderFetching, setIsGroupOrderFetching] = useState(true);
-  const [groupOrderDetails, setGroupOrderDetails] = useState<OrderGroup>();
+  // const [orderGroup, setorderGroup] = useState<OrderGroup>();
 
-  const fetchGroupOrderDetails = async () => {
-    try {
-      if (!groupOrderId) return;
-      setIsGroupOrderFetching(true);
-      const response = await cAxios.get(
-        `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        },
-      );
-      setGroupOrderDetails(response.data.orderGroup);
-      console.log("Grouped order", response.data.orderGroup);
-    } catch (error: any) {
-      toast.error(error.response?.message || error.message);
-      console.error(error);
-    } finally {
-      setIsGroupOrderFetching(false);
-      setIsOrderLoading(false);
-    }
-  };
+  // const fetchorderGroup = async () => {
+  //   try {
+  //     if (!groupOrderId) return;
+  //     setIsGroupOrderFetching(true);
+  //     const response = await cAxios.get(
+  //       `${process.env.VITE_APP_API_URL}/orders/details/${groupOrderId}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${jwtToken}`,
+  //         },
+  //       },
+  //     );
+  //     setorderGroup(response.data.orderGroup);
+
+  //     console.log("Grouped order", response.data.orderGroup);
+  //   } catch (error: any) {
+  //     toast.error(error.response?.message || error.message);
+  //     console.error(error);
+  //   } finally {
+  //     setIsGroupOrderFetching(false);
+  //     setIsOrderLoading(false);
+  //   }
+  // };
+
+  // Fix 1: type groupOrderId properly
+  const [groupOrderId, setGroupOrderId] = useState<string>(
+    searchParams.get("groupId") ?? "",
+  );
+
+  // Fix 2: use skip correctly with empty string
+  const {
+    data: orderGroup,
+    error: orderGroupRtkError,
+    isLoading: isOrderGroupLoading,
+    isSuccess: isOrderGroupSuccess,
+  } = useGetOrderGroupDetailsQuery(groupOrderId, {
+    // skip: !groupOrderId, // skips when empty string — this is fine
+  });
 
   useEffect(() => {
-    fetchGroupOrderDetails();
-  }, [groupOrderId]);
+    if (orderGroup?.trackingUrl) {
+      setTrackingUrl(orderGroup?.trackingUrl || "");
+    }
+  }, [orderGroup]);
+
+  console.log("Order Group  --> ", orderGroup);
 
   const [summary, setSummary] = useState<PaymentSummary | undefined>();
 
@@ -164,13 +191,13 @@ function ViewSingleOrder() {
   }, [groupOrderId]);
 
   const [orderUpdatableStatus, setOrderUpdatableStatus] = useState("");
-  const [groupTrackingLink, setGroupTrackingLink] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
 
   const handleUpdateOrderStatus = async () => {
     if (!orderUpdatableStatus) return toast.info("Order status not selected");
     const toastId = toast.loading("Please wait.. sending your request..");
     try {
-      if (orderUpdatableStatus === "On The Way" && !groupTrackingLink)
+      if (orderUpdatableStatus === "On The Way" && !trackingUrl)
         return toast.update(toastId, {
           render: "Fill the order tracking link",
           type: "info",
@@ -183,6 +210,7 @@ function ViewSingleOrder() {
         {
           order: groupOrderId,
           orderStatus: orderUpdatableStatus,
+          trackingUrl: trackingUrl,
         },
         {
           headers: {
@@ -191,7 +219,9 @@ function ViewSingleOrder() {
         },
       );
 
-      await fetchGroupOrderDetails();
+      dispatch(
+        orderApi.util.invalidateTags([{ type: "Order", id: groupOrderId }]),
+      );
       toast.update(toastId, {
         render: response.data.message || "Order status updated",
         type: "success",
@@ -211,10 +241,13 @@ function ViewSingleOrder() {
   };
 
   const [cancelOrderItem] = useCancelOrderItemMutation();
-  
+
   const [cancellingItemId, setCancellingItemId] = useState<string | null>(null);
 
-  const handleCancelOrderItem = async (itemId, orderGroupID) => {
+  const handleCancelOrderItem = async (
+    itemId: string,
+    orderGroupID: string,
+  ) => {
     if (!window.confirm("Are you sure you want to cancel this item?")) return;
 
     try {
@@ -222,21 +255,22 @@ function ViewSingleOrder() {
 
       await cancelOrderItem({ orderItemId: itemId, orderGroupID }).unwrap();
 
-      toast.success("Order item cancelled successfully");
+      toast.success("Order item cancelled");
 
-      // refetch(); // refresh data
+      // (); // refresh data
     } catch (error) {
+      console.error("Failed to cancel order item", error);
       toast.error(error?.data || "Failed to cancel order item");
     } finally {
       setCancellingItemId(null);
     }
   };
 
-  console.log("Group Order Details --> ", groupOrderDetails);
+  console.log("Group Order Details --> ", orderGroup);
   console.log("Payment Summary --> ", summary);
 
-  console.log("Grouped order", groupOrderDetails);
-
+  console.log("Grouped order", orderGroup);
+  // return null;
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
@@ -247,9 +281,9 @@ function ViewSingleOrder() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-2">
             <form
               onSubmit={(e: BaseSyntheticEvent) => {
-                e.preventDefault();
-                setGroupOrderDetails(undefined);
-                setSearchParams({ groupId: e.target.groupId.value.trim() });
+                const id = e.target.groupId.value.trim();
+                setGroupOrderId(id); // ← keep local state in sync
+                setSearchParams({ groupId: id });
               }}>
               <label htmlFor="groupId" className="block font-bold mb-2">
                 Order Group ID
@@ -273,13 +307,18 @@ function ViewSingleOrder() {
       </div>
 
       <div>
-        {isGroupOrderFetching ? (
+        {!groupOrderId ? (
+          <div className="text-center my-4">
+            Please provide a group ID to view order details.
+          </div>
+        ) : isOrderGroupLoading || isLoading ? (
+          // isLoading here is your summary loading state
           <div className="flex justify-center my-8">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
           </div>
-        ) : groupOrderDetails !== undefined && summary !== undefined ? (
+        ) : isOrderGroupSuccess && orderGroup && summary ? (
           <>
-            {!!Object.keys(groupOrderDetails).length &&
+            {!!Object.keys(orderGroup).length &&
             !!Object.keys(summary).length ? (
               <>
                 <div className="h-px bg-gray-300 my-4"></div>
@@ -290,64 +329,83 @@ function ViewSingleOrder() {
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                     <div>
-                      <div className="grid grid-cols-1 gap-4">
-                        {groupOrderDetails?.orders?.map((order) => (
+                      <div className="grid grid-cols-1 gap-4 sticky top-6">
+                        {orderGroup?.orders?.map((order) => (
                           <div
                             key={order._id}
                             className="bg-white rounded-lg shadow-md overflow-hidden relative border">
-                            {order.orderStatus === "Cancelled" && (
-                              <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-10 flex-col">
-                                <img
-                                  src={stopSign}
-                                  alt="stop-sign"
-                                  className="mr-4"
-                                />
-                                <strong className="text-red-500 font-bold text-lg transform text-center text-shadow">
-                                  Order Cancelled By User, Do not fullfill this
-                                  order
+                            {/* {order.orderStatus === "Cancelled" && (
+                              <div className="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-10 flex-col z-10">
+                                <GiStopSign size={100} color="red" />
+                                <strong className="text-black bg-white rounded-md px-2 font-bold text-lg transform text-center text-shadow">
+                                  This order has been cancelled, so you are not
+                                  supposed to fullfill this order.
                                 </strong>
                               </div>
-                            )}
+                            )} */}
                             <div className="bg-white px-4 py-3 flex justify-between items-center border border-t">
                               <div>
                                 <span className="text-gray-500">Order #</span>
                                 <span>{order._id}</span>
                               </div>
-                              <div className="flex flex-col justify-between">
+                              <div className="flex flex-row justify-between items-center gap-1">
                                 <OrderStatus status={order.orderStatus} />
+
+                                {order?.orderStatus === "Cancelled" &&
+                                  orderGroup.orderStatus !== "Cancelled" && (
+                                    <div className="flex items-center absolute bottom-2 right-2 gap-1">
+                                      <button
+                                        onClick={() =>
+                                          // handleCancelOrderItem(
+                                          //   order._id,
+                                          //   order.orderGroupID,
+                                          // )
+                                          console.log(
+                                            "Refund for order item",
+                                            order._id,
+                                          )
+                                        }
+                                        title="Refund"
+                                        // disabled={cancellingItemId === order._id}
+                                        className={`border border-blue-400 px-2 py-2 rounded-md w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center`}>
+                                        <BsCash
+                                          size={10}
+                                          className="text-red-500"
+                                        />
+                                        <span className="ml-1 text-black">
+                                          Process Refund
+                                        </span>
+                                      </button>
+                                    </div>
+                                  )}
+
+                                {order?.orderStatus !== "Cancelled" &&
+                                  order?.orderStatus !==
+                                    "Unable To Fulfill" && (
+                                    <div className="flex items-center">
+                                      <button
+                                        onClick={() =>
+                                          handleCancelOrderItem(
+                                            order._id,
+                                            order.orderGroupID,
+                                          )
+                                        }
+                                        title="Cancel"
+                                        // disabled={cancellingItemId === order._id}
+                                        className={`w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}>
+                                        <MdCancel
+                                          size={25}
+                                          className="text-red-500"
+                                        />
+                                      </button>
+                                    </div>
+                                  )}
                               </div>
                             </div>
 
                             <div
                               key={order._id}
                               className="relative bg-white rounded-xl transition-shadow duration-300 overflow-hidden mb-2">
-                              <div>
-                                {[
-                                  "On Hold",
-                                  "Pending",
-                                  "On Progress",
-                                  "Accepted",
-                                ].includes(order.orderStatus) && (
-                                  <div className="">
-                                    <button
-                                      onClick={() =>
-                                        handleCancelOrderItem(
-                                          order._id,
-                                          order.orderGroupID,
-                                        )
-                                      }
-                                      title="Cancel"
-                                      // disabled={cancellingItemId === order._id}
-                                      className={`absolute top-1 right-1 w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}>
-                                      <MdCancel
-                                        size={25}
-                                        className="text-red-500"
-                                      />
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-
                               {/* Main Cart Item */}
                               <div className="flex flex-col md:flex-row p-4 gap-4">
                                 {/* Product Image */}
@@ -370,12 +428,12 @@ function ViewSingleOrder() {
 
                                 {/* Product Details */}
                                 <div className="flex-1 flex flex-col">
-                                  {order.orderStatus === "Cancelled" && (
+                                  {/* {order.orderStatus === "Cancelled" && (
                                     <p
                                       className={`absolute top-1 right-1 mt-1 mb-2 bg-red-100 text-red-800 rounded-xl py-1 px-3 text-xs w-fit`}>
                                       Cancelled
                                     </p>
-                                  )}
+                                  )} */}
                                   <div className="flex justify-between items-start">
                                     <Link
                                       to={`/products/view?productSlug=${order?._id}`}
@@ -497,16 +555,24 @@ function ViewSingleOrder() {
                     <div className="relative">
                       <div className="xl:sticky xl:top-6 space-y-6">
                         <div className="bg-white rounded-lg shadow-md border">
-                          <div className="bg-white p-4 pb-0 flex items-center gap-2">
-                            <img
-                              src="https://st5.depositphotos.com/4226061/62815/v/450/depositphotos_628157962-stock-illustration-invoice-icon-payment-bill-invoice.jpg"
-                              alt="Update Status"
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                            <strong>Update Status</strong>
+                          <div className="flex justify-between bg-white p-4 pb-0 flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              <TbNotes size={20} />
+                              <strong className="mr-1">Update Status</strong>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <OrderStatus status={orderGroup.orderStatus} />
+                              <button onClick={()=>{
+                                resetOrderInfo();
+                              }} className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-sm cursor-pointer h-full">
+                                <TbRefresh className="animate-spin" />
+                                <span>Reset Order</span>
+                              </button>
+                            </div>
                           </div>
                           <div className="p-4">
-                            {groupOrderDetails.orderType === "rent" && (
+                            {orderGroup.orderType === "rent" && (
                               <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
                                 <div>
                                   This is a rent order, so collect cash upon
@@ -515,7 +581,7 @@ function ViewSingleOrder() {
                               </div>
                             )}
 
-                            {groupOrderDetails.orderType === "buy" && (
+                            {orderGroup.orderType === "buy" && (
                               <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
                                 <div>
                                   This is a buy order, so make sure that payment
@@ -523,66 +589,126 @@ function ViewSingleOrder() {
                                 </div>
                               </div>
                             )}
-                            <div className="mt-2">
-                              <strong>Update status of the order</strong>
-                              <div className="mt-2">
-                                <select
-                                  onChange={(e) =>
-                                    setOrderUpdatableStatus(e.target.value)
-                                  }
-                                  className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                                  <option value="">Select Status</option>
-                                  {groupOrderDetails.orderType === "rent" && (
-                                    <option value={"On Progress"}>
-                                      On Progress
-                                    </option>
-                                  )}
-                                  <option value={"Accepted"}>Accept</option>
-                                  <option value={"Rejected"}>Reject</option>
-                                  <option value={"On The Way"}>
-                                    On The Way
-                                  </option>
-                                  {groupOrderDetails.orderType === "buy" && (
-                                    <option value={"Delivered"}>
-                                      Delivered
-                                    </option>
-                                  )}
-                                  {groupOrderDetails.orderType === "rent" && (
-                                    <option value={"PickUp Ready"}>
-                                      PickUp Ready
-                                    </option>
-                                  )}
-                                </select>
-
-                                {orderUpdatableStatus === "On The Way" && (
-                                  <>
-                                    <div className="mt-4">
-                                      <label
-                                        htmlFor="trackingLink"
-                                        className="block font-bold mb-2">
-                                        Tracking Link
-                                      </label>
-                                      <input
-                                        id="trackingLink"
-                                        type="url"
-                                        placeholder="https://example.com/id-13"
-                                        value={groupTrackingLink}
-                                        onChange={(e) =>
-                                          setGroupTrackingLink(e.target.value)
-                                        }
-                                        className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                      />
-                                    </div>
-                                  </>
-                                )}
+                            {orderGroup.orderStatus === "Cancelled" ||
+                            orderGroup.orderStatus === "Unable To Fulfill" ? (
+                              <div className="">
+                                <div className="flex items-center border-gray-200 w-full mb-4 border border-gray-200 ">
+                                  <FaIndianRupeeSign
+                                    size={18}
+                                    className="w-10"
+                                  />
+                                  <input
+                                    className=" border-l border-gray-200 h-11 py-2 px-2 rounded-md outline-none  w-full"
+                                    placeholder="Enter refund amount"
+                                    defaultValue={
+                                      orderGroup?.pricingDetails
+                                        ?.groupFinalOrderPrice || 0
+                                    }
+                                  />
+                                </div>
 
                                 <button
-                                  onClick={handleUpdateOrderStatus}
-                                  className="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                  UPDATE
+                                  onClick={() =>
+                                    // handleCancelOrderItem(
+                                    //   order._id,
+                                    //   order.orderGroupID,
+                                    // )
+                                    console.log("Refund for order item")
+                                  }
+                                  title="Refund"
+                                  // disabled={cancellingItemId === order._id}
+                                  className={`border border-blue-400 bg-[#3B83F7] px-4 py-2 rounded-md w-fit text-sm font-medium text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}>
+                                  <BsCash size={15} className="text-white" />
+                                  <span className="ml-2 text-white font-bold">
+                                    Process Refund
+                                  </span>
                                 </button>
                               </div>
-                            </div>
+                            ) : (
+                              <div className="mt-2">
+                                <strong>Update status of the order</strong>
+                                <div className="mt-2">
+                                  <select
+                                    onChange={(e) =>
+                                      setOrderUpdatableStatus(e.target.value)
+                                    }
+                                    className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    defaultValue={orderGroup.orderStatus}>
+                                    <option value="">Select Status</option>
+                                    {orderGroup.orderType === "rent" && (
+                                      <option value={"On Progress"}>
+                                        On Progress
+                                      </option>
+                                    )}
+                                    <option value={"Accepted"}>Accept</option>
+                                    <option value={"Unable To Fulfill"}>
+                                      Reject
+                                    </option>
+                                    <option value={"On The Way"}>
+                                      On The Way
+                                    </option>
+                                    {orderGroup.orderType === "buy" && (
+                                      <option value={"Delivered"}>
+                                        Delivered
+                                      </option>
+                                    )}
+                                    {orderGroup.orderType === "rent" && (
+                                      <option value={"PickUp Ready"}>
+                                        PickUp Ready
+                                      </option>
+                                    )}
+                                  </select>
+
+                                  {orderUpdatableStatus === "On The Way" && (
+                                    <>
+                                      <div className="mt-4">
+                                        <label
+                                          htmlFor="trackingUrl"
+                                          className="block font-bold mb-2">
+                                          Tracking Url
+                                        </label>
+                                        <input
+                                          id="trackingUrl"
+                                          type="url"
+                                          placeholder="https://example.com/id-13"
+                                          value={trackingUrl}
+                                          onChange={(e) =>
+                                            setTrackingUrl(e.target.value)
+                                          }
+                                          className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+
+                                  {orderUpdatableStatus ===
+                                    "Unable To Fulfill" && (
+                                    <>
+                                      <div className="mt-4">
+                                        <label
+                                          htmlFor="unfulfillmentReason"
+                                          className="block font-bold mb-2">
+                                          Reason for unfulfillment
+                                        </label>
+                                        <textarea
+                                          id="unfulfillmentReason"
+                                          placeholder="Write a proper reason for unfulfillment. "
+                                          // value={unfulfillmentReason}
+                                          // onChange={(e) => setUnfulfillmentReason(e.target.value)}
+                                          className="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 min-h:70"
+                                        />
+                                      </div>
+                                    </>
+                                  )}
+
+                                  <button
+                                    onClick={handleUpdateOrderStatus}
+                                    className="mt-4 w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                                    UPDATE
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -593,7 +719,7 @@ function ViewSingleOrder() {
                             </div>
                           </div>
                           <div className="p-4">
-                            {groupOrderDetails.orderType === "rent" && (
+                            {orderGroup.orderType === "rent" && (
                               <div className="bg-red-100 border border-red-400 text-red-700 p-3 rounded mb-4">
                                 <div>
                                   This is a rent order, so collect cash upon
@@ -602,7 +728,7 @@ function ViewSingleOrder() {
                               </div>
                             )}
 
-                            {groupOrderDetails.orderType === "buy" && (
+                            {orderGroup.orderType === "buy" && (
                               <div className="bg-green-100 border border-green-400 text-green-700 p-3 rounded mb-4">
                                 <div>
                                   This is a buy order, so make sure that payment
@@ -659,7 +785,7 @@ function ViewSingleOrder() {
                                   </span>
                                 </div>
 
-                                {groupOrderDetails.orderType === "buy" && (
+                                {orderGroup.orderType === "buy" && (
                                   <>
                                     <div className="h-px bg-gray-300 my-4"></div>
                                     <div className="flex justify-between font-bold">
@@ -697,48 +823,36 @@ function ViewSingleOrder() {
                           </div>
                           <div className="p-4">
                             <div className="flex items-center gap-2">
-                              <img
-                                src="https://st5.depositphotos.com/4226061/62815/v/450/depositphotos_628157962-stock-illustration-invoice-icon-payment-bill-invoice.jpg"
-                                alt="Customer"
-                                className="w-10 h-10 rounded-full border border-black object-cover"
-                              />
+                              <TbNotes size={20} />
                               <span>
-                                {groupOrderDetails.totalDocumentCount} Order(s)
+                                {orderGroup.totalDocumentCount} Order(s)
                               </span>
                             </div>
                             <div className="h-px bg-gray-300 my-4"></div>
                             <div>
                               <strong>Ordered By</strong>
                               <div className="mt-2 flex items-center">
-                                <i className="fas fa-user text-gray-500"></i>
+                                <TbUser size={20} className="text-gray-500" />
                                 <span className="ml-2">
-                                  {
-                                    groupOrderDetails?.address?.fullAddress
-                                      ?.fullName
-                                  }
+                                  {orderGroup?.address?.fullAddress?.fullName}
                                 </span>
                               </div>
-                              <div className="flex items-center">
-                                <i className="fas fa-envelope text-gray-500"></i>
+                              <div className="flex items-center mt-1">
+                                <TbMail size={19} className="text-gray-500" />
                                 <span className="ml-2">
-                                  {
-                                    groupOrderDetails?.address?.fullAddress
-                                      ?.email
-                                  }
+                                  {orderGroup?.address?.fullAddress?.email ||
+                                    "No Email Available"}
                                 </span>
                               </div>
-                              <div className="flex items-center">
-                                <i className="fas fa-phone text-gray-500"></i>
+                              <div className="flex items-center mt-1">
+                                <TbPhone size={20} className="text-gray-500" />
                                 <span className="ml-2">
-                                  {
-                                    groupOrderDetails?.address?.fullAddress
-                                      ?.mobileNo
-                                  }
+                                  {orderGroup?.address?.fullAddress?.phone}
                                 </span>
                               </div>
                             </div>
 
-                            {!!groupOrderDetails?.address?.fullAddress && (
+                            {!!orderGroup?.address?.fullAddress && (
                               <>
                                 <div className="h-px bg-gray-300 my-4"></div>
                                 <div>
@@ -747,56 +861,50 @@ function ViewSingleOrder() {
                                     <p>
                                       Full Name:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.fullAddress?.fullName}`}
+                                        {`${orderGroup?.address?.fullAddress?.fullName}`}
                                       </span>
                                     </p>
                                     <p>
                                       Contact Number:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.fullAddress?.phone}`}
+                                        {`${orderGroup?.address?.fullAddress?.phone}`}
                                       </span>
                                     </p>
                                     <p>
                                       Full Address:{" "}
                                       <span className="font-bold">
-                                        {`${groupOrderDetails?.address?.fullAddress?.streetName}, ${groupOrderDetails?.address?.fullAddress?.landmark}, ${groupOrderDetails?.address?.fullAddress?.city}, ${groupOrderDetails?.address?.fullAddress?.postalCode}, ${groupOrderDetails?.address?.fullAddress?.state},  ${groupOrderDetails?.address?.fullAddress?.country}`}
+                                        {`${orderGroup?.address?.fullAddress?.streetName}, ${orderGroup?.address?.fullAddress?.landmark}, ${orderGroup?.address?.fullAddress?.city}, ${orderGroup?.address?.fullAddress?.postalCode}, ${orderGroup?.address?.fullAddress?.state},  ${orderGroup?.address?.fullAddress?.country}`}
                                       </span>
                                     </p>
                                     <p>
                                       Road:{" "}
                                       {
-                                        groupOrderDetails?.address?.fullAddress
+                                        orderGroup?.address?.fullAddress
                                           ?.streetName
                                       }
                                     </p>
                                     <p>
                                       Landmark:{" "}
-                                      {groupOrderDetails?.address?.fullAddress
+                                      {orderGroup?.address?.fullAddress
                                         ?.landmark
-                                        ? groupOrderDetails?.address
-                                            ?.fullAddress?.landmark
+                                        ? orderGroup?.address?.fullAddress
+                                            ?.landmark
                                         : "N/A"}
                                     </p>
                                     <p>
                                       Postal Code:{" "}
                                       {
-                                        groupOrderDetails?.address?.fullAddress
+                                        orderGroup?.address?.fullAddress
                                           ?.postalCode
                                       }
                                     </p>
                                     <p>
                                       City:{" "}
-                                      {
-                                        groupOrderDetails?.address?.fullAddress
-                                          ?.city
-                                      }
+                                      {orderGroup?.address?.fullAddress?.city}
                                     </p>
                                     <p>
                                       State:{" "}
-                                      {
-                                        groupOrderDetails?.address?.fullAddress
-                                          ?.state
-                                      }
+                                      {orderGroup?.address?.fullAddress?.state}
                                     </p>
                                   </div>
                                 </div>
@@ -815,9 +923,11 @@ function ViewSingleOrder() {
               </div>
             )}
           </>
-        ) : (
-          <></>
-        )}
+        ) : orderGroupRtkError ? (
+          <div className="text-center my-4 text-red-500">
+            Failed to load order. Please check the Group ID.
+          </div>
+        ) : null}
       </div>
     </div>
   );

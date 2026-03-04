@@ -5,137 +5,149 @@ const getTokenDetails = require("../../helpter/getTokenDetails");
 const checkRole = require("../../middlewares");
 
 /* GET ALL WISHLIST -- User Route */
-router.get("/", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const productType = req.headers["producttype"] || "buy";
+router.get(
+  "/",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const productType = req.headers["producttype"] || "buy";
 
-    console.log("Product Type -->", productType);
+      console.log("Product Type -->", productType);
 
-    const searchQuery = req.query;
+      const searchQuery = req.query;
 
-    const PAGE = searchQuery.page || 1;
-    const LIMIT = searchQuery.limit || 20;
-    const SKIP = (PAGE - 1) * LIMIT;
+      const PAGE = searchQuery.page || 1;
+      const LIMIT = searchQuery.limit || 20;
+      const SKIP = (PAGE - 1) * LIMIT;
 
-    const userDetails = req.user;
+      const userDetails = req.user;
 
-    const wishlistDetails = await Wishlist.find({
-      user: userDetails._id,
-      productType,
-    })
-      .sort({ createdAt: "desc" })
-      .skip(SKIP)
-      .limit(LIMIT)
-      .populate("product")
-      .select("-user");
+      const wishlistDetails = await Wishlist.find({
+        user: userDetails._id,
+        productType,
+      })
+        .sort({ createdAt: "desc" })
+        .skip(SKIP)
+        .limit(LIMIT)
+        .populate("product")
+        .select("-user");
 
-    console.log("Wishlist data -->", wishlistDetails);
+      console.log("Wishlist data -->", wishlistDetails);
 
-    return res.json({
-      wishlists: wishlistDetails,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Internal server error!",
-    });
-  }
-});
+      return res.json({
+        wishlists: wishlistDetails,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Internal server error!",
+      });
+    }
+  },
+);
 
 /* ADD TO WISHLIST -- User Route */
-router.post("/", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const userDetails = req.user;
-    if (!userDetails) {
-      return res.status(400).json({ message: "User Details Not Found" });
-    }
+router.post(
+  "/",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const userDetails = req.user;
+      if (!userDetails) {
+        return res.status(400).json({ message: "User Details Not Found" });
+      }
 
-    // console.log("RequestBody-->", req.body);
+      // console.log("RequestBody-->", req.body);
 
-    const productType = req.headers["producttype"];
-    const { productId } = req.body;
+      const productType = req.headers["producttype"];
+      const { productId } = req.body;
 
-    console.log("Wishlist Product ID-->", productId);
+      console.log("Wishlist Product ID-->", productId);
 
-    if (!productId) {
-      return res.status(400).json({
-        message: "Product ID is not given on request",
+      if (!productId) {
+        return res.status(400).json({
+          message: "Product ID is not given on request",
+        });
+      }
+
+      const wishlistCount = await Wishlist.countDocuments({
+        // product: productId,
+        user: userDetails._id,
+        productType,
       });
-    }
 
-    const wishlistCount = await Wishlist.countDocuments({
-      // product: productId,
-      user: userDetails._id,
-      productType,
-    });
+      if (wishlistCount >= 45) {
+        return res.status(400).json({
+          message: "Only maximum 50 wishlist items allowed!",
+        });
+      }
 
-    if (wishlistCount >= 45) {
-      return res.status(400).json({
-        message: "Only maximum 50 wishlist items allowed!",
+      const wishlistItem = await Wishlist.findOne({
+        product: productId,
+        user: userDetails._id,
+        productType,
       });
-    }
 
-    const wishlistItem = await Wishlist.findOne({
-      product: productId,
-      user: userDetails._id,
-      productType,
-    });
+      if (wishlistItem) {
+        return res.status(200).json({
+          status: true,
+          message: "Already in wishlist",
+        });
+      }
 
-    if (wishlistItem) {
-      return res.status(200).json({
+      const wishlist = new Wishlist({
+        user: userDetails._id,
+        product: productId,
+        productType,
+      });
+
+      await wishlist.save();
+
+      return res.json({
         status: true,
-        message: "Already in wishlist",
+        message: "Added to Wishlist",
       });
+    } catch (error) {
+      console.log(error);
+      return res.json(
+        {
+          status: false,
+          message: "Internal server error!",
+        },
+        { status: 500 },
+      );
     }
+  },
+);
 
-    const wishlist = new Wishlist({
-      user: userDetails._id,
-      product: productId,
-      productType,
-    });
+router.delete(
+  "/:wishlistId",
+  checkRole("user", "admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const wishlistId = req.params?.wishlistId;
 
-    await wishlist.save();
+      const wishlistDetails = await Wishlist.findOneAndDelete({
+        _id: wishlistId,
+        user: req.user._id,
+      });
 
-    return res.json({
-      status: true,
-      message: "Added to Wishlist",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.json(
-      {
-        status: false,
+      if (!wishlistDetails) {
+        return res.status(200).json({
+          message: "Wishlist not found, maybe already deleted.",
+        });
+      }
+
+      return res.json({
+        message: "Removed from Wishlist",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
         message: "Internal server error!",
-      },
-      { status: 500 },
-    );
-  }
-});
-
-router.delete("/:wishlistId", checkRole(0, 1, 2), async (req, res) => {
-  try {
-    const wishlistId = req.params?.wishlistId;
-
-    const wishlistDetails = await Wishlist.findOneAndDelete({
-      _id: wishlistId,
-      user: req.user._id,
-    });
-
-    if (!wishlistDetails) {
-      return res.status(200).json({
-        message: "Wishlist not found, maybe already deleted.",
       });
     }
-
-    return res.json({
-      message: "Removed from Wishlist",
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Internal server error!",
-    });
-  }
-});
+  },
+);
 
 module.exports = router;

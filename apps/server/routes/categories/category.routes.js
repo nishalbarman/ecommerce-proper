@@ -43,107 +43,119 @@ router.get("/", async (req, res) => {
 });
 
 // ADMIN ROUTE : Category create route
-router.post("/", checkRole(1, 2), async (req, res) => {
-  try {
-    const categoryData = req.body?.categoryData;
+router.post(
+  "/",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const categoryData = req.body?.categoryData;
 
-    if (!categoryData) {
-      return res.status(400).json({ message: "Category Data Not Found" });
-    }
+      if (!categoryData) {
+        return res.status(400).json({ message: "Category Data Not Found" });
+      }
 
-    // Now we are going to save the product to our database
+      // Now we are going to save the product to our database
 
-    console.log(categoryData);
+      console.log(categoryData);
 
-    // Create a new product document
-    const newCategory = await Category.create({
-      categoryImageUrl: categoryData.categoryImageUrl,
-      categoryName: categoryData.categoryName,
-      categoryKey: categoryData.categoryName
-        .trim()
-        .replaceAll(" ", "-")
-        .toLowerCase(),
-    });
-
-    return res.status(200).json({
-      message: `Category created`,
-      data: newCategory,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
-
-// ADMIN ROUTE : Category update route
-router.patch("/update/:categoryId", checkRole(1, 2), async (req, res) => {
-  try {
-    const categoryId = req.params?.categoryId;
-
-    const categoryData = req.body?.categoryData;
-
-    if (!categoryData) {
-      return res.status(400).json({ message: "Category Data Not Found" });
-    }
-
-    if (!categoryId) {
-      return res.status(400).json({ message: "Category Id Not Found" });
-    }
-
-    if (categoryData?.categoryName) {
-      const slug = slugify(categoryData.categoryName, {
-        lower: true,
-        strict: true,
+      // Create a new product document
+      const newCategory = await Category.create({
+        categoryImageUrl: categoryData.categoryImageUrl,
+        categoryName: categoryData.categoryName,
+        categoryKey: categoryData.categoryName
+          .trim()
+          .replaceAll(" ", "-")
+          .toLowerCase(),
       });
 
-      categoryData.categoryKey = slug
-      categoryData.slug = slug
-    } else {
-      delete categoryData.categoryName;
+      return res.status(200).json({
+        message: `Category created`,
+        data: newCategory,
+      });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
     }
+  },
+);
 
-    await Category.updateOne({ _id: categoryId }, { $set: categoryData });
+// ADMIN ROUTE : Category update route
+router.patch(
+  "/update/:categoryId",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const categoryId = req.params?.categoryId;
 
-    return res.status(200).json({
-      message: `Category updated`,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+      const categoryData = req.body?.categoryData;
+
+      if (!categoryData) {
+        return res.status(400).json({ message: "Category Data Not Found" });
+      }
+
+      if (!categoryId) {
+        return res.status(400).json({ message: "Category Id Not Found" });
+      }
+
+      if (categoryData?.categoryName) {
+        const slug = slugify(categoryData.categoryName, {
+          lower: true,
+          strict: true,
+        });
+
+        categoryData.categoryKey = slug;
+        categoryData.slug = slug;
+      } else {
+        delete categoryData.categoryName;
+      }
+
+      await Category.updateOne({ _id: categoryId }, { $set: categoryData });
+
+      return res.status(200).json({
+        message: `Category updated`,
+      });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
+    }
+  },
+);
 
 // ADMIN ROUTE : Category delete route
-router.delete("/:categoryId", checkRole(1, 2), async (req, res) => {
-  try {
-    // const token = req?.jwt?.token || null;
-    // if (!token) {
-    //   return res.redirect("/#login/login");
-    // }
+router.delete(
+  "/:categoryId",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      // const token = req?.jwt?.token || null;
+      // if (!token) {
+      //   return res.redirect("/#login/login");
+      // }
 
-    // const userDetails = getTokenDetails(token);
-    // if (!userDetails || !userDetails?.role || userDetails.role !== 1) {
-    //   return res.redirect("/#login/login");
-    // }
+      // const userDetails = getTokenDetails(token);
+      // if (!userDetails || !userDetails?.role || userDetails.role !== 1) {
+      //   return res.redirect("/#login/login");
+      // }
 
-    const categoryId = req.params?.categoryId;
+      const categoryId = req.params?.categoryId;
 
-    if (!categoryId) {
-      return res.status(400).json({ message: "Category ID Found" });
+      if (!categoryId) {
+        return res.status(400).json({ message: "Category ID Found" });
+      }
+
+      const categoryDelete = await Category.deleteOne({
+        _id: categoryId,
+      });
+
+      return res.status(200).json({
+        message: `Category Deleted`,
+      });
+    } catch (error) {
+      console.error(TAG, error);
+      return res.status(500).json({ message: error.message });
     }
-
-    const categoryDelete = await Category.deleteOne({
-      _id: categoryId,
-    });
-
-    return res.status(200).json({
-      message: `Category Deleted`,
-    });
-  } catch (error) {
-    console.error(TAG, error);
-    return res.status(500).json({ message: error.message });
-  }
-});
+  },
+);
 
 router.get("/view/:categoryId", async (req, res) => {
   try {
