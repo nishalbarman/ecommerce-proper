@@ -374,11 +374,11 @@ export default function CustomCKE({ id, content, changeContent }) {
   }, []);
 
   return (
-    <div className="main-container prose lg:prose-base max-w-none">
+    <div className="main-container max-sm:prose w-full">
       <div
-        className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count"
+        className="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count w-full"
         ref={editorContainerRef}>
-        <div className="editor-container__editor">
+        <div className="editor-container__editor w-full">
           <div ref={editorRef}>
             {editorConfig && (
               <CKEditor
@@ -386,20 +386,20 @@ export default function CustomCKE({ id, content, changeContent }) {
                 onReady={(editor) => {
                   const wordCount = editor.plugins.get("WordCount");
                   editorWordCountRef?.current.appendChild(
-                    wordCount.wordCountContainer
+                    wordCount.wordCountContainer,
                   );
 
                   editorMenuBarRef?.current.appendChild(
-                    editor.ui.view.menuBarView.element
+                    editor.ui.view.menuBarView.element,
                   );
                 }}
                 onAfterDestroy={() => {
                   Array.from(editorWordCountRef?.current.children).forEach(
-                    (child) => child.remove()
+                    (child) => child.remove(),
                   );
 
                   Array.from(editorMenuBarRef?.current.children).forEach(
-                    (child) => child.remove()
+                    (child) => child.remove(),
                   );
                 }}
                 editor={ClassicEditor}
@@ -414,7 +414,7 @@ export default function CustomCKE({ id, content, changeContent }) {
           </div>
         </div>
         <div
-          className="editor_container__word-count"
+          className="editor_container__word-count w-full"
           ref={editorWordCountRef}></div>
       </div>
     </div>

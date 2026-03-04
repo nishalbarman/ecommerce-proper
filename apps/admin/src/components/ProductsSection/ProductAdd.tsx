@@ -25,6 +25,7 @@ import "swiper/css/pagination";
 import "swiper/css/thumbs";
 
 import "../../styles/swiper-style.css";
+import "./custom_cke.css";
 
 import no_image from "../../assets/no-image.svg";
 import { FileLibraryListItem } from "react-media-library";
@@ -451,7 +452,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                   </select>
                 </div>
               </div>
-              <div className="mb-3">
+              <div className="mb-3 w-full">
                 <label
                   htmlFor="productDescription"
                   className="block text-sm font-medium text-gray-700 mb-1">
@@ -662,7 +663,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
             <div className="bg-white p-4 rounded shadow-lg border">
               <h3 className="text-xl font-semibold mb-3">Product Pricing</h3>
 
-              <div className="mb-4 bg-yellow-200 p-3 rounded-md">
+              <div className="mb-4 bg-blue-100 p-3 rounded-md">
                 <p className="text-body-secondary small mb-1">
                   <strong>
                     Below are the instructions how to fill the pricing fields.
@@ -847,7 +848,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                   Variant Information
                 </h3>
 
-                <div className="mb-2 bg-yellow-200 p-3 rounded-md">
+                <div className="mb-2 bg-blue-100 p-3 rounded-md">
                   <p className="text-body-secondary mb-1">
                     <strong>
                       Product variants are different product sizes and colors.
@@ -955,7 +956,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                       }).map((_, index) => {
                         return (
                           <div className="grow">
-                            <div className="w-full p-3 bg-orange-300 rounded-t-md">
+                            <div className="w-full p-3 bg-blue-300 rounded-t-md">
                               <p className="">
                                 <strong>Variant No. {index + 1}</strong>
                               </p>

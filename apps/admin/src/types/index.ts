@@ -207,7 +207,7 @@ export type Product = {
   categorySlug: string;
   slideImages: Image[] | null;
   description: string;
-  slug: string;
+  slug?: string;
 
   stars?: string | number;
   totalFeedbacks?: string | number;

@@ -14,7 +14,12 @@ import {
   useDeleteProductsMutation,
   useDuplicateProductMutation,
 } from "../../redux/apis/productApi";
-import { FaRegCopy, FaRegEye } from "react-icons/fa";
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaRegCopy,
+  FaRegEye,
+} from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
 
 const ListProduct = () => {
@@ -296,33 +301,35 @@ const ListProduct = () => {
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-6">
-            <button
-              disabled={pagination.pageIndex === 0}
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  pageIndex: prev.pageIndex - 1,
-                }))
-              }
-              className="px-4 py-2 bg-[#101826] text-white rounded disabled:opacity-50">
-              Previous
-            </button>
-
             <span className="font-bold text-sm">
               Page {pagination.pageIndex + 1} of {totalPages}
             </span>
 
-            <button
-              disabled={pagination.pageIndex + 1 >= totalPages}
-              onClick={() =>
-                setPagination((prev) => ({
-                  ...prev,
-                  pageIndex: prev.pageIndex + 1,
-                }))
-              }
-              className="px-4 py-2 bg-[#101826] text-white rounded disabled:opacity-50">
-              Next
-            </button>
+            <div className="flex gap-2">
+              <button
+                disabled={pagination.pageIndex === 0}
+                onClick={() =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    pageIndex: prev.pageIndex - 1,
+                  }))
+                }
+                 className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                <FaChevronLeft />
+              </button>
+
+              <button
+                disabled={pagination.pageIndex + 1 >= totalPages}
+                onClick={() =>
+                  setPagination((prev) => ({
+                    ...prev,
+                    pageIndex: prev.pageIndex + 1,
+                  }))
+                }
+                 className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+                <FaChevronRight />
+              </button>
+            </div>
           </div>
         </div>
       </div>

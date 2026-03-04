@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../redux/index";
 import { OrderGroup } from "../../types";
 import cAxios from "../../axios/cutom-axios";
-import { FaEye } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaEye } from "react-icons/fa";
 
 type PaymentStatus = "all" | "Pending" | "Paid" | "Failed";
 type OrderStatusFilter =
@@ -196,7 +196,7 @@ const OrderList = () => {
 
                     <td className="px-4 py-3">
                       <span
-                        className={`px-3 py-1 rounded-md text-sm font-bold ${getBadgeStyle(
+                        className={`px-3 py-1 rounded-md text-xs font-bold ${getBadgeStyle(
                           order.orderStatus,
                         )}`}>
                         {order.orderStatus}
@@ -205,7 +205,7 @@ const OrderList = () => {
 
                     <td className="px-4 py-3">
                       <span
-                        className={`px-3 py-1 rounded-md text-sm font-bold ${getBadgeStyle(
+                        className={`px-3 py-1 rounded-md text-xs font-bold ${getBadgeStyle(
                           order.paymentStatus,
                         )}`}>
                         {order.paymentStatus}
@@ -231,9 +231,9 @@ const OrderList = () => {
                         onClick={() =>
                           navigate(`/orders/view?groupId=${order.orderGroupID}`)
                         }
-                        className="flex items-center gap-2 px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded-md">
+                        className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-md">
                         <FaEye size={12} />
-                        View
+                        <span>View</span>
                       </button>
                     </td>
                   </tr>
@@ -245,33 +245,34 @@ const OrderList = () => {
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-6">
-          <button
-            disabled={pagination.pageIndex === 0}
-            onClick={() =>
-              setPagination((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex - 1,
-              }))
-            }
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
-            Previous
-          </button>
-
           <span className="text-sm font-medium">
             Page {pagination.pageIndex + 1} of {totalPages || 1}
           </span>
+          <div className="flex gap-2">
+            <button
+              disabled={pagination.pageIndex === 0}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageIndex: prev.pageIndex - 1,
+                }))
+              }
+              className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+              <FaChevronLeft />
+            </button>
 
-          <button
-            disabled={pagination.pageIndex + 1 >= totalPages}
-            onClick={() =>
-              setPagination((prev) => ({
-                ...prev,
-                pageIndex: prev.pageIndex + 1,
-              }))
-            }
-            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
-            Next
-          </button>
+            <button
+              disabled={pagination.pageIndex + 1 >= totalPages}
+              onClick={() =>
+                setPagination((prev) => ({
+                  ...prev,
+                  pageIndex: prev.pageIndex + 1,
+                }))
+              }
+              className="px-4 py-2 cursor-pointer bg-blue-500 text-white rounded disabled:bg-gray-300">
+              <FaChevronRight />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -288,7 +289,8 @@ const ShowPreviewImage = ({ previewImages }) => {
         <div className="grid grid-cols-1 grid-rows-1 gap-1 w-full h-full">
           <img
             src={previewImages?.[0]?.imageUrl}
-            className="w-full h-full object-cover rounded"
+            className="select-none w-full h-full object-cover rounded"
+            draggable={false}
           />
         </div>
       );
@@ -300,7 +302,8 @@ const ShowPreviewImage = ({ previewImages }) => {
               <img
                 key={index}
                 src={item.imageUrl}
-                className="w-full h-full object-cover rounded"
+                draggable={false}
+                className="select-none w-full h-full object-cover rounded"
               />
             );
           })}
@@ -313,7 +316,8 @@ const ShowPreviewImage = ({ previewImages }) => {
             <img
               key={index}
               src={item.imageUrl}
-              className="w-full h-full object-cover rounded"
+              draggable={false}
+              className="select-none w-full h-full object-cover rounded"
             />
           ))}
           <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
@@ -321,7 +325,8 @@ const ShowPreviewImage = ({ previewImages }) => {
               <img
                 key={index}
                 src={item.imageUrl}
-                className="w-full h-full object-cover rounded"
+                draggable={false}
+                className="select-none w-full h-full object-cover rounded"
               />
             ))}
             <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
@@ -329,7 +334,8 @@ const ShowPreviewImage = ({ previewImages }) => {
                 <img
                   key={index}
                   src={item.imageUrl}
-                  className="w-full h-full object-cover rounded"
+                  draggable={false}
+                  className="select-none w-full h-full object-cover rounded"
                 />
               ))}
               <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
@@ -337,7 +343,8 @@ const ShowPreviewImage = ({ previewImages }) => {
                   <img
                     key={index}
                     src={item.imageUrl}
-                    className="w-full h-full object-cover rounded"
+                    draggable={false}
+                    className="select-none w-full h-full object-cover rounded"
                   />
                 ))}
                 <div className="w-full h-full bg-black/60 flex items-center justify-center rounded grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
@@ -345,7 +352,8 @@ const ShowPreviewImage = ({ previewImages }) => {
                     <img
                       key={index}
                       src={item.imageUrl}
-                      className="w-full h-full object-cover rounded"
+                      draggable={false}
+                      className="select-none w-full h-full object-cover rounded"
                     />
                   ))}
                 </div>
@@ -358,30 +366,35 @@ const ShowPreviewImage = ({ previewImages }) => {
     default:
       return (
         <div className="grid grid-cols-2 grid-rows-2 gap-1 w-full h-full">
-          {previewImages?.slice(0, 4).map((item, index) => {
-            const totalImages = previewImages.length;
-            const extraCount = totalImages - 4;
+          {previewImages
+            ?.slice(0, 4)
+            .map(
+              (item: { imageUrl: string; bgColor: string }, index: number) => {
+                const totalImages = previewImages.length;
+                const extraCount = totalImages - 4;
 
-            const isLastVisible = index === 3;
-            const showOverlay = isLastVisible && extraCount > 0;
+                const isLastVisible = index === 3;
+                const showOverlay = isLastVisible && extraCount > 0;
 
-            return (
-              <div key={index} className="relative w-full h-full">
-                <img
-                  src={item.imageUrl}
-                  className="w-full h-full object-cover rounded"
-                />
+                return (
+                  <div key={index} className="relative w-full h-full">
+                    <img
+                      src={item.imageUrl}
+                      draggable={false}
+                      className="select-none w-full h-full object-cover rounded"
+                    />
 
-                {showOverlay && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
-                    <span className="text-white text-xs font-bold">
-                      +{extraCount}
-                    </span>
+                    {showOverlay && (
+                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
+                        <span className="text-white text-xs font-bold">
+                          +{extraCount}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                );
+              },
+            )}
         </div>
       );
   }
