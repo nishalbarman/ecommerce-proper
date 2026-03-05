@@ -26,12 +26,15 @@ import { setUserSelectedAddress } from "@/redux/slices/addressSlice";
 import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
 import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
 import Loading from "../load";
+import { useTopLoader } from "nextjs-toploader";
 
 export default function CartClientPage({ initialCartData }) {
   const { useGetCartQuery } = CartApi;
   const { useGetWishlistQuery } = WishlistApi;
   const { updateAppliedCoupon } = AppliedCouponSlice;
   const { useGetAddressQuery, useGetDefaultAddressQuery } = AddressApi;
+
+  const loader = useTopLoader();
 
   const {
     data: {
@@ -53,6 +56,12 @@ export default function CartClientPage({ initialCartData }) {
         data: result.data || initialCartData,
       }),
       refetchOnMountOrArgChange: true,
+      onQueryStart: () => {
+        loader.start();
+      },
+      onQueryEnd: () => {
+        loader.setProgress(1);
+      },
     },
   );
 
@@ -88,7 +97,14 @@ export default function CartClientPage({ initialCartData }) {
     refetch: refetchDefaultAddress,
   } = useGetDefaultAddressQuery();
 
-  const [removeALlCart] = useRemoveAllCartMutation();
+  const [removeALlCart] = useRemoveAllCartMutation(undefined, {
+    onQueryStart: () => {
+      loader.start();
+    },
+    onQueryEnd: () => {
+      loader.setProgress(1);
+    },
+  });
 
   const [couponCode, setCouponCode] = useState("");
   const [couponError, setCouponError] = useState("");
@@ -112,6 +128,8 @@ export default function CartClientPage({ initialCartData }) {
     e.preventDefault();
     setCouponSubmitLoading(true);
     setCouponError("");
+
+    loader.start();
 
     try {
       if (!couponCode) {
@@ -189,6 +207,7 @@ export default function CartClientPage({ initialCartData }) {
       setCouponError(error.response?.data?.message || "Failed to apply coupon");
     } finally {
       setCouponSubmitLoading(false);
+      loader.done();
     }
   };
 
@@ -300,6 +319,9 @@ export default function CartClientPage({ initialCartData }) {
 
   let handlePayment = () => {
     setIsPaymentLoading(true);
+
+    loader.start();
+
     router.push(`/checkout?pm=${gatewayOption}`);
   };
 

@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { WishlistApi, CartApi } from "@/redux";
 import { FiHeart, FiTrash2, FiChevronDown } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
+import { useTopLoader } from "nextjs-toploader";
 
 function CartItem({ item }) {
   const {
@@ -31,6 +32,8 @@ function CartItem({ item }) {
     (state) => state.wishlistSlice.wishlists,
   );
 
+  const loader = useTopLoader();
+
   const dispatch = useDispatch();
   const cookiesStore = useCookies();
   const token = cookiesStore.get("token");
@@ -44,40 +47,62 @@ function CartItem({ item }) {
   const [updateCartItemQuantity] = useUpdateQuantityCartMutation();
 
   useEffect(() => {
-    if (productQuantity > 0) {
-      updateCartItemQuantity({
-        id: cartProductId,
-        productType: "buy",
-        quantity: productQuantity,
-      });
-    }
+    const updateQuantity = async () => {
+      if (productQuantity > 0) {
+        await updateCartItemQuantity({
+          id: cartProductId,
+          productType: "buy",
+          quantity: productQuantity,
+        }).unwrap();
+        loader.done();
+      }
+    };
+    updateQuantity();
   }, [productQuantity]);
 
   const quantityModalRef = useRef();
 
   const [addNewWishlist] = useAddWishlistMutation();
-  const [deleteOneCartItem] = useDeleteCartMutation();
+  const [deleteOneCartItem] = useDeleteCartMutation(undefined, {
+    onQueryStart: () => {
+      loader.start();
+    },
+    onQueryEnd: () => {
+      loader.done();
+    },
+  });
   const [deleteOneWishlistItem] = useDeleteWishlistMutation();
 
   const handleAddToWishlist = (e) => {
     e.stopPropagation();
     if (!token) return toast.success("You need to be logged in first.");
 
-    if (wishlistMappedItems?.hasOwnProperty(product?._id)) {
-      deleteOneCartItem({ id: cartProductId });
-    } else {
-      addNewWishlist({ id: product?._id });
-      deleteOneCartItem({ id: cartProductId });
+    loader.start();
+
+    try {
+      if (wishlistMappedItems?.hasOwnProperty(product?._id)) {
+        deleteOneCartItem({ id: cartProductId });
+      } else {
+        addNewWishlist({ id: product?._id });
+        deleteOneCartItem({ id: cartProductId });
+      }
+    } catch (error) {
+      console.error("Error moving item to wishlist:", error);
+    } finally {
+      loader.done();
     }
   };
 
-  const handleRemoveFromCart = (e) => {
+  const handleRemoveFromCart = async (e) => {
     e.stopPropagation();
     if (!token) return toast.success("You need to be logged in first.");
-    deleteOneCartItem({ id: cartProductId });
+    loader.start();
+    await deleteOneCartItem({ id: cartProductId }).unwrap();
+    loader.done();
   };
 
   const handleQuantityChange = (newQuantity) => {
+    loader.start();
     setProductQuantity(newQuantity);
     quantityModalRef.current?.classList.add("hidden");
   };
@@ -91,9 +116,12 @@ function CartItem({ item }) {
   const fetchProductVariants = async () => {
     try {
       setLoadingVariants(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${product?._id}`, {
-        method: "POST",
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/products/view/${product?._id}`,
+        {
+          method: "POST",
+        },
+      );
       const data = await response.json();
       setAvailableVariants(data.product?.productVariant || []);
     } catch (error) {
@@ -106,6 +134,7 @@ function CartItem({ item }) {
 
   const handleVariantChange = async (newVariantId) => {
     try {
+      loader.start();
       const response = await updateVariant({
         cartItemId: item._id,
         variantId: newVariantId,
@@ -120,6 +149,8 @@ function CartItem({ item }) {
     } catch (error) {
       console.error("Error updating variant:", error);
       toast.error(error.data?.message || "Failed to update variant");
+    } finally {
+      loader.done();
     }
   };
 

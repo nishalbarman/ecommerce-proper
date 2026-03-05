@@ -18,6 +18,7 @@ import { PiEyes } from "react-icons/pi";
 import { FaCartShopping, FaCheck } from "react-icons/fa6";
 import Link from "next/link";
 import { setLoginModalState } from "@/redux/slices/loginModalSlice";
+import { useTopLoader } from "nextjs-toploader";
 
 function ProductCard({
   productDetails = {},
@@ -51,7 +52,7 @@ function ProductCard({
   } = productDetails;
 
   // let productIdEncoded = Buffer.from(productId.toString()).toString("base64");
-
+  const loader = useTopLoader();
   const { useAddOneToCartMutation } = CartApi;
   const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
   const { updateCart } = CartSlice;
@@ -91,6 +92,7 @@ function ProductCard({
   const handleAddToCart = async () => {
     try {
       setOnCart(true);
+      loader.start();
       const resPayload = await addToCart({
         variant: undefined,
         productId: productId,
@@ -106,6 +108,8 @@ function ProductCard({
     } catch (error) {
       toast.error("Failed to add to cart");
       console.error(error);
+    } finally {
+      loader.setProgress(1);
     }
   };
 
@@ -124,6 +128,7 @@ function ProductCard({
       dispatch(setLoginModalState({ modalVisible: true }));
       return toast.success("You need to be logged in first.");
     }
+    loader.start();
 
     try {
       if (onWishlist) {
@@ -142,6 +147,8 @@ function ProductCard({
       toast.error(
         error?.data?.message || error?.message || "Wishlist operation failed",
       );
+    } finally {
+      loader.setProgress(1);
     }
   };
 
@@ -169,7 +176,7 @@ function ProductCard({
         {/* Add to cart button */}
         <button
           disabled={onCart}
-          className="w-full justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition-all duration-300 ease-in-out md:group-hover/product_item:flex md:group-hover/product_item:translate-y-0 cursor-pointer absolute z-[1] h-12 flex items-center justify-center rounded-b bg-[rgba(0,0,0,0.8)] text-white hover:bg-black max-sm:hidden"
+          className="w-full justify-center items-center overflow-hidden bottom-0 translate-y-[55px] transition-all duration-300 ease-in-out md:group-hover/product_item:flex md:group-hover/product_item:translate-y-0 cursor-pointer absolute z-2 h-12 flex items-center justify-center rounded-b bg-[rgba(0,0,0,0.8)] text-white hover:bg-black max-sm:hidden"
           onClick={handleAddCartButtonClicked}>
           {onCart ? (
             <FaCheck size={20} color="white" fill="white" />
@@ -180,7 +187,7 @@ function ProductCard({
 
         {/* Action Icons */}
         <div
-          className={`absolute top-2 right-2 z-[999] flex flex-col gap-2 items-center w-fit bg-[${previewImage?.bgColor}]`}>
+          className={`absolute top-2 right-2 z-2 flex flex-col gap-2 items-center w-fit bg-[${previewImage?.bgColor}]`}>
           {/* Toogle Wishlist Button */}
           <div
             className={`max-sm:w-auto max-sm:h-auto max-sm:p-1 flex items-center justify-center bg-white rounded-full w-10 h-10 group-wishlist shadow-lg transition-all duration-200 hover:cursor-pointer ${
@@ -195,12 +202,13 @@ function ProductCard({
           </div>
 
           {/* Quick View Button */}
-          <div
+          <Link
+            href={`/products/view/${productSlug}`}
             className="hidden md:flex items-center justify-center p-1 bg-white rounded-full w-10 h-10 group-viewproduct hover:bg-gray-100 shadow-lg transition-all duration-200 hover:cursor-pointer"
             onClick={handleVisitProduct}>
             {/* <AiOutlineEye size={21} /> */}
             <PiEyes size={20} />
-          </div>
+          </Link>
         </div>
 
         {/* Product Image */}

@@ -22,8 +22,11 @@ import Link from "next/link";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useCookies } from "next-client-cookies";
+import { useTopLoader } from "nextjs-toploader";
 
 function NavbarPartNonLogged() {
+  const loader = useTopLoader();
+
   // const token = useSelector((state) => state.auth.jwtToken);
   const cookies = useCookies();
   console.log("Cookies from NavbarPartNonLogged: ", cookies);
@@ -46,6 +49,7 @@ function NavbarPartNonLogged() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    loader.start();
     // setAppliedSearch(localSearch);
     // Reset to first page when search changes
     const params = new URLSearchParams();
@@ -75,7 +79,9 @@ function NavbarPartNonLogged() {
                 />
                 <div className="h-[25px] w-[25px] mr-3 flex items-center">
                   {/* <button onSubmit={handleSearchSubmit}> */}
-                  <button className="cursor-pointer" onClick={handleSearchSubmit}>
+                  <button
+                    className="cursor-pointer"
+                    onClick={handleSearchSubmit}>
                     <CiSearch size={27} />
                   </button>
                 </div>
@@ -211,23 +217,26 @@ function NavbarPartNonLogged() {
             <div className="flex items-center justify-center gap-5 h-[100%]">
               {/* search bar with icon */}
               {pathname === "/products" || (
-              <div
-                // href={"/products"}
-                className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-gray-200 border-1 ">
-                <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none border-none outline-none"
-                  type="text"
-                  name="search-text"
-                  onChange={(e) => setLocalSearch(e.target.value)}
-                  placeholder="What are you looking for?"
-                />
-                <div className="h-[25px] w-[25px] mr-3 flex items-center">
-                  {/* <button onSubmit={handleSearchSubmit}> */}
-                  <button className="cursor-pointer" onClick={handleSearchSubmit}>
-                    <CiSearch size={27} />
-                  </button>
+                <div
+                  // href={"/products"}
+                  className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-gray-200 border-1 ">
+                  <input
+                    className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none border-none outline-none"
+                    type="text"
+                    name="search-text"
+                    onChange={(e) => setLocalSearch(e.target.value)}
+                    placeholder="What are you looking for?"
+                  />
+                  <div className="h-[25px] w-[25px] mr-3 flex items-center">
+                    {/* <button onSubmit={handleSearchSubmit}> */}
+                    <button
+                      className="cursor-pointer"
+                      onClick={handleSearchSubmit}>
+                      <CiSearch size={27} />
+                    </button>
+                  </div>
                 </div>
-              </div>)}
+              )}
 
               <div className="h-full w-fit relative group flex items-center">
                 <div className="h-fit w-fit relative group mb-[8px]">

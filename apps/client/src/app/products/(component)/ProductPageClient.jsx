@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MdErrorOutline } from "react-icons/md";
 import { ProductApi, CategoryApi } from "@/redux";
 import ProductItem from "@/components/ProductComps/ProductItem/ProductItem";
+import { useTopLoader } from "nextjs-toploader";
 
 const BRAND = { primary: "#DA4445" };
 
@@ -14,6 +15,7 @@ export default function ProductList({ initialData, initialPage }) {
   const { useGetProductsQuery } = ProductApi;
   const { useGetAllCategoryQuery } = CategoryApi;
 
+  const loader = useTopLoader();
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = useSelector((state) => state.auth.jwtToken);
@@ -85,7 +87,7 @@ export default function ProductList({ initialData, initialPage }) {
     if (appliedFilters.price[1] < 10000) {
       params.set("maxPrice", appliedFilters.price[1]);
     }
-
+    loader.start();
     router.replace(`/products?${params.toString()}`, { scroll: false });
   }, [page, appliedSearch, appliedSort, appliedFilters, router]);
 
@@ -115,6 +117,9 @@ export default function ProductList({ initialData, initialPage }) {
         data: result.data || initialData,
       }),
       refetchOnMountOrArgChange: true,
+      onQueryEnd: (data, { dispatch }, extra) => {
+        loader.setProgress(1);
+      },
     },
   );
 
@@ -170,9 +175,9 @@ export default function ProductList({ initialData, initialPage }) {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    loader.start();
 
     setAppliedSearch(localSearch);
-    setPage(1);
 
     const params = new URLSearchParams();
 
@@ -271,29 +276,30 @@ export default function ProductList({ initialData, initialPage }) {
                   className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
               ))}
             </div>
-              
-          ) : categoriesData?.categories?.map((category, index) => (
-            <label
-              key={index}
-              className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={localFilters.category.includes(category.categoryKey)}
-                onChange={() => {
-                  const newCategories = localFilters.category.includes(
-                    category.categoryKey,
-                  )
-                    ? localFilters.category.filter(
-                        (c) => c !== category.categoryKey,
-                      )
-                    : [...localFilters.category, category.categoryKey];
-                  handleFilterChange("category", newCategories);
-                }}
-                className="rounded text-primary focus:ring-primary"
-              />
-              <span>{category.categoryName}</span>
-            </label>
-          ))}
+          ) : (
+            categoriesData?.categories?.map((category, index) => (
+              <label
+                key={index}
+                className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={localFilters.category.includes(category.categoryKey)}
+                  onChange={() => {
+                    const newCategories = localFilters.category.includes(
+                      category.categoryKey,
+                    )
+                      ? localFilters.category.filter(
+                          (c) => c !== category.categoryKey,
+                        )
+                      : [...localFilters.category, category.categoryKey];
+                    handleFilterChange("category", newCategories);
+                  }}
+                  className="rounded text-primary focus:ring-primary"
+                />
+                <span>{category.categoryName}</span>
+              </label>
+            ))
+          )}
         </div>
       </div>
 

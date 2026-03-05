@@ -5,6 +5,11 @@
 @plugin "@tailwindcss/typography";
 @plugin 'tailwind-scrollbar';
 
+* {
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
 html {
   overflow-x: hidden;
 }

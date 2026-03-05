@@ -1,5 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import ReduxStore from "../components/ReduxStore/ReduxStore";
+import NextTopLoader from "nextjs-toploader";
 import { CookiesProvider } from "next-client-cookies/server";
 
 import "./globals.css";
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.className} relative`}>
+        <NextTopLoader color="#DA4544" />
         <Toaster />
         <CookiesProvider>
           <ReduxStore>
