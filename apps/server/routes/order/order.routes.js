@@ -617,313 +617,325 @@ router.patch(
 );
 
 //! ORDER CANCELLATION ROUTE CAN BE USED BY ADMIN AND NORMAL USERS
-router.patch("/cancel", checkRole(1, 0), async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+router.patch(
+  "/cancel",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-  try {
-    const { orderGroupId } = req.body;
-    const user = req.user;
+    try {
+      const { orderGroupId } = req.body;
+      const user = req.user;
 
-    if (!orderGroupId) {
-      return res.status(400).json({
+      if (!orderGroupId) {
+        return res.status(400).json({
+          status: false,
+          message: "Order Group ID is required!",
+        });
+      }
+
+      // Base filter
+      const orderFilter = {
+        orderGroupID: orderGroupId,
+      };
+
+      // Role based filtering
+      if (user.roleSlug === 0) {
+        // Normal user
+        orderFilter.user = user._id;
+        orderFilter.orderStatus = {
+          $in: ["On Hold", "On Progress", "Accepted"],
+        };
+      }
+
+      if (user.roleSlug === 2) {
+        // Center
+        if (!user.center) {
+          return res.status(400).json({
+            status: false,
+            message: "No center assigned to this user",
+          });
+        }
+
+        orderFilter.center = user.center;
+        orderFilter.orderStatus = {
+          $ne: "Cancelled",
+        };
+      }
+
+      // Check if order exists
+      const existingOrder = await Order.findOne(orderFilter)
+        .session(session)
+        .select("_id");
+
+      if (!existingOrder) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(404).json({
+          status: false,
+          message: "Order not found or cannot be cancelled",
+        });
+      }
+
+      // Update Orders
+      await Order.updateMany(
+        orderFilter,
+        { $set: { orderStatus: "Cancelled" } },
+        { session },
+      );
+
+      // Update OrderGroup
+      await OrderGroup.updateOne(
+        { orderGroupID: orderGroupId },
+        { $set: { orderStatus: "Cancelled" } },
+        { session },
+      );
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.json({
+        status: true,
+        message: "Order Cancelled Successfully",
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      console.error(error);
+      return res.status(500).json({
         status: false,
-        message: "Order Group ID is required!",
+        message: "Internal server error",
       });
     }
+  },
+);
 
-    // Base filter
-    const orderFilter = {
-      orderGroupID: orderGroupId,
-    };
+//! CANCEL INDIVIDUAL ORDER ITEM ROUTE
+router.patch(
+  "/cancel-item",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    // Role based filtering
-    if (user.role === 0) {
-      // Normal user
-      orderFilter.user = user._id;
-      orderFilter.orderStatus = {
-        $in: ["On Hold", "On Progress", "Accepted"],
-      };
-    }
+    try {
+      const { orderItemId, orderGroupID } = req.body;
+      const user = req.user;
 
-    if (user.role === 2) {
-      // Center
-      if (!user.center) {
+      if (!orderItemId || !orderGroupID) {
+        return res.status(400).json({
+          status: false,
+          message: "Order Item ID and Order Group ID are required!",
+        });
+      }
+
+      if (user.roleSlug === 2 && !user.center) {
         return res.status(400).json({
           status: false,
           message: "No center assigned to this user",
         });
       }
 
-      orderFilter.center = user.center;
-      orderFilter.orderStatus = {
-        $ne: "Cancelled",
-      };
-    }
-
-    // Check if order exists
-    const existingOrder = await Order.findOne(orderFilter)
-      .session(session)
-      .select("_id");
-
-    if (!existingOrder) {
-      await session.abortTransaction();
-      session.endSession();
-
-      return res.status(404).json({
-        status: false,
-        message: "Order not found or cannot be cancelled",
-      });
-    }
-
-    // Update Orders
-    await Order.updateMany(
-      orderFilter,
-      { $set: { orderStatus: "Cancelled" } },
-      { session },
-    );
-
-    // Update OrderGroup
-    await OrderGroup.updateOne(
-      { orderGroupID: orderGroupId },
-      { $set: { orderStatus: "Cancelled" } },
-      { session },
-    );
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return res.json({
-      status: true,
-      message: "Order Cancelled Successfully",
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
-    console.error(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error",
-    });
-  }
-});
-
-//! CANCEL INDIVIDUAL ORDER ITEM ROUTE
-router.patch("/cancel-item", checkRole(1, 0), async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
-  try {
-    const { orderItemId, orderGroupID } = req.body;
-    const user = req.user;
-
-    if (!orderItemId || !orderGroupID) {
-      return res.status(400).json({
-        status: false,
-        message: "Order Item ID and Order Group ID are required!",
-      });
-    }
-
-    if (user.role === 2 && !user.center) {
-      return res.status(400).json({
-        status: false,
-        message: "No center assigned to this user",
-      });
-    }
-
-    // Build filter
-    const orderFilter = {
-      _id: orderItemId,
-      orderGroupID: orderGroupID,
-      orderStatus: {
-        $in: ["On Hold", "On Progress", "Accepted"],
-      },
-    };
-
-    if (user.role === 0) {
-      orderFilter.user = user._id;
-    }
-
-    if (user.role === 2) {
-      orderFilter.center = user.center;
-    }
-
-    // Cancel single item
-    const updateResult = await Order.updateOne(
-      orderFilter,
-      { $set: { orderStatus: "Cancelled" } },
-      { session },
-    );
-
-    if (updateResult.modifiedCount === 0) {
-      await session.abortTransaction();
-      session.endSession();
-
-      return res.status(400).json({
-        status: false,
-        message: "Order cannot be cancelled or not found",
-      });
-    }
-
-    // Count total items in group
-    const totalItems = await Order.countDocuments(
-      { orderGroupID: orderGroupID },
-      { session },
-    );
-
-    // Count cancelled items
-    const cancelledItems = await Order.countDocuments(
-      {
+      // Build filter
+      const orderFilter = {
+        _id: orderItemId,
         orderGroupID: orderGroupID,
-        orderStatus: "Cancelled",
-      },
-      { session },
-    );
+        orderStatus: {
+          $in: ["On Hold", "On Progress", "Accepted"],
+        },
+      };
 
-    // If all items cancelled → cancel group
-    if (totalItems === cancelledItems) {
-      await OrderGroup.updateOne(
-        { orderGroupID: orderGroupID },
+      if (user.roleSlug === "user") {
+        orderFilter.user = user._id;
+      }
+
+      if (user.roleSlug === "store") {
+        orderFilter.store = user?.store;
+      }
+
+      // Cancel single item
+      const updateResult = await Order.updateOne(
+        orderFilter,
         { $set: { orderStatus: "Cancelled" } },
         { session },
       );
+
+      if (updateResult.modifiedCount === 0) {
+        await session.abortTransaction();
+        session.endSession();
+
+        return res.status(400).json({
+          status: false,
+          message: "Order cannot be cancelled or not found",
+        });
+      }
+
+      // Count total items in group
+      const totalItems = await Order.countDocuments(
+        { orderGroupID: orderGroupID },
+        { session },
+      );
+
+      // Count cancelled items
+      const cancelledItems = await Order.countDocuments(
+        {
+          orderGroupID: orderGroupID,
+          orderStatus: "Cancelled",
+        },
+        { session },
+      );
+
+      // If all items cancelled → cancel group
+      if (totalItems === cancelledItems) {
+        await OrderGroup.updateOne(
+          { orderGroupID: orderGroupID },
+          { $set: { orderStatus: "Cancelled" } },
+          { session },
+        );
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return res.json({
+        status: true,
+        message: "Order Item Cancelled Successfully",
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+
+      console.error("Internal server error: ", error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal server error!",
+      });
     }
-
-    await session.commitTransaction();
-    session.endSession();
-
-    return res.json({
-      status: true,
-      message: "Order Item Cancelled Successfully",
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
-    console.error("Internal server error: ", error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal server error!",
-    });
-  }
-});
+  },
+);
 
 //! ORDER CHART DATA -- CAN BE USED BY ADMIN AND CENTER
-router.get("/get-order-chart-data", checkRole(1), async (req, res) => {
-  try {
-    const year = parseInt(req.query?.year);
-    const month = parseInt(req.query?.month);
+router.get(
+  "/get-order-chart-data",
+  checkRole("admin", "super-admin", "store"),
+  async (req, res) => {
+    try {
+      const year = parseInt(req.query?.year);
+      const month = parseInt(req.query?.month);
 
-    const pipeline = [
-      // Stage 1: Match orders with specific statuses
-      {
-        $match: {
-          $or: [
-            { orderStatus: "Delivered" },
-            { orderStatus: "Cancelled" },
-            { orderStatus: "Rejected" },
-          ],
-        },
-      },
-      // Stage 2: Group by updated date and count orders for each status
-      {
-        $group: {
-          _id: {
-            year: { $year: "$updatedAt" },
-            month: { $month: "$updatedAt" },
-            day: { $dayOfMonth: "$updatedAt" },
-          },
-          deliveredCount: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "Delivered"] }, 1, 0] },
-          },
-          cancelledCount: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "Cancelled"] }, 1, 0] },
-          },
-          rejectedCount: {
-            $sum: { $cond: [{ $eq: ["$orderStatus", "Rejected"] }, 1, 0] },
+      const pipeline = [
+        // Stage 1: Match orders with specific statuses
+        {
+          $match: {
+            $or: [
+              { orderStatus: "Delivered" },
+              { orderStatus: "Cancelled" },
+              { orderStatus: "Rejected" },
+            ],
           },
         },
-      },
-      // Stage 3: Project to format date and rename fields
-      {
-        $project: {
-          _id: 0,
-          date: {
-            $dateToString: {
-              format: "%B %d, %Y",
-              date: {
-                $dateFromParts: {
-                  year: "$_id.year",
-                  month: "$_id.month",
-                  day: "$_id.day",
+        // Stage 2: Group by updated date and count orders for each status
+        {
+          $group: {
+            _id: {
+              year: { $year: "$updatedAt" },
+              month: { $month: "$updatedAt" },
+              day: { $dayOfMonth: "$updatedAt" },
+            },
+            deliveredCount: {
+              $sum: { $cond: [{ $eq: ["$orderStatus", "Delivered"] }, 1, 0] },
+            },
+            cancelledCount: {
+              $sum: { $cond: [{ $eq: ["$orderStatus", "Cancelled"] }, 1, 0] },
+            },
+            rejectedCount: {
+              $sum: { $cond: [{ $eq: ["$orderStatus", "Rejected"] }, 1, 0] },
+            },
+          },
+        },
+        // Stage 3: Project to format date and rename fields
+        {
+          $project: {
+            _id: 0,
+            date: {
+              $dateToString: {
+                format: "%B %d, %Y",
+                date: {
+                  $dateFromParts: {
+                    year: "$_id.year",
+                    month: "$_id.month",
+                    day: "$_id.day",
+                  },
                 },
               },
             },
+            deliveredCount: 1,
+            cancelledCount: 1,
+            rejectedCount: 1,
+            pendingCount: 1,
           },
-          deliveredCount: 1,
-          cancelledCount: 1,
-          rejectedCount: 1,
-          pendingCount: 1,
         },
-      },
-      // Stage 4: Sort by date
-      {
-        $sort: { date: 1 },
-      },
-      // Stage 5: Group to calculate totals
-      {
-        $group: {
-          _id: null,
-          totalDeliveredOrders: { $sum: "$deliveredCount" },
-          totalCancelledOrders: { $sum: "$cancelledCount" },
-          totalRejectedOrders: { $sum: "$rejectedCount" },
-          chartData: { $push: "$$ROOT" },
+        // Stage 4: Sort by date
+        {
+          $sort: { date: 1 },
         },
-      },
-      // Stage 6: Project to reshape output
-      {
-        $project: {
-          _id: 0,
-          totalDeliveredOrders: 1,
-          totalCancelledOrders: 1,
-          totalRejectedOrders: 1,
-          totalPendingOrders: {
-            $subtract: [
-              {
-                $sum: [
-                  "$totalDeliveredOrders",
-                  "$totalCancelledOrders",
-                  "$totalRejectedOrders",
-                ],
-              },
-              "$totalDeliveredOrders",
-            ],
+        // Stage 5: Group to calculate totals
+        {
+          $group: {
+            _id: null,
+            totalDeliveredOrders: { $sum: "$deliveredCount" },
+            totalCancelledOrders: { $sum: "$cancelledCount" },
+            totalRejectedOrders: { $sum: "$rejectedCount" },
+            chartData: { $push: "$$ROOT" },
           },
-          chartData: 1,
         },
-      },
-    ];
+        // Stage 6: Project to reshape output
+        {
+          $project: {
+            _id: 0,
+            totalDeliveredOrders: 1,
+            totalCancelledOrders: 1,
+            totalRejectedOrders: 1,
+            totalPendingOrders: {
+              $subtract: [
+                {
+                  $sum: [
+                    "$totalDeliveredOrders",
+                    "$totalCancelledOrders",
+                    "$totalRejectedOrders",
+                  ],
+                },
+                "$totalDeliveredOrders",
+              ],
+            },
+            chartData: 1,
+          },
+        },
+      ];
 
-    const data = await Order.aggregate(pipeline);
+      const data = await Order.aggregate(pipeline);
 
-    return res.status(200).json(data[0]);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof mongoose.Error && error?.errors) {
-      const errArray = Object.values(error.errors).map(
-        (properties) => properties.message,
-      );
+      return res.status(200).json(data[0]);
+    } catch (error) {
+      console.log(error);
+      if (error instanceof mongoose.Error && error?.errors) {
+        const errArray = Object.values(error.errors).map(
+          (properties) => properties.message,
+        );
 
-      return res.status(400).json({
-        message: errArray.join(", "),
+        return res.status(400).json({
+          message: errArray.join(", "),
+        });
+      }
+      return res.status(500).json({
+        message: "Internal server error",
       });
     }
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-});
+  },
+);
 
 router.get(
   "/admin/reset-order",
@@ -943,10 +955,10 @@ router.get(
         });
       }
 
-      if (user.role === 2 && !user.center) {
+      if (user.roleSlug === "store" && !user.store) {
         return res.status(400).json({
           status: false,
-          message: "No center assigned to this user",
+          message: "No store assigned to this user",
         });
       }
 
@@ -958,12 +970,12 @@ router.get(
         },
       };
 
-      if (user.role === 0) {
+      if (user.roleSlug === "user") {
         orderFilter.user = user._id;
       }
 
-      if (user.role === 2) {
-        orderFilter.center = user.center;
+      if (user.roleSlug === "store") {
+        orderFilter.store = user?.store;
       }
 
       // Cancel single item

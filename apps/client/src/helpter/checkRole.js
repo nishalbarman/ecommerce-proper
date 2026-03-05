@@ -16,16 +16,17 @@ const checkRole = (...allowedRoles) => {
       if (!userDetails) {
         return NextResponse.json(
           { message: "Access denied: Invalid token." },
-          { status: 401 }
+          { status: 401 },
         );
       }
 
       req.user = userDetails;
+      console.log("User details from token:", userDetails);
 
       if (!allowedRoles.includes(userDetails.role)) {
         return NextResponse.json(
           { message: "Access denied: Insufficient permissions." },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -35,7 +36,7 @@ const checkRole = (...allowedRoles) => {
       console.error("Role check error:", error);
       return NextResponse.json(
         { message: "Internal server error: Unable to process request." },
-        { status: 500 }
+        { status: 500 },
       );
     }
   };
