@@ -217,9 +217,9 @@ export default function ReviewList({ productId, productType = "buy" }) {
         <div className="text-center mt-10">
           <button
             onClick={loadMore}
-            disabled={loading}
+            disabled={isLoading}
             className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed">
-            {loading ? (
+            {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <FiLoader className="animate-spin" />
                 Loading more reviews...

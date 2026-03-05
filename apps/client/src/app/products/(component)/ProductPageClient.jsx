@@ -246,8 +246,8 @@ export default function ProductList({ initialData, initialPage }) {
     };
     setLocalFilters(newFilters);
     setAppliedFilters(newFilters);
-    setLocalSort("newest");
-    setAppliedSort("newest");
+    setLocalSort("popularity");
+    setAppliedSort("popularity");
     setLocalSearch("");
     setAppliedSearch("");
     setPage(1);
@@ -263,7 +263,16 @@ export default function ProductList({ initialData, initialPage }) {
       <div className="mb-6">
         <h4 className="font-medium mb-2">Categories</h4>
         <div className="space-y-2">
-          {categoriesData?.categories?.map((category, index) => (
+          {isCategoryLoading ? (
+            <div className="space-y-2">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+              ))}
+            </div>
+              
+          ) : categoriesData?.categories?.map((category, index) => (
             <label
               key={index}
               className="flex items-center space-x-2 cursor-pointer">

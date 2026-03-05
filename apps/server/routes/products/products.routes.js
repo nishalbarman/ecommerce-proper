@@ -497,13 +497,13 @@ router.post("/view/:product", async (req, res) => {
       isSlug = true;
     }
 
-    const token = req.headers["authorization"]?.split(" ")[1];
+    const token = req?.cookies?.token || req.headers["authorization"]?.split(" ")[1];
     let user = null;
     if (token) {
       user = getTokenDetails(token);
     }
 
-    console.log("What are params", params);
+    console.log("What are user details", user?.userDetails);
 
     // check whether we have the product id or not
     if (!params?.product) {
@@ -529,7 +529,7 @@ router.post("/view/:product", async (req, res) => {
     let hasUserBoughtThisProduct = false;
     if (user && user.userDetails && user.userDetails._id) {
       hasUserBoughtThisProduct = await Order.countDocuments({
-        product: productData.product,
+        ...(isSlug ? { productSlug: product} : { product: product }),
         user: user?.userDetails?._id,
         orderType: productType,
         orderStatus: "Delivered",
@@ -540,6 +540,7 @@ router.post("/view/:product", async (req, res) => {
         orderType: productType,
         orderStatus: "Delivered",
       });
+      console.log("has user bought", hasUserBoughtThisProduct);
     }
 
     if (!productData) {

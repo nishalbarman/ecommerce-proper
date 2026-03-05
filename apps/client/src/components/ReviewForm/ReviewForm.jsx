@@ -15,7 +15,7 @@ export default function ReviewForm({
   onReviewSubmit,
 }) {
   const router = useRouter();
-  const jwtToken = useSelector((state) => state.auth.jwtToken);
+  // const jwtToken = useSelector((state) => state.auth.jwtToken);
   const [description, setDescription] = useState("");
   const [starsGiven, setStarsGiven] = useState(0);
   const [images, setImages] = useState([]);
@@ -38,7 +38,8 @@ export default function ReviewForm({
         fetchBy: "product",
         productType,
       },
-      { skip: !jwtToken }
+      // { skip: !jwtToken }
+      {skip: !productId}
     );
 
   console.log("What is existing review", existingReview);
@@ -140,7 +141,7 @@ export default function ReviewForm({
           productType,
           description,
           starsGiven,
-          imageIds,
+          image: imageIds,
         }).unwrap();
 
         toast.success("Review updated successfully!");
@@ -153,7 +154,7 @@ export default function ReviewForm({
           productType,
           description,
           starsGiven,
-          imageIds,
+          image: imageIds,
         }).unwrap();
 
         toast.success("Review submitted successfully!");
@@ -298,7 +299,7 @@ export default function ReviewForm({
           <button
             type="submit"
             disabled={isSubmitting || isUpdating || uploadingImages}
-            className="px-15 bg-[rgb(218,68,69)] text-white py-3 px-6 rounded-md hover:bg-[rgb(218,68,69)] focus:outline-none focus:ring-2 focus:bg-[rgb(218,68,69)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-white">
+            className="px-15 bg-[rgb(218,68,69)] text-white py-3 px-6 rounded-md hover:bg-[rgb(218,68,69)] focus:outline-none focus:ring-2 focus:bg-[rgb(218,68,69)] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-white cursor-pointer">
             {isSubmitting || isUpdating ? (
               <span className="flex items-center justify-center gap-2 text-white">
                 <FaSpinner
@@ -326,7 +327,7 @@ export default function ReviewForm({
             <button
               type="button"
               onClick={handleCancelEdit}
-              className="px-15 bg-gray-200 text-gray-700 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+              className="px-15 bg-gray-200 text-gray-700 py-3 px-6 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 cursor-pointer">
               Cancel
             </button>
           )}

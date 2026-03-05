@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import Slider from "react-slick";
 import { useRouter } from "next/navigation";
 import "slick-carousel/slick/slick.css";
@@ -24,19 +24,21 @@ const Carousel = ({ items = [] }) => {
   const sliderRef = useRef();
   const router = useRouter();
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    autoplay: true,
-    autoplaySpeed: 3500,
-    speed: 600,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-    swipeToSlide: true,
-    prevArrow: <CustomArrow direction="prev" />,
-    nextArrow: <CustomArrow direction="next" />,
-  };
+  const settings = useMemo(() => {
+    return {
+      dots: true,
+      infinite: true,
+      autoplay: true,
+      autoplaySpeed: 3500,
+      speed: 600,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: true,
+      swipeToSlide: true,
+      prevArrow: <CustomArrow direction="prev" />,
+      nextArrow: <CustomArrow direction="next" />,
+    };
+  }, []);
 
   return (
     <Slider {...settings} ref={sliderRef}>
@@ -45,9 +47,11 @@ const Carousel = ({ items = [] }) => {
           key={index}
           onClick={() => item.redirectUrl && router.push(item.redirectUrl)}
           className="cursor-pointer px-2 sm:px-3 md:px-4">
-          <div style={{
-            backgroundColor: item?.bgColor || "transparent"
-          }} className={`rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[${item?.bgColor}]`}>
+          <div
+            style={{
+              backgroundColor: item?.bgColor || "transparent",
+            }}
+            className={`rounded-xl sm:rounded-2xl overflow-hidden shadow-md group bg-[${item?.bgColor}] h-full`}>
             {/* Image Section */}
             <div className="relative w-full h-[220px] sm:h-[300px] md:h-[380px] lg:h-[500px] overflow-hidden">
               <Image
@@ -77,7 +81,7 @@ const Carousel = ({ items = [] }) => {
                     Shop now →
                   </p>
                 </div>
-              </div> 
+              </div>
 
               {/* Badge (all screens) */}
               {/* <div className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4">
@@ -96,7 +100,9 @@ const Carousel = ({ items = [] }) => {
               </h3>
 
               {item.description && (
-                <p className="text-sm text-gray-600 mt-1 mb-1">{item.description}</p>
+                <p className="text-sm text-gray-600 mt-1 mb-1">
+                  {item.description}
+                </p>
               )}
 
               {/* <p className="text-[rgb(219,69,69)] text-sm mt-2 font-semibold">

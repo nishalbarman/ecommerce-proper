@@ -241,7 +241,7 @@ const OrderViewPage = ({ params }) => {
                             }}
                             className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
                             <Link
-                              href={`/products/view/${item?.productSlug || item?.title?.toLowerCase().replace(/\s+/g, "-")}}`}>
+                              href={`/products/view/${item?.productSlug}`}>
                               <img
                                 className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
                                 src={item?.previewImage?.imageUrl}
@@ -267,7 +267,7 @@ const OrderViewPage = ({ params }) => {
                             )}
                             <div className="flex justify-between items-start">
                               <Link
-                                href={`/products/view/${item?._id}`}
+                                href={`/products/view/${item?.productSlug}`}
                                 className="text-lg font-medium text-gray-800 hover:text-blue-600 transition-colors">
                                 {item?.title}
                               </Link>

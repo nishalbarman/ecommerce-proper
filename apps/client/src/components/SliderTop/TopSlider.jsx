@@ -3,6 +3,8 @@ import Carousel from "../Carousel/Carousel";
 import axios from "axios";
 import CategoryLink from "../SliderTopLinks/CategoryLink";
 
+import "./swiper-style.css";
+
 const getBanners = async () => {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;
@@ -161,7 +163,7 @@ async function TopSlider() {
 
   return (
     <>
-      <div className="flex justify-between gap-[6%] mt-[4px] lg:mt-10">
+      <div className="flex justify-between gap-[6%] mt-[4px] lg:mt-10 max-sm:mb-15">
         {/* <div className="hidden flex-col items-center justify-center xl:flex gap-[30px] justify-start items-center w-[400px]">
         {categoryLinks.map((item) => (
           <CategoryLink {...item} />

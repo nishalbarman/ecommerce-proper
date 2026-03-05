@@ -153,7 +153,7 @@ function ViewSingleOrder() {
     isLoading: isOrderGroupLoading,
     isSuccess: isOrderGroupSuccess,
   } = useGetOrderGroupDetailsQuery(groupOrderId, {
-    // skip: !groupOrderId, // skips when empty string — this is fine
+    skip: !groupOrderId, // skips when empty string — this is fine
   });
 
   useEffect(() => {
@@ -283,7 +283,7 @@ function ViewSingleOrder() {
               onSubmit={(e: BaseSyntheticEvent) => {
                 const id = e.target.groupId.value.trim();
                 setGroupOrderId(id); // ← keep local state in sync
-                setSearchParams({ groupId: id });
+                setSearchParams(prev => ({ ...prev, groupId: id }));
               }}>
               <label htmlFor="groupId" className="block font-bold mb-2">
                 Order Group ID

@@ -166,9 +166,12 @@ router.post(
       const { product, productType, description, starsGiven, images } =
         req.body;
 
-      const imageIds = imageIds.map(
-        (imageId) => new mongoose.Types.ObjectId(imageId),
-      );
+      let imageIds = [];
+      if (images && images.length > 0) {
+        imageIds = images.map(
+          (imageId) => new mongoose.Types.ObjectId(imageId),
+        );
+      }
 
       console.log(req.body);
 
@@ -336,9 +339,16 @@ router.patch(
         productType,
         description,
         starsGiven,
-        imageIds,
+        images,
         feedbackId,
       } = req.body;
+
+      let imageIds = [];
+      if (images && images.length > 0) {
+        imageIds = images.map(
+          (imageId) => new mongoose.Types.ObjectId(imageId),
+        );
+      }
 
       const errors = [];
 
@@ -489,7 +499,7 @@ router.post(
       const feedback =
         await Feedback.findOne(filter).populate("images  product");
 
-      return res.status(200).json({ data: feedback });
+      return res.status(200).json({ feedback: feedback });
     } catch (error) {
       console.error(TAG, error);
       return res.status(500).json({ message: error.message });

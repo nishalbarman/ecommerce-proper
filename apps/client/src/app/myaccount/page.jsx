@@ -148,11 +148,11 @@ const MyAccountPage = () => {
       };
       if (formData.password) payload.password = formData.password;
 
-      const response = await axios.patch(`/user/update`, payload, {
+      const response = await axios.patch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/user/update`, payload, {
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
         },
       });
 

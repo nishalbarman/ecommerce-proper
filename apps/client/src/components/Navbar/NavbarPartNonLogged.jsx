@@ -75,7 +75,7 @@ function NavbarPartNonLogged() {
                 />
                 <div className="h-[25px] w-[25px] mr-3 flex items-center">
                   {/* <button onSubmit={handleSearchSubmit}> */}
-                  <button onClick={handleSearchSubmit}>
+                  <button className="cursor-pointer" onClick={handleSearchSubmit}>
                     <CiSearch size={27} />
                   </button>
                 </div>
@@ -210,19 +210,24 @@ function NavbarPartNonLogged() {
           <>
             <div className="flex items-center justify-center gap-5 h-[100%]">
               {/* search bar with icon */}
-              <div className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-md bg-white border border-gray-200 ">
+              {pathname === "/products" || (
+              <div
+                // href={"/products"}
+                className="hidden lg:flex items-center justify-center h-[42px] w-fit rounded-[4px] bg-white border-gray-200 border-1 ">
                 <input
-                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full outline-none border-none p-4 bg-transparent"
+                  className="font-andika tracking-[1px] flex items-center placeholder:text-sm h-full w-full border-black rounded-[4px] bg-transparent p-4 focus:outline-none focus:ring-none border-none outline-none"
                   type="text"
                   name="search-text"
+                  onChange={(e) => setLocalSearch(e.target.value)}
                   placeholder="What are you looking for?"
                 />
                 <div className="h-[25px] w-[25px] mr-3 flex items-center">
-                  <div className="h-[25px] w-[25px] mr-3 flex items-center">
+                  {/* <button onSubmit={handleSearchSubmit}> */}
+                  <button className="cursor-pointer" onClick={handleSearchSubmit}>
                     <CiSearch size={27} />
-                  </div>
+                  </button>
                 </div>
-              </div>
+              </div>)}
 
               <div className="h-full w-fit relative group flex items-center">
                 <div className="h-fit w-fit relative group mb-[8px]">
