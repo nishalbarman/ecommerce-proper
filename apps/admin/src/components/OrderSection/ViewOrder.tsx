@@ -563,9 +563,13 @@ function ViewSingleOrder() {
 
                             <div className="flex items-center gap-2">
                               <OrderStatus status={orderGroup.orderStatus} />
-                              <button onClick={()=>{
-                                resetOrderInfo();
-                              }} className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-sm cursor-pointer h-full">
+                              <button
+                                onClick={() => {
+                                  //? TODO needs to implement it later
+                                  console.log("reset order info todo");
+                                  // resetOrderInfo();
+                                }}
+                                className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-sm cursor-pointer h-full">
                                 <TbRefresh className="animate-spin" />
                                 <span>Reset Order</span>
                               </button>

@@ -8,12 +8,15 @@ const {
 
 const bannerSchema = new mongoose.Schema(
   {
-    imageUrl: { type: String, required: true },
+    image: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
     title: { type: String, required: true },
     altText: { type: String, required: true },
     description: { type: String, required: true },
     redirectUrl: { type: String, required: false, default: null },
-    bgColor: { type: String, required: true },
+    // bgColor: { type: String, required: true },
     key: { type: String, required: true, unique: true },
   },
   {
@@ -23,7 +26,7 @@ const bannerSchema = new mongoose.Schema(
         return this.where({});
       },
     },
-  }
+  },
 );
 
 const Banner =

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const getImageColors = require("get-image-colors");
+const slugify = require("slugify");
 
 const Banner = require("../../models/banner.model");
 
@@ -51,30 +52,21 @@ router.post(
       const categoryData = req.body?.categoryData;
 
       if (!categoryData) {
-        return res.status(400).json({ message: "Category Data Not Found" });
+        return res.status(400).json({ message: "Banner Data Not Found" });
       }
-
-      // Now we are going to save the product to our database
-
-      console.log(categoryData);
-
-      const imageColors = await getImageColors(categoryData.imageUrl, {
-        count: 5,
-      });
-
-      const [first, second, third, ...rest] = imageColors[0]._rgb;
-
-      const averageColor = `rgba(${first},${second},${third},0.8)`;
 
       // Create a new product document
       const newCategory = await Banner.create({
-        imageUrl: categoryData.imageUrl,
+        image: categoryData.image,
         title: categoryData.title,
         description: categoryData.description,
         redirectUrl: categoryData.redirectUrl,
-        bgColor: averageColor,
+        // bgColor: averageColor,
         altText: categoryData.title.replaceAll(" ", "-").toLowerCase(),
-        key: categoryData.title.trim().replaceAll(" ", "-").toLowerCase(),
+        slug: slugify(categoryData.title, {
+          lower: true,
+          strict: true,
+        }),
       });
 
       return res.status(200).json({

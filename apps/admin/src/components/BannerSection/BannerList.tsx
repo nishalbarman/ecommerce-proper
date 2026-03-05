@@ -18,7 +18,7 @@ import { MdDeleteOutline } from "react-icons/md";
 const BannerList = () => {
   const [bannerData, setBannerData] = useState<Banner>({
     title: "",
-    imageUrl: "",
+    image: null,
     redirectUrl: "",
     description: "",
   });
@@ -33,10 +33,9 @@ const BannerList = () => {
     let isEverythingOk =
       !!bannerData?.title &&
       bannerData.title.length >= 3 &&
-      bannerData.imageUrl !== null &&
-      bannerData.imageUrl !== "" &&
-      bannerData.description !== null &&
-      bannerData.description !== "";
+      !!bannerData.image?.imageUrl &&
+      !!bannerData.image?.bgColor &&
+      !!bannerData.description;
     setIsSubmitDisabled(!isEverythingOk);
   }, [bannerData]);
 
@@ -61,7 +60,7 @@ const BannerList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       setBannerList(response.data?.banners);
       setTotalPages(response.data?.totalPages);
@@ -88,7 +87,7 @@ const BannerList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       console.log(response);
       toast.success("Banner deleted");
@@ -115,14 +114,14 @@ const BannerList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
 
       toast.success(response?.data?.message);
       setBannerData({
         title: "",
         redirectUrl: "",
-        imageUrl: "",
+        image: null,
         description: "",
       });
       getBanners();
@@ -131,7 +130,7 @@ const BannerList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -139,7 +138,7 @@ const BannerList = () => {
   };
 
   const [updateBannerId, setUpdateBannerId] = useState<undefined | string>(
-    undefined
+    undefined,
   );
 
   const handleUpdateBanner = async () => {
@@ -155,13 +154,13 @@ const BannerList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       toast.success(response?.data?.message);
       setBannerData({
         title: "",
         redirectUrl: "",
-        imageUrl: "",
+        image: null,
         description: "",
       });
 
@@ -172,7 +171,7 @@ const BannerList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -188,7 +187,10 @@ const BannerList = () => {
     }
   };
 
-  const [bannerViewImage, setBannerViewImage] = useState<string>("");
+  const [bannerViewImage, setBannerViewImage] = useState<{
+    imageUrl: string;
+    bgColor: string;
+  }>({ imageUrl: "", bgColor: "" });
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
@@ -256,7 +258,7 @@ const BannerList = () => {
                   <label
                     htmlFor="redirectUrl"
                     className="block font-semibold mb-2">
-                    Banner RedirectUrl
+                    Banner Redirect Path
                   </label>
                   <input
                     type="text"
@@ -291,17 +293,20 @@ const BannerList = () => {
                     Banner Images
                   </label>
                   <div className="flex max-md:flex-col gap-4 h-[282.5px]">
-                    {!bannerData.imageUrl ? (
+                    {!bannerData?.image?.imageUrl ? (
                       <AssetPicker
                         classX="h-[282.5px]"
                         htmlFor="previewImage"
                         fileSelectCallback={(
-                          imageItems: Array<FileLibraryListItem>
+                          imageItems: Array<FileLibraryListItem>,
                         ) => {
                           setBannerData((prev) => {
                             return {
                               ...prev,
-                              imageUrl: imageItems[0].imageLink,
+                              image: {
+                                imageUrl: imageItems[0].imageLink,
+                                bgColor: imageItems[0].bgColor,
+                              },
                             };
                           });
                         }}
@@ -311,14 +316,14 @@ const BannerList = () => {
                       <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded  h-[282.5px]">
                         <img
                           className="w-full h-full w-[200px] aspect-square object-contain"
-                          src={bannerData.imageUrl as string}
+                          src={bannerData?.image?.imageUrl as string}
                         />
                         <button
                           onClick={() => {
                             setBannerData((prev) => {
                               return {
                                 ...prev,
-                                imageUrl: null,
+                                image: null,
                               };
                             });
                           }}
@@ -389,7 +394,7 @@ const BannerList = () => {
                   onClick={() => {
                     setBannerData({
                       title: "",
-                      imageUrl: "",
+                      image: null,
                       redirectUrl: "",
                     });
                     setUpdateBannerId(undefined);
@@ -450,11 +455,14 @@ const BannerList = () => {
                         <td
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
-                            if (item?.imageUrl)
-                              setBannerViewImage(item.imageUrl);
+                            if (item?.image)
+                              setBannerViewImage({
+                                imageUrl: item.image?.imageUrl,
+                                bgColor: item.image?.bgColor,
+                              });
                           }}>
                           <img
-                            src={item.imageUrl as string}
+                            src={item.image?.imageUrl as string}
                             alt={item.title}
                             className="min-w-10 min-h-10 h-10 w-10 rounded-full object-cover"
                           />
@@ -473,12 +481,12 @@ const BannerList = () => {
                           <div className="flex justify-center space-x-2">
                             <button
                               onClick={() => {
-                                setUpdateBannerId(item._id);
+                                setUpdateBannerId(item?._id);
                                 setBannerData((prev) => {
                                   return {
                                     ...prev,
                                     title: item.title,
-                                    imageUrl: item.imageUrl,
+                                    imageUrl: item?.image?.imageUrl,
                                     redirectUrl: item.redirectUrl,
                                     description: item.description || "",
                                   };
@@ -518,7 +526,7 @@ const BannerList = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, totalPages)
+                          Math.min(prev + 1, totalPages),
                         )
                       }
                       disabled={paginationPage === totalPages}
@@ -570,9 +578,10 @@ const BannerList = () => {
       {bannerViewImage && (
         <ViewImage
           clearItem={() => {
-            setBannerViewImage("");
+            setBannerViewImage(null);
           }}
-          imageUrl={bannerViewImage}
+          imageUrl={bannerViewImage?.imageUrl}
+          bgColor={bannerViewImage?.bgColor}
         />
       )}
     </div>

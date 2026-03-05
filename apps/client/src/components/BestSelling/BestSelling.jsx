@@ -3,7 +3,7 @@ import TitleWithBar from "../TitleWithBar/TitleWithBar";
 
 // import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
 import Link from "next/link";
-import ProductSlider from "../ProductComps/ProductSliderTwo/ProductSlider";
+import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
 
 async function BestSelling() {
   const backendUrl = process.env.NEXT_PUBLIC_DOMAIN_URL;

@@ -6,6 +6,8 @@ import ReviewSection from "@/components/ReviewSection/ReviewSection";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import "./swiper-style.css";
+
 // const Swiper = dynamic(() => import("swiper/react").then((mod) => mod.Swiper), {
 //   ssr: false,
 // });
@@ -260,17 +262,20 @@ export default function ViewOneProductClient({ initialProductData }) {
 
   const checkCartStatus = useCallback(async (productSlug, variantId) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/cart/incart/${productSlug}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": `application/json`,
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/cart/incart/${productSlug}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": `application/json`,
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            variant: !!variantId ? variantId : null,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          variant: !!variantId ? variantId : null,
-        }),
-      });
+      );
       const data = await response.json();
       console.log("Cart status response:", data);
       return data.incart;
@@ -568,7 +573,11 @@ export default function ViewOneProductClient({ initialProductData }) {
 
                     {/* Slider Images */}
                     {images?.map((image, index) => (
-                      <SwiperSlide key={index}>
+                      <SwiperSlide
+                        style={{
+                          margin: 0,
+                        }}
+                        key={index}>
                         <img
                           style={{
                             backgroundColor: image.bgColor,
@@ -607,7 +616,7 @@ export default function ViewOneProductClient({ initialProductData }) {
 
                     {/* Slider Images Thumbnails */}
                     {images?.map((image, index) => (
-                      <SwiperSlide key={index}>
+                      <SwiperSlide className="pr-2" key={index}>
                         <img
                           style={{
                             backgroundColor: image.bgColor,

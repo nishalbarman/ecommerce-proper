@@ -7,91 +7,16 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useSelector } from "react-redux";
 
-import ProductItem from "../ProductItem/ProductItem";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Thumbs } from "swiper/modules";
+import "swiper/css";
 import Image from "next/image";
+import "./swiper-style.css";
+import ProductItem from "../ProductItem/ProductItem";
 
 import { CartApi, WishlistApi } from "@/redux";
 
-const CustomPrevArrow = ({ onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="absolute flex items-center justify-center text-white rounded-full h-[25px] w-[25px] bg-[#F5F5F5] backdrop-blur-[10px] flex items-center justify-center left-0 scale-[2] top-[40%] transform translate-y-[-50%] cursor-pointer z-10 max-[597px]:w-4 max-[597px]:h-4 hover:invert group/rightarrow shadow">
-      <Image
-        className="group-hover/rightarrow:invert-1 max-[597px]:w-2 max-[597px]:h-2"
-        src={"/assets/leftarrow.svg"}
-        width={10}
-        height={10}
-        alt="left arrow"
-      />
-    </div>
-  );
-};
-
-const CustomNextArrow = ({ onClick }) => {
-  return (
-    <div
-      onClick={onClick}
-      className="absolute flex items-center justify-center text-white rounded-full h-[25px] w-[25px] bg-[#F5F5F5] backdrop-blur-[10px] flex items-center justify-center right-0 scale-[2] top-[40%] transform translate-y-[-50%] cursor-pointer z-10 max-[597px]:w-4 max-[597px]:h-4 hover:invert group/rightarrow shadow">
-      <Image
-        className="group-hover/rightarrow:invert-1 max-[597px]:w-2 max-[597px]:h-2"
-        src={"/assets/rightarrow.svg"}
-        width={10}
-        height={10}
-        alt="right arrow"
-      />
-    </div>
-  );
-};
-
-const ProductSlider = ({ items }) => {
-  const settings = {
-    dots: false,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 2000, // Adjust as needed
-        settings: {
-          slidesToShow: 5,
-          slidesToScroll: 5,
-        },
-      },
-      {
-        breakpoint: 1700, // Adjust as needed
-        settings: {
-          slidesToShow: 4,
-          slidesToScroll: 4,
-        },
-      },
-      {
-        breakpoint: 1364, // Adjust as needed
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3,
-        },
-      },
-      {
-        breakpoint: 883, // Adjust as needed
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2,
-        },
-      },
-      {
-        breakpoint: 528, // Adjust as needed
-        settings: {
-          slidesToShow: 1,
-          slidesToScroll: 1,
-        },
-      },
-    ],
-    prevArrow: <CustomPrevArrow />,
-    nextArrow: <CustomNextArrow />,
-  };
-
+const ProductSlider = ({ products }) => {
   const navigator = useRouter();
 
   const { useAddWishlistMutation, useDeleteWishlistMutation } = WishlistApi;
@@ -117,26 +42,57 @@ const ProductSlider = ({ items }) => {
   ] = useDeleteCartMutation();
 
   return (
-    <Slider {...settings}>
-      {items?.map((item, index) => (
-        <div
-          className="w-full h-fit flex flex-row justify-center p-1"
-          key={index}>
-          <ProductItem
-            productDetails={{ ...item }}
-            options={{
-              isRatingVisible: false,
-              isEyeVisible: true,
-              isWishlistIconVisible: true,
-              deleteCartIconVisible: false,
-              deleteWishlistIconVisible: false,
-            }}
-            wishlistIdMapped={wishlistIdMapped}
-            cartIdMapped={cartIdMapped}
-          />
-        </div>
-      ))}
-    </Slider>
+    <div>
+      <Swiper
+        modules={[Navigation, Pagination, Thumbs]}
+        navigation={true}
+        spaceBetween={10}
+        slidesPerView={3}
+        height={"auto"}
+        breakpoints={{
+          0: {
+            slidesPerView: 1,
+            spaceBetween: 0,
+          },
+          288: {
+            slidesPerView: 2,
+            spaceBetween: 10,
+          },
+          580: {
+            slidesPerView: 3,
+            spaceBetween: 10,
+          },
+          900: {
+            slidesPerView: 4,
+            spaceBetween: 10,
+          },
+          1024: {
+            slidesPerView: 5,
+            spaceBetween: 10,
+          },
+        }}
+        enabled={true}
+        // centeredSlides={true}
+        className="w-full bg-transparent mb-4">
+        {/* Slider Images */}
+        {products?.map((productItem, index) => (
+          <SwiperSlide className="swiper-slide-style" key={index}>
+            <ProductItem
+              productDetails={{ ...productItem }}
+              options={{
+                isRatingVisible: false,
+                isEyeVisible: true,
+                isWishlistIconVisible: true,
+                deleteCartIconVisible: false,
+                deleteWishlistIconVisible: false,
+              }}
+              wishlistIdMapped={wishlistIdMapped}
+              cartIdMapped={cartIdMapped}
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
   );
 };
 

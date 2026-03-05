@@ -26,7 +26,7 @@ ChartJS.register(
   Tooltip,
   Legend,
   Filler,
-  RadialLinearScale
+  RadialLinearScale,
 );
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";

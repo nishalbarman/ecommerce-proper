@@ -88,7 +88,7 @@ const OrderList = () => {
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md overflow-y-auto">
         <h1 className="text-2xl font-semibold mb-6">Orders Management</h1>
 
         {/* Filters */}
@@ -386,7 +386,7 @@ const ShowPreviewImage = ({ previewImages }) => {
 
                     {showOverlay && (
                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded">
-                        <span className="text-white text-xs font-bold">
+                        <span className="text-white text-xs font-bold select-none cursor-normal">
                           +{extraCount}
                         </span>
                       </div>

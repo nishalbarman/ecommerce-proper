@@ -17,7 +17,7 @@ import HeroProduct from "@/components/HeroSection/HeroSection";
 import Testimonials from "@/components/TestimonialsSection/TestimonialsSection";
 import { Suspense } from "react";
 import HeroSkeleton from "@/components/HeroSection/HeroSkeleton";
-import ProductSliderSkel from "@/components/ProductComps/ProductSlider/ProductSliderSkeleton";
+import ProductSliderSkel from "@/components/ProductComps/ProductSliderOld/ProductSliderSkeleton";
 import TestimonialsSkeleton from "@/components/TestimonialsSection/TestimonialsSectionSkeleton";
 import FeaturesSkeleton from "@/components/FeatureSection/FeaturesSkeleton";
 import AboutSkeleton from "@/components/AboutSection/AboutSkeleton";

@@ -2,7 +2,7 @@
 
 import React from "react";
 import TitleWithBar from "../TitleWithBar/TitleWithBar";
-import ProductSlider from "../ProductComps/ProductSlider/ProductSlider";
+import ProductSlider from "../ProductComps/ProductSliderOld/ProductSlider";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 

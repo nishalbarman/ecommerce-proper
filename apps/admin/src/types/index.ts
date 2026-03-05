@@ -173,7 +173,7 @@ export type Category = {
 export type Banner = {
   _id?: string;
   title: string;
-  imageUrl: string | null;
+  image: Image | null;
   redirectUrl: string | null;
   key?: string;
   [key: string]: any;
