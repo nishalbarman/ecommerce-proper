@@ -281,9 +281,10 @@ function ViewSingleOrder() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-2">
             <form
               onSubmit={(e: BaseSyntheticEvent) => {
+                e.preventDefault();
                 const id = e.target.groupId.value.trim();
                 setGroupOrderId(id); // ← keep local state in sync
-                setSearchParams(prev => ({ ...prev, groupId: id }));
+                setSearchParams(new URLSearchParams(`?groupId=${id}`));
               }}>
               <label htmlFor="groupId" className="block font-bold mb-2">
                 Order Group ID
