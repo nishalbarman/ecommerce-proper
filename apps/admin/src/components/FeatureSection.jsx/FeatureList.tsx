@@ -32,8 +32,8 @@ const FeatureList = () => {
   useEffect(() => {
     let isEverythingOk =
       !!featureData?.featureName &&
-      featureData.featureName.length >= 3 &&
-      !!featureData.featureImage.imageUrl;
+      featureData.featureName?.length >= 3 &&
+      !!featureData.featureImage?.imageUrl;
     setIsSubmitDisabled(!isEverythingOk);
   }, [featureData]);
 
@@ -292,7 +292,7 @@ const FeatureList = () => {
                   Feature Image
                 </label>
                 <div className="flex max-md:flex-col gap-4 h-40">
-                  {!featureData.featureImage.imageUrl ? (
+                  {!featureData.featureImage?.imageUrl ? (
                     <AssetPicker
                       classX="h-40"
                       htmlFor="previewImage"
@@ -303,8 +303,8 @@ const FeatureList = () => {
                           return {
                             ...prev,
                             featureImage: {
-                              imageUrl: imageItems[0].imageUrl,
-                              bgColor: imageItems[0].bgColor,
+                              imageUrl: imageItems[0]?.imageUrl,
+                              bgColor: imageItems[0]?.bgColor,
                             },
                           };
                         });
@@ -315,7 +315,7 @@ const FeatureList = () => {
                     <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                       <img
                         className="w-full h-full w-[200px] aspect-square object-contain"
-                        src={featureData.featureImage.imageUrl as string}
+                        src={featureData.featureImage?.imageUrl as string}
                       />
                       <button
                         onClick={() => {
@@ -436,11 +436,11 @@ const FeatureList = () => {
                         <td
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
-                            if (item?.featureImage.imageUrl)
+                            if (item?.featureImage?.imageUrl)
                               setCategoryViewImage(item.featureImage);
                           }}>
                           <img
-                            src={item.featureImage.imageUrl as string}
+                            src={item.featureImage?.imageUrl as string}
                             alt={item.featureName}
                             className="w-12 h-12 rounded-full"
                           />
@@ -465,8 +465,8 @@ const FeatureList = () => {
                                     ...prev,
                                     featureName: item.featureName,
                                     featureImage: {
-                                      imageUrl: item.featureImage.imageUrl,
-                                      bgColor: item.featureImage.bgColor,
+                                      imageUrl: item.featureImage?.imageUrl,
+                                      bgColor: item.featureImage?.bgColor,
                                     },
                                   };
                                 });

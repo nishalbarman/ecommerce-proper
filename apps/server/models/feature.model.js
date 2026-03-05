@@ -4,12 +4,16 @@ const featureSchema = new mongoose.Schema(
   {
     featureName: { type: String, required: true },
     featureDescription: { type: String, required: true },
-    featureImageUrl: { type: String, required: true },
-    featureKey: { type: String, required: false, unique: true },
+    featureImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
+    featureSlug: { type: String, required: false, unique: true },
+    store: { type: mongoose.Schema.Types.ObjectId, ref: "stores", required: false },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Feature =

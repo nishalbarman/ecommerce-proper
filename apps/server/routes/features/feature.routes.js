@@ -55,12 +55,10 @@ router.post(
 
       // Create a new product document
       const newFeature = await Feature.create({
-        featureImageUrl: featureData.featureImageUrl,
+        featureImage: featureData.featureImage,
         featureName: featureData.featureName,
-        featureKey: featureData.featureName
-          .trim()
-          .replaceAll(" ", "-")
-          .toLowerCase(),
+        featureSlug: slugify(featureData.featureName),
+        ...(user?.role === "store" ? { store: user?.store } : {}),
       });
 
       return res.status(200).json({
@@ -93,15 +91,18 @@ router.patch(
       }
 
       if (featureData?.featureName) {
-        featureData.featureKey = featureData.featureName
-          .trim()
-          .replaceAll(" ", "-")
-          .toLowerCase();
+        featureData.featureSlug = slugify(featureData.featureName);
       } else {
         delete featureData.featureName;
       }
 
-      await Feature.updateOne({ _id: featureId }, { $set: featureData });
+      await Feature.updateOne(
+        {
+          _id: featureId,
+          ...(user?.role === "store" ? { store: user?.store } : {}),
+        },
+        { $set: featureData },
+      );
 
       return res.status(200).json({
         message: `Feature updated`,
@@ -120,6 +121,7 @@ router.delete(
   async (req, res) => {
     try {
       const featureId = req.params?.featureId;
+      const user = req.user;
 
       if (!featureId) {
         return res.status(400).json({ message: "Feature ID Found" });
@@ -127,6 +129,7 @@ router.delete(
 
       const featureDelete = await Feature.deleteOne({
         _id: featureId,
+        ...(user?.role === "store" ? { store: user?.store } : {}),
       });
 
       return res.status(200).json({
