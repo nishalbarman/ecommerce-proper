@@ -204,7 +204,10 @@ const CategoryList = () => {
     [],
   );
 
-  const [categoryViewImage, setCategoryViewImage] = useState<string>("");
+  const [categoryViewImage, setCategoryViewImage] = useState<null | {
+    imageUrl: string;
+    bgColor: string;
+  }>(null);
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
@@ -397,9 +400,7 @@ const CategoryList = () => {
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
                             if (item?.categoryImage)
-                              setCategoryViewImage(
-                                item.categoryImage?.imageUrl,
-                              );
+                              setCategoryViewImage(item.categoryImage);
                           }}>
                           <img
                             src={item.categoryImage?.imageUrl as string}
@@ -522,9 +523,10 @@ const CategoryList = () => {
       {categoryViewImage && (
         <ViewImage
           clearItem={() => {
-            setCategoryViewImage("");
+            setCategoryViewImage(null);
           }}
-          imageUrl={categoryViewImage}
+          imageUrl={categoryViewImage?.imageUrl}
+          bgColor={categoryViewImage?.bgColor}
         />
       )}
     </div>

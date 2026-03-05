@@ -22,7 +22,7 @@ const FeatureList = () => {
   const [featureData, setFeatureData] = useState<Feature>({
     featureName: "",
     featureDescription: "",
-    featureImageUrl: "",
+    featureImage: null,
   });
 
   //   const categoryImageRef = useRef(null);
@@ -33,8 +33,7 @@ const FeatureList = () => {
     let isEverythingOk =
       !!featureData?.featureName &&
       featureData.featureName.length >= 3 &&
-      featureData.featureImageUrl !== null &&
-      featureData.featureImageUrl !== "";
+      !!featureData.featureImage.imageUrl;
     setIsSubmitDisabled(!isEverythingOk);
   }, [featureData]);
 
@@ -59,7 +58,7 @@ const FeatureList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       setFeatureList(response.data?.features);
       setTotalPages(response.data?.totalPages);
@@ -86,7 +85,7 @@ const FeatureList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       console.log(response);
       toast.success("Feature deleted");
@@ -113,14 +112,14 @@ const FeatureList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
 
       toast.success(response?.data?.message);
       setFeatureData({
         featureName: "",
         featureDescription: "",
-        featureImageUrl: "",
+        featureImage: null,
       });
       getFeatures();
     } catch (error: any) {
@@ -128,7 +127,7 @@ const FeatureList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -136,7 +135,7 @@ const FeatureList = () => {
   };
 
   const [updateFeatureById, setUpdateFeatureId] = useState<undefined | string>(
-    undefined
+    undefined,
   );
 
   const handleUpdateCategory = async () => {
@@ -152,13 +151,13 @@ const FeatureList = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        }
+        },
       );
       toast.success(response?.data?.message);
       setFeatureData({
         featureName: "",
         featureDescription: "",
-        featureImageUrl: "",
+        featureImage: null,
       });
 
       setUpdateFeatureId(undefined);
@@ -168,7 +167,7 @@ const FeatureList = () => {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Opps, Some error occured"
+          "Opps, Some error occured",
       );
     } finally {
       setIsFormSubmitting(false);
@@ -184,7 +183,10 @@ const FeatureList = () => {
     }
   };
 
-  const [categoryViewImage, setCategoryViewImage] = useState<string>("");
+  const [categoryViewImage, setCategoryViewImage] = useState<{
+    imageUrl: string;
+    bgColor: string;
+  } | null>(null);
 
   return (
     <div className="flex flex-col flex-1 p-3 md:p-6 bg-gray-100">
@@ -290,17 +292,20 @@ const FeatureList = () => {
                   Feature Image
                 </label>
                 <div className="flex max-md:flex-col gap-4 h-40">
-                  {!featureData.featureImageUrl ? (
+                  {!featureData.featureImage.imageUrl ? (
                     <AssetPicker
                       classX="h-40"
                       htmlFor="previewImage"
                       fileSelectCallback={(
-                        imageItems: Array<FileLibraryListItem>
+                        imageItems: Array<FileLibraryListItem>,
                       ) => {
                         setFeatureData((prev) => {
                           return {
                             ...prev,
-                            featureImageUrl: imageItems[0].imageLink,
+                            featureImage: {
+                              imageUrl: imageItems[0].imageUrl,
+                              bgColor: imageItems[0].bgColor,
+                            },
                           };
                         });
                       }}
@@ -310,14 +315,14 @@ const FeatureList = () => {
                     <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
                       <img
                         className="w-full h-full w-[200px] aspect-square object-contain"
-                        src={featureData.featureImageUrl as string}
+                        src={featureData.featureImage.imageUrl as string}
                       />
                       <button
                         onClick={() => {
                           setFeatureData((prev) => {
                             return {
                               ...prev,
-                              featureImageUrl: null,
+                              featureImage: null,
                             };
                           });
                         }}
@@ -371,7 +376,7 @@ const FeatureList = () => {
                     setFeatureData({
                       featureName: "",
                       featureDescription: "",
-                      featureImageUrl: "",
+                      featureImage: null,
                     });
                     setUpdateFeatureId(undefined);
                   }}
@@ -431,11 +436,11 @@ const FeatureList = () => {
                         <td
                           className="px-6 py-4 whitespace-nowrap"
                           onClick={() => {
-                            if (item?.featureImageUrl)
-                              setCategoryViewImage(item.featureImageUrl);
+                            if (item?.featureImage.imageUrl)
+                              setCategoryViewImage(item.featureImage);
                           }}>
                           <img
-                            src={item.featureImageUrl as string}
+                            src={item.featureImage.imageUrl as string}
                             alt={item.featureName}
                             className="w-12 h-12 rounded-full"
                           />
@@ -459,7 +464,10 @@ const FeatureList = () => {
                                   return {
                                     ...prev,
                                     featureName: item.featureName,
-                                    featureImageUrl: item.featureImageUrl,
+                                    featureImage: {
+                                      imageUrl: item.featureImage.imageUrl,
+                                      bgColor: item.featureImage.bgColor,
+                                    },
                                   };
                                 });
                               }}
@@ -497,7 +505,7 @@ const FeatureList = () => {
                     <button
                       onClick={() =>
                         setPaginationPage((prev) =>
-                          Math.min(prev + 1, totalPages)
+                          Math.min(prev + 1, totalPages),
                         )
                       }
                       disabled={paginationPage === totalPages}
@@ -549,9 +557,10 @@ const FeatureList = () => {
       {categoryViewImage && (
         <ViewImage
           clearItem={() => {
-            setCategoryViewImage("");
+            setCategoryViewImage(null);
           }}
-          imageUrl={categoryViewImage}
+          imageUrl={categoryViewImage?.imageUrl}
+          bgColor={categoryViewImage?.bgColor}
         />
       )}
     </div>

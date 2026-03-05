@@ -183,7 +183,7 @@ export type Feature = {
   _id?: string;
   featureName: string;
   featureDescription: string;
-  featureImageUrl: string | null;
+  featureImage: Image | null;
   createdAt?: string;
   updatedAt?: string;
   __v?: number | undefined;
