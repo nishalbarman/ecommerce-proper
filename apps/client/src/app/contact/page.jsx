@@ -9,7 +9,9 @@ export default async function ContactUsRoute(props) {
 
   let webData = {};
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/web-config`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/web-config`,
+    );
     webData = await response.json();
     console.log("fetch web config:", webData);
   } catch (error) {
@@ -143,14 +145,18 @@ export default async function ContactUsRoute(props) {
                 {/* <FaWhatsapp color={"gray"} size={24} /> */}
                 WhatsApp
               </a>
-              ·
-              <a
-                href={webData.facebookLink}
-                target="_blank"
-                className="text-gray-500 underline">
-                {/* <PiFacebookLogoBold color={"gray"} size={25} /> */}
-                Facebook
-              </a>
+              {webData?.facebookLink && (
+                <>
+                  <span>·</span>
+                  <a
+                    href={webData?.facebookLink}
+                    target="_blank"
+                    className="text-gray-500 underline">
+                    {/* <PiFacebookLogoBold color={"gray"} size={25} /> */}
+                    Facebook
+                  </a>
+                </>
+              )}
               ·
               <a
                 href={webData.instagramLink}

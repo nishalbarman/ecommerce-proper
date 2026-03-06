@@ -35,16 +35,21 @@ import { setLoginModalState } from "@/redux/slices/loginModalSlice";
 
 import { useGetOneProductQuery } from "@/redux/apis/productApi";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { useTopLoader } from "nextjs-toploader";
+import { useCookies } from "next-client-cookies";
 
 export default function ViewOneProductClient({ initialProductData }) {
   // const cookie = await cookies();
   const navigate = useRouter();
+  const loader = useTopLoader();
 
   console.log("Initial Product Data", initialProductData);
 
   const { productSlug } = useParams();
 
-  const token = useSelector((state) => state.auth.jwtToken);
+  // const token = useSelector((state) => state.auth.jwtToken);
+  const clientCookies = useCookies();
+  const token = clientCookies.get("token");
 
   const { useAddOneToCartMutation } = CartApi;
 
@@ -357,6 +362,8 @@ export default function ViewOneProductClient({ initialProductData }) {
       dispatch(setLoginModalState({ modalVisible: true }));
       return;
     }
+
+    loader.start();
 
     setIsBying(true);
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
 
-import tree_leaf from "../../../public/bb_bg.png";
+// import tree_leaf from "../../../public/bb_bg.png";
 // import green_leaf_falling from "../../../public/green_leaf_falling.gif";
 
 const fetchHeroProduct = async () => {
@@ -26,6 +26,8 @@ const HeroProduct = async () => {
   const cookieStore = await cookies();
   const heroProduct = (await fetchHeroProduct(cookieStore)) || null;
 
+  console.log("Hero Image", heroProduct);
+
   if (!heroProduct) return null;
 
   return (
@@ -34,8 +36,8 @@ const HeroProduct = async () => {
       <div className="h-full w-full absolute top-0 left-0 pointer-events-none">
         <Image
           className="select-none drag-none opacity-7"
-          src={tree_leaf}
-          alt="Tree Leaf"
+          src={heroProduct?.heroBgImage?.imageUrl}
+          alt={heroProduct?.title || "Background Image"}
           layout="fill"
           objectFit="cover"
           quality={100}
@@ -74,7 +76,7 @@ const HeroProduct = async () => {
                 View Product
               </Link> */}
               <Link
-                href="/products"
+                href={`/products${!!heroProduct?.productSlug ? `/view/${heroProduct.productSlug}` : ""}`}
                 className="px-8 py-3 border-2 border-black text-black font-bold rounded-lg hover:bg-white/10 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 border-black border">
                 Explore
               </Link>
@@ -88,8 +90,8 @@ const HeroProduct = async () => {
               {/* <div className="absolute inset-0 bg-transparent rounded-3xl backdrop-blur-md transform rotate-8 scale-100 group-hover:rotate-5 group-hover:scale-105 transition-all duration-500"></div> */}
               <div className="relative overflow-hidden bg-[rgba(219,68,68,0.1)] rounded-3xl shadow-2xl transform group-hover:-translate-y-2 transition-all duration-500">
                 <Image
-                  src={heroProduct.imageUrl}
-                  alt={heroProduct.title}
+                  src={heroProduct?.heroImage?.imageUrl}
+                  alt={heroProduct?.title || "Hero Product Image"}
                   width={600}
                   height={600}
                   className="object-contain w-full h-[500px] max-md:h-60"

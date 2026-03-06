@@ -32,7 +32,9 @@ router.post(
         !configData.brandName ||
         !configData.brandEmail ||
         !configData.address ||
-        !configData.websiteUrl
+        !configData.websiteUrl ||
+        !configData.brandLogo?.imageUrl ||
+        !configData.brandLogo?.bgColor
       ) {
         return res.status(400).json({ message: "Missing required fields" });
       }
@@ -46,7 +48,7 @@ router.post(
           config._id,
           {
             $set: configData,
-            updatedAt: Date.now(),
+            // updatedAt: Date.now(),
           },
           { new: true },
         );

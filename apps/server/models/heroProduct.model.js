@@ -5,14 +5,22 @@ const heroProductSchema = new mongoose.Schema(
     title: { type: String, required: true },
     category: { type: String, required: true },
     shortDescription: { type: String, required: true },
-    imageUrl: { type: String, required: true },
-    productReference: {
+    heroImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
+    heroBgImage: {
+      imageUrl: { type: String, required: true },
+      bgColor: { type: String, required: true },
+    },
+    productSlug: { type: String, required: true },
+    product: {
       type: mongoose.Schema.ObjectId,
       ref: "products",
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const HeroProduct =

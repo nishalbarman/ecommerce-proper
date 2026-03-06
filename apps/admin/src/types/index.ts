@@ -265,8 +265,10 @@ export type Center = {
 export interface HeroProduct {
   category: string;
   shortDescription: string;
-  imageUrl: string;
-  productReference: string; // Reference to a product ID
+  heroImage: Image | null;
+  heroBgImage: Image | null;
+  productSlug: string; 
+  product?: string; // Reference to a product ID
   [key: string]: any;
 }
 

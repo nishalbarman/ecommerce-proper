@@ -30,8 +30,7 @@ async function Footer() {
       facebookLink: "#",
       instagramLink: "#",
       websiteUrl: "..........",
-      about:
-        "Hi, I’m Nishal, a passionate full-stack developer specializing in the MERN stack (MongoDB, Express.js, React.js, and Node.js). I love building clean, responsive, and user-friendly web applications. While I’m confident in my coding skills, I’m still learning how to explain technical concepts in fluent English — but I’m improving every day!",
+      about: "..........",
     };
   }
 
@@ -104,12 +103,14 @@ async function Footer() {
                 target="_blank">
                 <FaWhatsapp color={"#FFFFFF"} fill="white" size={22} />
               </a>
-              <a
-                className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors bg-white/10"
-                href={`${webData.facebookLink}`}
-                target="_blank">
-                <PiFacebookLogoBold color={"white"} fill="white" size={23} />
-              </a>
+              {webData.facebookLink && (
+                <a
+                  className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors bg-white/10"
+                  href={`${webData.facebookLink}`}
+                  target="_blank">
+                  <PiFacebookLogoBold color={"white"} fill="white" size={23} />
+                </a>
+              )}
               <a
                 className="h-10 w-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors bg-white/10"
                 href={`${webData.instagramLink}`}

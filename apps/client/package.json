@@ -44,6 +44,10 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.19",
-    "@types/get-image-colors": "^4.0.5"
+    "@types/get-image-colors": "^4.0.5",
+    "@types/json2mq": "^0.2.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/slick-carousel": "^1.6.40"
   }
 }

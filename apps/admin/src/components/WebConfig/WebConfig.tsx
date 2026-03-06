@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAppSelector } from "../../redux/index";
+import AssetPicker from "../AssetPicker/AssetPicker";
+import { FileLibraryListItem } from "react-media-library";
+import { MdDeleteOutline } from "react-icons/md";
+import { Image } from "@/types";
 
 interface WebConfig {
   brandName: string;
@@ -15,6 +19,7 @@ interface WebConfig {
   deliveryPrice: number;
   freeDeliveryAbove: number;
   about: string;
+  brandLogo: Image | null;
 }
 
 const WebConfigPage = () => {
@@ -30,6 +35,7 @@ const WebConfigPage = () => {
     deliveryPrice: 0,
     freeDeliveryAbove: 0,
     about: "",
+    brandLogo: null,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -44,7 +50,7 @@ const WebConfigPage = () => {
             headers: {
               Authorization: `Bearer ${jwtToken}`,
             },
-          }
+          },
         );
         if (response.data) {
           setConfig(response.data);
@@ -61,7 +67,7 @@ const WebConfigPage = () => {
   }, []);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setConfig((prev) => ({
@@ -84,15 +90,11 @@ const WebConfigPage = () => {
     const id = toast.loading("Saving configuration...");
 
     try {
-      await axios.post(
-        `${process.env.VITE_APP_API_URL}/web-config`,
-        config,
-        {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        }
-      );
+      await axios.post(`${process.env.VITE_APP_API_URL}/web-config`, config, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
       toast.update(id, {
         render: "Configuration saved successfully!",
         type: "success",
@@ -112,6 +114,21 @@ const WebConfigPage = () => {
     }
   };
 
+  const handleOnFileSelected = useCallback(
+    (imageItems: Array<FileLibraryListItem>) => {
+      setConfig((prev) => {
+        return {
+          ...prev,
+          brandLogo: {
+            imageUrl: imageItems[0]?.imageLink,
+            bgColor: imageItems[0]?.bgColor,
+          },
+        };
+      });
+    },
+    [],
+  );
+
   if (isLoading) {
     return <div className="p-6">Loading...</div>;
   }
@@ -126,10 +143,55 @@ const WebConfigPage = () => {
 
       <div className="bg-white shadow-md rounded p-3 md:p-6 mb-4">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {/* Brand Info */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Brand Information</h3>
+
+              <div className="mb-4 w-full">
+                <label
+                  htmlFor="brandName"
+                  className="block text-sm font-medium text-gray-700">
+                  Logo *
+                </label>
+                <div className="flex max-md:flex-col gap-4 h-40">
+                  {!config.brandLogo ? (
+                    <AssetPicker
+                      classX="h-40 border-dashed border-gray-400 rounded cursor-pointer flex flex-col justify-center items-center text-gray-500 hover:border-gray-600"
+                      htmlFor="previewImage"
+                      fileSelectCallback={handleOnFileSelected}
+                      multiSelect={false}
+                    />
+                  ) : (
+                    <div className="relative w-full flex justify-center items-center aspect-square overflow-hidden mt-1 border-2 rounded">
+                      <img
+                        className="w-full h-full w-[200px] aspect-square object-contain"
+                        src={config.brandLogo?.imageUrl as string}
+                      />
+                      <button
+                        onClick={() => {
+                          setConfig((prev) => {
+                            return {
+                              ...prev,
+                              brandLogo: null,
+                            };
+                          });
+                        }}
+                        type="button"
+                        className="absolute w-10 h-10 flex justify-center items-center top-1 right-1 bg-red-500 text-white rounded-full p-2 shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        {/* Remove */}
+                        <MdDeleteOutline size={20} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* {!config && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Note: Only image files are allowed (.jpg, .jpeg, .png, .gif)
+                  </p>
+                )} */}
+              </div>
 
               <div>
                 <label
@@ -255,81 +317,84 @@ const WebConfigPage = () => {
             </div>
 
             {/* Contact Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Contact Information</h3>
+            <div>
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Contact Information</h3>
+                <div>
+                  <label
+                    htmlFor="address"
+                    className="block text-sm font-medium text-gray-700">
+                    Address *
+                  </label>
+                  <textarea
+                    id="address"
+                    name="address"
+                    rows={5}
+                    value={config.address}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1"
+                    required
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="address"
-                  className="block text-sm font-medium text-gray-700">
-                  Address *
-                </label>
-                <textarea
-                  id="address"
-                  name="address"
-                  rows={5}
-                  value={config.address}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1"
-                  required
-                />
+                <div>
+                  <label
+                    htmlFor="about"
+                    className="block text-sm font-medium text-gray-700">
+                    About *
+                  </label>
+                  <textarea
+                    id="about"
+                    name="about"
+                    rows={5}
+                    value={config.about}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1 min-h-[178px]"
+                    required
+                  />
+                </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="about"
-                  className="block text-sm font-medium text-gray-700">
-                  About *
-                </label>
-                <textarea
-                  id="about"
-                  name="about"
-                  rows={5}
-                  value={config.about}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border px-2 py-1"
-                  required
-                />
-              </div>
-            </div>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+                {/* Brand Info */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Delivery Information
+                  </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Brand Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Delivery Information</h3>
-
-              <div>
-                <label
-                  htmlFor="deliveryPrice"
-                  className="block text-sm font-medium text-gray-700">
-                  Delivery Price
-                </label>
-                <input
-                  type="number"
-                  id="deliveryPrice"
-                  name="deliveryPrice"
-                  min="0"
-                  value={config.deliveryPrice}
-                  onChange={handleNumberChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="deliveryPrice"
-                  className="block text-sm font-medium text-gray-700">
-                  Free Delivery Price
-                </label>
-                <input
-                  type="number"
-                  id="freeDeliveryAbove"
-                  name="freeDeliveryAbove"
-                  min="0"
-                  value={config.freeDeliveryAbove}
-                  onChange={handleNumberChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
-                />
+                  <div>
+                    <label
+                      htmlFor="deliveryPrice"
+                      className="block text-sm font-medium text-gray-700">
+                      Delivery Price
+                    </label>
+                    <input
+                      type="number"
+                      id="deliveryPrice"
+                      name="deliveryPrice"
+                      min="0"
+                      value={config.deliveryPrice}
+                      onChange={handleNumberChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="deliveryPrice"
+                      className="block text-sm font-medium text-gray-700">
+                      Free Delivery Price
+                    </label>
+                    <input
+                      type="number"
+                      id="freeDeliveryAbove"
+                      name="freeDeliveryAbove"
+                      min="0"
+                      value={config.freeDeliveryAbove}
+                      onChange={handleNumberChange}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm h-10 border px-2"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
