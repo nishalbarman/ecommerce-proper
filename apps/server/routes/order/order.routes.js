@@ -716,7 +716,7 @@ router.patch(
 //! CANCEL INDIVIDUAL ORDER ITEM ROUTE
 router.patch(
   "/cancel-item",
-  checkRole("admin", "super-admin", "store"),
+  checkRole("user", "admin", "super-admin", "store"),
   async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -732,10 +732,10 @@ router.patch(
         });
       }
 
-      if (user.roleSlug === 2 && !user.center) {
+      if (user.roleSlug === "store" && !user.store) {
         return res.status(400).json({
           status: false,
-          message: "No center assigned to this user",
+          message: "No store assigned to this user",
         });
       }
 
