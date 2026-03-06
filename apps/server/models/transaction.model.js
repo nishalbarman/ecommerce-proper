@@ -6,7 +6,7 @@ const transactionSchema = new mongoose.Schema({
   orders: { type: [mongoose.Types.ObjectId], ref: "orders", required: true },
   user: { type: mongoose.Types.ObjectId, ref: "users", required: true },
 
-  paymentStatus: { type: String, enum: ["Pending", "Paid", "Failed", "COC"] },
+  paymentStatus: { type: String, enum: ["Pending", "Paid", "Failed", "COC", "Not Completed"] },
 
   gateway: { type: String, required: true },
 
