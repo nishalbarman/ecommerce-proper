@@ -79,7 +79,7 @@ export default function page() {
 
   return (
     <>
-      <main className="min-h-[100vh] ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
+      <main className="min-h-screen ml-[3%] mr-[3%] lg:ml-[10%] lg:mr-[10%]">
         <div className="h-fill w-fill ">
           <div className="min-h-screen py-8 pt-3 px-4 sm:px-6 lg:px-8 mt-7">
             <div className="container mx-auto">

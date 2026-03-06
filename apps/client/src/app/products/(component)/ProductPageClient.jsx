@@ -359,7 +359,7 @@ export default function ProductList({ initialData, initialPage }) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         {/* Section header with pre-title bar */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center gap-2">

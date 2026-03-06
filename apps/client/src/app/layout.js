@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
         <CookiesProvider>
           <ReduxStore>
             <Navbar title={"Petal Perfection"} logo={""} />
-            <main className="min-h-screen z-[999]">{children}</main>
+            <main className="min-h-screen z-[999] bg-background">{children}</main>
             <TabBar />
             <Footer />
             <AuthModal />

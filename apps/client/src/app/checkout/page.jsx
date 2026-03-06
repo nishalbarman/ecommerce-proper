@@ -378,8 +378,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="min-h-[calc(100vh-180px)] max-sm:min-h-[calc(70vh)] mx-auto flex justify-center items-center bg-gray-50">
+    <div className="min-h-screen bg-background py-8">
+      <div className="min-h-[calc(100vh-180px)] max-sm:min-h-[calc(70vh)] mx-auto flex justify-center items-center ">
         <div className="bg-white p-8 rounded-xl shadow-md text-center">
           {/* Loader */}
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-red-500 mx-auto mb-6"></div>

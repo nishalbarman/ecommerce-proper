@@ -68,7 +68,7 @@ export default function WishlistClientPage({ initialWishlistData }) {
 
   return (
     <>
-      <main className="min-h-[100vh] container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="min-h-screen container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <>
           {/* empty wishlist display */}
           {!wishlistData?.length && (

@@ -17,8 +17,8 @@ export const cartApi = createApi({
   endpoints: (builder) => ({
     getCart: builder.query({
       query: ({ productType }) => `cart?productType=${productType || "buy"}`,
-      providesTags: ["Cart"],
-      transformResponse: (res, meta, arg) => res.data,
+      // transformResponse: (res, meta, arg) => res.data,
+      providesTags: [{ type: "Cart", id: "LIST" }],
       // transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -40,7 +40,7 @@ export const cartApi = createApi({
           productType: productType,
         },
       }),
-      invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       // transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -52,7 +52,7 @@ export const cartApi = createApi({
           body: updatedItem,
         };
       },
-      invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -66,7 +66,7 @@ export const cartApi = createApi({
           },
         };
       },
-      invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -80,7 +80,7 @@ export const cartApi = createApi({
           },
         };
       },
-      invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -90,6 +90,7 @@ export const cartApi = createApi({
         method: "PATCH",
         body: { variantId, productId },
       }),
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
     }),
 
     deleteCart: builder.mutation({
@@ -97,7 +98,8 @@ export const cartApi = createApi({
         url: `cart/one/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Cart"],
+      // invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       // transformErrorResponse: (res, meta, arg) => res.message,
     }),
 
@@ -106,7 +108,7 @@ export const cartApi = createApi({
         url: `cart/make-cart-empty`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Cart"],
+      invalidatesTags: [{ type: "Cart", id: "LIST" }],
       // transformErrorResponse: (res, meta, arg) => res.message,
     }),
   }),

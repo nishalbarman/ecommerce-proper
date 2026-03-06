@@ -145,7 +145,7 @@ const OrderViewPage = ({ params }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 max-sm:px-3 max-md:px-5 lg:px-70">
+    <div className="min-h-screen bg-background py-8 max-sm:px-3 max-md:px-5 lg:px-70">
       <div className="container mx-auto">
         <div className="mb-6">
           <Link href="/myorders">

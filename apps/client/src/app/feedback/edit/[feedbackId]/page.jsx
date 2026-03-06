@@ -164,7 +164,7 @@ export default function EditFeedbackPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[100vh] flex items-center justify-center bg-gray-50">
+      <div className="min-h-[100vh] flex items-center justify-center bg-background">
         <div
           className="h-12 w-12 rounded-full border-[3px] border-gray-200 animate-spin"
           style={{ borderTopColor: BRAND.primary }}
@@ -175,7 +175,7 @@ export default function EditFeedbackPage() {
 
   if (error) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-[60vh] flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full bg-white rounded-2xl border shadow-sm p-6 text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">Error</h2>
           <p className="text-gray-600">{error}</p>

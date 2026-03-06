@@ -181,7 +181,7 @@ export default function Address() {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-background min-h-screen">
       {/* Header */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <div className="flex items-center justify-between flex-wrap gap-3">

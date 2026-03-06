@@ -11,6 +11,11 @@
   transition: all 0.2s ease;
 }
 
+html,
+body {
+  background: oklch(0.9971 0 106.52);
+}
+
 .swiper-button-next,
 .swiper-button-prev {
   border-radius: 4px !important;
@@ -94,6 +99,7 @@ a {
 
 @theme {
   --color-primary: oklch(0.6048 0.1869 24.67);
+  --color-background: oklch(0.9971 0 106.52);
   --color-skeleton: oklch(87.13% 0.0583 135.76);
   --color-secondary: oklch(0% 0.0074 39.87);
   --color-accent: oklch(89.14% 0.172 109.35);

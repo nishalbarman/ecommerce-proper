@@ -379,7 +379,14 @@ export default function CheckoutPage() {
     } finally {
       setIsPaymentLoading(false);
     }
-  }, [Razorpay, appliedCoupon, gatewayOption, selectedAddress, searchParams, params]);
+  }, [
+    Razorpay,
+    appliedCoupon,
+    gatewayOption,
+    selectedAddress,
+    searchParams,
+    params,
+  ]);
 
   const handleCashfreePayment = useCallback(async () => {
     try {
@@ -707,7 +714,7 @@ export default function CheckoutPage() {
     isPaymentGatewayLoading
   ) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 animate-pulse">
+      <div className="min-h-screen bg-background py-8 animate-pulse">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="mb-6">
@@ -919,14 +926,14 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* COLLAPSED VIEW */}
-                {!isOpen && selectedAddressData && (
+                {!isOpen && selectedAddressData && selectedAddress && (
                   <>
                     <h3 className="text-lg max-md:text-md font-medium text-gray-800 -mt-2 mb-4">
                       Selected Address
                     </h3>
                     <div
                       onClick={() => setIsOpen((prev) => !prev)}
-                      className="flex justify-between gap-3 border border-red-500 rounded-xl p-4 bg-red-50 cursor-pointer">
+                      className="flex justify-between gap-3 border border-gray-200 bg-gray-50 rounded-xl p-4 cursor-pointer">
                       <div className="flex gap-3">
                         <input type="radio" defaultChecked={true} />
                         <div>
@@ -953,7 +960,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* EXPANDED VIEW */}
-                {(isOpen || !selectedAddress) && (
+                {(isOpen || !selectedAddress || !selectedAddressData) && (
                   <>
                     {isAddressRTKLoading ? (
                       <div className="animate-pulse space-y-4">
@@ -1041,7 +1048,7 @@ export default function CheckoutPage() {
           <div className="lg:w-1/3">
             <div className="w-full rounded-xl shadow-sm border border-gray-200">
               <div className="bg-white p-6 rounded-xl shadow-md">
-                <h2 className="text-lg font-bold text-gray-900 mb-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-5">
                   Select Payment Method
                 </h2>
 
@@ -1056,7 +1063,7 @@ export default function CheckoutPage() {
                         key={gateway._id}
                         className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
                           gatewayOption === gateway.code
-                            ? "border-red-500 bg-red-50"
+                            ? "border-gray-200 bg-gray-50"
                             : "hover:bg-gray-50"
                         }`}>
                         <div className="flex items-center gap-3">
@@ -1219,7 +1226,7 @@ export default function CheckoutPage() {
                   className={`mt-6 w-full py-4 px-6 rounded-xl font-bold text-white transition-colors text-white ${
                     !selectedAddress
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-red-500 hover:bg-red-600 cursor-pointer"
+                      : "bg-primary hover:bg-red-600 cursor-pointer"
                   }`}>
                   {isPaymentLoading ? (
                     <div className="flex items-center justify-center gap-2">

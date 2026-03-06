@@ -177,7 +177,7 @@ const MyAccountPage = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gray-50 animate-pulse">
+      <div className="bg-background animate-pulse">
         {/* Header */}
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
           <div className="flex items-center justify-between">
@@ -273,7 +273,7 @@ const MyAccountPage = () => {
 
   if (!userData) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center bg-gray-50 px-4">
+      <div className="min-h-[60vh] flex items-center justify-center bg-background px-4">
         <div className="text-center bg-white rounded-xl shadow-sm border p-6 max-w-md w-full">
           <h1 className="text-xl font-semibold mb-2 text-gray-900">
             User not found
@@ -293,7 +293,7 @@ const MyAccountPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-background min-h-screen">
       {/* Page header block */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
         <div className="flex items-center justify-between">

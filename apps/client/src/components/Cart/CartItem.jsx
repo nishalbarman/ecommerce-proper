@@ -10,6 +10,7 @@ import { WishlistApi, CartApi } from "@/redux";
 import { FiHeart, FiTrash2, FiChevronDown } from "react-icons/fi";
 import { IoIosClose } from "react-icons/io";
 import { useTopLoader } from "nextjs-toploader";
+import { cartApi } from "@/redux/apis/cartApi";
 
 function CartItem({ item }) {
   const {
@@ -158,7 +159,7 @@ function CartItem({ item }) {
     <>
       {/* Main Cart Item */}
       <div className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden mb-4">
-        <div className="flex flex-col md:flex-row p-4 gap-4">
+        <div className="flex max-[330px]:flex-col flex-row p-4 gap-4">
           {/* Product Image */}
           <div
             style={{
@@ -166,7 +167,7 @@ function CartItem({ item }) {
                 selectedVariant?.previewImage?.bgColor ||
                 product?.previewImage?.bgColor,
             }}
-            className="w-full sm:w-32 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
+            className="max-[330px]:w-full w-25 min-sm:w-32  flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
             <Link href={`/products/view/${product?._id}`}>
               <img
                 className="w-full h-32 object-contain hover:scale-105 transition-transform duration-300 select-none"
@@ -231,7 +232,7 @@ function CartItem({ item }) {
             )}
 
             {/* Actions */}
-            <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="hidden mt-4 min-sm:flex flex-wrap items-center gap-3">
               {product?.isVariantAvailable && (
                 <button
                   onClick={() =>
@@ -276,6 +277,55 @@ function CartItem({ item }) {
                 Move to wishlist
               </button>
             </div>
+          </div>
+        </div>
+
+        <div className="p-4 pt-0">
+          {/* Actions */}
+          <div className="min-sm:hidden flex flex-wrap items-center gap-3">
+            {product?.isVariantAvailable && (
+              <button
+                onClick={() =>
+                  variantModalRef.current?.classList.remove("hidden")
+                }
+                className="flex items-center gap-1 px-3 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm cursor-pointer h-full">
+                <span className="text-xs">{`${selectedVariant.color} - ${selectedVariant.size}`}</span>
+                <FiChevronDown size={16} />
+              </button>
+            )}
+
+            <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                onClick={() =>
+                  handleQuantityChange(Math.max(1, productQuantity - 1))
+                }
+                className="px-3 py-1 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed"
+                disabled={productQuantity <= 1}>
+                -
+              </button>
+              <span className="px-4 py-1 text-center text-xs min-w-[40px]">
+                {productQuantity}
+              </span>
+              <button
+                onClick={() => handleQuantityChange(productQuantity + 1)}
+                className="px-3 py-1 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer disabled:cursor-not-allowed">
+                +
+              </button>
+            </div>
+
+            <button
+              onClick={handleAddToWishlist}
+              className="mx-auto flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-pink-500 transition-colors cursor-pointer">
+              <FiHeart
+                size={16}
+                className={
+                  wishlistMappedItems?.hasOwnProperty(product?._id)
+                    ? "fill-pink-500 text-pink-500"
+                    : ""
+                }
+              />
+              Move to wishlist
+            </button>
           </div>
         </div>
 

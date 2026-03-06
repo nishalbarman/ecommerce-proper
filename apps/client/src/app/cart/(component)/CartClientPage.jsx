@@ -27,6 +27,7 @@ import { useGetAllPaymentGatewaysQuery } from "@/redux/apis/paymentGatewayApi";
 import { setSelectedPaymentMethod } from "@/redux/slices/selectedPaymentMethod";
 import Loading from "../load";
 import { useTopLoader } from "nextjs-toploader";
+import toast from "react-hot-toast";
 
 export default function CartClientPage({ initialCartData }) {
   const { useGetCartQuery } = CartApi;
@@ -42,6 +43,7 @@ export default function CartClientPage({ initialCartData }) {
       shippingPrice,
       requiredMinimumAmountForFreeDelivery,
       isFreeDeliveryMinAmntAvailable,
+      totalCount,
     } = {},
     isLoading: isUserCartRtkLoading,
     error: userCartRtkError,
@@ -60,10 +62,12 @@ export default function CartClientPage({ initialCartData }) {
         loader.start();
       },
       onQueryEnd: () => {
-        loader.setProgress(1);
+        loader.done();
       },
     },
   );
+
+  console.log("What is quantity here in cart page", totalCount);
 
   const { data: userWishlistItems } = useGetWishlistQuery({
     productType: "buy",
@@ -216,11 +220,15 @@ export default function CartClientPage({ initialCartData }) {
     dispatch(clearCouponData());
   };
 
-  const handleRemoveAllCart = () => {
+  const handleRemoveAllCart = async () => {
     try {
-      removeALlCart();
+      loader.start();
+      await removeALlCart().unwrap();
     } catch (error) {
       console.error("Failed to remove all items from cart", error);
+      toast.error("Failed to remove all items from cart");
+    } finally {
+      loader.done();
     }
   };
 
@@ -337,7 +345,7 @@ export default function CartClientPage({ initialCartData }) {
 
   return (
     <>
-      <main className="min-h-screen bg-gray-50 ">
+      <main className="min-h-screen bg-background ">
         <div className="h-fill w-fill ">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Empty Cart State */}
@@ -386,7 +394,7 @@ export default function CartClientPage({ initialCartData }) {
                         className="text-blue-500 mr-3 flex-shrink-0"
                         size={20}
                       />
-                      <p className="text-blue-800">
+                      <p className="text-blue-800 max-sm:text-sm">
                         Get <span className="font-semibold">FREE delivery</span>{" "}
                         on orders over ₹{requiredMinimumAmountForFreeDelivery}
                       </p>
@@ -426,7 +434,7 @@ export default function CartClientPage({ initialCartData }) {
                           </h3>
                           <div
                             onClick={() => setIsOpen((prev) => !prev)}
-                            className="flex justify-between gap-3 border border-red-500 rounded-xl p-4 bg-red-50">
+                            className="flex justify-between gap-3 border border-gray-200 bg-gray-50 rounded-xl p-4 cursor-pointer">
                             <div className="flex gap-3">
                               <input type="radio" defaultChecked={true} />
                               <div>
@@ -538,7 +546,7 @@ export default function CartClientPage({ initialCartData }) {
 
                   <div className="w-full">
                     <div className="bg-white p-6 rounded-xl shadow-md">
-                      <h2 className="text-lg font-bold text-gray-900 mb-6">
+                      <h2 className="text-lg font-bold text-gray-900 mb-5">
                         Select Payment Method
                       </h2>
 
@@ -553,7 +561,7 @@ export default function CartClientPage({ initialCartData }) {
                               key={gateway._id}
                               className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
                                 gatewayOption === gateway.code
-                                  ? "border-red-500 bg-red-50"
+                                  ? "border-gray-200 bg-gray-50"
                                   : "hover:bg-gray-50"
                               }`}>
                               <div className="flex items-center gap-3">
