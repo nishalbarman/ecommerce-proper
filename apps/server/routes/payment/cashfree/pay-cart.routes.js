@@ -24,7 +24,6 @@ const cashfree = new Cashfree(
   process.env.CASHFREE_SECRET_KEY,
 );
 
-
 router.post(
   "/:productType",
   checkRole("user", "admin", "super-admin", "store"),
@@ -113,10 +112,7 @@ router.post(
 
       let response = null;
       try {
-        response = await cashfree.PGCreateOrder(orderRequest, "2025/01/01", {
-          "x-client-id": process.env.CASHFREE_APP_ID,
-          "x-client-secret": process.env.CASHFREE_SECRET_KEY,
-        });
+        response = await cashfree.PGCreateOrder(orderRequest, "2025/01/01");
       } catch (error) {
         console.log("Error in creating order with transaction: ", error);
         return res.status(500).json({ status: false, message: error.message });
