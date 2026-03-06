@@ -18,12 +18,38 @@ const orderGroupSchema = new mongoose.Schema(
       couponDiscountGiven: { type: Number, default: 0 },
       shippingPrice: { type: Number, default: 0 },
       groupFinalOrderPrice: { type: Number, default: 0 },
+      remainingOrderValue: { type: Number, default: 0 },
     },
 
     appliedCoupon: {
       type: mongoose.Types.ObjectId,
       required: false,
       ref: "coupons",
+    },
+
+    appliedCouponSnapshot: {
+      couponCode: String,
+      discountType: { type: String, enum: ["percentage", "flat"] },
+      discountValue: Number,
+      maxDiscount: Number,
+      minCartValue: Number,
+    },
+
+    refundDetails: {
+      totalRefunded: { type: Number, default: 0 },
+      refundHistory: [
+        {
+          order: { type: mongoose.Types.ObjectId, ref: "orders" },
+          amount: Number,
+          reason: String,
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+    },
+
+    couponRecalculated: {
+      type: Boolean,
+      default: false,
     },
 
     shippingApplied: { type: Boolean, default: false },
@@ -62,6 +88,8 @@ const orderGroupSchema = new mongoose.Schema(
         "On The Way",
         "PickUp Ready",
         "Delivered",
+        "Payment Failed",
+        "Not Completed",
       ],
     },
 

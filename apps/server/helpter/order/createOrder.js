@@ -60,7 +60,7 @@ const createOrderWithTransaction = async ({
           // center: centerAddresses[0]._id,
           center: null,
 
-          orderStatus: "Pending",
+          orderStatus: "Not Completed",
           paymentMode: "Prepaid",
           shipmentType: "delivery_partner",
         };
@@ -108,7 +108,7 @@ const createOrderWithTransaction = async ({
             user: userId,
             orders: orderIds,
 
-            paymentStatus: "Pending",
+            paymentStatus: "Not Completed",
             gateway: gateway,
 
             pricingDetails: {
@@ -134,7 +134,7 @@ const createOrderWithTransaction = async ({
             user: userId,
             orders: orderIds,
 
-            paymentStatus: "Pending",
+            paymentStatus: "Not Completed",
 
             previewImages: orderPreviewImages,
 
@@ -158,7 +158,7 @@ const createOrderWithTransaction = async ({
 
             orderType,
 
-            orderStatus: "Pending",
+            orderStatus: "Not Completed",
             paymentMode: "Prepaid",
             shipmentType: "delivery_partner",
 

@@ -29,7 +29,7 @@ router.post("/", async (req, res) => {
       validateWebhookSignature(
         JSON.stringify(req.body),
         webhookSignature,
-        webhookSecret
+        webhookSecret,
       )
     ) {
       const {
@@ -98,12 +98,12 @@ router.post("/", async (req, res) => {
           // Update PaymentTransModel
           await PaymentTransModel.updateOne(
             { paymentTransactionID: paymentTxnId },
-            { $set: { paymentStatus: "Paid" } }
+            { $set: { paymentStatus: "Paid" } },
           );
 
           await OrderGroup.updateOne(
             { paymentTransactionID: paymentTxnId },
-            { $set: { paymentStatus: "Paid", orderStatus: "On Progress" } }
+            { $set: { paymentStatus: "Paid", orderStatus: "On Progress" } },
           );
 
           // Delete cart items
@@ -167,7 +167,9 @@ router.post("/", async (req, res) => {
         case "payment.failed":
           await OrderModel.updateMany(
             { paymentTxnId: paymentTxnId },
-            { $set: { paymentStatus: "Failed", orderStatus: "Rejected" } }
+            {
+              $set: { paymentStatus: "Failed", orderStatus: "Payment Failed" },
+            },
           );
 
           await PaymentTransModel.updateOne(
@@ -176,12 +178,11 @@ router.post("/", async (req, res) => {
               $set: {
                 paymentStatus: "Failed",
               },
-            }
+            },
           );
 
           return res.status(200).json({ message: "Failed: Status Updated" });
 
-          break;
         default:
           return res
             .status(200)

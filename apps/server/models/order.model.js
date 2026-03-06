@@ -28,6 +28,26 @@ const orderSchema = new mongoose.Schema(
 
     originalPrice: { type: Number, required: true },
     discountedPrice: { type: Number, required: true },
+    couponDiscount: {
+      type: Number,
+      default: 0,
+    },
+
+    finalPrice: {
+      type: Number,
+      // required: true,
+    },
+
+    refundAmount: {
+      type: Number,
+      default: 0,
+    },
+
+    refundStatus: {
+      type: String,
+      enum: ["No Refund", "Refund Requested", "Refunded"],
+      default: "No Refund",
+    },
 
     address: {
       fullAddress: {
@@ -63,6 +83,8 @@ const orderSchema = new mongoose.Schema(
         "Shipped",
         "PickUp Ready",
         "Delivered",
+        "Payment Failed",
+        "Not Completed",
       ],
     },
 
