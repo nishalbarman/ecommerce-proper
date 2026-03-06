@@ -562,7 +562,7 @@ export default function CartClientPage({ initialCartData }) {
                               className={`flex items-center justify-between border p-4 rounded-lg cursor-pointer transition ${
                                 gatewayOption === gateway.code
                                   ? "border-gray-200 bg-gray-50"
-                                  : "hover:bg-gray-50"
+                                  : "hover:bg-gray-50 border-gray-200"
                               }`}>
                               <div className="flex items-center gap-3">
                                 <input

@@ -798,7 +798,7 @@ export default function ViewOneProductClient({ initialProductData }) {
                 {product &&
                   product?.isVariantAvailable &&
                   productVariants?.length > 0 && (
-                    <div className="border shadow p-4 rounded-md border-primary">
+                    <div className="border border-gray-200 shadow p-4 rounded-md mb-6">
                       <input
                         type="hidden"
                         name="productSlug"
@@ -811,7 +811,7 @@ export default function ViewOneProductClient({ initialProductData }) {
                         <div className="flex flex-wrap gap-2">
                           {/* Size Selection */}
                           <div className="w-full">
-                            <h3 className="text-lg font-semibold mb-2">Size</h3>
+                            <h3 className="max-sm:text-sm text-lg font-semibold mb-2">Size</h3>
                             <div className="flex flex-wrap gap-2">
                               {availableSizes.map((size, index) => (
                                 <button
@@ -821,7 +821,7 @@ export default function ViewOneProductClient({ initialProductData }) {
                                   disabled={
                                     !isCombinationValid(size, selectedColor)
                                   }
-                                  className={`px-4 py-2 border rounded-lg cursor-pointer ${
+                                  className={`px-4 py-2 max-sm:text-sm border rounded-lg cursor-pointer ${
                                     selectedSize === size
                                       ? "text-white bg-[rgb(219,69,69)]"
                                       : "bg-white text-black hover:bg-gray-100"
@@ -838,7 +838,7 @@ export default function ViewOneProductClient({ initialProductData }) {
 
                           {/* Color Selection */}
                           <div className="w-full mt-4">
-                            <h3 className="text-lg font-semibold mb-2">
+                            <h3 className="max-sm:text-sm text-lg font-semibold mb-2">
                               Color
                             </h3>
                             <div className="flex flex-wrap gap-2">
@@ -847,7 +847,7 @@ export default function ViewOneProductClient({ initialProductData }) {
                                   key={index}
                                   type="button"
                                   onClick={() => setSelectedColor(color)}
-                                  className={`px-4 py-2 border rounded-lg cursor-pointer ${
+                                  className={`px-4 py-2 max-sm:text-sm max-sm:py-2 border rounded-lg cursor-pointer ${
                                     selectedColor === color
                                       ? "text-white bg-[rgb(219,69,69)]"
                                       : "bg-white text-black hover:bg-gray-100"

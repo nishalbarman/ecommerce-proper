@@ -44,7 +44,46 @@ export const productApi = createApi({
         body: { productType: "buy" }, // or send data if needed
       }),
     }),
+
+    getBuySingleProduct: builder.query({
+      query: ({ productSlug, productVariantId }) => {
+        if (productVariantId) {
+          return {
+            url: `products/view-variant/${productVariantId}`,
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          };
+        }
+
+        return {
+          url: `products/view/${productSlug}`,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: { productType: "buy" }, // or send data if needed
+        };
+      },
+      transformResponse: (response) => {
+        // If the response is already in JSON format, return it directly
+        if (response.hasOwnProperty("variant")) {
+          return {
+            ...response.variant.product,
+            ...response.variant,
+          };
+        }
+        return {
+          ...data?.proudct,
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetProductsQuery, useGetOneProductQuery } = productApi;
+export const {
+  useGetProductsQuery,
+  useGetOneProductQuery,
+  useGetBuySingleProductQuery,
+} = productApi;

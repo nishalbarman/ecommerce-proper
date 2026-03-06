@@ -34,7 +34,7 @@ const allowedOrigins = {
   "https://www.cartshopping.in": true,
 };
 
-const maxAge = (24 * 60 * 60 * 1000) * 15; // 15 days
+const maxAge = 24 * 60 * 60 * 1000 * 15; // 15 days
 
 const corsOptions = {
   origin: function (origin, callback) {
