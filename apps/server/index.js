@@ -21,18 +21,7 @@ const dbConnect = require("./config/dbConfig");
 //   message: { message: "Take a break dear, you are sending too much requests." },
 // });
 
-const allowedOrigins = {
-  "http://localhost:5000": true,
-  "http://localhost:3000": true,
-
-  "https://petal--perfection.vercel.app": true,
-  "https://petalperfection.cartshopping.in": true,
-
-  "https://trishna.vercel.app": true,
-
-  "https://cartshopping.in": true,
-  "https://www.cartshopping.in": true,
-};
+const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS || "{}"); // ALLOWED_ORIGINS should be a JSON string like '{"http://example.com": true, "http://another.com": true}'
 
 const maxAge = 24 * 60 * 60 * 1000 * 15; // 15 days
 
