@@ -11,17 +11,19 @@ const dbConnect = require("./config/dbConfig");
 
 // dbConnect(); // connect to databse
 
-// const limiter = rateLimit({
-//   windowMs: 1 * 60 * 1000, // 1 minutes
-//   // limit: 3600, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
-//   limit: 240, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
-//   standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-//   // store: ... , // Redis, Memcached, etc. See below.
-//   message: { message: "Take a break dear, you are sending too much requests." },
-// });
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  // limit: 3600, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
+  limit: 240, // Limit each IP to 3600 requests per `window` (here, per 1 minutes).
+  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Redis, Memcached, etc. See below.
+  message: { message: "Take a break dear, you are sending too much requests." },
+});
 
 const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS || "{}"); // ALLOWED_ORIGINS should be a JSON string like '{"http://example.com": true, "http://another.com": true}'
+
+console.log("ALLOWED_ORIGINS:", allowedOrigins);
 
 const maxAge = 24 * 60 * 60 * 1000 * 15; // 15 days
 
@@ -36,9 +38,9 @@ const corsOptions = {
     }
 
     // ✅ allow all subdomains of cartshopping.in
-    if (origin.endsWith(".cartshopping.in")) {
-      return callback(null, origin);
-    }
+    // if (origin.endsWith(".cartshopping.in")) {
+    //   return callback(null, origin);
+    // }
 
     return callback(new Error("Not allowed by CORS"));
   },
@@ -76,7 +78,7 @@ app.use(async (req, res, next) => {
 // }
 
 app.use(cookieParser());
-// app.use(limiter);
+app.use(limiter);
 
 // payment hooks
 /!* these route need raw json data so thats why placing it before experss.json() *!/;

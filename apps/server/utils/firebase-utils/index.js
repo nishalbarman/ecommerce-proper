@@ -2,12 +2,11 @@ const { v4: uuidv4 } = require("uuid");
 const { getStorage } = require("firebase-admin/storage");
 const admin = require("firebase-admin");
 
-const { decryptToString } = require("./secure-file");
+const { decryptToString } = require("./encrypter-decrypter");
 
 // const serviceAccount = require("./service-account-key.json");
-const secureServiceAccountEntry = require("../../service-account.js");
-
-console.log(secureServiceAccountEntry);
+const secureServiceAccountEntry = JSON.parse(process.env.SERVICE_ACCOUNT_FILE);
+//  || require("../../service-account.js");
 
 const jsonStr = decryptToString(secureServiceAccountEntry);
 const serviceAccount = JSON.parse(jsonStr);
@@ -17,7 +16,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-const storageBucketName = "renting-app-86d7d.appspot.com";
+const storageBucketName = process.env.STORAGE_BUCKET_NAME || "ecommerce-proper.appspot.com";
 
 const storage = getStorage();
 const bucket = storage.bucket(storageBucketName);
