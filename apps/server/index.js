@@ -21,7 +21,8 @@ const limiter = rateLimit({
   message: { message: "Take a break dear, you are sending too much requests." },
 });
 
-const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS || "{}"); // ALLOWED_ORIGINS should be a JSON string like '{"http://example.com": true, "http://another.com": true}'
+console.log("ALLOWED_ORIGINS STARTS:");
+const allowedOrigins = JSON.parse(process.env.ALLOWED_ORIGINS);
 
 console.log("ALLOWED_ORIGINS:", allowedOrigins);
 
