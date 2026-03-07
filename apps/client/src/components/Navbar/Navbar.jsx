@@ -29,8 +29,9 @@ async function Navbar({ title }) {
     const webConfig = await fetch(
       `${process.env.NEXT_PUBLIC_DOMAIN_URL}/api/proxy/web-config`,
       {
-        cache: "force-cache",
-        revalidate: 3600,
+        cache: "no-cache",
+        // cache: "force-cache",
+        // revalidate: 3600,
       },
     );
     webData = await webConfig.json();

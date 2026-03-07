@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
         <Toaster />
         <CookiesProvider>
           <ReduxStore>
-            <Navbar title={"Petal Perfection"} logo={""} />
+            <Navbar title={process.env.BRAND_NAME} logo={""} />
             <main className="min-h-screen z-[999] bg-background">{children}</main>
             <TabBar />
             <Footer />
